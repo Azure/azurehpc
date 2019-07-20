@@ -13,8 +13,11 @@ $ azhpc-init -c $azhpc_dir/tutorials/cfd_workflow -d cfd_workflow
 The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
 
 ```
-azhpc-init -c $azhpc_dir/tutorials/cfd_workflow -d cfd_workflow -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret]
+azhpc-init -c $azhpc_dir/tutorials/cfd_workflow -d cfd_workflow \
+    -v location=southcentralus,resource_group=<RESOURCE-GROUP>,win_password=<WIN-PASSWORD>
 ```
+
+> Note: Replace <RESOURCE-GROUP> and <WIN-PASSWORD> (the password would ideally be in Key Vault)
 
 Create the cluster 
 
