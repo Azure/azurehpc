@@ -1,0 +1,6 @@
+{
+    "install_script": "install_openfoam.sh",
+    "args": [
+        "https://azhpcscus.blob.core.windows.net/apps/OpenFOAM-6/openfoam-6_ipmi2018_gcc82.tgz"
+    ]
+}

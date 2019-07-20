@@ -1,0 +1,47 @@
+{
+    "location": "westeurope",
+    "resource_group": "variables.resource_group",
+    "install_from": "localhost",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "resource_group": "<NOT-SET>"
+    },
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/22",
+            "storage": "10.2.4.0/24"
+        }
+    },
+    "storage": {
+        "hpcnetapp": {
+            "type": "anf",
+            "subnet": "storage",
+            "pools": {
+                "anfpool" : {
+                    "size": 10,
+                    "service_level": "Premium",
+                    "volumes": {
+                        "anfvol1" : {
+                            "mount": "/mnt/netapp/foo",
+                            "size": 4
+                        },
+                        "anfvol2" : {
+                            "mount": "/mnt/netapp/bar",
+                            "size": 2
+                        },
+                        "anfvol3" : {
+                            "mount": "/mnt/netapp/baz",
+                            "size": 4
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "resources": {
+    },
+    "install": [
+    ]
+}

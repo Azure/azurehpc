@@ -1,0 +1,3 @@
+{
+    "install_script": "install_openfoam_6_impi2018_gcc82.sh"
+}

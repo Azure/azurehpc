@@ -1,0 +1,138 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables" : {
+        "image" : "OpenLogic:CentOS:7.6:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vnet_resource_group": "variables.resource_group",
+        "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:17763.557.73",
+        "win_password": "<NOT-SET>"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.1.0/24",
+            "viz": "10.2.2.0/24",
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_HB60rs",
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "data_disks": [2048, 2048],
+            "tags": [
+                "cndefault",
+                "nfsserver",
+                "pbsserver",
+                "loginnode",
+                "localuser",
+                "disable-selinux"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "Standard_HB60rs",
+            "instances": 2,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "nfsclient",
+                "pbsclient",
+                "cndefault",
+                "localuser",
+                "app_opm_req",
+                "disable-selinux"
+            ]
+        },
+        "nvnode": {
+            "type": "vm",
+            "public_ip": "true",
+            "password": "variables.win_password",
+            "vm_type": "Standard_NV6",
+            "image": "variables.nv_image",
+            "subnet": "viz",
+            "tags": [
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "nfsserver.sh",
+            "tag": "nfsserver",
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": false
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
+            "sudo": false
+        },
+        {
+           "script": "app_opm_req.sh",
+           "tag": "app_opm_req",
+           "sudo": true
+        }
+    ],
+    "post_install": {
+        "script": "setup_win.sh",
+        "args": [
+            "variables.resource_group",
+            "nvnode",
+            "headnode"
+        ]
+    }
+}

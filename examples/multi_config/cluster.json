@@ -1,0 +1,45 @@
+{
+    "location": "westeurope",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables" : {
+        "resource_group": "<NOT-SET>",
+        "image" : "OpenLogic:CentOS:7.6:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest"
+    },
+    "vnet": {
+        "resource_group": "paul-azhpc-anftest",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/22",
+            "storage": "10.2.4.0/24"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "mount-anfpool",
+                "disable-selinux"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "auto_netappfiles_mount_anfpool.sh",
+            "tag": "mount-anfpool",
+            "sudo": true
+        }
+    ]
+}
