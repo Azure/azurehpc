@@ -17,7 +17,7 @@ azhpc-init -c $azhpc_dir/tutorials/cfd_workflow -d cfd_workflow \
     -v location=southcentralus,resource_group=<RESOURCE-GROUP>,win_password=<WIN-PASSWORD>
 ```
 
-> Note: Replace <RESOURCE-GROUP> and <WIN-PASSWORD> (the password would ideally be in Key Vault)
+> Note: Replace \<RESOURCE-GROUP> and \<WIN-PASSWORD> (the password would ideally be in Key Vault)
 
 Create the cluster 
 
