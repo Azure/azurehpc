@@ -191,20 +191,6 @@ Usage:
 | --vars VAR=VAL    | -v    | The variables to replace (multiple with commas)   |
 | --show            | -s    | Show all variables that are not set in the config |
 
-### azhpc-install
-
-This is a utility to install one of the apps provided in this repository.
-
-Usage:
-
-    azhpc-install [options]
-
-| Option         | Short | Description                                   |
-|----------------|:-----:|-----------------------------------------------|
-| --help         | -h    | Display help message                          |
-| --config FILE  | -c    | The config file to use (default: config.json) |
-| --app FILE     | -a    | The config file for the app                   |
-
 ### azhpc-resize
 
 This should be used on a running setup where you can resize an existing VMSS.  After the VMSS has been resized an install script will be generated and run on any new VMs.
