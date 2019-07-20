@@ -72,7 +72,7 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 
 > Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
 
-##Install OpenFOAM from tarball
+## Install OpenFOAM from tarball
 
 This install will download the binaries and install:
 
@@ -82,7 +82,7 @@ azhpc-run -u hpcuser apps/openfoam_org/install_openfoam.sh```
 
 > Alternatively the `install_openfoam_6_impi2018_gcc82.sh` script will build from source.
 
-# Paraview Installation
+## Paraview Installation
 
 This will install the Windows version of ParaView in the shared directory which will be mounted on the Windows VM.
 
