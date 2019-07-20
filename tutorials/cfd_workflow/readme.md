@@ -18,22 +18,18 @@ azhpc-init -c $azhpc_dir/tutorials/cfd_workflow -d cfd_workflow -v location=sout
 
 Create the cluster 
 
-```
-cd cfd_workflow
-```
+    cd cfd_workflow
 
 Note: Before running the next command make sure that you are running in a region that has Hc instances and you have quota there. Alternatively, you can change the instance type to Hb an run in a region where you have quota
 
-```
-azhpc-build
-```
+    azhpc-build
 
 Allow ~10 minutes for deployment.
 
 To check the status of the VMs run
-```
-azhpc-status
-```
+
+    azhpc-status
+
 Connect to the headnode and check PBS and NFS
 
 ```
@@ -66,9 +62,8 @@ exit
 
 First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
 
-```
-azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
-```
+    azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
+
 
 > Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
 
@@ -76,9 +71,7 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 
 This install will download the binaries and install:
 
-```
-azhpc-run -u hpcuser apps/openfoam_org/install_openfoam.sh```
-```
+    azhpc-run -u hpcuser apps/openfoam_org/install_openfoam.sh
 
 > Alternatively the `install_openfoam_6_impi2018_gcc82.sh` script will build from source.
 
@@ -86,26 +79,24 @@ azhpc-run -u hpcuser apps/openfoam_org/install_openfoam.sh```
 
 This will install the Windows version of ParaView in the shared directory which will be mounted on the Windows VM.
 
-```
-azhpc-run -u hpcuser apps/paraview/install_paraview_v5.6.1.sh
-```
+    azhpc-run -u hpcuser apps/paraview/install_paraview_v5.6.1.sh
 
 ## Run OpenFOAM 
 
 OpenFOAM is run on the headnode. First, Log-in to headnode as hpcuser
-```
-azhpc-connect -u hpcuser headnode
-```
+
+    azhpc-connect -u hpcuser headnode
+
 
 Run motorbike_2m model
-```
-qsub -l select=2:ncpus=60:mpiprocs=60 -N OF_motorbike_2m $HOME/openfoam_org/motorbike_2m.sh
-```
+
+    qsub -l select=2:ncpus=60:mpiprocs=60 -N OF_motorbike_2m $HOME/openfoam_org/motorbike_2m.sh
+
 
 On 2 Hb nodes (120 cores) it takes ~3-4 min to run
-````
-qstat -aw
-````
+
+    qstat -aw
+
 
 # Remote Visualization
 
