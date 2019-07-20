@@ -93,8 +93,10 @@ OpenFOAM is run on the headnode. First, Log-in to headnode as hpcuser
 
 Run motorbike_2m model
 
-    qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl -N OF_motorbike_2m $HOME/apps/openfoam_org/motorbike_2m.sh
-
+```
+qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl \
+    -N OF_motorbike_2m $HOME/apps/openfoam_org/motorbike_2m.sh
+```
 
 On 2 Hb nodes (120 cores) it takes ~3-4 min to run
 
