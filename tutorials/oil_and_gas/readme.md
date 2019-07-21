@@ -3,7 +3,7 @@
 This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1 exporting a 4TB NFS space and multiple CentOS 7.6 HB60rs compute nodes; and a Windows visualization node.
 
 >NOTE: 
-- MAKE SURE YOU HAVE FOLLOWED THE STEPS IN [prerequisite](../prerequisites.md) before proceeding here
+- MAKE SURE you have followed the steps in [prerequisite](../prerequisites.md) before proceeding here
 
 First initialise a new project.  AZHPC provides the `azhpc-init` command that will help here.  Running with the `-s` parameter will show all the variables that need to be set, e.g.
 
@@ -56,7 +56,7 @@ df -h
 ```
 
 
-Return to the deployment node to install applations
+Return to the deployment node to install applications
 ```
 exit
 ```
