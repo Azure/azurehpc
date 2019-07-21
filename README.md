@@ -288,10 +288,10 @@ This can be accessed in the config file using the following value:
 
 The private key needs to have access rights of 0600; when using WSL on the NTFS drive (c: drive); that is by default not allowed. To get this working: add the metadata option to the mount:
 
-'''
+```
 sudo umount /mnt/c
 sudo mount -t drvfs C: /mnt/c -o metadata
-'''
+```
 
 # Contributing
 
