@@ -1,6 +1,6 @@
 ## Open your Cloud Shell environment
 
-Clone the **azhpc** repo
+Clone the **azurehpc** repo
 
 ```
 git clone git@github.com:Azure/azurehpc.git
