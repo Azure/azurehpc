@@ -2,17 +2,17 @@
 
 ## Overview
 
-This project is aimed at simplifiying deployment and setup for HPC environments.  They key motivation is:
+This project is aimed at simplifiying deployment and setup for HPC environments in Azure.  They key motivation is:
 
 * __Automation__
-* Flexability
+* Flexibility
 * Speed of deployment
 
 The basis for the project is a single JSON config file and some shell scripts for installing.  The key point about the config file is that you can describe network, resources and installation steps.  Tags are applied to resources that determines which resources run each install step.
 
 The `azhpc_*` scripts only require the azure cli and a few utilities (bash, jq and ssh).
 
-All of this is available in the Cloud Shell.  Alternatively you can run on a Linux VM on Azure or from the Windows Ubunutu Shell.
+All of this is available in the Cloud Shell.  Alternatively you can run on a Linux VM on Azure or from the Windows Ubuntu Shell.
 
 > Note: you can also install `dot` (part of the graphviz pacakge) if you would like to use `azhpc-view`.
 
