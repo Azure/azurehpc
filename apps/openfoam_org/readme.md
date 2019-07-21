@@ -1,24 +1,28 @@
-#OpenFOAM installation and running instructions
+# OpenFOAM installation and running instructions
 
-##Prerequisites
+First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
+
+    azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 
 
-##Install OpenFOAM from source
+> Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
+
+## Install OpenFOAM from source
 
 For this the headnode needs to be a HC node with CentOS-HPC-7.6 upwards
 
 ```
-azhpc-install -a '$azhpc_dir/apps/openfoam_org/full_openfoam.json'
+azhpc-run -u hpcuser $azhpc_dir/apps/openfoam_org/full_openfoam.sh
 ```
 
 
-##Install OpenFOAM from tarball
+## Install OpenFOAM from tarball
 
 ```
-azhpc-install -a '$azhpc_dir/apps/openfoam_org/tar_openfoam.json'
+azhpc-run -u hpcuser $azhpc_dir/apps/openfoam_org/tar_openfoam.sh
 ```
 
-##Run OpenFOAM 
+## Run OpenFOAM 
 
 OpenFOAM is run on the headnode. First, Log-in to headnode as hpcuser (using "azhpc-connect -u hpcuser headnode").
 Then git clone the azhpc repo
