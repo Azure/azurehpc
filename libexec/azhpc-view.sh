@@ -103,7 +103,7 @@ EOF
     done
 
 # storage loop
-for storage_name in $(jq -r ".storage | to_entries[] | select(.value.subnet==\"$subnet_name\") | .key" config.json ); do 
+for storage_name in $(jq -r ".storage | to_entries[] | select(.value.subnet==\"$subnet_name\") | .key" config.json 2>/dev/null); do 
         read_value storage_type ".storage.$storage_name.type"
 
         # pool loop
@@ -165,3 +165,128 @@ fi
 
 dot -Tpng $output_file >diagram.png
 status "written diagram.png"
+
+if [ "$DO_INSTALL_DIAGRAM" = "" ]; then
+    exit 0
+fi
+
+
+
+function make_dot_name() {
+    dot_name=$(sed 's/-/_/g;s/\./_/g' <<< $1)
+}
+
+resource_to_tags=()
+tags_to_script=()
+
+output_file=install.dot
+
+cat <<EOF >$output_file
+digraph D {
+    splines=false;
+    rank="LR";
+    nodesep=0.25;
+EOF
+
+cat <<EOF >>$output_file
+    subgraph cluster_resources {
+        margin=50;
+        label="Resources";
+        rank="same";
+        edge[style="invisible",dir="none"];
+EOF
+resource_dot_names=()
+for resource_name in $(jq -r '.resources | keys | @tsv' config.json); do
+    make_dot_name $resource_name
+    cat <<EOF >>$output_file
+        resource_$dot_name [ label="$resource_name", shape="box", width=3 ];
+EOF
+    resource_dot_names+=(resource_$dot_name)
+    resource_dot_name=resource_$dot_name
+    for tag in $(jq -r ".resources.$resource_name.tags | @tsv" config.json); do
+        make_dot_name $tag
+        resource_to_tags+=("$resource_dot_name:e -> $dot_name:w")
+    done
+done
+
+if [ "${#resource_dot_names[@]}" -gt "1" ]; then
+    echo "${resource_dot_names[@]};" | sed 's/ /->/g' >> $output_file
+fi
+cat <<EOF >>$output_file
+    }
+EOF
+
+cat <<EOF >>$output_file
+    subgraph cluster_tags {
+        margin=50;
+        label="Tags";
+        rank="same";
+        edge[style="invisible",dir="none"];
+EOF
+tag_dot_names=()
+#for tag_name in $(jq -r "[.resources[].tags[]] | unique | @tsv" config.json); do
+for tag_name in $(jq -r ".install[].tag" config.json); do
+    make_dot_name $tag_name
+    tag_dot_names+=($dot_name)
+    cat <<EOF >>$output_file
+        $dot_name [ label="$tag_name", shape="box", width=3 ];
+EOF
+done
+
+if [ "${#tag_dot_names[@]}" -gt "1" ]; then
+    echo "${tag_dot_names[@]};" | sed 's/ /->/g' >> $output_file
+fi
+
+cat <<EOF >>$output_file
+    }
+EOF
+
+
+cat <<EOF >>$output_file
+    subgraph cluster_install {
+        margin=50;
+        label="Install Steps"
+EOF
+install_steps=$(jq -r '.install | length' config.json)
+for install_step in $(seq 0 $(( $install_steps - 1 )) ); do
+    read_value script_name ".install[$install_step].script"
+    cat <<EOF >>$output_file
+        step$install_step [ label="Step $(($install_step + 1)): $script_name", shape="box", width=3 ];
+EOF
+    read_value tag_name ".install[$install_step].tag"
+    make_dot_name $tag_name
+    tags_to_script+=("$dot_name:e -> step$install_step:w")
+done
+cat <<EOF >>$output_file
+    }
+EOF
+
+# resource to tag arrows
+for edge in "${resource_to_tags[@]}"; do
+    cat <<EOF >>$output_file
+    $edge [constraint=false];
+EOF
+done
+
+# tag to script arrows
+for edge in "${tags_to_script[@]}"; do
+    cat <<EOF >>$output_file
+    $edge [constraint=false];
+EOF
+done
+
+# install step arrows
+if [ "$install_steps" -gt "1" ]; then
+    for install_step in $(seq 1 $(( $install_steps - 1 )) ); do
+        cat <<EOF >>$output_file
+    step$(($install_step - 1)) -> step$install_step;
+EOF
+    done
+fi
+
+cat <<EOF >>$output_file
+}
+EOF
+
+dot -Tpng $output_file >install.png
+status "written install.png"
