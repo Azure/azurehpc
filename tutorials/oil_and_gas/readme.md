@@ -69,7 +69,7 @@ First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do
 azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 ```
 
-> Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
+> Alternatively you can checkout the azurehpc repository but you will need to update the paths to apps directory according to where you put it.
 
 ## Install OPM
 
@@ -103,12 +103,12 @@ azhpc-connect -u hpcuser headnode
 ## Run the OPM norne scenario
 To run on a single node with 30 cores run
 ```
-qsub -l select=1:ncpus=30:mpiprocs=30,place=scatter:excl $HOME/opm/flow_norne.sh
+qsub -l select=1:ncpus=30:mpiprocs=30,place=scatter:excl $HOME/apps/opm/flow_norne.sh
 ```
 
 To run on two node with 30 cores run
 ```
-qsub -l select=2:ncpus=15:mpiprocs=15,place=scatter:excl $HOME/opm/flow_norne.sh
+qsub -l select=2:ncpus=15:mpiprocs=15,place=scatter:excl $HOME/apps/opm/flow_norne.sh
 ```
 
 Notes:
