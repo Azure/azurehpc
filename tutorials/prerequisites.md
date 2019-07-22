@@ -9,6 +9,7 @@ git clone https://github.com/Azure/azurehpc.git
 If you don't have a Key Vault, create one
 
 ```
+az group create --name keyvault-rg --location <location>
 az keyvault create --name azhpc-vault --resource-group my-rg
 ``` 
 
