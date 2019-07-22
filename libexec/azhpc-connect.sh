@@ -46,6 +46,10 @@ done
 resource_name=$1
 shift
 
+if [ "$resource_name" = "" ]; then
+    error "No resource specified"
+fi
+
 read_value location ".location"
 read_value resource_group ".resource_group"
 read_value vnet_name ".vnet.name"
