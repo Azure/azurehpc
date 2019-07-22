@@ -88,7 +88,14 @@ qsub -l select=32:ncpus=44:mpiprocs=44,place=scatter:excl \
 Here are the timings at the end of the PBS output once it has run:
 
 ```
-#----------------------------------------------------------------                                                          # Benchmarking Allreduce                                                                                                   # #processes = 1408                                                                                                        #----------------------------------------------------------------                                                                 #bytes #repetitions  t_min[usec]  t_max[usec]  t_avg[usec]                                                                      0        10000         0.13         0.41         0.16                                                                      8        10000        24.06        30.77        27.94                                                                     16        10000        26.13        29.28        27.28
+#----------------------------------------------------------------
+# Benchmarking Allreduce
+# #processes = 1408
+#----------------------------------------------------------------
+       #bytes #repetitions  t_min[usec]  t_max[usec]  t_avg[usec]
+            0        10000         0.13         0.41         0.16
+            8        10000        24.06        30.77        27.94
+           16        10000        26.13        29.28        27.28
 ```
 
 ### Checking the impact of the Linux Azure Agent
@@ -109,5 +116,12 @@ qsub -l select=32:ncpus=44:mpiprocs=44,place=scatter:excl \
 We can compare the results as the performance difference can be seen at this scale:
 
 ```
-#----------------------------------------------------------------                                                          # Benchmarking Allreduce                                                                                                   # #processes = 1408                                                                                                        #----------------------------------------------------------------                                                                 #bytes #repetitions  t_min[usec]  t_max[usec]  t_avg[usec]                                                                      0        10000         0.13         0.57         0.16                                                                      8        10000        18.24        21.05        19.56                                                                     16        10000        18.52        20.74        19.43      
+#----------------------------------------------------------------
+# Benchmarking Allreduce
+# #processes = 1408
+#----------------------------------------------------------------
+       #bytes #repetitions  t_min[usec]  t_max[usec]  t_avg[usec]
+            0        10000         0.13         0.57         0.16
+            8        10000        18.24        21.05        19.56
+           16        10000        18.52        20.74        19.43      
 ```
