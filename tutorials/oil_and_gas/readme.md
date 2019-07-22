@@ -112,7 +112,7 @@ qsub -l select=2:ncpus=15:mpiprocs=15,place=scatter:excl $HOME/apps/opm/flow_nor
 ```
 
 Notes:
-- All job outputs files will be stored in the user home dir with the prefix name OPM_norne.o<job id>.
+- The job outputs files will be stored in \data\opm-data\norne\out_parallel.
 
 
 # Remote Visualization
