@@ -31,8 +31,7 @@ A ring ping pong test is provided to check the IB connection.  This will run a p
 Here is an example of running:
 
 ```
-qsub -l select=32:ncpus=1:mpiprocs=1,place=scatter:excl \
-    $HOME/apps/imb-mpi/ringpingpong.pbs
+qsub -l select=32:ncpus=1:mpiprocs=1,place=scatter:excl $HOME/apps/imb-mpi/ringpingpong.pbs
 ```
 
 Wait until the job completes and check the output file.  Here is an example from a 32 node run:
@@ -81,8 +80,7 @@ All nodes are fairly consistent here.
 The `MPI_Allreduce` on 8 or 16 byte messages is often the bottleneck for HPC applications.  A script is provided to test this.
 
 ```
-qsub -l select=32:ncpus=44:mpiprocs=44,place=scatter:excl \
-    $HOME/apps/imb-mpi/allreduce.pbs
+qsub -l select=32:ncpus=44:mpiprocs=44,place=scatter:excl $HOME/apps/imb-mpi/allreduce.pbs
 ```
 
 Here are the timings at the end of the PBS output once it has run:
