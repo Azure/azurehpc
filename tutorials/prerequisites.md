@@ -1,9 +1,9 @@
-## Open your Cloud Shell environment
+## Open your Cloud Shell environment (or any other Bash Shell)
 
 Clone the **azurehpc** repo
 
 ```
-git clone git@github.com:Azure/azurehpc.git
+git clone https://github.com/Azure/azurehpc.git
 ```
 
 If you don't have a Key Vault, create one
