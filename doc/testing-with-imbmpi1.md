@@ -100,7 +100,7 @@ Here are the timings at the end of the PBS output once it has run:
 
 ### Checking the impact of the Linux Azure Agent
 
-Running this benchmark for all cores on a VM is very susceptible to an "jitter" from processes running.  We can see how much of an effect the Linux Azure Agent has here.  First stop the agent on all the compute nodes.  This step is run from when the cluster is deployed:
+Running this benchmark for all cores on a VM is very susceptible to any "jitter" from processes running.  We can see how much of an effect the Linux Azure Agent has here.  First stop the agent on all the compute nodes.  This step is run from when the cluster is deployed:
 
     azhpc-run -n compute sudo systemctl stop waagent
 
