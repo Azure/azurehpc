@@ -55,7 +55,6 @@ revealOptions:
 ## Variables Dictionary
 
 * Group variables in the template together
-* Use 
 * Useful for creating templates to share
 
 ----

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+. /opt/intel/impi/2018.4.274/bin64/mpivars.sh
+mpirun /lustre/ior.exe -a POSIX -v -B -e -F -r -w -t 32m -b 4G -o /lustre/test.$(date +"%Y-%m-%d_%H-%M-%S")
