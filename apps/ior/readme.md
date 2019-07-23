@@ -1,5 +1,7 @@
 # IOR
 
+This requires the `mpich` package to be installed on the VMs which run.
+
 First build IOR from the build script.  This will put it in `/lustre/ior.exe`:
 
     build_ior.sh
