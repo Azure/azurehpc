@@ -6,7 +6,7 @@ This project is aimed at simplifiying deployment and setup for HPC environments 
 
 They key motivation is:
 
-* __Automation__
+* __Simplified Automation__
 * Flexibility
 * Speed of deployment
 
