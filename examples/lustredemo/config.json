@@ -16,10 +16,7 @@
         "image": "OpenLogic:CentOS:7.6:latest",
         "storage_account": "<NOT-SET>",
         "storage_key": "<NOT-SET>",
-        "storage_container": "<NOT-SET>",
-        "log_analytics_lfs_name": "<NOT-SET>",
-        "log_analytics_workspace": "<NOT-SET>",
-        "log_analytics_key": "<NOT-SET>"
+        "storage_container": "<NOT-SET>"
     },
     "resources": {
         "headnode": {
@@ -64,8 +61,7 @@
             "tags": [
                 "lfspkgs",
                 "lfsmaster",
-                "disable-selinux",
-                "lfsloganalytics"
+                "disable-selinux"
             ]
         },
         "lfsoss": {
@@ -78,8 +74,7 @@
             "tags": [
                 "lfspkgs",
                 "lfsoss",
-                "disable-selinux",
-                "lfsloganalytics"
+                "disable-selinux"
             ]
         },
         "lfshsm": {
@@ -173,16 +168,6 @@
                 "variables.storage_container"
             ],
             "tag": "lfsazimport",
-            "sudo": true
-        },
-        {
-            "script": "lfsloganalytics.sh",
-            "args": [
-                "variables.log_analytics_lfs_name",
-                "variables.log_analytics_workspace",
-                "variables.log_analytics_key"
-            ],
-            "tag": "lfsloganalytics",
             "sudo": true
         },
         {
