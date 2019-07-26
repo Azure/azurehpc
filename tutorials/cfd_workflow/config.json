@@ -9,7 +9,7 @@
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
-        "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:17763.557.73",
+        "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
         "win_password": "<NOT-SET>"
     },
     "vnet": {
