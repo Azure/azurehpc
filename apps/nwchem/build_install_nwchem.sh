@@ -9,14 +9,15 @@ INSTALL_DIR=${SHARED_APP}/${APP_NAME}
 SHARED_DATA=/data
 DATA_DIR=${SHARED_DATA}/${APP_NAME}
 DATA_NAME=h2o_freq
+PARALLEL_BUILD=16
 #
 
 function create_modulefile {
 mkdir -p ${MODULE_DIR}
 cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 #%Module
-prepend-path PATH {${INSTALL_DIR}/bin};
-setenv LD_LIBRARY_PATH {${INSTALL_DIR/lib};
+prepend-path PATH ${INSTALL_DIR}/bin;
+setenv LD_LIBRARY_PATH ${INSTALL_DIR}/lib;
 EOF
 }
 
@@ -72,7 +73,7 @@ mkdir -p ${SHARED_APP}/${APP_NAME}
 pushd ${SHARED_APP}/${APP_NAME}
 wget "https://github.com/nwchemgit/nwchem/releases/download/v6.8-release/nwchem-6.8-release.revision-v6.8-47-gdf6c956-srconly.2017-12-14.tar.bz2" -O - | tar xvj
 #
-export MODULEPATH=/opt/hpcx:$MODULEFILE
+export MODULEPATH=/opt/hpcx-v2.4.1-gcc-MLNX_OFED_LINUX-4.6-1.0.1.1-redhat7.6-x86_64/modulefiles:$MODULEFILE
 module load gcc-8.2.0
 module load hpcx
 which mpif90
@@ -81,11 +82,11 @@ mpif90 -show
 cd $NWCHEM_TOP/src
 make clean
 echo "start make nwchecm_config, `date`"
-make nw_chem_config NWCHEM_MODULES="all python"
+make -j ${PARALLEL_BUILD} nw_chem_config NWCHEM_MODULES="all python"
 echo "end make nwchem_config, `date`"
 #
 echo "start make, `date`"
-make FC=gfortran
+make -j ${PARALLEL_BUILD} FC=gfortran
 echo "end make, `date`"
 #
 mkdir $INSTALL_DIR/bin
