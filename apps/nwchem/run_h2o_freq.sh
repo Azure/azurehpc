@@ -31,6 +31,7 @@ get_ib_pkey()
 
     export UCX_IB_PKEY=$(printf '0x%04x' "$(( $IB_PKEY & 0x0FFF ))")
 }
+get_ib_pkey
 #
 cd $SHARED_DATA/$APP_NAME/$NW_DATA
 
