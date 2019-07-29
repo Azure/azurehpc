@@ -12,7 +12,7 @@ SHARED_APPS=/apps
 SHARED_DATA=/data
 DATA_DIR=${SHARED_DATA}/${APP_NAME}
 #
-export MODULEFILE=/opt/hpcx-v2.4.1-gcc-MLNX_OFED_LINUX-4.6-1.0.1.1-redhat7.6-x86_64/modulefiles:${SHARED_APPS}/modulefiles:$MODULEFILE
+export MODULEPATH=/opt/hpcx-v2.4.1-gcc-MLNX_OFED_LINUX-4.6-1.0.1.1-redhat7.6-x86_64/modulefiles:${SHARED_APPS}/modulefiles:$MODULEPATH
 module load gcc-8.2.0
 module load hpcx
 module load nwchem_6.8
