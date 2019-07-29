@@ -1,6 +1,6 @@
 # Lustre Cluster
 
-This is a full set up with all the lustre features available.
+This is a demo set up for lustre to use the HSM plugin.
 
 Resources:
 
@@ -21,7 +21,5 @@ The configuration file requires the following variables to be set:
 | storage_account         | The storage account for HSM                  |
 | storage_key             | The storage key for HSM                      |
 | storage_container       | The container to use for HSM                 |
-
-> Note: you can remove log anaytics and/or HSM from the config file if not required.
 
 > Note: Key Vault should be used for the keys to keep them out of the config files.
