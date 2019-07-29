@@ -8,10 +8,11 @@
 #
 APP_NAME=nwchem
 NW_DATA=h2o_freq
+SHARED_APPS=/apps
 SHARED_DATA=/data
 DATA_DIR=${SHARED_DATA}/${APP_NAME}
 #
-export MODULEFILE=/opt/hpcx:$MODULEFILE
+export MODULEFILE=/opt/hpcx-v2.4.1-gcc-MLNX_OFED_LINUX-4.6-1.0.1.1-redhat7.6-x86_64/modulefiles:${SHARED_APPS}/modulefiles:$MODULEFILE
 module load gcc-8.2.0
 module load hpcx
 module load nwchem_6.8
@@ -33,11 +34,7 @@ get_ib_pkey()
 }
 get_ib_pkey
 #
-cd $SHARED_DATA/$APP_NAME/$NW_DATA
-
-source /opt/intel/impi/*/bin64/mpivars.sh
-export MPI_ROOT=$I_MPI_ROOT
-export PATH=/opt/NWChem-6.8/bin:$PATH
+cd $SHARED_DATA/$APP_NAME
 
 ln -s /opt/NWChem-6.8/data/default.nwchemrc $HOME/.nwchemrc 
 
