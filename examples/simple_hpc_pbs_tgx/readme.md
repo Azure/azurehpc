@@ -3,7 +3,7 @@
 This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1 exporting a 4TB NFS space and multiple CentOS 7.6 HB60rs compute nodes; and a Windows visualization node with TGX.
 
 >NOTE: 
-- MAKE SURE you have followed the steps in [prerequisite](../prerequisites.md) before proceeding here
+- MAKE SURE you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here
 - MAKE SURE you have the TGX installer and license file uploaded in the Azure Storage blob location mentioned in setup_win_tgx.sh. You will need to provide the storage account name while initializing the config file (apps_storage_account).  
 
 First initialise a new project. AZHPC provides the `azhpc-init` command that will help here.  Running with the `-s` parameter will show all the variables that need to be set, e.g.
