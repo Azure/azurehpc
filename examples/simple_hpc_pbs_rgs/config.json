@@ -8,6 +8,7 @@
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
+        "vm_type": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
         "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
         "win_password": "<NOT-SET>",
@@ -26,7 +27,7 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "Standard_HB60rs",
+            "vm_type": "variables.vm_type",
             "public_ip": true,
             "image": "variables.image",
             "subnet": "compute",
@@ -42,7 +43,7 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HB60rs",
+            "vm_type": "variables.vm_type",
             "instances": 2,
             "image": "variables.hpc_image",
             "subnet": "compute",

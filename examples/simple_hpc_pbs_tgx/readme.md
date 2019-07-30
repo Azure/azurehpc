@@ -15,7 +15,7 @@ azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_tgx -d simple_hpc_pbs_tgx -s
 The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_tgx -d simple_hpc_pbs_tgx -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],apps_storage_account=appstorageaccount
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_tgx -d simple_hpc_pbs_tgx -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],apps_storage_account=appstorageaccount,vm_type=Standard_HB60rs
 ```
 
 Create the cluster 
