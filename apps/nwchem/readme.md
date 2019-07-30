@@ -20,7 +20,7 @@ First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do
 For this the headnode needs to be a HC node with CentOS-HPC-7.6 upwards
 
 ```
-azhpc-run -u hpcuser $azhpc_dir/apps/opm/full_install_opm.sh
+azhpc-run -u hpcuser $azhpc_dir/apps/nwchem/build_install_nwchem.sh
 ```
 
 ### Install binaries
@@ -43,6 +43,3 @@ To run on two HB nodes with 8 total cores (4 cores on each node) run
 ```
 qsub -l select=2:ncpus=60:mpiprocs=4 $azhpc_dir/apps/nwchem/run_h2o_freq.sh
 ```
-
-Notes:
-- All job outputs files will be stored in the user home dir with the prefix name nwchem_h2o_freq.o<job id>.
