@@ -36,7 +36,7 @@ get_ib_pkey
 #
 cd $SHARED_DATA/$APP_NAME
 
-ln -s /opt/NWChem-6.8/data/default.nwchemrc $HOME/.nwchemrc 
+ln -s ${SHARED_APPS}/nwchem/data/default.nwchemrc $HOME/.nwchemrc 
 
 cd $DATA_DIR
 
