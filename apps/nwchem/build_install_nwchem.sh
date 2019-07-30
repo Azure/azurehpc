@@ -17,7 +17,7 @@ mkdir -p ${MODULE_DIR}
 cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 #%Module
 prepend-path PATH ${INSTALL_DIR}/bin;
-setenv LD_LIBRARY_PATH ${INSTALL_DIR}/lib;
+prepend-path LD_LIBRARY_PATH ${INSTALL_DIR}/lib;
 EOF
 }
 
