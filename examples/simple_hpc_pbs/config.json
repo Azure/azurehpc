@@ -7,7 +7,7 @@
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
-        "vm_type": "Standard_HC44rs",
+        "vm_type": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
