@@ -11,7 +11,7 @@ NW_DATA=h2o_freq
 SHARED_APPS=/apps
 SHARED_DATA=/data
 DATA_DIR=${SHARED_DATA}/${APP_NAME}
-BIN_DIR={SHARED_APPS}/${APP_NAME}/bin
+BIN_DIR=${SHARED_APPS}/${APP_NAME}/bin
 #
 export MODULEPATH=/opt/hpcx-v2.4.1-gcc-MLNX_OFED_LINUX-4.6-1.0.1.1-redhat7.6-x86_64/modulefiles:${SHARED_APPS}/modulefiles:$MODULEPATH
 module load gcc-8.2.0
