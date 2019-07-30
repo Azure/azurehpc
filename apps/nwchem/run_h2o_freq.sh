@@ -42,7 +42,7 @@ cd $DATA_DIR
 
 mpirun \
     -np $CORES \
-    --hostfile $PBS_HOSTFILE \
+    --hostfile $PBS_NODEFILE \
     --map-by core \
     --report-bindings \
     -x UCX_IB_PKEY=${UCX_IB_PKEY} \
