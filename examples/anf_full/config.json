@@ -11,7 +11,7 @@
         "vnet_resource_group": "variables.resource_group",
         "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
         "win_password": "<NOT-SET>",
-        "app_storage_account": "<NOT-SET>"
+        "apps_storage_account": "<NOT-SET>"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -148,7 +148,7 @@
             "variables.resource_group",
             "nvnode",
             "headnode",
-            "variables.app_storage_account"
+            "variables.apps_storage_account"
         ]
     }
 }
