@@ -39,9 +39,9 @@ To run on a single node with 4 cores run
 qsub -l select=1:ncpus=4:mpiprocs=4 $azhpc_dir/apps/nwchem/run_h2o_freq.sh
 ```
 
-To run on two node with 30 cores run
+To run on two HB nodes with 8 total cores (4 cores on each node) run
 ```
-qsub -l select=2:ncpus=15:mpiprocs=15 $azhpc_dir/apps/nwchem/run_h2o_freq.sh
+qsub -l select=2:ncpus=60:mpiprocs=4 $azhpc_dir/apps/nwchem/run_h2o_freq.sh
 ```
 
 Notes:
