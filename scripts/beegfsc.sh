@@ -11,4 +11,5 @@ echo "$SHARE_SCRATCH /etc/beegfs/beegfs-client.conf" > /etc/beegfs/beegfs-mounts
 systemctl daemon-reload
 systemctl enable beegfs-helperd.service
 systemctl enable beegfs-client.service
+systemctl start beegfs-helperd.service
 systemctl start beegfs-client.service
