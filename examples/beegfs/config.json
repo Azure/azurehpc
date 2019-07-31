@@ -36,6 +36,7 @@
                 "loginnode",
                 "localuser",
                 "disable-selinux",
+                "beegfspkgs",
                 "beegfsc"
             ]
         },
@@ -51,6 +52,7 @@
                 "cndefault",
                 "localuser",
                 "disable-selinux",
+                "beegfspkgs",
                 "beegfsc"
             ]
         },
