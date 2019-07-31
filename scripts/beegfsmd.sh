@@ -3,8 +3,10 @@
 disk_type=$1
 node_type=$2
 pools=$3
+MGMT_HOSTNAME=$4
 #
 BEEGFS_DISK=/mnt/beegfs
+BEEGFS_METADATA=${BEEGFS_DISK}/meta
 #
 yum install -y beegfs-meta
 sed -i 's|^storeMetaDirectory.*|storeMetaDirectory = '$BEEGFS_METADATA'|g' /etc/beegfs/beegfs-meta.conf
@@ -12,9 +14,6 @@ sed -i 's/^sysMgmtdHost.*/sysMgmtdHost = '$MGMT_HOSTNAME'/g' /etc/beegfs/beegfs-
 #
 sed -i 's/^connMaxInternodeNum.*/connMaxInternodeNum = 800/g' /etc/beegfs/beegfs-meta.conf
 sed -i 's/^tuneNumWorkers.*/tuneNumWorkers = 128/g' /etc/beegfs/beegfs-meta.conf
-#
-systemctl daemon-reload
-systemctl enable beegfs-meta.service
 #
 setup_data_disks()
 {
@@ -148,4 +147,10 @@ elif [ $disk_type == "data_disk" ]; then
 else
    mkdir -p /mnt/resource/beegfs/meta
 fi
-mount -a 
+#
+mount -a
+#
+systemctl daemon-reload
+systemctl enable beegfs-meta.service
+systemctl start beegfs-meta.service
+#
