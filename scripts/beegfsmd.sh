@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+disk_type=$1
+node_type=$2
+pools=$3
+#
+BEEGFS_DISK=/mnt/beegfs
+#
+yum install -y beegfs-meta
+sed -i 's|^storeMetaDirectory.*|storeMetaDirectory = '$BEEGFS_METADATA'|g' /etc/beegfs/beegfs-meta.conf
+sed -i 's/^sysMgmtdHost.*/sysMgmtdHost = '$MGMT_HOSTNAME'/g' /etc/beegfs/beegfs-meta.conf
+#
+sed -i 's/^connMaxInternodeNum.*/connMaxInternodeNum = 800/g' /etc/beegfs/beegfs-meta.conf
+sed -i 's/^tuneNumWorkers.*/tuneNumWorkers = 128/g' /etc/beegfs/beegfs-meta.conf
+#
+systemctl daemon-reload
+systemctl enable beegfs-meta.service
+#
+fdisk -l
+lsscsi
+#
+rootDevice=`mount | grep "on / type" | awk '{print $1}' | sed 's/[0-9]//g'`
+tmpDevice=`mount | grep "on /mnt/resource type" | awk '{print $1}' | sed 's/[0-9]//g'`
+#
+hddDiskSize=default
+if [ pools == "true" ]; then
+   hddDiskSize=`fdisk -l | grep '^Disk /dev/sdc' | grep -v $rootDevice | grep -v $tmpDevice | awk '{print $3}'`
+#   hddDevices="`fdisk -l | grep '^Disk /dev/' | grep -v $rootDevice | grep -v $tmpDevice | grep $hddDiskSize | awk '{print $2}' | awk -F: '{print $1}' | tr '\n' ' ' | sed 's|/dev/||g'`"
+fi
+#
+metadataDiskSize=`fdisk -l | grep '^Disk /dev/' | grep -v '/dev/md' | grep -v $hddDiskSize | grep -v $rootDevice | grep -v $tmpDevice | awk '{print $3}' | sort -n -r | tail -1`
+storageDiskSize=`fdisk -l | grep '^Disk /dev/' | grep -v '/dev/md' | grep -v $hddDiskSize | grep -v $rootDevice | grep -v $tmpDevice | awk '{print $3}' | sort -n | tail -1`
+#
+if [ "$metadataDiskSize" == "$storageDiskSize" ]; then
+   nbDisks=`fdisk -l | grep '^Disk /dev/' | grep -v $hddDiskSize | grep -v $rootDevice | grep -v $tmpDevice | wc -l`
+   let nbMetadaDisks=nbDisks
+   let nbStorageDisks=nbDisks
+   if [ $node_type == "both" && [ $disk_type == "data_disk" ]; then
+      let nbMetadaDisks=nbDisks/3
+      if [ $nbMetadaDisks -lt 2 ]; then
+         let nbMetadaDisks=2
+      fi
+      let nbStorageDisks=nbDisks-nbMetadaDisks
+   fi
+   metadataDevices="`fdisk -l | grep '^Disk /dev/' | grep -v '/dev/md' | grep -v $hddDiskSize | grep -v $rootDevice | grep -v $tmpDevice | grep $metadataDiskSize | awk '{print $2}' | awk -F: '{print $1}' | sort | head -$nbMetadaDisks | tr '\n' ' ' | sed 's|/dev/||g'`"
+else
+   metadataDevices="`fdisk -l | grep '^Disk /dev/' | grep -v '/dev/md' | grep -v $hddDiskSize | grep -v $rootDevice | grep -v $tmpDevice | grep $metadataDiskSize | awk '{print $2}' | awk -F: '{print $1}' | sort | tr '\n' ' ' | sed 's|/dev/||g'`"
+fi
+#
+if [ $disk_type == "nvme" ]; then
+   mkdir -p $BEEGFS_DISK
+   mkdir -p $BEEGFS_DISK/meta
+elif [ $disk_type == "data_disk" ]; then
+   mkdir -p $BEEGFS_DISK/meta
+   setup_data_disks $BEEGFS_METADATA "ext4" "$metadataDevices" "md20"
+else
+   mkdir -p /mnt/resource/beegfs/meta
+fi
+mount -a 
