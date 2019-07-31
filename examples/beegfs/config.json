@@ -108,7 +108,8 @@
                 "nvme",
                 "both",
                 "false",
-                "false"
+                "false",
+                "$(<hostlists/tags/beegfsm)"
             ],
             "tag": "beegfssd",
             "sudo": true
@@ -118,7 +119,8 @@
             "args": [
                 "nvme",
                 "both",
-                "false"
+                "false",
+                "$(<hostlists/tags/beegfsm)"
             ],
             "tag": "beegfsmd",
             "sudo": true
