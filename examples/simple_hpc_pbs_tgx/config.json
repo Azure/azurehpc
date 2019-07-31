@@ -6,9 +6,9 @@
     "variables" : {
         "image" : "OpenLogic:CentOS:7.6:latest",
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
-        "location": "<NOT-SET>",
+        "location": "southcentralus",
         "resource_group": "<NOT-SET>",
-        "vm_type": "<NOT-SET>",
+        "vm_type": "Standard_HB60rs",
         "vnet_resource_group": "variables.resource_group",
         "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
         "win_password": "<NOT-SET>",
