@@ -126,7 +126,7 @@
         {
             "script": "beegfsc.sh",
             "args": [
-                "$(<hostlists/tags/beegfsc)"
+                "$(<hostlists/tags/beegfsm)"
             ],
             "tag": "beegfsc",
             "sudo": true
