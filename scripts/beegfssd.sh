@@ -45,7 +45,7 @@ if [ "$metadataDiskSize" == "$storageDiskSize" ]; then
    nbDisks=`fdisk -l | grep '^Disk /dev/' | grep -v $hddDiskSize | grep -v $rootDevice | grep -v $tmpDevice | wc -l`
    let nbMetadaDisks=nbDisks
    let nbStorageDisks=nbDisks
-   if [ $node_type == "both" && [ $disk_type == "data_disk" ]; then
+   if [ $node_type == "both" ] && [ $disk_type == "data_disk" ]; then
       let nbMetadaDisks=nbDisks/3
       if [ $nbMetadaDisks -lt 2 ]; then
          let nbMetadaDisks=2
