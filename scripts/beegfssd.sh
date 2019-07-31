@@ -96,7 +96,7 @@ EOF
               raidDevice=${disk}1
            fi
         fi
-        if is_restart; then
+        if [ $pools_restart == "true" ]; then
            systemctl disable beegfs-meta.service
            systemctl disable beegfs-storage.service
            sed -i '$ d' /etc/fstab
@@ -125,7 +125,7 @@ rootDevice=`mount | grep "on / type" | awk '{print $1}' | sed 's/[0-9]//g'`
 tmpDevice=`mount | grep "on /mnt/resource type" | awk '{print $1}' | sed 's/[0-9]//g'`
 #
 hddDiskSize=default
-if [ pools == "true" ]; then
+if [ $pools == "true" ]; then
    hddDiskSize=`fdisk -l | grep '^Disk /dev/sdc' | grep -v $rootDevice | grep -v $tmpDevice | awk '{print $3}'`
 #   hddDevices="`fdisk -l | grep '^Disk /dev/' | grep -v $rootDevice | grep -v $tmpDevice | grep $hddDiskSize | awk '{print $2}' | awk -F: '{print $1}' | tr '\n' ' ' | sed 's|/dev/||g'`"
 fi
