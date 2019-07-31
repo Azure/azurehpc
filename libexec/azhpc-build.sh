@@ -569,7 +569,7 @@ if [ "$post_install_script" != "<no-post-install>" ]; then
         done
     fi
 
-    ./$post_install_script "${post_install_args[@]}"
+    $azhpc_dir/post_install_scripts/$post_install_script "${post_install_args[@]}"
 fi
 
 status "cluster ready"
