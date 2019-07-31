@@ -9,3 +9,4 @@ sed -i 's/^sysMgmtdHost.*/sysMgmtdHost = '$MGMT_HOSTNAME'/g' /etc/beegfs/beegfs-
 #
 systemctl daemon-reload
 systemctl enable beegfs-mgmtd.service
+systemctl start beegfs-mgmtd.service
