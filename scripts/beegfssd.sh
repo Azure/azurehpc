@@ -26,6 +26,98 @@ sed -i 's/^tuneWorkerBufSize.*/tuneWorkerBufSize = 16m/g' /etc/beegfs/beegfs-sto
 systemctl daemon-reload
 systemctl enable beegfs-storage.service
 #
+setup_data_disks()
+{
+    mountPoint="$1"
+    filesystem="$2"
+    devices="$3"
+    raidDevice="$4"
+    createdPartitions=""
+    numdevices=`echo $devices | wc -w`
+    if [ $numdevices -gt 1 ]
+    then
+    # Loop through and partition disks until not found
+       for disk in $devices; do
+           fdisk -l /dev/$disk || break
+           fdisk /dev/$disk << EOF
+n
+p
+1
+
+
+t
+fd
+w
+EOF
+           if [ $raidDevice == "md30" ]
+           then
+              createdPartitions="$createdPartitions /dev/${disk}p1"
+           else
+              createdPartitions="$createdPartitions /dev/${disk}1"
+           fi
+       done
+    else
+        disk=$(echo $devices | tr -d [:space:])
+        echo "Warning: Only a single device to partition, $disk"
+        fdisk -l /dev/$disk || break
+        fdisk /dev/$disk << EOF
+n
+p
+1
+
+
+w
+EOF
+        if [ $raidDevice == "md30" ]
+        then
+           createdPartitions="$createdPartitions /dev/${disk}p1"
+        else
+           createdPartitions="$createdPartitions /dev/${disk}1"
+        fi
+    fi
+
+    sleep 10
+
+    # Create RAID-0 volume
+    if [ -n "$createdPartitions" ]; then
+        devices=`echo $createdPartitions | wc -w`
+        if [ $numdevices -gt 1 ]
+        then
+           mdadm --create /dev/$raidDevice --level 0 --raid-devices $devices $createdPartitions
+           sleep 10
+
+           mdadm /dev/$raidDevice
+        else
+           echo "Warning: mdadm is not called, we have one partition named, ${disk}1 for mountpoint, $mountPoint"
+           if [ $raidDevice == "md30" ]
+           then
+              raidDevice=${disk}p1
+           else
+              raidDevice=${disk}1
+           fi
+        fi
+        if is_restart; then
+           systemctl disable beegfs-meta.service
+           systemctl disable beegfs-storage.service
+           sed -i '$ d' /etc/fstab
+        fi
+        if [ "$filesystem" == "xfs" ]; then
+            mkfs -t $filesystem /dev/$raidDevice
+            export xfsuuid="UUID=`blkid |grep dev/$raidDevice |cut -d " " -f 2 |cut -c 7-42`"
+            echo "$xfsuuid $mountPoint $filesystem rw,noatime,attr2,inode64,nobarrier,nofail 0 2" >> /etc/fstab
+        else
+            mkfs.ext4 -i 2048 -I 512 -J size=400 -Odir_index,filetype /dev/$raidDevice
+            sleep 5
+            tune2fs -o user_xattr /dev/$raidDevice
+            export ext4uuid="UUID=`blkid |grep dev/$raidDevice |cut -d " " -f 2 |cut -c 7-42`"
+            echo "$ext4uuid $mountPoint $filesystem noatime,nodiratime,nobarrier,nofail 0 2" >> /etc/fstab
+        fi
+
+        sleep 10
+        mount -a
+    fi
+}
+#
 fdisk -l
 lsscsi
 #
