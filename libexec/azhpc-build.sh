@@ -244,6 +244,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
             status "creating anf: $storage_name"
 
             read_value storage_subnet ".storage.$storage_name.subnet"
+            storage_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$storage_subnet"
 
             # check if the deletation exists
             delegation_exists=$(\
@@ -288,7 +289,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                     --account-name $storage_name \
                     --location $location \
                     --service-level $pool_service_level \
-                    --size $pool_size \
+                    --size $(($pool_size * (2 ** 40)))\
                     --pool-name $pool_name \
                     --output table
 
@@ -301,12 +302,11 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --account-name $storage_name \
                         --location $location \
                         --service-level $pool_service_level \
-                        --usage-threshold $(($volume_size * (2 ** 10))) \
+                        --usage-threshold $(($volume_size * (2 ** 40))) \
                         --creation-token ${volume_name} \
                         --pool-name $pool_name \
                         --volume-name $volume_name \
-                        --vnet $vnet_name \
-                        --subnet $storage_subnet \
+                        --subnet-id $storage_subnet_id \
                         --output table
 
                     volume_ip=$( \
@@ -569,7 +569,7 @@ if [ "$post_install_script" != "<no-post-install>" ]; then
         done
     fi
 
-    ./$post_install_script "${post_install_args[@]}"
+    $azhpc_dir/scripts/$post_install_script "${post_install_args[@]}"
 fi
 
 status "cluster ready"
