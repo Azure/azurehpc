@@ -8,7 +8,11 @@
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
-        "vnet_resource_group": "variables.resource_group"
+        "vnet_resource_group": "variables.resource_group",
+        "beegfs_disk_type": "nvme",
+        "beegfs_node_type": "both",
+        "beegfs_pools": "false",
+        "beegfs_pools_restart": "false"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -58,7 +62,7 @@
         },
         "beegfsm": {
             "type": "vm",
-            "vm_type": "Standard_L8s_v2",
+            "vm_type": "Standard_D4_v3",
             "accelerated_networking": true,
             "image": "variables.image",
             "subnet": "compute",
@@ -106,10 +110,10 @@
         {
             "script": "beegfssd.sh",
             "args": [
-                "nvme",
-                "both",
-                "false",
-                "false",
+                "variables.beegfs_disk_type",
+                "variables.beegfs_node_type",
+                "variables.beegfs_pools",
+                "variables.beegfs_pools_restart",
                 "$(<hostlists/tags/beegfsm)"
             ],
             "tag": "beegfssd",
@@ -118,9 +122,9 @@
         {
             "script": "beegfsmd.sh",
             "args": [
-                "nvme",
-                "both",
-                "false",
+                "variables.beegfs_disk_type",
+                "variables.beegfs_node_type",
+                "variables.beegfs_pools",
                 "$(<hostlists/tags/beegfsm)"
             ],
             "tag": "beegfsmd",
