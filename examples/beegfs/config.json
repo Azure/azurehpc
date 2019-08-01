@@ -93,7 +93,6 @@
         {
             "script": "beegfspkgs.sh",
             "tag": "beegfspkgs",
-            "reboot": true,
             "sudo": true
         },
         {
