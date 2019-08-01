@@ -5,7 +5,12 @@ node_type=$2
 pools=$3
 MGMT_HOSTNAME=$4
 #
+if [ $disk_type == "local_ssd" ]; then
+BEEGFS_DISK=/mnt/resource/beegfs
+else
 BEEGFS_DISK=/mnt/beegfs
+fi
+
 BEEGFS_METADATA=${BEEGFS_DISK}/meta
 #
 yum install -y beegfs-meta
@@ -138,14 +143,9 @@ else
    metadataDevices="`fdisk -l | grep '^Disk /dev/' | grep -v '/dev/md' | grep -v $hddDiskSize | grep -v $rootDevice | grep -v $tmpDevice | grep $metadataDiskSize | awk '{print $2}' | awk -F: '{print $1}' | sort | tr '\n' ' ' | sed 's|/dev/||g'`"
 fi
 #
-if [ $disk_type == "nvme" ]; then
-   mkdir -p $BEEGFS_DISK
-   mkdir -p $BEEGFS_DISK/meta
-elif [ $disk_type == "data_disk" ]; then
-   mkdir -p $BEEGFS_DISK/meta
+mkdir -p $BEEGFS_METADATA
+if [ $disk_type == "data_disk" ]; then
    setup_data_disks $BEEGFS_METADATA "ext4" "$metadataDevices" "md20"
-else
-   mkdir -p /mnt/resource/beegfs/meta
 fi
 #
 mount -a
