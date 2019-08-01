@@ -3,7 +3,7 @@
 This will deploy a BeeGFS PFS using ephemeral disks (L8s_v2), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed.
 
 >NOTE:
-- MAKE SURE YOU HAVE FOLLOWED THE STEPS IN [prerequisite](../prerequisites.md) before proceeding here
+- MAKE SURE YOU HAVE FOLLOWED THE STEPS IN [prerequisite](../tutorials/prerequisites.md) before proceeding here
 
 First initialise a new project.  AZHPC provides the `azhpc-init` command that will help here.  Running with the `-s` parameter will show all the variables that need to be set, e.g.
 
