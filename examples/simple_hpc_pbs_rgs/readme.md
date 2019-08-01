@@ -3,7 +3,7 @@
 This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1 exporting a 4TB NFS space and multiple CentOS 7.6 HB60rs compute nodes; and a Windows visualization node with HP RGS.
 
 >NOTE: 
-- MAKE SURE you have followed the steps in [prerequisite](../prerequisites.md) before proceeding here
+- MAKE SURE you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here
 - MAKE SURE you have the HP RGS installer and license file uploaded in the Azure Storage blob location mentioned in setup_win_rgs.sh. You will need to provide the storage account name while initializing the config file (apps_storage_account).  
 
 First initialise a new project. AZHPC provides the `azhpc-init` command that will help here.  Running with the `-s` parameter will show all the variables that need to be set, e.g.
@@ -15,7 +15,10 @@ azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_rgs -d simple_hpc_pbs_rgs -s
 The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_rgs -d simple_hpc_pbs_rgs -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],apps_storage_account=appstorageaccount
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_rgs -d simple_hpc_pbs_rgs -v resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],apps_storage_account=appstorageaccount
+
+(Optional) If you would like to change the location and vm_type
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_rgs -d simple_hpc_pbs_rgs -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],apps_storage_account=appstorageaccount,vm_type=Standard_HB60rs
 ```
 
 Create the cluster 
