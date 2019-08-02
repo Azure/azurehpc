@@ -2,7 +2,8 @@
 
 install_dir=/apps
 
-inst=$(readlink -f $1)
+#NOTE!!: Update the path to the fluent install file before running the script
+inst=/path/to/fluent_install_file.tar
 
 tmp_dir=/tmp/tmp-fluent
 
@@ -10,7 +11,7 @@ mkdir $tmp_dir
 pushd $tmp_dir
 
 echo "Install Fluent"
-echo "Installer: $1"
+echo "Installer: $inst"
 
 tar xf $inst
 
