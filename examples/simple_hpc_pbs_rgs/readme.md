@@ -62,7 +62,7 @@ df -h
 
 # Remote Visualization
 
-Connect to the viznode using RDB (get the RDP file for nvnode from the Azure Portal)
+To verify setup connect to the viznode using RDP (get the RDP file for nvnode from the Azure Portal)
 - Username: hpcadmin
 - Password: <winadmin-secret>
 
@@ -70,4 +70,4 @@ Check that Y: and Z: drives are mapped to the NFS server
 
 > Note : Y: and Z: drives appears as disconnected while they are not.
 
-Install RGS client on your local desktop or laptop and from their connect to the remote visualization node using <public ip address for nvnode>:42966. 
+[Setup RGS receiver](https://techcommunity.microsoft.com/t5/AzureCAT/Remote-Visualization-in-Azure/ba-p/745184) on your local desktop or laptop and from their connect to the remote visualization node using <public ip address for nvnode>:42966. 

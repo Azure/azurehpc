@@ -1,6 +1,7 @@
 # Building a simple PBS compute cluster with a Windows visualization node
 
-This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1 exporting a 4TB NFS space and several CentOS 7.6 HC44 compute nodes; and a Windows visualization node.
+This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1 exporting a 4TB NFS space and several CentOS 7.6 HC44 compute nodes; and a Windows visualization node. 
+This tutorial uses NFS and RGS but you can also easily set it up with an alternate storage or visualization solution using the examples [here](https://github.com/Azure/azurehpc/tree/master/examples). 
 
 >NOTE: 
 - MAKE SURE YOU HAVE FOLLOWED THE STEPS IN [prerequisite](https://github.com/Azure/azurehpc/blob/master/tutorials/prerequisites.md) before proceeding here
@@ -123,12 +124,14 @@ qstat -aw
 
 # Remote Visualization
 
-Connect to the viznode using RDB (get the RDP file for nvnode from the Azure Portal)
+To verify setup you can connect to the viznode using RDP (get the RDP file for nvnode from the Azure Portal)
 - Username: hpcadmin
 - Password: <winadmin-secret>
 
 Check that Y: and Z: drives are mapped to the NFS server
 
 > Note : Y: and Z: drives appears as disconnected while they are not.
+
+[Setup RGS receiver](https://techcommunity.microsoft.com/t5/AzureCAT/Remote-Visualization-in-Azure/ba-p/745184) on your local desktop or laptop and from their connect to the remote visualization node using <public ip address for nvnode>:42966. 
 
 Launch ResInsight from the Y: drive and then open the Intersect EGRID result file located on the Z: drive
