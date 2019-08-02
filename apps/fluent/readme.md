@@ -8,7 +8,7 @@ Dependencies for binary version:
 
 * None
 
-##Installation
+## Installation
 
 NOTE: Update the path to the fluent installer tar file in $azhpc_dir/apps/fluent/install_fluent.sh
 
@@ -32,7 +32,7 @@ azhpc-run -u hpcuser  $azhpc_dir/apps/fluent/install_fluent.sh
 azhpc-connect -u hpcuser headnode
 ```
 
-##Running
+## Running
 
 NOTE: In the run script you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
 
