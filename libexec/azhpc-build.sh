@@ -216,7 +216,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 data_cache="ReadWrite"
                 resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
                 for size in $resource_disk_sizes; do
-                    if [ $size -gt 4095 ]; then
+                    if [ $size -gt 4095 ] || [[ $resource_vm_type ==  Standard_L*s_v2 ]]; then
                         data_cache="None"
                     fi
                 done
