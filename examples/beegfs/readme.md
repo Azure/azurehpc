@@ -46,6 +46,3 @@ Resources:
 
 > Note: The Hb nodes are used for the cluster.  To get best performance nodes with accelerated networking should be used.
 
-
-## Deploy BeeGFS using local SSD's (/mnt/resource)
-See config_local_ssd.json
