@@ -1,14 +1,42 @@
-# Fluent Benchmarks
+# Install and run Fluent Benchmarks
 
-Install as follows:
+## Prerequisites
+
+Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up.
+
+Dependencies for binary version:
+
+* None
+
+#Installation
+
+NOTE: Update the path to the fluent installer tar file in $azhpc_dir/apps/fluent/install_fluent.sh
+
+First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
 
 ```
-./install_fluent.sh /path/to/fluent_install_file.tar
+azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
+```
+
+> Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
+
+```
+azhpc-run -u hpcuser  $azhpc_dir/apps/fluent/install_fluent.sh 
 ```
 
 > Note: This will install into `/apps`.
 
-In the run script you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
+## Connect to the headnode
+
+```
+azhpc-connect -u hpcuser headnode
+```
+
+#Running
+
+NOTE: In the run script you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
+
+Copy the benchmark to /apps/ansys_inc/v193/fluent
 
 Now, you can run as follows:
 
