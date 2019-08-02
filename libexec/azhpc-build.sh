@@ -191,6 +191,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
         vmss)
             status "creating vmss: $resource_name"
 
+
             az vmss show \
                 --resource-group $resource_group \
                 --name $resource_name \
@@ -205,7 +206,23 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_instances ".resources.$resource_name.instances"
+            resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
+
+            resource_storage_sku=StandardSSD_LRS
+            data_disks_options=
+            if [ "$resource_disk_count" -gt 0 ]; then
+                read_value resource_storage_sku ".resources.$resource_name.storage_sku"
+                data_cache="ReadWrite"
+                resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
+                for size in $resource_disk_sizes; do
+                    if [ $size -gt 4095 ]; then
+                        data_cache="None"
+                    fi
+                done
+                data_disks_options="--storage-sku $resource_storage_sku --data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
+                debug "$data_disks_options"
+            fi
 
             read_value resource_password ".resources.$resource_name.password" "<no-password>"
             if [ "$resource_password" = "<no-password>" ]; then
@@ -226,6 +243,8 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --single-placement-group true \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
+                --subnet $resource_subnet_id \
+                $data_disks_options \
                 --no-wait
         ;;
         *)
