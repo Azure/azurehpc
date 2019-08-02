@@ -8,19 +8,19 @@ This example will create an HPC cluster with a CentOS 7.6 headnode running PBS P
 First initialise a new project.  AZHPC provides the `azhpc-init` command that will help here.  Running with the `-s` parameter will show all the variables that need to be set, e.g.
 
 ```
-$ azhpc-init -c $azhpc_dir/tutorials/oil_and_gas -d oil_and_gas -s
+azhpc-init -c $azhpc_dir/tutorials/oil_and_gas_opm -d oil_and_gas_opm -s
 ```
 
 The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
 
 ```
-azhpc-init -c $azhpc_dir/tutorials/oil_and_gas -d oil_and_gas -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret]
+azhpc-init -c $azhpc_dir/tutorials/oil_and_gas_opm -d oil_and_gas_opm -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret]
 ```
 
 Create the cluster 
 
 ```
-cd oil_and_gas
+cd oil_and_gas_opm
 azhpc-build
 ```
 
