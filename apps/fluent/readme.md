@@ -21,7 +21,7 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 > Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
 
 ```
-azhpc-run -u hpcuser  $azhpc_dir/apps/fluent/install_fluent.sh 
+azhpc-run -u hpcuser  apps/fluent/install_fluent.sh 
 ```
 
 > Note: This will install into `/apps`.
