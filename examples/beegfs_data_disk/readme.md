@@ -1,6 +1,6 @@
 # BeeGFS Cluster built with data disks 
 
-This will deploy a BeeGFS PFS using managed local disks, each D16_v3 will have 2xP30 for storage (xfs filesystem) and 2xP10 for metadata (ext4 filesystem), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed.
+This will deploy a BeeGFS PFS using managed data disks, each D16_v3 will have 2xP30 for storage (xfs filesystem) and 2xP10 for metadata (ext4 filesystem), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed.
 
 >NOTE:
 - MAKE SURE YOU HAVE FOLLOWED THE STEPS IN [prerequisite](../../tutorials/prerequisites.md) before proceeding here
