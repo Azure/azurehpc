@@ -6,7 +6,12 @@ pools=$3
 pools_restart=$4
 MGMT_HOSTNAME=$5
 #
+if [ $disk_type == "local_ssd" ]; then
+BEEGFS_DISK=/mnt/resource/beegfs
+else
 BEEGFS_DISK=/mnt/beegfs
+fi
+
 BEEGFS_HDD=/mnt/beegfs/hdd
 BEEGFS_STORAGE=${BEEGFS_DISK}/storage
 #
@@ -154,15 +159,13 @@ if [ $pools == "true" ] && [ $pools_restart == "false" ]; then
    mkdir -p $BEEGFS_HDD
    setup_data_disks $BEEGFS_HDD "xfs" "$hddDevices" "md40"
 fi
+
+mkdir -p $BEEGFS_STORAGE
 if [ $disk_type == "nvme" ]; then
-   mkdir -p $BEEGFS_DISK
    setup_data_disks $BEEGFS_DISK "xfs" "$storageDevices" "md30"
    mkdir -p $BEEGFS_DISK/storage
 elif [ $disk_type == "data_disk" ]; then
-   mkdir -p $BEEGFS_DISK/storage
    setup_data_disks $BEEGFS_STORAGE "xfs" "$storageDevices" "md30"
-else
-   mkdir -p /mnt/resource/beegfs/storage
 fi
 #
 mount -a

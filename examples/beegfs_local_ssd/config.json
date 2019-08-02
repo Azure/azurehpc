@@ -9,7 +9,7 @@
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
-        "beegfs_disk_type": "nvme",
+        "beegfs_disk_type": "local_ssd",
         "beegfs_node_type": "both",
         "beegfs_pools": "false",
         "beegfs_pools_restart": "false"
@@ -75,7 +75,7 @@
         },
         "beegfssm": {
             "type": "vmss",
-            "vm_type": "Standard_L8s_v2",
+            "vm_type": "Standard_D16_v3",
             "instances": 2,
             "accelerated_networking": true,
             "image": "variables.image",
