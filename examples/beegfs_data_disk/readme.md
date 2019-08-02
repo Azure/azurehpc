@@ -44,4 +44,4 @@ Resources:
   * Management server (beegfsm)
   * Object storage servers and metadata servers(beegfssm)
 
-> Note: The Hb nodes are used for the cluster.  To get best performance nodes with accelerated networking should be used.
+> Note: The Hc nodes are used for the cluster.  To get best performance nodes with accelerated networking should be used.
