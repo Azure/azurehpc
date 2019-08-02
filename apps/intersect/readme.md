@@ -2,37 +2,61 @@
 
 ## Prerequisites
 
+Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up.
+
+Dependencies for binary version:
+
+None
+
+Edit intersect full_intersect_2018.2.sh to have the license server and port number, sas url for intersect and eclipse iso 
+Where PORT and IP are port and IP address of license server (e.g 23456@17.20.20.1)
+
+Edit install_case_intersect_2018.2.sh to update sas url for the dataset tar file 
+
+# Install applications
+
+First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
+
+```
+azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
+```
+
+> Alternatively you can checkout the azurehpc repository but you will need to update the paths to apps directory according to where you put it.
+
+If you plan on running intersect, you will be required to set-up your own licensing. Intersect will need a valid PORT@IP to your license
+server.
+
+
+# Intersect installation and running instructions
 
 ## Install Intersect and eclipse from iso files
 
-Edit variables section of full_intersect.json file, provide Port and IP address for license server (e.g 23456@17.20.20.1).
-You need to be in a directory containing the config.json file, or use the -c to specify its location.
 ```
-azhpc-install -a '${azhpc_dir}/apps/intersect/full_intersect.json'
+azhpc-run -u hpcuser apps/intersect/install_full_intersect_2018.2.sh
 ```
 
+## Install the data sets for intersect
 
-## Install intersect from tarball
-Edit variables section of tar_intersect.json file, provide Port and IP address for license server (e.g 23456@17.20.20.1)
-You need to be in a directory containing the config.json file, or use the -c to specify its location.
-```
-azhpc-install -a '${azhpc_dir}/apps/intersect/tar_intersect.json'
-```
-
-## Install intersect case to run (from tarball)
-You need to be in a directory containing the config.json file, or use the -c to specify its location.
-```
-azhpc-install -a '${azhpc_dir}/apps/intersect/case_intersect.json'
-```
+````
+azhpc-run -a apps/intersect/install_case_intersect_2018.2.sh
+````
 
 ## Run Intersect
-Intersect is run on the headnode. First, Log-in to headnode as user hpcuser (using azhpc-connect -u hpcuser).
-Then git clone the azhpc repo
+
+Intersect is run from the headnode (as user hpcuser), First log-in to headnode as user hpcuser.
+```
+azhpc-connect -u hpcuser headnode
+```
+
+Next run
 
 ```
-./azhpc/apps/runapp.sh -a intersect -n 2 -p 4 -s intersect_2018.2 -x "CASE WORKDIR"
+qsub -v "casename=<case name>" -l select=2:ncpus=15:mpiprocs=15,place=scatter:excl /apps/intersect/run_intersect_2018.2.sh 
 ```
 
-Where CASE (e.g BO_192_192_28) is the intersect case you want to run and WORKDIR (e.g /data) is the location where your job is run.
--n 2 -p 4 (Runs the job on 2 nodes, 4 processes running on each node.)
-You can moditor the intersect job progress by viewing the output file intersect_2018.2*.o*
+Where "case name" (e.g BO_192_192_28) is the intersect case you want to run)
+
+To see if the job is running do
+````
+qstat -aw
+````
