@@ -31,10 +31,45 @@ To check the status of the VMs run
 ```
 azhpc-status
 ```
+
+Connect to the Beegfs master node (beegfsm) and check that the BeeGFS pools were set-up
+
+```
+$ azhpc-connect -u hpcuser beegfsm
+
+```
+```
+$ beegfs-ctl --liststoragepools
+```
+Pool ID   Pool Description                      Targets                 Buddy Groups
+======= ================== ============================ ============================
+      1            Default 2,4
+      2           hdd_pool 1,3
+
+Writing/reading /beegfs/hdd_pools will use the HDD disks and if you use /beegfs the ephemeral disks are used.
+
+```
+$ beegfs-df
+```
+METADATA SERVERS:
+TargetID   Cap. Pool        Total         Free    %      ITotal       IFree    %
+========   =========        =====         ====    =      ======       =====    =
+       1      normal    1787.6GiB    1787.6GiB 100%      178.8M      178.8M 100%
+       2      normal    1787.6GiB    1787.6GiB 100%      178.8M      178.8M 100%
+
+STORAGE TARGETS:
+TargetID   Cap. Pool        Total         Free    %      ITotal       IFree    %
+========   =========        =====         ====    =      ======       =====    =
+       1      normal    4093.7GiB    4093.7GiB 100%      409.6M      409.6M 100%
+       2      normal    1787.6GiB    1787.6GiB 100%      178.8M      178.8M 100%
+       3      normal    4093.7GiB    4093.7GiB 100%      409.6M      409.6M 100%
+       4      normal    1787.6GiB    1787.6GiB 100%      178.8M      178.8M 100%
+
 Connect to the headnode and check PBS and BeeGFS (it will be mounted at /beegfs)
 
 ```
 $ azhpc-connect -u hpcuser headnode
+```
 
 Resources:
 
