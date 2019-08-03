@@ -165,7 +165,7 @@ if [ $disk_type == "nvme" ]; then
    setup_data_disks $BEEGFS_DISK "xfs" "$storageDevices" "md30"
    mkdir -p $BEEGFS_DISK/storage
 elif [ $disk_type == "data_disk" ]; then
-   setup_data_disks $BEEGFS_STORAGE "xfs" "$storageDevices" "md30"
+   setup_data_disks $BEEGFS_STORAGE "xfs" "$storageDevices" "md50"
 fi
 #
 mount -a
