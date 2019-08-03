@@ -1,6 +1,6 @@
 # BeeGFS Cluster built using BeeGFS pools, ephemeral disks (temporary)  and HDD disks (persistent)
 
-This will deploy a BeeGFS PFS using ephemeral disks (L8s_v2) and attaching Standard HDD disks, BeeGFS pools will be set-up to enable moving data between the ephemeral disk and the HDD permanent disk. A headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be also be deployed.
+This will deploy a BeeGFS PFS using ephemeral disks (L8s_v2) and the attached Standard HDD disks, BeeGFS pools will be set-up to enable moving data between the ephemeral disk and the HDD permanent disk. A headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be also be deployed.
 
 >NOTE:
 - MAKE SURE YOU HAVE FOLLOWED THE STEPS IN [prerequisite](../../tutorials/prerequisites.md) before proceeding here
