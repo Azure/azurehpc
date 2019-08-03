@@ -12,6 +12,7 @@
         "beegfs_disk_type": "nvme",
         "beegfs_node_type": "both",
         "beegfs_pools": "true",
+        "beegfs_num_hdd_disks": 2,
         "beegfs_pools_restart": "false"
     },
     "vnet": {
@@ -70,7 +71,8 @@
                 "beegfspkgs",
                 "beegfsm",
                 "disable-selinux",
-                "beegfsc"
+                "beegfsc",
+                "beegfs_pools"
             ]
         },
         "beegfssm": {
@@ -141,6 +143,14 @@
                 "$(<hostlists/tags/beegfsm)"
             ],
             "tag": "beegfsc",
+            "sudo": true
+        },
+        {
+            "script": "beegfs_pools.sh",
+            "args": [
+                "variables.beegfs_num_hdd_disks"
+            ],
+            "tag": "beegfs_pools",
             "sudo": true
         },
         {
