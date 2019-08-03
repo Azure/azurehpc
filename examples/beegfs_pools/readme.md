@@ -46,7 +46,7 @@ Pool ID   Pool Description                      Targets                 Buddy Gr
       2           hdd_pool 1,3
 
 ```
-Writing/reading /beegfs/hdd_pools will use the HDD disks and if you use /beegfs the ephemeral disks are used.
+Writing/reading to /beegfs/hdd_pools will use the HDD disks and if you use /beegfs the ephemeral disks are used.
 
 ```
 $ beegfs-df
