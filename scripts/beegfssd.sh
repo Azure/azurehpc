@@ -133,7 +133,7 @@ tmpDevice=`mount | grep "on /mnt/resource type" | awk '{print $1}' | sed 's/[0-9
 hddDiskSize=default
 if [ $pools == "true" ]; then
    hddDiskSize=`fdisk -l | grep '^Disk /dev/sdc' | grep -v $rootDevice | grep -v $tmpDevice | awk '{print $3}'`
-#   hddDevices="`fdisk -l | grep '^Disk /dev/' | grep -v $rootDevice | grep -v $tmpDevice | grep $hddDiskSize | awk '{print $2}' | awk -F: '{print $1}' | tr '\n' ' ' | sed 's|/dev/||g'`"
+   hddDevices="`fdisk -l | grep '^Disk /dev/' | grep -v $rootDevice | grep -v $tmpDevice | grep $hddDiskSize | awk '{print $2}' | awk -F: '{print $1}' | tr '\n' ' ' | sed 's|/dev/||g'`"
 fi
 #
 metadataDiskSize=`fdisk -l | grep '^Disk /dev/' | grep -v '/dev/md' | grep -v $hddDiskSize | grep -v $rootDevice | grep -v $tmpDevice | awk '{print $3}' | sort -n -r | tail -1`
