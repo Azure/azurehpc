@@ -12,7 +12,7 @@ else
 BEEGFS_DISK=/mnt/beegfs
 fi
 
-BEEGFS_HDD=/mnt/beegfs/hdd
+BEEGFS_HDD=/mnt/hdd
 BEEGFS_STORAGE=${BEEGFS_DISK}/storage
 #
 yum install -y beegfs-storage
