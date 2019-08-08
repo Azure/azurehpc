@@ -20,4 +20,5 @@ while [ "$jobs" != "0" ]; do
     sleep 30
 done
 
-cat *.log
+tail -n 100 OF_motorbike_2m.o0
+tail -n 100 OF_motorbike_2m.e0
