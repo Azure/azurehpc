@@ -12,7 +12,7 @@ install_dir=$apps_dir/paraview
 mkdir -p $install_dir
 
 echo "Ready to download the install file"
-wget -q -O $ZIP_FILE https://www.paraview.org/files/${VERSION}/${ZIP_FILE}
+wget -nv -O $ZIP_FILE https://www.paraview.org/files/${VERSION}/${ZIP_FILE}
 
 echo "Ready to install"
 unzip -d $install_dir ${ZIP_FILE}
