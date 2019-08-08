@@ -12,10 +12,10 @@ install_dir=$apps_dir/paraview
 mkdir -p $install_dir
 
 echo "Ready to download the install file"
-wget -O $ZIP_FILE https://www.paraview.org/files/${VERSION}/${ZIP_FILE}
+wget -q -O $ZIP_FILE https://www.paraview.org/files/${VERSION}/${ZIP_FILE}
 
 echo "Ready to install"
-unzip -d $install_dir ParaView-5.6.1-Windows-msvc2015-64bit.zip
+unzip -d $install_dir ${ZIP_FILE}
 
 echo "Remove the install file"
-rm -f /tmp/ParaView-5.6.1-Windows-msvc2015-64bit.zip
+rm -f /tmp/${ZIP_FILE}
