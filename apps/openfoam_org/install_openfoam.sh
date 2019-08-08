@@ -81,7 +81,7 @@ EOF
 mkdir -p ${SHARED_APP}/${APP_NAME}
 pushd ${SHARED_APP}/${APP_NAME}
 if [ ! -f ${SHARED_APP}/${APP_NAME}/${INSTALL_TAR} ]; then
-wget "$TAR_SAS_URL" -O - | tar zx
+wget -q "$TAR_SAS_URL" -O - | tar zx
 fi
 popd
 
