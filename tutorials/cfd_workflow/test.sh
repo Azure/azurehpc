@@ -20,5 +20,6 @@ while [ "$jobs" != "0" ]; do
     sleep 30
 done
 
+# TODO add any error detection in the scripts
 tail -n 100 OF_motorbike_2m.o0
 tail -n 100 OF_motorbike_2m.e0
