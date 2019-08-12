@@ -40,23 +40,28 @@ azhpc-connect -u hpcuser headnode
 ```
 
 ## Install Ansys Mechanical
+
+```
 cd apps/ansys_mechanical
 
 sudo bash install_mechanical.sh \<tar file name\> \<URL to tar file of the installer\>
+```
 
 Example:
-
+```
 sudo bash install_mechanical.sh STRUCTURES_192_LINX64.tar "https://<storage_url>/apps/ansys-mech-19-2/STRUCTURES_192_LINX64.tar?{SAS_KEY}"
-
+```
 
 ## Running
 
-NOTE: In the run script you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
+NOTE: In the run script you will need to __update the license server__.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
 
 # Copy over the benchmarks. You will need to provide the correct path to the benchmarks.
+```
 mkdir -p ~/ansys/v19
 cd ~/ansys/v19
 wget -q "${STORAGE_ENDPOINT}/ansys-mechanical-benchmarks/BENCH_V190_LINUX.tgz?${SAS_KEY}" -O - | tar -xz
+```
 
 Now, you can run as follows:
 
