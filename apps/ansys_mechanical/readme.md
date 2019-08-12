@@ -41,7 +41,8 @@ azhpc-connect -u hpcuser headnode
 
 ## Install Ansys Mechanical
 cd apps/ansys_mechanical
-sudo bash install_mechanical.sh <tar file name> <URL to tar file of the installer>
+
+sudo bash install_mechanical.sh \<tar file name\> \<URL to tar file of the installer\>
 
 Example:
 
