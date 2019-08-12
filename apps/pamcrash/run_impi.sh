@@ -1,9 +1,13 @@
 #!/bin/bash
 
-install_dir=/apps
 APPLICATION=pamcrash
+APP_VERSION=2018.01
+install_dir=/apps/${APPLICATION}_${APP_VERSION}
 VERSION=2018
 INTERCONNECT=sriov
+threads=1
+case_name=
+LICENSE_SERVER=
 
 cd $PBS_O_WORKDIR
 
@@ -33,7 +37,7 @@ esac
 function setup_impi()
 {
     # setup Intel MPI environment for Infiniband
-    module load mpi/impi-2018.4.274
+    module load mpi/impi_2018.4.274
     source $MPI_BIN/mpivars.sh
     export MPI_DIR=$MPI_BIN
     PAM_MPI=impi-5.1.3
@@ -66,32 +70,3 @@ $PAMCRASH -np ${CORES} \
 
 end_time=$SECONDS
 task_time=$(($end_time - $start_time))
-
-# extract telemetry
-case_output=../stdout.txt
-if [ -f "${case_output}" ]; then
-
-    line=$(grep " ELAPSED TIME" ${case_output} | tail -1)
-    printf -v elapsed_time '%.2f' $(echo $line | cut -d' ' -f3)
-
-    line=$(grep " CPU TIME" ${case_output} | tail -1)
-    printf -v cpu_time '%.2f' $(echo $line | cut -d' ' -f3)
-
-    version=$(grep "| Version" ${case_output} | cut -d':' -f2| cut -d'|' -f1 | xargs)
-    precision=$(grep "| Precision" ${case_output} | cut -d':' -f2| cut -d'|' -f1 | xargs)
-
-    mpi_version=$(mpirun -version | head -n 1)
-    cat <<EOF >$APPLICATION.json
-    {
-    "version": "$version",
-    "mpi_version": "$mpi_version",
-    "pam_mpi": "$PAM_MPI",
-    "model": "$case_name",
-    "precision": "$precision",
-    "elapsed_time": $elapsed_time,
-    "cpu_time": $cpu_time,
-    "task_time": $task_time,
-    "download_time": $download_time
-    }
-EOF
-fi
