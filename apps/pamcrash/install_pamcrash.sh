@@ -1,6 +1,11 @@
 #!/bin/bash
 
+APPLICATION=pamcrash
+VERSION=2018.01
 install_dir=/apps
+if [ ! -d $install_dir ]; then
+   mkdir $install_dir
+fi
 
 #NOTE!!: Update the path to the pamcrash install files before running the script
 inst1=/path/to/VPSolution-2017.0.2_Solvers_Linux-Intel64.tar.bz2 
