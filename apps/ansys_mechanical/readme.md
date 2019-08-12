@@ -5,7 +5,11 @@
 Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up.
 
 Recommended cluster setup
-Start with the simple_hpc_pbs example. Before you do azhpc-build copy the scripts directory from <azurehpc>/apps/ansys_mechanical to your cluster build directory. Next, you will need to add 
+Start with the simple_hpc_pbs example. Before you do azhpc-build copy the scripts directory from <azurehpc>/apps/ansys_mechanical to your cluster build directory. First, you will need to add the following line above the "tags" section for the headnode.
+
+"data_disks": [2048, 2048],
+    
+ Second, add the following section in the scripts section above the pbsdownload piece (~line 90 in the config.json file). 
 
 {
     "script": "add_pkg.sh",
@@ -13,7 +17,7 @@ Start with the simple_hpc_pbs example. Before you do azhpc-build copy the script
      "sudo": true
 },
 
-in the scripts section above the pbsdownload piece (~line 90 in the config.json file). You will also need to add "add_pkg" to the tags section for the compute nodes (~line 50 in the config.json file).Once these changes are made, then when you build the cluster (azhpc-build) it will get the neccessary scripts to install the prerequsites on the compute nodes
+Finally, add "add_pkg" to the tags section for the compute nodes (~line 50 in the config.json file).Once these changes are made, then when you build the cluster (azhpc-build) it will get the neccessary scripts to install the prerequsites on the compute nodes
 
 Dependencies for binary version:
 
