@@ -1,4 +1,4 @@
-## Install and run abaqus Benchmarks
+## Install and run gromacs Benchmarks
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ Dependencies for binary version:
 
 ## Installation
 
-NOTE: Update the path to the abaqus installer storageendpoint, sasurl and license server in $azhpc_dir/apps/abaqus/install_abaqus.sh
+NOTE: Update the gromacs version if needed in $azhpc_dir/apps/gromacs/install_gromacs.sh
 
 First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
 
@@ -21,7 +21,7 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 > Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
 
 ```
-azhpc-run -u hpcuser  apps/abaqus/install_abaqus.sh 
+azhpc-run -u hpcuser  apps/gromacs/install_gromacs.sh 
 ```
 
 > Note: This will install into `/apps`.
@@ -34,11 +34,16 @@ azhpc-connect -u hpcuser headnode
 
 ## Running
 
-NOTE: Update the path to the abaqus benchmark storageendpoint, saskey and license server in $azhpc_dir/apps/abaqus/run_intelmpi.sh
+NOTE: Update the path to the gromacs benchmark storageendpoint, saskey and license server in $azhpc_dir/apps/gromacs/run_intelmpi.sh
 
 Now, you can run as follows:
 
 ```
-qsub -v "MODEL=<model name>" -l select=2:ncpus=15:mpiprocs=15,place=scatter:excl apps/abaqus/run_intelmpi.sh
+qsub -v "package=<benchmark tar name>","casename=<casename>" -l select=2:ncpus=15:mpiprocs=30:ompthreads=1,place=scatter:excl apps/gromacs/run_intelmpi.sh
+
+e.g. "package=GROMACS_TestCaseA.tar.gz","casename=ion_channel.tpr" 
+		OR
+	 "package=GROMACS_TestCaseB.tar.gz","casename=lignocellulose-tf.tpr" 
+
 
 ```
