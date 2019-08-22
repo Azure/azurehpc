@@ -34,7 +34,7 @@ azhpc-connect -u hpcuser headnode
 
 ## Running
 
-NOTE: Update the path to the gromacs benchmark storageendpoint, saskey and license server in $azhpc_dir/apps/gromacs/run_intelmpi.sh
+NOTE: Update the gromacs version in $azhpc_dir/apps/gromacs/run_intelmpi.sh if needed
 
 Now, you can run as follows:
 
