@@ -1,4 +1,5 @@
 #!/bin/bash
+APPLICATION='ABAQUS'
 CORES=`cat $PBS_NODEFILE | wc -l`
 PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
 hostlist=`cat $PBS_NODEFILE | sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/'`   
@@ -11,15 +12,7 @@ LICENSE_SERVER="<license server ip>"
 echo "----- get Abaqus test case $MODEL -----"
 wget -q "${ABAQUS_BENCHMARK_STORAGEENDPOINT}/abaqus-benchmarks/${MODEL}.inp?${ABAQUS_BENCHMARK_SASKEY}" -O ${MODEL}.inp
 
-if [ "$INTERCONNECT" == "ib" ]; then
-    export mpi_options="-env IMPI_FABRICS=shm:dapl -env I_MPI_DAPL_PROVIDER=ofa-v2-ib0 -env I_MPI_DYNAMIC_CONNECTION=0 -env I_MPI_FALLBACK_DEVICE=0"
-    export MPI_RDMA_MSGSIZE="16384,1048576,4194304"
-elif [ "$INTERCONNECT" == "sriov" ]; then
-    export mpi_options="-env IMPI_FABRICS=shm:ofa -env I_MPI_FALLBACK_DEVICE=0"
-    #export MPI_RDMA_MSGSIZE="16384,1048576,4194304"
-else
-    export mpi_options="-env IMPI_FABRICS=shm:tcp"
-fi
+export mpi_options="-env IMPI_FABRICS=shm:ofa -env I_MPI_FALLBACK_DEVICE=0"
 
 #define hosts in abaqus_v6.env file
 # mp_file_system=(LOCAL,LOCAL)
@@ -40,7 +33,7 @@ source /opt/intel/impi/*/bin64/mpivars.sh
 export MPI_ROOT=$I_MPI_ROOT
 
 
-ABQ2019="/opt/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x/linux_a64/code/bin/SMALauncher"
+ABQ2019="/apps/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x/linux_a64/code/bin/SMALauncher"
 JOBNAME=$MODEL-$CORES
 
 start_time=$SECONDS

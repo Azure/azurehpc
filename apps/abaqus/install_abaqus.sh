@@ -8,45 +8,7 @@ LICENSE_SERVER="<license server ip>"
 LICIP=27000@${LICENSE_SERVER}
 echo $LICIP
 
-setup_intel_mpi_2018()
-{
-    echo "*********************************************************"
-    echo "*                                                       *"
-    echo "*           Installing Intel MPI & Tools                *" 
-    echo "*                                                       *"
-    echo "*********************************************************"
-    VERSION=2018.4.274
-
-    sudo yum -y install yum-utils
-    sudo yum-config-manager --add-repo https://yum.repos.intel.com/mpi/setup/intel-mpi.repo
-    sudo rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
-
-    sudo yum -y install intel-mpi-2018.4-057
-
-              sudo mkdir -p /usr/share/Modules/modulefiles/mpi
-
-cat << EOF >> /usr/share/Modules/modulefiles/mpi/impi-$VERSION
-#%Module 1.0
-#
-#  Intel MPI $VERSION
-#
-conflict        mpi
-prepend-path    PATH            /opt/intel/impi/$VERSION/intel64/bin
-prepend-path    LD_LIBRARY_PATH /opt/intel/impi/$VERSION/intel64/lib
-prepend-path    MANPATH         /opt/intel/impi/$VERSION/man
-setenv          MPI_BIN         /opt/intel/impi/$VERSION/intel64/bin
-setenv          MPI_INCLUDE     /opt/intel/impi/$VERSION/intel64/include
-setenv          MPI_LIB         /opt/intel/impi/$VERSION/intel64/lib
-setenv          MPI_MAN         /opt/intel/impi/$VERSION/man
-setenv          MPI_HOME        /opt/intel/impi/$VERSION/intel64
-EOF
-
-    #source /opt/intel/impi/${VERSION}/bin64/mpivars.sh
-}
-
-if [ ! -d "/opt/intel/impi" ]; then
-    setup_intel_mpi_2018
-fi
+source /opt/intel/impi/*/bin64/mpivars.sh
 
 #echo "----- patch OS -----"
 sudo yum install -y ksh 
@@ -54,9 +16,7 @@ sudo yum install -y lsb
 
 sudo mkdir -p /apps/abaqus/applications
 sudo mkdir -p /apps/abaqus/INSTALLERS
-sudo mkdir -p /opt/abaqus/benchmark
 sudo chmod -R 777 /apps/abaqus
-sudo chmod -R 777 /opt/abaqus
 
 #Get Abaqus bits
 echo "----- get Abaqus install bits -----"
@@ -70,7 +30,7 @@ wget "${ABAQUS_INSTALL_STORAGEENDPOINT}/abaqus-2019/2019.AM_SIM_Abaqus_Extend.Al
 echo "----- install Abaqus solvers -----"
 cat << EOF |  ksh /apps/abaqus/INSTALLERS/AM_SIM_Abaqus_Extend.AllOS/3/SIMULIA_AbaqusServices/Linux64/1/StartTUI.sh
 
-/opt/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x
+/apps/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x
 
 
 
@@ -89,12 +49,14 @@ export NOLICENSECHECK=true
 echo "----- install Abaqus services -----"
 cat << EOF |  ksh /apps/abaqus/INSTALLERS/AM_SIM_Abaqus_Extend.AllOS/4/SIMULIA_Abaqus_CAE/Linux64/1/StartTUI.sh
 
-/opt/abaqus/applications/SIMULIA/CAE/2019
+/apps/abaqus/applications/SIMULIA/CAE/2019
+
 $LICIP
 
-/opt/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x
-/opt/abaqus/applications/DassaultSystemes/SIMULIA/Commands
-/opt/abaqus/applications/DassaultSystemes/SIMULIA/CAE/plugins/2019
+
+/apps/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x
+/apps/abaqus/applications/DassaultSystemes/SIMULIA/Commands
+/apps/abaqus/applications/DassaultSystemes/SIMULIA/CAE/plugins/2019
 
 
 
@@ -106,11 +68,7 @@ $LICIP
 
 EOF
 
-ENV_PATH="/opt/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x/linux_a64/SMA/site"
-
-# this is no longer needed as we set the license server in the run script
-#echo abaquslm_license_file="'$LICIP'" >> $ENV_PATH/custom_v6.env
-#echo license_server_type=FLEXNET  >> $ENV_PATH/custom_v6.env
+ENV_PATH="/apps/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x/linux_a64/SMA/site"
 
 # Need to path the impi.env file to use the right intel mpi path
 cat <<EOF >$ENV_PATH/impi.env
