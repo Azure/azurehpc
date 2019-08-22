@@ -187,6 +187,10 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --public-ip-address-dns-name $resource_name$uuid_str \
                 $data_disks_options \
                 --no-wait
+            
+            if [ "$?" -ne "0" ]; then
+                error "Failed to create resource"
+            fi
         ;;
         vmss)
             status "creating vmss: $resource_name"
@@ -246,6 +250,10 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --subnet $resource_subnet_id \
                 $data_disks_options \
                 --no-wait
+            
+            if [ "$?" -ne "0" ]; then
+                error "Failed to create resource"
+            fi
         ;;
         *)
             error "unknown resource type ($resource_type) for $resource_name"

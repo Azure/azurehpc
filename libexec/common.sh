@@ -38,8 +38,6 @@ function error()
     else
         echo -e "\e[31m$(date) error : \e[1m$1\e[0m"
     fi
-    echo
-    usage
     exit 1
 }
 
