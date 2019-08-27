@@ -35,7 +35,7 @@ apps/abaqus/install_abaqus.sh
 
 ## Running
 
-NOTE: Update the path to the abaqus benchmark storageendpoint, saskey and license server in $azhpc_dir/apps/abaqus/run_intelmpi.sh
+NOTE: Update the path to the abaqus benchmark storageendpoint, saskey and license server in $azhpc_dir/apps/abaqus/run_abaqus_intelmpi.pbs
 
 Now, you can run as follows:
 
