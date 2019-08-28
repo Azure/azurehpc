@@ -1,0 +1,186 @@
+{
+    "location": "westeurope",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/22",
+            "storage": "10.2.4.0/24"
+        }
+    },
+    "variables": {
+        "resource_group": "paul-lustre-l32v2",
+        "image": "OpenLogic:CentOS:7.6:latest",
+        "storage_account": "lfswe",
+        "storage_key": "secret.pauldevkeyvault.key-lfswe",
+        "storage_container": "openfoam"
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D16s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "lfsclient",
+                "lfsazimport",
+                "localuser",
+                "pbsserver",
+                "loginnode",
+                "nfsserver"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "Standard_D32s_v3",
+            "accelerated_networking": true,
+            "instances": 2,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "lfsclient",
+                "localuser",
+                "pbsclient",
+                "nfsclient",
+                "addmpich"
+            ]
+        },
+        "lustre": {
+            "type": "vmss",
+            "vm_type": "Standard_L32s_v2",
+            "instances": 4,
+            "accelerated_networking": true,
+            "image": "variables.image",
+            "subnet": "storage",
+            "tags": [
+                "lustre",
+                "disable-selinux"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "nfsserver.sh",
+            "tag": "nfsserver",
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "create_raid0.sh",
+            "args": [
+                "/dev/md10",
+                "/dev/nvme*n1"
+            ],
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfspkgs.sh",
+            "tag": "lustre",
+            "reboot": true,
+            "sudo": true
+        },
+        {
+            "script": "lfsmaster.sh",
+            "tag": "lustre",
+            "args": [
+                "/dev/sdb"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "lfsoss.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lustre)",
+                "/dev/md10"
+            ],
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfshsm.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lustre)",
+                "variables.storage_account",
+                "variables.storage_key",
+                "variables.storage_container"
+            ],
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfsclient.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lustre)"
+            ],
+            "tag": "lfsclient",
+            "sudo": true
+        },
+        {
+            "script": "lfsimport.sh",
+            "args": [
+                "variables.storage_account",
+                "variables.storage_key",
+                "variables.storage_container"
+            ],
+            "tag": "lfsazimport",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": false
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
+            "sudo": false
+        },
+        {
+            "script": "addmpich.sh",
+            "sudo": true,
+            "tag": "addmpich"
+        }
+    ]
+}
