@@ -7,6 +7,7 @@ Cluster is built with the desired configuration for networking, storage, compute
 Dependencies for binary version:
 
 * HPCX with C++ bindings
+* OpenMPI shared libraries symbolic links (see `runtime_prolb.sh`)
 
 ## Installation
 
@@ -22,13 +23,20 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 
 > Alternatively you can checkout the **azurehpc** repository but you will need to update the paths according to where you put it.
 
-Finally run the installer
+Then run the installer
 
 ```
 azhpc-run -u hpcuser  apps/prolb/install_prolb.sh 
 ```
 
 > Note: This will install into `/apps`.
+
+Finally, if the `runtime_prolb.sh` is not part of your compute node installation, run that script on all compute nodes as follows
+
+```
+azhpc-run -n compute -u hpcuser apps/prolb/runtime_prolb.sh 
+```
+
 
 ## Connect to the headnode
 
