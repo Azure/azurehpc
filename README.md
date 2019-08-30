@@ -239,7 +239,6 @@ Usage:
 |---------------|:-----:|-----------------------------------------------|
 | --help        | -h    | Display help message                          |
 | --config FILE | -c    | The config file to use (default: config.json) |
-| --user USER   | -u    | The user to run as (default: <admin-user>)    |
 
 ### azhpc-status
 
