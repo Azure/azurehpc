@@ -1,5 +1,7 @@
 ## Install and run PROLB
 
+> Note : This version has been tested on HC44rs and HB60rs. When running on other SKUs, please update the `prolb.sh` script to adapt the memory per core to be used.
+
 ## Prerequisites
 
 Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up.

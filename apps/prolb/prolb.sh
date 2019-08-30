@@ -106,6 +106,8 @@ if [ -n "${LD_PRELOAD}" ]; then
     mpi_options+=" -x LD_PRELOAD"
 fi
 
+# Set the memory per core based on the SKU. It would be better to calculate this dynamically based on the the amount of memory
+# on the node, the PPN and leaving some room for the OS.
 if [ "$AZHPC_VMSIZE" == "standard_hb60rs" ]; then
     memory=4000
 elif [ "$AZHPC_VMSIZE" == "standard_hc44rs" ]; then
