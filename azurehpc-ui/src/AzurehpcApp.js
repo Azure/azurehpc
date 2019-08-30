@@ -69,11 +69,6 @@ class AzurehpcApp extends React.Component {
         this.fileOpenRef.current.click();
     }
 
-    onNavbarItemClick(event) {
-        var new_page = event.target.id.replace("navbar-", "");
-        this.setState({ page: new_page });
-    }
-
     render() {
         var content;
         const active_button = "btn btn-dark my-2 my-sm-0 active";
@@ -82,33 +77,30 @@ class AzurehpcApp extends React.Component {
             <ul className="navbar-nav mr-auto">
                 <li className="nav-item nav-link">
                     <button
-                        id="navbar-overview"
                         className={
                             this.state.page === "overview" ? active_button : inactive_button
                         }
-                        onClick={this.onNavbarItemClick.bind(this)}
+                        onClick={() => {this.setState({page: "overview"})} }
                     >
                         <i className="fa fa-cloud"></i> Overview
             </button>
                 </li>
                 <li className="nav-item nav-link">
                     <button
-                        id="navbar-install"
                         className={
                             this.state.page === "install" ? active_button : inactive_button
                         }
-                        onClick={this.onNavbarItemClick.bind(this)}
+                        onClick={() => {this.setState({page: "install"})} }
                     >
                         <i className="fa fa-reorder"></i> Install Steps
             </button>
                 </li>
                 <li className="nav-item nav-link">
                     <button
-                        id="navbar-code"
                         className={
                             this.state.page === "code" ? active_button : inactive_button
                         }
-                        onClick={this.onNavbarItemClick.bind(this)}
+                        onClick={() => {this.setState({page: "code"})} }
                     >
                         <i className="fa fa-code"></i> Code
             </button>

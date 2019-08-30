@@ -1,6 +1,5 @@
 import React from 'react';
-import MonacoEditor from 'react-monaco-editor';
-import * as monaco from 'monaco-editor';
+import Editor from "@monaco-editor/react"
 import ReactResizeDetector from 'react-resize-detector';
 
 class AzurehpcEditorView extends React.Component {
@@ -8,7 +7,7 @@ class AzurehpcEditorView extends React.Component {
 
     editorDidMount = (editor) => {
         this.editor = editor;
-        editor.focus();
+        //editor.focus();
     };
 
     render() {
@@ -20,14 +19,13 @@ class AzurehpcEditorView extends React.Component {
         return (<ReactResizeDetector
             handleWidth
             handleHeight
-            onResize={(x,y) => {
-                console.log(x,y);
+            onResize={() => {
                 if (this.editor) {
-                    this.editor.layout();
+                    //this.editor.layout();
                 }
             }}
         >
-            <MonacoEditor
+            <Editor
                 language="json"
                 theme="vs"
                 value={code}
