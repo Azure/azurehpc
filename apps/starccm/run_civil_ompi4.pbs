@@ -1,0 +1,76 @@
+#!/bin/bash
+
+#PBS -N civil
+#PBS -l select=2:ncpus=60:mpiprocs=60:mem=220gb
+#PBS -l walltime=168:0:0
+#PBS -k oed
+
+MPI=openmpi-4.0.0
+VERSION=14.06.004
+AZ_INST=HB60rs
+
+APPLICATION=starccm
+OUTPUT_DIR=$PBS_O_WORKDIR
+ 
+podkey=<podkey from Siemens>
+case=civil
+
+starccm_case=$case.sim
+ 
+export PATH=/apps/CFD/Siemens/${VERSION}/STAR-CCM+${VERSION}/star/bin:$PATH
+export CDLMD_LICENSE_FILE=1999@flex.cd-adapco.com
+export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
+
+DATE=`date +"%Y%m%d_%H%M%S"`
+
+JOB_DIR=/data/projects/hpcuser/$PBS_JOBID
+mkdir -p $JOB_DIR
+cd $JOB_DIR
+ln -s /data/star-ccm+/civilAirliner/data/case/${starccm_case} .
+
+NODES=`cat $PBS_NODEFILE | sort -n | uniq | wc -l`
+CORES=`cat $PBS_NODEFILE | sort -n | wc -l`
+PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
+ 
+PKEY=`cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/* | grep -v 0000 | grep -v 0x7fff`
+PKEY=`echo "${PKEY/0x8/0x0}"`
+echo "PKEY: $PKEY"
+
+echo "Running Starccm Benchmark case : [${starccm_case}], Nodes: ${NODES} (Total Cores: ${CORES})"
+starccm+ \
+    -np $CORES \
+    -machinefile $PBS_NODEFILE \
+    -power \
+    -podkey "$podkey" \
+    -rsh ssh \
+    -mpi openmpi4 \
+    -cpubind bandwidth,v \
+    -ldlibpath /usr/lib \
+    -fabric ucx \
+    -mppflags "-mca mca_base_env_list UCX_IB_PKEY=$PKEY,UCX_NET_DEVICES=mlx5_0:1 -mca btl ^vader,openib -mca plm_rsh_no_tree_spawn 1" \
+    $starccm_case -benchmark "-preclear -preits 40 -nits 20 -nps $CORES"
+
+
+output_xml=$(ls *.xml)
+ 
+# extract telemetry
+if [ -f "${output_xml}" ]; then
+    cat <<EOF > ${OUTPUT_DIR}/${APPLICATION}_${case}_${MPI}_${NODES}n_${CORES}c_${DATE}.json
+    {
+    "version": "$(xmllint --xpath "string(/Benchmark/Version)" $output_xml)",
+    "model": "$(xmllint --xpath "string(/Benchmark/Name)" $output_xml)",
+    "mpi": "$MPI",
+    "run_date": "$(xmllint --xpath "string(/Benchmark/RunDate)" $output_xml)",
+    "pre_steps": "$(xmllint --xpath "string(/Benchmark/BenchmarkSamples/Sample/NumberOfPreSteps)" $output_xml)",
+    "sample_iterations": "$(xmllint --xpath "string(/Benchmark/BenchmarkSamples/Sample/NumberOfSampleIterations)" $output_xml)",
+    "avg_iteration_time": "$(xmllint --xpath "string(/Benchmark/BenchmarkSamples/Sample/AverageElapsedTime)" $output_xml)",
+    "sample_elapsed_time": "$(xmllint --xpath "string(/Benchmark/BenchmarkSamples/Sample/SampleElapsedTime)" $output_xml)",
+    "total_elapsed_time": "$(xmllint --xpath "string(/Benchmark/BenchmarkSamples/Sample/TotalElapsedTime)" $output_xml)",
+    "ppn": "$PPN",
+    "total_cores": "$(xmllint --xpath "string(/Benchmark/BenchmarkSamples/Sample/NumberOfWorkers)" $output_xml)",
+    "total_nodes": "$(xmllint --xpath "string(/Benchmark/Hosts/NumberOfHosts)" $output_xml)"
+    }
+EOF
+cp ${OUTPUT_DIR}/${APPLICATION}_${case}_${MPI}_${NODES}n_${CORES}c_${DATE}.json ${PBS_AZURE_LA_JSON_FILE_DIR}/${PBS_JOBID}.json
+cp $output_xml $PBS_O_WORKDIR
+fi
