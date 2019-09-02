@@ -12,11 +12,11 @@
         }
     },
     "variables": {
-        "resource_group": "paul-lustre-l32v2",
+        "resource_group": "<NOT-SET>",
         "image": "OpenLogic:CentOS:7.6:latest",
-        "storage_account": "lfswe",
-        "storage_key": "secret.pauldevkeyvault.key-lfswe",
-        "storage_container": "openfoam"
+        "storage_account": "<NOT-SET>",
+        "storage_key": "<NOT-SET>",
+        "storage_container": "<NOT-SET>"
     },
     "resources": {
         "headnode": {
