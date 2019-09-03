@@ -9,20 +9,31 @@ LSF_DOWNLOAD_DIR=/mnt/resource
 pushd $LSF_DOWNLOAD_DIR
 
 # Get product file
-filename=$(echo ${lsf_product_sas##*/} | cut -d'?' -f1)
+filename=$(echo $lsf_product_sas | cut -d'?' -f1)
+filename=$(echo ${filename##*/})
+echo "Downloading $filename"
 wget -q "$lsf_product_sas" -O ${filename}
 
 # Get patch file
-filename=$(echo ${lsf_product_sp7_sas##*/} | cut -d'?' -f1)
+filename=$(echo $lsf_product_sp7_sas | cut -d'?' -f1)
+filename=$(echo ${filename##*/})
+echo "Downloading $filename"
 wget -q "$lsf_product_sp7_sas" -O ${filename}
 
 # Get entitlement file
-filename=$(echo ${lsf_entitlement_sas##*/} | cut -d'?' -f1)
+filename=$(echo $lsf_entitlement_sas | cut -d'?' -f1)
+filename=$(echo ${filename##*/})
+echo "Downloading $filename"
 wget -q "$lsf_entitlement_sas" -O ${filename}
 
 # Get and untar installer
-filename=$(echo ${lsf_install_sas##*/} | cut -d'?' -f1)
+filename=$(echo $lsf_install_sas | cut -d'?' -f1)
+filename=$(echo ${filename##*/})
+echo "Downloading $filename"
 wget -q "$lsf_install_sas" -O ${filename}
 gunzip $filename
 tar -xf ${filename%.*}
+
+# List all files
+ls -al
 
