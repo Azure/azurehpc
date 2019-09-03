@@ -47,14 +47,19 @@ azhpc-run -u hpcuser  apps/starccm/install_starccm.sh
 azhpc-connect -u hpcuser headnode
 ```
 
-# Copy over the benchmark files. In this case, copy the civil.sim.tgz benchmark to the /data/starccm/ location and untar it.
+# Copy over the benchmark files
+In this case, copy the civil.sim.tgz benchmark to the /data/starccm/ location and untar it.
 
-## Running
+## Preparing to Run Starccm+
+```
 mkdir starccm
 cd starccm
-cp ~/apps/starccm/run_civil.pbs .
+cp ~/apps/starccm/run_civil_ompi4.pbs .
+```
+## Update License Information
+You will need to update the license information in the run_civil.pbs script. This will either be a podkey (line 16) or the CMLMD_LICENSE_FILE variable (line 22). 
 
-## Next you will need to update the license information in the run_civil.pbs script. This will either be a podkey (line 16) or the CMLMD_LICENSE_FILE variable (line 22). Once this is done you are ready to run
+## Run Starccm+
 
-qsub -l select=2:ncpus=60:mpiprocs=60:mem=220gb run_civil.pbs
+qsub -l select=2:ncpus=60:mpiprocs=60:mem=220gb run_civil_ompi4.pbs
 
