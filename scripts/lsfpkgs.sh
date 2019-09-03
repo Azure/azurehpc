@@ -6,7 +6,7 @@ lsf_entitlement_sas="$4"
 
 LSF_DOWNLOAD_DIR=/mnt/resource
 
-popd $LSF_DOWNLOAD_DIR
+pushd $LSF_DOWNLOAD_DIR
 
 # Get product file
 filename=$(echo ${lsf_product_sas##*/} | cut -d'?' -f1)
