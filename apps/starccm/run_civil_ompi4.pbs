@@ -26,7 +26,7 @@ DATE=`date +"%Y%m%d_%H%M%S"`
 JOB_DIR=/data/projects/hpcuser/$PBS_JOBID
 mkdir -p $JOB_DIR
 cd $JOB_DIR
-ln -s /data/star-ccm+/civilAirliner/data/case/${starccm_case} .
+ln -s /data/starccm/civilAirliner/data/case/${starccm_case} .
 
 NODES=`cat $PBS_NODEFILE | sort -n | uniq | wc -l`
 CORES=`cat $PBS_NODEFILE | sort -n | wc -l`
