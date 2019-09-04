@@ -3,7 +3,7 @@ LSF_DOWNLOAD_DIR=/mnt/resource
 LSF_INSTALL_DIR=$LSF_DOWNLOAD_DIR/lsf10.1_lsfinstall
 LSF_INSTALL_CONFIG=$LSF_INSTALL_DIR/lsf.install.config
 LSF_TOP=/apps/lsf
-LSF_CONF=$LSF_TOP/lsf.conf
+LSF_CONF=$LSF_TOP/conf/lsf.conf
 
 # Install dependencies
 yum -y install jre
