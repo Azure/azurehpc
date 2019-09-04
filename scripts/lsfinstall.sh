@@ -3,6 +3,10 @@ LSF_DOWNLOAD_DIR=/mnt/resource
 LSF_INSTALL_DIR=$LSF_DOWNLOAD_DIR/lsf10.1_lsfinstall
 LSF_INSTALL_CONFIG=$LSF_INSTALL_DIR/lsf.install.config
 LSF_TOP=/apps/lsf
+LSF_CONF=$LSF_TOP/lsf.conf
+
+# Install dependencies
+yum -y install jre
 
 # Fill up install configuration file
 cp $LSF_INSTALL_DIR/install.config $LSF_INSTALL_CONFIG
@@ -50,4 +54,22 @@ chmod 0644 /etc/profile.d/lsf.sh
 chown -R root:root $LSF_TOP
 chmod 4755 $LSF_TOP/10.1/linux2.6-glibc2.3-x86_64/bin/lsadmin
 chmod 4755 $LSF_TOP/10.1/linux2.6-glibc2.3-x86_64/bin/badmin
+
+chown -R hpcadmin:hpcadmin $LSF_TOP/work/azurehpc/
+
+cat << EOF >> /etc/security/limits.conf
+* soft nofile 65535
+* hard nofile 65535
+EOF
+
+# Update lsf.conf
+sed -i 's|LSF_ENABLE_EGO=Y|LSF_ENABLE_EGO=N|g' $LSF_CONF
+master_domain=$(hostname -d)
+
+cat << EOF >> $LSF_CONF
+
+LSF_RSH="ssh -o 'PasswordAuthentication no' -o 'StrictHostKeyChecking no'"
+LSF_STRIP_DOMAIN=.$master_domain
+LSF_DYNAMIC_HOST_TIMEOUT=10m
+EOF
 

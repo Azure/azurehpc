@@ -1,2 +1,5 @@
 #!/bin/bash
-yum -y install jre
+
+lsadmin limstartup -f
+lsadmin resstartup -f
+badmin hstartup -f
