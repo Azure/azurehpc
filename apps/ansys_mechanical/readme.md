@@ -4,20 +4,7 @@
 
 Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up.
 
-Recommended cluster setup
-Start with the simple_hpc_pbs example. Before you do azhpc-build copy the scripts directory from <azurehpc>/apps/ansys_mechanical to your cluster build directory. First, you will need to add the following line above the "tags" section for the headnode.
-
-"data_disks": [2048, 2048],
-    
- Second, add the following section in the scripts section above the pbsdownload piece (~line 90 in the config.json file). 
-
-{
-    "script": "add_pkg.sh",
-     "tag": "add_pkg",
-     "sudo": true
-},
-
-Finally, add "add_pkg" to the tags section for the compute nodes (~line 50 in the config.json file).Once these changes are made, then when you build the cluster (azhpc-build) it will get the neccessary scripts to install the prerequsites on the compute nodes
+Recommended that you start with the cfd_workflow tutorial for the cluster setup since you need extra disk space for the install and running of the benchmarks.
 
 Dependencies for binary version:
 
@@ -33,36 +20,39 @@ First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do
 azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 ```
 
-## Connect to the headnode
+### Install Prerequisite Software
+```
+azhpc-run -u hpcuser -n "headnode compute" ~/apps/ansys_mechanical/scripts/add_reqs.sh
+```
+
+### Install Ansys Mechanical
+```
+azhpc-run -u hpcuser -n headnode ~/apps/ansys_mechanical/install_mechanical.sh \<tar file name\> \<URL to tar file of the installer\>
+```
+Example:
+```
+azhpc-run -u hpcuser -n headnode ~/apps/ansys_mechanical/install_mechanical.sh STRUCTURES_192_LINX64.tar "https://<storage_url>/apps/ansys-mech-19-2/STRUCTURES_192_LINX64.tar?{SAS_KEY}"
+```
+
+## Connect To Headnode
 
 ```
 azhpc-connect -u hpcuser headnode
 ```
 
-## Install Ansys Mechanical
+## Run Benchmark
 
-```
-cd apps/ansys_mechanical
-
-sudo bash install_mechanical.sh \<tar file name\> \<URL to tar file of the installer\>
-```
-
-Example:
-```
-sudo bash install_mechanical.sh STRUCTURES_192_LINX64.tar "https://<storage_url>/apps/ansys-mech-19-2/STRUCTURES_192_LINX64.tar?{SAS_KEY}"
-```
-
-## Running
-
-NOTE: In the run script you will need to __update the license server__.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
-
-# Copy over the benchmarks. You will need to provide the correct path to the benchmarks.
+### Copy over the benchmarks. You will need to provide the correct path to the benchmarks.
 ```
 mkdir -p ~/ansys/v19
 cd ~/ansys/v19
 wget -q "${STORAGE_ENDPOINT}/ansys-mechanical-benchmarks/BENCH_V190_LINUX.tgz?${SAS_KEY}" -O - | tar -xz
 ```
 
+### Update License Server
+NOTE: In the run script you will need to __update the license server__.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
+
+### Submitting Jobs
 Now, you can run as follows:
 
 ```
