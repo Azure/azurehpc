@@ -1,27 +1,9 @@
-## Install and run Fluent Benchmarks
+## Install and run Starccm+ Benchmarks
 
 ## Prerequisites
 
 Cluster is built with the desired configuration for networking, storage, compute etc. 
 
-Recommended cluster setup
-Start with the simple_hpc_pbs example. Before you do azhpc-build copy the scripts directory from <azurehpc>/apps/starccm to your cluster build directory. First, you will need to add the following line above the "tags" section for the headnode.
-
-"data_disks": [2048, 2048],
-    
- Second, add the following section in the scripts section above the pbsdownload piece (~line 90 in the config.json file). 
-
-{
-    "script": "add_reqs.sh",
-    "tag": "add_reqs",
-    "sudo": true
-},
-
-Finally, add "add_reqs" to the tags section for the compute nodes (~line 50 in the config.json file).Once these changes are made, then when you build the cluster (azhpc-build) it will get the neccessary scripts to install the prerequsites on the compute nodes
-
-Dependencies for binary version:
-
-* v19.*
 
 ## Installation
 
@@ -33,8 +15,12 @@ First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do
 azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 ```
 
-> Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
+### Install Prerequisites
+```
+azhpc-run -u hpcuser -n compute ~/apps/starccm/scripts/add_reqs.sh 
+```
 
+### Install Starccm+
 ```
 azhpc-run -u hpcuser  apps/starccm/install_starccm.sh 
 ```
