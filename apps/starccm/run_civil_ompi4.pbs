@@ -7,7 +7,6 @@
 
 MPI=openmpi-4.0.0
 VERSION=14.06.004
-AZ_INST=HB60rs
 
 APPLICATION=starccm
 OUTPUT_DIR=$PBS_O_WORKDIR
@@ -71,6 +70,5 @@ if [ -f "${output_xml}" ]; then
     "total_nodes": "$(xmllint --xpath "string(/Benchmark/Hosts/NumberOfHosts)" $output_xml)"
     }
 EOF
-cp ${OUTPUT_DIR}/${APPLICATION}_${case}_${MPI}_${NODES}n_${CORES}c_${DATE}.json ${PBS_AZURE_LA_JSON_FILE_DIR}/${PBS_JOBID}.json
 cp $output_xml $PBS_O_WORKDIR
 fi
