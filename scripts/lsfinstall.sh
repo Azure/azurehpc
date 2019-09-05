@@ -76,16 +76,3 @@ LSF_STRIP_DOMAIN=.$master_domain
 LSF_DYNAMIC_HOST_TIMEOUT=10m
 EOF
 
-source $LSF_TOP/conf/profile.lsf 
-# get info from setup
-lsid
-
-# List clusters
-lsclusters
-
-# List queues
-bqueues
-
-# List hosts
-bhosts
-lshosts

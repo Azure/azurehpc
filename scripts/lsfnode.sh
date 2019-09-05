@@ -5,7 +5,7 @@ CLUSTERNAME=azhpc
 
 source $LSF_TOP/conf/profile.lsf 
 cd $LSF_TOP/10.1/install
-./hostsetup --top="$LSF_TOP" --boot="y" --dynamic --start="y"
+sudo ./hostsetup --top="$LSF_TOP" --boot="y" --dynamic --start="y"
 
 ps -aux | grep lsf
 
