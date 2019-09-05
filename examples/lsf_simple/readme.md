@@ -87,4 +87,6 @@ $ cat 109.log
 ```
 
 
+# Known issues
 
+If nodes are unreachable when listed by the `bhosts` command, then connect on the headnode and run `badmin mbdrestart`
