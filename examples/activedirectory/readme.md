@@ -4,10 +4,10 @@ To build a usable cluster for a group of users, authentication and authorization
 here demonstrates how to set up a AD server and how to connect the cluster nodes to it.
 
 First create the config file for the Active Directory Domain Controller
-'''
+```
 $ azhpc-init -c azurehpc/examples/activedirectory/ad-config.json -d adtest -s
 Thu Sep  5 11:38:08 CEST 2019 : variables to set: "-v location=,resource_group=,win_password="
-'''
+```
  
 And build it....
 '''
