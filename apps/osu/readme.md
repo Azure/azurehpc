@@ -29,6 +29,6 @@ azhpc-connect -u hpcuser headnode
 Now, you can run as follows:
 
 ```
-bsub -R "span[ptile=1]" -n 2 -o %J.log -e %J.err < ringpingpong.lsf
+bsub -R "span[ptile=44]" -n 88 -o %J.log -e %J.err < ./apps/osu/hpcx_coll.lsf osu_allreduce
 ```
 
