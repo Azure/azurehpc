@@ -64,7 +64,7 @@ for BENCH in osu_latency osu_bw osu_bibw; do
         dst=$line
         $MPI_HOME/bin/mpirun -host $src,$dst \
             $mpi_options $numactl_options \
-            $OSU_DIR/pt2pt/${BENCH} | tee ${src}_to_${dst}_${BENCH}.log
+            $OSU_DIR/${BENCH} | tee ${src}_to_${dst}_${BENCH}.log
         src=$dst
     done
 done
