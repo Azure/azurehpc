@@ -12,7 +12,7 @@ Dependencies for binary version:
 First copy the apps directory to the cluster in a shared directory.  The `azhpc-scp` can be used to do this:
 
 ```
-azhpc-scp -r $azhpc_dir/apps/. hpcuser@headnode:/apps
+azhpc-scp -r $azhpc_dir/apps/. hpcuser@headnode:/apps/azurehpc
 ```
 
 > Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
@@ -29,6 +29,6 @@ azhpc-connect -u hpcuser headnode
 Now, you can run as follows:
 
 ```
-bsub -R "span[ptile=44]" -n 88 -o %J.log -e %J.err < ./apps/osu/hpcx_coll.lsf osu_allreduce
+bsub -R "span[ptile=44]" -n 88 -o %J.log -e %J.err "bash /apps/azurehpc/osu/hpcx_coll.lsf osu_allreduce"
 ```
 

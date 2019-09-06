@@ -3,18 +3,18 @@
 BENCH=$1
 PROFILE=$2
 
+AZHPC_MPI_HOSTFILE=$LSB_DJOB_HOSTFILE
+AZHPC_CORES=$LSB_DJOB_NUMPROC
+AZHPC_PPN=$(echo $LSB_MCPU_HOSTS | cut -d' ' -f2)
+
 source /etc/profile # so we can load modules
 module use /usr/share/Modules/modulefiles
 
 HPCX_DIR=$(ls -atr /opt | grep hpcx | tail -n1)
 module use /opt/${HPCX_DIR}/modulefiles
-module use $AZHPC_APPS/modulefiles
 module load gcc-8.2.0
 module load hpcx
 OSU_DIR=${HPCX_DIR}/ompi/tests/osu-micro-benchmarks-5.3.2
-AZHPC_MPI_HOSTFILE=$LSB_DJOB_HOSTFILE
-AZHPC_CORES=
-
 
 if [ -n "${PROFILE}" ]; then
     export HPCX_IPM_DIR=${HPCX_DIR}/ompi/tests/ipm-2.0.6
@@ -37,11 +37,13 @@ get_ib_pkey()
     export AZHPC_UCX_IB_PKEY=$(printf '0x%04x' "$(( $AZHPC_IB_PKEY & 0x0FFF ))")
 }
 
+numa_domains="$(numactl -H |grep available|cut -d' ' -f2)"
+AZHPC_PPR=$(( ($AZHPC_PPN + $numa_domains - 1) / $numa_domains ))
+
 get_ib_pkey
 mpi_options+=" --mca btl self"
 
 # Use UCX
-mpi_options+=" --mca btl ^vader,openib,tcp"
 mpi_options+=" --mca pml ucx --mca osc ucx"
 mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$AZHPC_UCX_IB_PKEY -x UCX_LOG_LEVEL=error"
 # Enable HCOLL
@@ -51,13 +53,13 @@ mpi_options+=" -x HCOLL_ENABLE_MCAST_ALL=1 -x HCOLL_MCAST_NP=0 -x HCOLL_CONTEXT_
 
 mpi_options+=" -x LD_LIBRARY_PATH"
 mpi_options+=" -bind-to core"
+mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
 mpi_options+=" --report-bindings --display-allocation -v"
 
 if [ -n "${LD_PRELOAD}" ]; then
     mpi_options+=" -x LD_PRELOAD"
 fi
 
-printenv
 $MPI_HOME/bin/mpirun $mpi_options \
     -hostfile $AZHPC_MPI_HOSTFILE \
     -np $AZHPC_CORES $OSU_DIR/$BENCH -f
