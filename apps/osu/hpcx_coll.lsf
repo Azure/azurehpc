@@ -1,0 +1,71 @@
+# osu_allgather, osu_allgatherv, osu_allreduce, osu_alltoall, osu_alltoallv
+# osu_barrier, osu_bcast, osu_gather, osu_gatherv, osu_reduce, osu_reduce_scatter, osu_scatter, osu_scatterv
+BENCH=$1
+PROFILE=$2
+
+AZHPC_MPI_HOSTFILE=$LSB_DJOB_HOSTFILE
+AZHPC_CORES=$LSB_DJOB_NUMPROC
+AZHPC_PPN=$(echo $LSB_MCPU_HOSTS | cut -d' ' -f2)
+
+source /etc/profile # so we can load modules
+module use /usr/share/Modules/modulefiles
+
+HPCX_DIR=$(ls -atr /opt | grep hpcx | tail -n1)
+module use /opt/${HPCX_DIR}/modulefiles
+module load gcc-8.2.0
+module load hpcx
+OSU_DIR=${HPCX_DIR}/ompi/tests/osu-micro-benchmarks-5.3.2
+
+if [ -n "${PROFILE}" ]; then
+    export HPCX_IPM_DIR=${HPCX_DIR}/ompi/tests/ipm-2.0.6
+    export IPM_KEYFILE=${HPCX_IPM_DIR}/etc/ipm_key_mpi
+    export IPM_LOG=FULL
+    export LD_PRELOAD=${HPCX_IPM_DIR}/lib/libipm.so
+fi
+
+get_ib_pkey()
+{
+    key0=$(cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/0)
+    key1=$(cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/1)
+
+    if [ $(($key0 - $key1)) -gt 0 ]; then
+        export AZHPC_IB_PKEY=$key0
+    else
+        export AZHPC_IB_PKEY=$key1
+    fi
+
+    export AZHPC_UCX_IB_PKEY=$(printf '0x%04x' "$(( $AZHPC_IB_PKEY & 0x0FFF ))")
+}
+
+numa_domains="$(numactl -H |grep available|cut -d' ' -f2)"
+AZHPC_PPR=$(( ($AZHPC_PPN + $numa_domains - 1) / $numa_domains ))
+
+get_ib_pkey
+mpi_options+=" --mca btl self"
+
+# Use UCX
+mpi_options+=" --mca pml ucx --mca osc ucx"
+mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$AZHPC_UCX_IB_PKEY -x UCX_LOG_LEVEL=error"
+# Enable HCOLL
+mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
+# Tune collectives
+mpi_options+=" -x HCOLL_ENABLE_MCAST_ALL=1 -x HCOLL_MCAST_NP=0 -x HCOLL_CONTEXT_CACHE_ENABLE=1"
+
+mpi_options+=" -x LD_LIBRARY_PATH"
+mpi_options+=" -bind-to core"
+mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
+mpi_options+=" --report-bindings --display-allocation -v"
+
+if [ -n "${LD_PRELOAD}" ]; then
+    mpi_options+=" -x LD_PRELOAD"
+fi
+
+$MPI_HOME/bin/mpirun $mpi_options \
+    -hostfile $AZHPC_MPI_HOSTFILE \
+    -np $AZHPC_CORES $OSU_DIR/$BENCH -f
+
+if [ -n "${PROFILE}" ]; then
+    xmlfile=$(ls -atr *.xml | tail -n1)
+    $HPCX_IPM_DIR/bin/ipm_parse -full $xmlfile
+fi
+
