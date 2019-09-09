@@ -31,8 +31,8 @@ NODES=`cat $PBS_NODEFILE | sort -n | uniq | wc -l`
 CORES=`cat $PBS_NODEFILE | sort -n | wc -l`
 PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
  
-PKEY=`cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/* | grep -v 0000 | grep -v 0x7fff`
-PKEY=`echo "${PKEY/0x8/0x0}"`
+PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
+PKEY=${PKEY/0x8/0x0}
 echo "PKEY: $PKEY"
 
 echo "Running Starccm Benchmark case : [${starccm_case}], Nodes: ${NODES} (Total Cores: ${CORES})"

@@ -22,21 +22,8 @@ export C_INCLUDE_PATH=${C_INCLUDE_PATH-}:/usr/local/include:$SHARED_APP/opm/boos
 
 CORES=`cat $PBS_NODEFILE | wc -l`
 
-get_ib_pkey()
-{
-    key0=$(cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/0)
-    key1=$(cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/1)
-  
-    if [ $(($key0 - $key1)) -gt 0 ]; then
-        export IB_PKEY=$key0
-    else
-        export IB_PKEY=$key1
-    fi
-  
-    export UCX_IB_PKEY=$(printf '0x%04x' "$(( $IB_PKEY & 0x0FFF ))")
-}
-
-get_ib_pkey
+PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
+PKEY=${PKEY/0x8/0x0}
 
 cd $SHARED_DATA/opm-data/norne
 
@@ -50,7 +37,7 @@ mpirun  -np $CORES \
         -mca pml ucx \
         -mca btl self,vader,openib \
         -x UCX_NET_DEVICES=mlx5_0:1 \
-        -x UCX_IB_PKEY=$UCX_IB_PKEY \
+        -x UCX_IB_PKEY=$PKEY \
         -x LD_LIBRARY_PATH \
         -wd $PWD \
         $OPM_BIN_DIR/flow --parameter-file=./params 2>&1 

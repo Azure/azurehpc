@@ -22,21 +22,8 @@ AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instanc
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 AZHPC_CORES=`cat $PBS_NODEFILE | wc -l`
 
-get_ib_pkey()
-{
-    key0=$(cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/0)
-    key1=$(cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/1)
-
-    if [ $(($key0 - $key1)) -gt 0 ]; then
-        export AZHPC_IB_PKEY=$key0
-    else
-        export AZHPC_IB_PKEY=$key1
-    fi
-
-    export AZHPC_UCX_IB_PKEY=$(printf '0x%04x' "$(( $AZHPC_IB_PKEY & 0x0FFF ))")
-}
-
-get_ib_pkey
+PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
+PKEY=${PKEY/0x8/0x0}
 
 source /etc/profile # so we can load modules
 
@@ -90,7 +77,7 @@ mpi_options+=" -mca btl self"
 
 # Use UCX
 mpi_options+=" --mca pml ucx -mca osc ucx"
-mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$AZHPC_UCX_IB_PKEY -x UCX_LOG_LEVEL=ERROR"
+mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY -x UCX_LOG_LEVEL=ERROR"
 
 mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 
