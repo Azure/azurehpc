@@ -1,26 +1,30 @@
 #!/bin/bash
 
+# parameters that can be overridden
+APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
+TMP_DIR=${TMP_DIR:-/mnt/resource}
+STARCCM_INSTALLER_DIR=${STARCCM_INSTALLER_DIR:-/mnt/resource}
+
+starccm_installer=$STARCCM_INSTALLER_DIR/STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz
+
+if [ -e $starccm_installer ]; then
+    echo "Error:  $starccm_installer does not exist"
+    echo "You can set the path to the file with the STARCCM_INSTALLER_DIR"
+    echo "environment variable."
+    exit 1
+fi
+
 sudo yum install -y unzip
 
-install_dir=/apps/CFD
-tmp_dir=/mnt/resource/tmp-starccm
+install_dir=$APP_INSTALL_DIR/starccm
+tmp_dir=$TMP_DIR/tmp-starccm
 
 mkdir -p $tmp_dir
 pushd $tmp_dir
 
-#NOTE!!: Update the path to the starccm install file before running the script
-installer=STAR-CCM+.tar.gz
-#wget "https://<storage-account>.blob.core.windows.net/apps/starccm-14/STAR-CCM%2B14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz?<sas-key>" -O $installer
-
-echo "Install Starccm+"
-echo "Installer: $installer"
-
-unzip $installer
-cd STAR-CCM*
-sudo ./STAR-CCM*.sh -i silent
-
-sudo mkdir -p /apps/CFD
-sudo mv /opt/Siemens $install_dir
+unzip $starccm_installer
+cd STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1
+sudo ./STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.sh -i silent -DINSTALLDIR=$install_dir
 
 popd
 rm -rf $tmp_dir
