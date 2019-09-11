@@ -17,6 +17,7 @@
       "resource_group": "<NOT-SET>",
       "key_vault": "<NOT-SET>",
       "spn_name": "<NOT-SET>",
+      "projectstore": "<NOT-SET>",
       "image": "OpenLogic:CentOS:7.6:latest"
     },
     "resources": {
@@ -27,6 +28,7 @@
         "public_ip": true,
         "image": "variables.image",
         "subnet": "admin",
+        "data_disks": [128],
         "tags": [
           "loginnode",
           "disable-selinux"
@@ -45,8 +47,10 @@
      "script": "post_cyclevm.sh",
      "args": [
         "variables.resource_group",
+        "cycleserver",
         "variables.key_vault",
-        "variables.spn_name"
+        "variables.spn_name",
+        "variables.projectstore"
         ]
     }
   }
