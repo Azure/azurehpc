@@ -17,7 +17,7 @@ python cyclecloud_install.py \
     --cyclecloudVersion "latest" \
     --username "$username" \
     --hostname "$hostname" \
-    --acceptTerms "True" \
+    --acceptTerms  \
     --storageAccount "$storageAccount"
 
 
