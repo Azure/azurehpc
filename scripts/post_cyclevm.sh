@@ -63,5 +63,5 @@ appId=$(echo $spn | cut -d' ' -f2)
 tenantId=$(echo $spn | cut -d' ' -f3)
 
 scp $SSH_ARGS -q -i $ssh_private_key $azhpc_dir/scripts/cyclecloud_install.sh $admin_user@$fqdn:.
-ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "./cyclecloud_install.sh $secret $appId $tenantId hpcadmin $fqdn $projectstore"
+ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo ./cyclecloud_install.sh $secret $appId $tenantId hpcadmin $fqdn $projectstore"
 
