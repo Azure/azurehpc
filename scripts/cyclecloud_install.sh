@@ -6,7 +6,6 @@ username=$4
 hostname=$5
 storageAccount=$6
 
-
 wget "https://cyclecloudarm.azureedge.net/cyclecloudrelease/latest/cyclecloud_install.py"
 
 python cyclecloud_install.py \
@@ -18,6 +17,7 @@ python cyclecloud_install.py \
     --cyclecloudVersion "latest" \
     --username "$username" \
     --hostname "$hostname" \
+    --acceptTerms "True" \
     --storageAccount "$storageAccount"
 
 
