@@ -11,23 +11,21 @@ Thu Sep  5 11:38:08 CEST 2019 : variables to set: "-v location=,resource_group=,
  
 And build it....
 '''
-$ azhpc-init -c azurehpc/examples/activedirectory/ad-config.json -d adtest -v "location=westeurope
-,resource_group=ad_demo,win_password=mypassword@1234"
+$ azhpc-init -c azurehpc/examples/activedirectory/ad-config.json -d adtest -v "location=westeurope,resource_group=ad_demo,win_password=mypassword@1234"
 Thu Sep  5 11:40:29 CEST 2019 : creating directory adtest
 Thu Sep  5 11:40:29 CEST 2019 : copying config.json to adtest
 Thu Sep  5 11:40:29 CEST 2019 : updating file adtest/ad-config.json
 $ azhpc-build -c ad-config.json
 '''
 
-Now the actual cluster can be initialized and build
+Now the actual cluster with linux nodes can be initialized and build
 '''
-$ azhpc-init -c ../azurehpc/examples/activedirectory/config.json -v "location=westeurope,re
-source_group=ad_demo,win_password=mypassword@1234"
+$ azhpc-init -c ../azurehpc/examples/activedirectory/linuxclient-config.json -v "location=westeurope,resource_group=ad_demo,win_password=mypassword@1234"
 Thu Sep  5 11:55:45 CEST 2019 : creating directory .
 Thu Sep  5 11:55:45 CEST 2019 : copying config.json to .
 Thu Sep  5 11:55:45 CEST 2019 : updating file ./ad-config.json
-Thu Sep  5 11:55:45 CEST 2019 : updating file ./config.json
-$ azhpc-build
+Thu Sep  5 11:55:45 CEST 2019 : updating file ./linuxclient-config.json
+$ azhpc-build -c linuxclient-config.json
 '''
 
 While building the cluster, connect to the AD node, and start up the Active Directory Users and Computers manager to add a new user.
@@ -96,4 +94,12 @@ And you can submit your first job...
 STDIN.e0  STDIN.o0
 '''
 
-
+Also Windows viz nodes can be added and joined to the domain:
+'''
+$ azhpc-init -c ../azurehpc/examples/activedirectory/winclient-config.json -v "location=westeurope,resource_group=ad_demo,win_password=mypassword@1234"
+Thu Sep  5 11:55:45 CEST 2019 : creating directory .
+Thu Sep  5 11:55:45 CEST 2019 : copying config.json to .
+Thu Sep  5 11:55:45 CEST 2019 : updating file ./ad-config.json
+Thu Sep  5 11:55:45 CEST 2019 : updating file ./winclient-config.json
+$ azhpc-build -c winclient-config.json
+'''
