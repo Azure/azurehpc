@@ -1,0 +1,53 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "cycleserver",
+    "admin_user": "hpcadmin",
+    "vnet": {
+      "name": "hpcvnet",
+      "address_prefix": "10.2.0.0/20",
+      "subnets": {
+        "admin": "10.2.1.0/24",
+        "storage": "10.2.3.0/24",
+        "compute": "10.2.4.0/22"
+      }
+    },
+    "variables": {
+      "location": "<NOT-SET>",
+      "resource_group": "<NOT-SET>",
+      "key_vault": "<NOT-SET>",
+      "spn_name": "<NOT-SET>",
+      "image": "OpenLogic:CentOS:7.6:latest"
+    },
+    "resources": {
+      "cycleserver": {
+        "type": "vm",
+        "vm_type": "Standard_D8s_v3",
+        "accelerated_networking": true,
+        "public_ip": true,
+        "image": "variables.image",
+        "subnet": "admin",
+        "tags": [
+          "loginnode",
+          "disable-selinux"
+        ]
+      }
+    },
+    "install": [
+      {
+        "script": "disable-selinux.sh",
+        "tag": "disable-selinux",
+        "sudo": true
+      }
+    ],
+    "post_install": 
+    {
+     "script": "post_cyclevm.sh",
+     "args": [
+        "variables.resource_group",
+        "variables.key_vault",
+        "variables.spn_name"
+        ]
+    }
+  }
+  
