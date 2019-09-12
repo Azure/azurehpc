@@ -76,7 +76,7 @@ wget -q "$downloadURL/$release/cyclecloud_install.py"
 
 scp $SSH_ARGS -q -i $ssh_private_key cyclecloud_install.py $admin_user@$fqdn:.
 ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_install.py \
-    --applicationSecret $secret \
+    --applicationSecret ${secret} \
     --applicationId $appId \
     --tenantId $tenantId \
     --azureSovereignCloud public \
@@ -85,9 +85,33 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
     --username $admin_user \
     --hostname $fqdn \
     --acceptTerms  \
-    --password $password \
+    --password ${password} \
     --storageAccount $projectstore"
 
 
 echo "CycleCloud Installation finished"
 echo "Navigate to https://$fqdn and login using $admin_user"
+
+# Installing CycleCloud CLI
+echo "Getting CLI binaries..."
+wget -q "$downloadURL/latest/cyclecloud-cli.zip"
+
+unzip -o cyclecloud-cli.zip
+pushd cyclecloud-cli-installer/
+echo "Installing CLI..."
+./install.sh -y
+
+echo "Initializing CLI..."
+name=$(echo $fqdn | cut -d'.' -f1)
+~/bin/cyclecloud initialize --force --batch \
+    --name $name \
+    --url=https://$fqdn \
+    --verify-ssl=false \
+    --username=$admin_user \
+    --password="${password}"
+
+~/bin/cyclecloud config list
+popd
+rm cyclecloud-cli.zip
+rm -rf cyclecloud-cli-installer
+
