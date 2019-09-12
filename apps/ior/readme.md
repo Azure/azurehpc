@@ -1,14 +1,27 @@
-# IOR
+# IOR and mdtest
 
-This requires the `mpich` package to be installed on the VMs which run.
+This requires ior to be built on HB or HC sku's with CentOS-HPC 7.6 (using mpi/mpich-3.3). See one of the examples for building a Cluster with HB or HC skus and PBS. (e.g. [simple_hpc_pbs](../../examples/simple_hpc_pbs/readme.md))
 
-First build IOR from the build script.  This will put it in `/lustre/ior.exe`:
+log-on to the headnode
+```
+azhpc-connect headnode
+```
 
+Build IOR/mdtest from the build script.  This will install ior and mdtest into /apps/ior and create a modulefile:
+```
     build_ior.sh
+```
 
-Now submit and run:
+Now submit and run (e.g on HB):
+```
+     qsub -l select=2:ncpus=60:mpiprocs=15 ior.pbs
+```
 
-     qsub -l select=4:ncpus=1:mpiprocs=16,place=scatter:excl ior.pbs
+> Note: this will run on 2 node and 15 processes per node.
 
-> Note: this will run on 4 node and 16 processes per node.
+The ior.pbs script runs a throughput (N-N and N-1) and IOPS test.
 
+A metadata I/O benchmark test can be run using the mdtest.pbs script.
+```
+      qsub -l select=2:ncpus=60:mpiprocs=15 mdtest.pbs
+```

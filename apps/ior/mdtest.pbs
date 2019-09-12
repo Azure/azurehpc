@@ -1,0 +1,18 @@
+#!/bin/bash
+
+SHARED_APPS=/apps
+FILESYSTEM=/beegfs
+DIRECTORY=${FILESYSTEM}/testing
+NUMFILES=10000
+
+export MODULEPATH=${SHARED_APPS}/modulefiles:$MODULEPATH
+module load gcc-8.2.0
+module load mpi/mpich-3.3
+# ior environment contains mdtest also.
+module load ior
+
+PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
+PKEY=${PKEY/0x8/0x0}
+
+# Metadata test
+mpirun  -bind-to hwthread  -env UCX_IB_PKEY=$PKEY mdtest -n $NUMFILES -d $DIRECTORY -i 3 -u
