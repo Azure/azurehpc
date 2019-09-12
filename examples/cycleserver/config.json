@@ -28,7 +28,6 @@
         "public_ip": true,
         "image": "variables.image",
         "subnet": "admin",
-        "data_disks": [128],
         "tags": [
           "loginnode",
           "disable-selinux"
