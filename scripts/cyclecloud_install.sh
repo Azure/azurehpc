@@ -5,6 +5,7 @@ tenantId=$3
 username=$4
 hostname=$5
 storageAccount=$6
+password=$7
 
 wget "https://cyclecloudarm.azureedge.net/cyclecloudrelease/latest/cyclecloud_install.py"
 
@@ -18,6 +19,7 @@ python cyclecloud_install.py \
     --username "$username" \
     --hostname "$hostname" \
     --acceptTerms  \
+    --password $password \
     --storageAccount "$storageAccount"
 
 
