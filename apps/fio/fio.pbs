@@ -1,0 +1,29 @@
+#!/bin/bash
+
+SHARED_APPS=/apps
+FILESYSTEM=/beegfs
+DIRECTORY=${FILESYSTEM}/testing
+RUNTIME=600
+
+export MODULEPATH=${SHARED_APPS}/modulefiles:$MODULEPATH
+module load fio
+
+mkdir $DIRECTORY
+NUMJOBS=`cat $PBS_NODEFILE | wc -l`
+
+for BS in 4K 4M
+do
+if [ $BS == "4K" ]; then
+   SIZE=128M
+else
+   SIZE=2G
+fi
+for RW in write read
+do
+# Throughput
+fio --name=${RW}_${SIZE} --directory=$DIRECTORY --direct=1 --size=$SIZE --bs=$BS --rw=${RW} --numjobs=$NUMJOBS --group_reporting --runtime=${RUNTIME} --output=fio_direct_${RW}_${SIZE}_${BS}_${PBS_JOBID}.out
+rm ${DIRECTORY}/testing/*
+sleep 2
+#
+done
+done
