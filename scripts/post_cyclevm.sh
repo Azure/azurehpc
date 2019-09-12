@@ -70,9 +70,24 @@ fi
 secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
 appId=$(echo $spn | cut -d' ' -f2)
 tenantId=$(echo $spn | cut -d' ' -f3)
+downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
+release="latest"
+wget -q "$downloadURL/$release/cyclecloud_install.py"
 
-scp $SSH_ARGS -q -i $ssh_private_key $azhpc_dir/scripts/cyclecloud_install.sh $admin_user@$fqdn:.
-ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo ./cyclecloud_install.sh $secret $appId $tenantId hpcadmin $fqdn $projectstore $password"
+scp $SSH_ARGS -q -i $ssh_private_key cyclecloud_install.py $admin_user@$fqdn:.
+ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_install.py \
+    --applicationSecret $secret \
+    --applicationId $appId \
+    --tenantId $tenantId \
+    --azureSovereignCloud public \
+    --downloadURL $downloadURL \
+    --cyclecloudVersion $release \
+    --username $admin_user \
+    --hostname $fqdn \
+    --acceptTerms  \
+    --password $password \
+    --storageAccount $projectstore"
+
 
 echo "CycleCloud Installation finished"
 echo "Navigate to https://$fqdn and login using $admin_user"
