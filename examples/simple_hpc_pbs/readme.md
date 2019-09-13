@@ -2,8 +2,6 @@
 
 This example will create an HPC cluster ready to run with PBS Pro.
 
->NOTE: Make sure you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here
-
 ## Initialise the project
 
 To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by compying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
@@ -12,16 +10,16 @@ To start you need to copy this directory and update the `config.json`.  Azurehpc
 azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -s
 ```
 
-The variables can be set with the `-v` option where variables are comma separated.  The output from the previous command as a starting point.  The `-d` option is required and will create a new directory name for you.
+The variables can be set with the `-v` option where variables are comma separated.  The output from the previous command as a starting point.  The `-d` option is required and will create a new directory name for you.  Please update to whatever `resource_group` you would like to deploy to:
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret]
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v resource_group=azurehpc-cluster
 ```
 
-> Note:  If you would like to change the location and the vm_type you can run the following command
+> Note:  You can still update variables even if they are already set.  For example, in the command below we change the region to `westus2` and the SKU to `Standard_HC44rs`:
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],vm_type=Standard_HB60rs
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v location=westus2,vm_type=Standard_HC44rs,resource_group=azhpc-cluster
 ```
 
 ## Create the cluster 
