@@ -4,7 +4,12 @@ Fio is a general I/O benchmark code, it has many options to configure and custom
 
 To build a cluster with PBS, see one of the examples, e.g. [simple_hpc_pbs](../../examples/simple_hpc_pbs/readme.md)
 
-First log-in to the headnode.
+Copy the apps directory to the cluster.
+```
+    azhpc-scp -r $azhpc_dir/apps hpcuser@headnode:.
+```
+
+Connect to the headnode
 ```
     azhpc-connect headnode
 ```
