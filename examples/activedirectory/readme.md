@@ -1,5 +1,7 @@
 # Use Active Directory for user authentication
 
+Visualisation: [ad-config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/activedirectory/ad-config.json), [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/activedirectory/config.json)
+
 To build a usable cluster for a group of users, authentication and authorization has to be set up. The example
 here demonstrates how to set up a AD server and how to connect the cluster nodes to it.
 

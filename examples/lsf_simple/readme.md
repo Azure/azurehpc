@@ -1,5 +1,7 @@
 # Build a LSF compute cluster
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lsf_simple/config.json)
+
 This example will create an HPC cluster with a CentOS 7.6 headnode running LSF 10.1 exporting a 4TB NFS space and multiple CentOS 7.6 HC44rs compute nodes
 
 >NOTE: MAKE SURE you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here

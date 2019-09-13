@@ -1,5 +1,7 @@
 # BeeGFS Cluster built using BeeGFS pools, ephemeral disks (temporary)  and HDD disks (persistent)
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/beegfs_pools/config.json)
+
 This will deploy a BeeGFS PFS using ephemeral disks (L8s_v2) and the attached Standard HDD disks, BeeGFS pools will be set-up to enable moving data between the ephemeral disk and the HDD permanent disk. A headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be also be deployed.
 
 >NOTE:

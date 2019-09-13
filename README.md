@@ -16,8 +16,6 @@ The `azhpc_*` scripts only require the azure cli and a few utilities (bash, jq a
 
 All of this is available in the Cloud Shell.  Alternatively you can run on a Linux VM on Azure or from the Windows Ubuntu Shell.
 
-> Note: you can also install `dot` (part of the graphviz pacakge) if you would like to use `azhpc-view`.
-
 Multiple [examples](https://github.com/Azure/azurehpc/tree/master/examples) for building blocks commonly used, scripts for building, installing and running [some applications](https://github.com/Azure/azurehpc/tree/master/apps) are included here so they can be used as you build your environment and run benchmarks.
 
 We have also made [some tutorials](https://github.com/Azure/azurehpc/tree/master/tutorials) available that you can follow to not only learn more about the framework but also to understand how you can easily set an environment up e2e for your own application.
