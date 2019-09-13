@@ -485,16 +485,21 @@ if [ "$nsteps" -eq 0 ]; then
 
 else
 
+    install_scripts=()
+
     status "building install scripts - $nsteps steps"
-    install_sh=$tmp_dir/install.sh
+    mkdir $tmp_dir/install
+    install_scripts+=("install_node_setup")
+    install_sh=$tmp_dir/install/00_install_node_setup.sh
+    log_file=install/00_install_node_setup.log
 
     cat <<OUTER_EOF > $install_sh
 #!/bin/bash
 
 cd ~/$tmp_dir
 
-sudo yum install -y epel-release > step_0_install_node_setup.log 2>&1
-sudo yum install -y pssh nc >> step_0_install_node_setup.log 2>&1
+sudo yum install -y epel-release > $log_file 2>&1
+sudo yum install -y pssh nc >> $log_file 2>&1
 
 # setting up keys
 cat <<EOF > ~/.ssh/config
@@ -509,18 +514,32 @@ chmod 600 ~/.ssh/id_rsa
 chmod 644 ~/.ssh/config
 chmod 644 ~/.ssh/id_rsa.pub
 
-prsync -p $pssh_parallelism -a -h hostlists/linux ~/$tmp_dir ~ >> step_0_install_node_setup.log 2>&1
-prsync -p $pssh_parallelism -a -h hostlists/linux ~/.ssh ~ >> step_0_install_node_setup.log 2>&1
+prsync -p $pssh_parallelism -a -h hostlists/linux ~/$tmp_dir ~ >> $log_file 2>&1
+prsync -p $pssh_parallelism -a -h hostlists/linux ~/.ssh ~ >> $log_file 2>&1
 
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> step_0_install_node_setup.log 2>&1
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux 'sudo systemctl restart sshd' >> step_0_install_node_setup.log 2>&1
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> step_0_install_node_setup.log 2>&1
+pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> $log_file 2>&1
+pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux 'sudo systemctl restart sshd' >> $log_file 2>&1
+pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> $log_file 2>&1
 OUTER_EOF
 
     for step in $(seq 1 $nsteps); do
+
+        idx=$(($step - 1))
+        read_value install_script ".install[$idx].script"
+
+        install_scripts+=("${install_script%.sh}")
+        install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
+        log_file=install/$(printf %02d $step)_${install_script%.sh}.log
+
+    cat <<OUTER_EOF > $install_sh
+#!/bin/bash
+
+cd ~/$tmp_dir
+
+OUTER_EOF
+
         idx=$(($step - 1))
 
-        read_value install_script ".install[$idx].script"
         read_value install_tag ".install[$idx].tag"
         read_value install_reboot ".install[$idx].reboot" false
         read_value install_sudo ".install[$idx].sudo" false
@@ -535,13 +554,10 @@ OUTER_EOF
             done
         fi
 
-        echo "echo 'Step $step : $install_script'" >> $install_sh
-        echo "start_time=\$SECONDS" >> $install_sh
-
         if [ "$install_nfiles" != "0" ]; then
             echo "## copying files" >>$install_sh
             for f in $(jq -r ".install[$idx].copy | @tsv" $config_file); do
-                echo "pscp.pssh -p $pssh_parallelism -h hostlists/tags/$install_tag $f \$(pwd) >> step_${step}_${install_script%.sh}.log 2>&1" >>$install_sh
+                echo "pscp.pssh -p $pssh_parallelism -h hostlists/tags/$install_tag $f \$(pwd) >> $log_file 2>&1" >>$install_sh
             done
         fi
 
@@ -551,11 +567,11 @@ OUTER_EOF
         fi
 
         # can run in parallel with pssh
-        echo "pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/$install_tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> step_${step}_${install_script%.sh}.log 2>&1" >>$install_sh
+        echo "pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/$install_tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> $log_file 2>&1" >>$install_sh
 
         if [ "$install_reboot" = "true" ]; then
             cat <<EOF >> $install_sh
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/$install_tag "sudo reboot" >> step_${step}_${install_script%.sh}.log 2>&1
+pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/$install_tag "sudo reboot" >> $log_file 2>&1
 echo "    Waiting for nodes to come back"
 sleep 10
 for h in \$(<hostlists/tags/$install_tag); do
@@ -566,11 +582,9 @@ sleep 10
 EOF
         fi
 
-        echo 'echo "    duration: $(($SECONDS - $start_time)) seconds"' >> $install_sh
-
     done
 
-    chmod +x $install_sh
+    chmod +x $tmp_dir/install/*.sh
     cp $ssh_private_key $tmp_dir
     cp $ssh_public_key $tmp_dir
     cp -r $azhpc_dir/scripts $tmp_dir
@@ -578,7 +592,18 @@ EOF
     rsync -a -e "ssh $SSH_ARGS -i $ssh_private_key" $tmp_dir $admin_user@$fqdn:.
 
     status "running the install script $fqdn"
-    ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn $install_sh
+    for step in $(seq 0 $nsteps); do
+        install_sh=$tmp_dir/install/$(printf %02d $step)_${install_scripts[$step]}.sh
+
+        echo "Step $step : ${install_scripts[$step]}"
+        start_time=$SECONDS
+
+        ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn $install_sh
+
+        echo "    duration: $(($SECONDS - $start_time)) seconds"
+    done
+
+    rsync -a -e "ssh $SSH_ARGS -i $ssh_private_key" $admin_user@$fqdn:$tmp_dir/install/*.log $tmp_dir/install/.
 
 fi
 
