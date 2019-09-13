@@ -9,6 +9,15 @@
 
 This guide will go through the steps required to extend the Azure CycleCloud PBS Pro template ready for installing and running StarCCM benchmarks.
 
+If you do not wish to follow the steps you can use the version in this repo by running the following commands:
+
+    pushd mycluster
+    cyclecloud project upload <insert-locker-name>
+    popd
+    cyclecloud import_template -f pbspro.txt
+
+Note: you can view your lockers with `cyclecloud locker list`
+
 ## Creating the cluster in Azure CycleCloud
 
 A few changes to the default PBS project are required:
