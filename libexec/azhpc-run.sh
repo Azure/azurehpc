@@ -107,4 +107,4 @@ for resource_name in "${hosts[@]}"; do
 
 done
 
-ssh $SSH_ARGS -q -i $ssh_private_key $ssh_user@$fqdn "pssh -H \"${hostnames[@]}\" -i '$@'"
+ssh $SSH_ARGS -q -i $ssh_private_key $ssh_user@$fqdn "pssh -H \"${hostnames[@]}\" -i -t 0'$@'"
