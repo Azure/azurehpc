@@ -9,7 +9,7 @@ First log-in to the headnode.
     azhpc-connect headnode
 ```
 
-Build fio from the build script.  This will build and install it in `/apps/fio` and create a module file.
+Build fio from the build script.  This will build and install it in `/apps/fio` and create a modulefile.
 
 ```
     build_fio.sh
@@ -23,14 +23,14 @@ Now submit and run:
 > Note: this will run on 1 node, 8 fio processes (fio numjobs). Fio can run on multiple nodes in a client-server mode, this example is designed to run on a single node. You can change the fio numjobs parameter (i.e number of processes) by changing the PBS mpiprocs value. A throughput and IOPS benchmark will be run.
 
 
-A similar script is provided to run the same fio benchmark (throguhput and IOPS) on a Windows client.
+A similar script is provided to run the same fio benchmark (throughput and IOPS) on a Windows client.
 
 A Windows fio executable can be downloaded from
 ```
     https://bsdio.com/fio/
 ```
 
-Run the Windows_fio.ps1 powershell script from a Windows powershell prompt.
+Run the windows_fio.ps1 powershell script from a Windows powershell prompt.
 ```
     windows_fio.ps1
 ```
