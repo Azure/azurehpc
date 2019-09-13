@@ -1,5 +1,8 @@
 # Building a simple PBS compute cluster with a Windows visualization node (ANF will be used for User accounts and scratch storage)
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/anf_full/config.json), [NFS_ANF.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/anf_full/NFS_ANF.json)
+
+
 This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1, a 4TB Azure netapp files volume and several CentOS 7.6 HC44 compute nodes; and a Windows visualization node.
 
 >NOTE: 

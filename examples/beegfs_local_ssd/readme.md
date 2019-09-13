@@ -1,5 +1,7 @@
 # BeeGFS Cluster built with local ssd's
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/beegfs_local_ssd/config.json)
+
 This will deploy a BeeGFS PFS using local SSD's (D16_v3), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed.
 
 >NOTE:

@@ -1,5 +1,7 @@
 # Build a PBS compute cluster with a Windows visualization node and HP RGS for visualization
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/simple_hpc_pbs_rgs/config.json)
+
 This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1 exporting a 4TB NFS space and multiple CentOS 7.6 HB60rs compute nodes; and a Windows visualization node with HP RGS.
 
 >NOTE: 

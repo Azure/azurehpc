@@ -1,5 +1,7 @@
 # Deploying a CycleCloud application server with azhpc
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/cycleserver/config.json)
+
 This example shows how to silently setup a VM with CycleCloud installed and configured, plus installing and configuring the CycleCloue CLI for that instance.
 
 >NOTE: MAKE SURE you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here
