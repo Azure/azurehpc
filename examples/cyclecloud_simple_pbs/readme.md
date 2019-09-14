@@ -1,17 +1,18 @@
-# Azure CycleCloud Template for Benchmarking StarCCM
+# Azure CycleCloud Template for building a cluster with pbs with mount points needed for apps in azurehpc
 
 ## Pre-requisites:
 
-* An installed and setup Azure CycleCloud Application Server (instructions [here](https://docs.microsoft.com/en-us/azure/cyclecloud/quickstart-install-cyclecloud))
+* An installed and setup Azure CycleCloud Application Server (instructions [here](https://docs.microsoft.com/en-us/azure/cyclecloud/quickstart-install-cyclecloud) or using the [azurehpc script](https://github.com/Azure/azurehpc/tree/master/examples/cycleserver))
 * The Azure CycleCloud CLI (instructions [here](https://docs.microsoft.com/en-us/azure/cyclecloud/install-cyclecloud-cli))
 
 ## Overview
 
-This guide will go through the steps required to extend the Azure CycleCloud PBS Pro template ready for installing and running StarCCM benchmarks.
+This guide will go through the steps required to extend the Azure CycleCloud PBS Pro template ready for installing and running azurehpc app benchmarks.
 
 If you do not wish to follow the steps you can use the version in this repo by running the following commands:
 
     pushd mycluster
+	NOTE: you can edit the default/cluster-init/scripts/01_install_packages script to add any dependency or custom steps before you proceed
     cyclecloud project upload <insert-locker-name>
     popd
     cyclecloud import_template -f pbspro.txt
@@ -22,17 +23,13 @@ Note: you can view your lockers with `cyclecloud locker list`
 
 A few changes to the default PBS project are required:
 
-1. Install `libXt` on all VMs
-
-    This library is required for StarCCM and should be installed through the package manager.
-
-2. Stop the Linux Agent on the execute VMs
+1. Stop the Linux Agent on the execute VMs
 
     We will stop the Linux Agent on the execute nodes in the cluster as this can impact performance at the large scale for a tightly coupled MPI application when running with all the cores.
 
-3. Export the scratch disk on the master node
+2. Export the scratch disk on the master node
 
-    The standard PBS project has an NFS server on the master node but this exports directories from the OS disk associated which is only 30GB in size.  This is sufficient for the StarCCM binaries but the larger StarCCM benchmark would exceed this.  The master will be updated to export the local disk in the VM.  Note: a local disk should only be used for scratch data.
+    The standard PBS project has an NFS server on the master node but this exports directories from the OS disk associated which is only 30GB in size.  This is sufficient for the application binaries but the larger benchmark would exceed this. The master will be updated to export the local disk in the VM.  Note: a local disk should only be used for scratch data.
 
 ### Creating a project
 
@@ -46,19 +43,19 @@ In my setup it is called `azure-storage`.
 Now create the project:
 
     $ cyclecloud project init mycluster
-    Project 'mycluster' initialized in /home/paul/cyclecloud-starccm/mycluster
+    Project 'mycluster' initialized in /home/user/cyclecloud-simple-pbs/mycluster
     Default locker: azure-storage
 
 Change to the new project directory to complete the steps that follow:
 
     cd mycluster
 
-Add a `default` cluster init for the project where we install the StarCCM dependency:
+Add a `default` cluster init for the project where we install any dependency:
 
     $ cat <<EOF >>specs/default/cluster-init/scripts/01_install_packages.sh
     #!/bin/bash
 
-    yum -y install libXt
+    #you can add your custom steps here
     EOF
     $ chmod +x specs/default/cluster-init/scripts/01_install_packages.sh
 
