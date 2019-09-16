@@ -1,0 +1,1 @@
+Detailed documentation on how to run these health checks on HB and HC can be found [here](https://techcommunity.microsoft.com/t5/AzureCAT/Health-checks-for-HPC-workloads-on-Microsoft-Azure/ba-p/837843)
