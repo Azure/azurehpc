@@ -23,14 +23,8 @@ cat $PBS_NODEFILE | sort -u > hostlist-$timestamp
 HOSTFILE=hostlist-$timestamp
 NP=$(($NODES * $PPN))
 
-key0=$(cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/0)
-key1=$(cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/1)
-if [ $(($key0 - $key1)) -gt 0 ]; then
-	export IB_PKEY=$key0
-else
-	export IB_PKEY=$key1
-fi
-export UCX_IB_PKEY=$(printf '0x%04x' "$(( $IB_PKEY & 0x0FFF ))")
+PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
+PKEY=${PKEY/0x8/0x0}
 
 mpi_options=()
 mpi_options+=(-np $NP)
@@ -41,7 +35,7 @@ mpi_options+=(--map-by ppr:$PPN:node)
 mpi_options+=(--bind-to core)
 mpi_options+=(-report-bindings --display-allocation -v)
 mpi_options+=(-x UCX_NET_DEVICES=mlx5_0:1)
-mpi_options+=(-x UCX_IB_PKEY=$UCX_IB_PKEY)
+mpi_options+=(-x UCX_IB_PKEY=$PKEY)
 mpi_options+=(-x PATH -x LD_LIBRARY_PATH)
 mpi_options+=(-wd $PWD)
 mpi_options+=($(env |grep FOAM | cut -d'=' -f1 | sed 's/^/-x /g' | tr '\n' ' ') -x MPI_BUFFER_SIZE)
