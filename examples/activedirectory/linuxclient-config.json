@@ -7,7 +7,7 @@
     "image": "OpenLogic:CentOS:7.6:latest",
     "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
     "location": "<NOT-SET>",
-    "vm_type": "Standard_HB60rs",
+    "vm_type": "Standard_D8_v3",
     "resource_group": "<NOT-SET>",
     "vnet_resource_group": "variables.resource_group",
     "ad_image": "MicrosoftWindowsServer:WindowsServer:2012-R2-Datacenter:latest",
@@ -39,7 +39,7 @@
     },
     "headnode": {
       "type": "vm",
-      "vm_type": "Standard_HB60rs",
+      "vm_type": "Standard_D8_v3",
       "public_ip": true,
       "image": "variables.image",
       "subnet": "compute",
