@@ -28,6 +28,8 @@ if [ "$spn" == "" ]; then
     echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
     az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
     spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
+else
+    echo "SPN $spn exists, make sure its secret is stored in $key_vault"
 fi
 
 echo "getting FQDN for $vmname"
@@ -68,6 +70,11 @@ if [ "$password" == "" ]; then
 fi
 
 secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
+if [ "$secret" == "" ]; then
+    echo "no secret stored in $key_vault for $spn_appname"
+    exit 1
+fi
+
 appId=$(echo $spn | cut -d' ' -f2)
 tenantId=$(echo $spn | cut -d' ' -f3)
 downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
