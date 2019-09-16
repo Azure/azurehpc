@@ -123,3 +123,22 @@ popd
 rm cyclecloud-cli.zip
 rm -rf cyclecloud-cli-installer
 
+# Setup POGO
+cyclecloud_storage_account=$(~/bin/cyclecloud locker list  |  sed -e 's|^[^/]*//||' -e 's|/.*$||')
+pogo_config_file=$HOME/.cycle/pogo.ini
+touch $pogo_config_file
+if ! grep -q "${cyclecloud_storage_account}-storage" $pogo_config_file; then
+    status "Creating ~/.cycle/pogo.ini"
+    cyclecloud_storage_key=$(az storage account keys list -g $resource_group -n $cyclecloud_storage_account --query "[0].value" | sed 's/\"//g')
+
+    cat <<EOF >> $pogo_config_file
+
+[pogo ${cyclecloud_storage_account}-storage]
+type=az
+matches=az://$cyclecloud_storage_account/cyclecloud
+access_key=$cyclecloud_storage_key
+EOF
+
+status "pogo.ini file created"
+
+fi
