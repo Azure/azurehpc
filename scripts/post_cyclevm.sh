@@ -64,9 +64,9 @@ password=$(az keyvault secret show --name "CycleAdminPassword" --vault-name $key
 if [ "$password" == "" ]; then
     echo "No secret CycleAdminPassword retrieved from Key Vault $key_vault"
     echo "Generate a password"
-    password=$(date +%s | sha256sum | base64 | head -c 16 ; echo)
+    password="*$(date +%s | sha256sum | base64 | head -c 16 ; echo)"
     echo "Store password in Key Vault $key_vault secret CycleAdminPassword"
-    az keyvault secret set --vault-name $key_vault --name "CycleAdminPassword" --value $password --output table
+    az keyvault secret set --vault-name $key_vault --name "CycleAdminPassword" --value "$password" --output table
 fi
 
 secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
@@ -110,6 +110,7 @@ echo "Installing CLI..."
 
 echo "Initializing CLI..."
 name=$(echo $fqdn | cut -d'.' -f1)
+echo $name
 ~/bin/cyclecloud initialize --force --batch \
     --name $name \
     --url=https://$fqdn \
