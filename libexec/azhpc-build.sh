@@ -247,7 +247,6 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --single-placement-group true \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
-                --subnet $resource_subnet_id \
                 $data_disks_options \
                 --no-wait
             
