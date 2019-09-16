@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 export azhpc_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 source "$azhpc_dir/libexec/common.sh"
 
@@ -298,6 +298,23 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 --location $location \
                 --output table
 
+	    read_value storage_anf_domain ".storage.$storage_name.joindomain"
+            if [ "$storage_anf_domain" ]; then
+            debug "netapp account joining domain"
+	    read_value storage_anf_domain_ad ".storage.$storage_name.ad_server"
+	    read_value storage_anf_domain_password ".storage.$storage_name.ad_password"
+	    read_value storage_anf_domain_username ".storage.$storage_name.ad_username"
+	    ad_dns=$(az vm list-ip-addresses -g ad_demo -n $storage_anf_domain_ad --query [0].virtualMachine.network.privateIpAddresses --output tsv)
+            az netappfiles account ad add \
+                --dns $ad_dns \
+                --domain $storage_anf_domain \
+                --password $storage_anf_domain_password \
+                --smb-server-name anf \
+                --username $storage_anf_domain_username \
+                --resource-group $resource_group \
+                --name $storage_name
+	    fi
+
             # loop over pools
             for pool_name in $(jq -r ".storage.$storage_name.pools | keys | .[]" $config_file); do
                 read_value pool_size ".storage.$storage_name.pools.$pool_name.size"
@@ -322,21 +339,25 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 # loop over volumes
                 for volume_name in $(jq -r ".storage.$storage_name.pools.$pool_name.volumes | keys | .[]" $config_file); do
                     read_value volume_size ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.size"
+                    read_value export_type ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.type"
 
-                    az netappfiles volume create \
-                        --resource-group $resource_group \
-                        --account-name $storage_name \
-                        --location $location \
-                        --service-level $pool_service_level \
-                        --usage-threshold $(($volume_size * (2 ** 10))) \
-                        --creation-token ${volume_name} \
-                        --pool-name $pool_name \
-                        --volume-name $volume_name \
- 			--vnet $vnet_name \
-                        --subnet $storage_subnet_id \
-                        --output table
+		    if [ "$export_type" == "cifs" ]; then 
+		      echo prepping for cifs
+		    else
+                      az netappfiles volume create \
+                          --resource-group $resource_group \
+                          --account-name $storage_name \
+                          --location $location \
+                          --service-level $pool_service_level \
+                          --usage-threshold $(($volume_size * (2 ** 10))) \
+                          --creation-token ${volume_name} \
+                          --pool-name $pool_name \
+                          --volume-name $volume_name \
+ 			  --vnet $vnet_name \
+                          --subnet $storage_subnet_id \
+                          --output table
 
-                    volume_ip=$( \
+                      volume_ip=$( \
                         az netappfiles list-mount-targets \
                             --resource-group $resource_group \
                             --account-name $storage_name \
@@ -344,12 +365,13 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                             --volume-name $volume_name \
                             --query [0].ipAddress \
                             --output tsv \
-                    )
-                    read_value mount_point ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.mount"
+                      )
+                      read_value mount_point ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.mount"
 
-                    echo "mkdir $mount_point" >> $mount_script
-                    echo "echo \"$volume_ip:/$volume_name	$mount_point	nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0\" >> /etc/fstab" >> $mount_script
-                    echo "chmod 777 $mount_point" >> $mount_script
+                      echo "mkdir $mount_point" >> $mount_script
+                      echo "echo \"$volume_ip:/$volume_name	$mount_point	nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0\" >> /etc/fstab" >> $mount_script
+                      echo "chmod 777 $mount_point" >> $mount_script
+		    fi
                 done
                 echo "mount -a" >> $mount_script
                 chmod 777 $mount_script
