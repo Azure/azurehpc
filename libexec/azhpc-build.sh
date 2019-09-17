@@ -46,6 +46,13 @@ fi
 
 local_script_dir="$(dirname $config_file)/scripts"
 
+az_version=$(az --version | grep ^azure-cli | awk '{print $2}')
+function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+
+if version_gt "2.0.73" "$az_version"; then
+    warning "az version may be too low for some functionality: $az_version"
+fi   
+
 subscription="$(az account show --output tsv --query '[name,id]')"
 subscription_name=$(echo "$subscription" | head -n1)
 subscription_id=$(echo "$subscription" | tail -n1)
@@ -304,7 +311,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
 	    read_value storage_anf_domain_ad ".storage.$storage_name.ad_server"
 	    read_value storage_anf_domain_password ".storage.$storage_name.ad_password"
 	    read_value storage_anf_domain_username ".storage.$storage_name.ad_username"
-	    ad_dns=$(az vm list-ip-addresses -g ad_demo -n $storage_anf_domain_ad --query [0].virtualMachine.network.privateIpAddresses --output tsv)
+	    ad_dns=$(az vm list-ip-addresses -g $resource_group -n $storage_anf_domain_ad --query [0].virtualMachine.network.privateIpAddresses --output tsv)
             az netappfiles account ad add \
                 --dns $ad_dns \
                 --domain $storage_anf_domain \
@@ -368,7 +375,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                       )
                       read_value mount_point ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.mount"
                       echo "mkdir $mount_point" >> $mount_script
-                      echo "echo \"\\\\\\$volume_ip\\$volume_name	$mount_point 	cifs	_netdev,username=hpcadmin,password=mypassword@1234,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0\" >> /etc/fstab" >> $mount_script
+                      echo "echo '\\\\$volume_ip\\$volume_name	$mount_point 	cifs	_netdev,username=$storage_anf_domain_username,password=$storage_anf_domain_password,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0' >> /etc/fstab" >> $mount_script
                       echo "chmod 777 $mount_point" >> $mount_script
 
 		    else
