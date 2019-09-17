@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 export azhpc_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 source "$azhpc_dir/libexec/common.sh"
 
@@ -324,7 +324,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 mkdir -p scripts
                 status "Building script: $mount_script"
                 echo "#!/bin/bash" > $mount_script
-                echo "yum install -y nfs-utils" >> $mount_script
+                echo "yum install -y nfs-utils cifs-utils" >> $mount_script
 
                 # create pool
                 az netappfiles pool create \
@@ -343,6 +343,34 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
 
 		    if [ "$export_type" == "cifs" ]; then 
 		      echo prepping for cifs
+                      az netappfiles volume create \
+                          --resource-group $resource_group \
+                          --account-name $storage_name \
+                          --location $location \
+                          --service-level $pool_service_level \
+                          --usage-threshold $(($volume_size * (2 ** 10))) \
+                          --creation-token ${volume_name} \
+                          --pool-name $pool_name \
+                          --volume-name $volume_name \
+			  --protocol-type CIFS \
+ 			  --vnet $vnet_name \
+                          --subnet $storage_subnet_id \
+                          --output table
+
+                      volume_ip=$( \
+                        az netappfiles list-mount-targets \
+                            --resource-group $resource_group \
+                            --account-name $storage_name \
+                            --pool-name $pool_name \
+                            --volume-name $volume_name \
+                            --query [0].ipAddress \
+                            --output tsv \
+                      )
+                      read_value mount_point ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.mount"
+                      echo "mkdir $mount_point" >> $mount_script
+                      echo "echo \"\\\\\\$volume_ip\\$volume_name	$mount_point 	cifs	_netdev,username=hpcadmin,password=mypassword@1234,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0\" >> /etc/fstab" >> $mount_script
+                      echo "chmod 777 $mount_point" >> $mount_script
+
 		    else
                       az netappfiles volume create \
                           --resource-group $resource_group \

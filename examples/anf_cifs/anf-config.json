@@ -56,7 +56,60 @@
       "vm_type": "Standard_D8_v3",
       "image": "variables.ad_image",
       "subnet": "admin",
-      "tags": []
+      "tags": [
+	"ad_server"
+	]
+    },
+    "headnode": {
+      "type": "vm",
+      "vm_type": "Standard_D8_v3",
+      "public_ip": true,
+      "image": "variables.image",
+      "subnet": "compute",
+      "tags": [
+ 	"cndefault",
+        "loginnode",
+        "localuser",
+        "disable-selinux",
+	"join_domain",
+        "netapp-client"
+      ]
     }
-  }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "cndefault",
+      "sudo": true
+    },
+    {
+      "script": "localuser.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "localuser",
+      "sudo": true
+    },
+    {
+      "script": "join_domain.sh",
+      "args": [
+        "variables.ad_domain",
+        "variables.ad_admin",
+        "variables.win_password",
+        "$(<hostlists/tags/ad_server)"
+      ],
+      "tag": "join_domain",
+      "sudo": true
+    },
+    {
+      "script": "auto_netappfiles_mount_anfpool.sh",
+      "tag": "netapp-client",
+      "sudo": true
+    }
+  ]
 }
