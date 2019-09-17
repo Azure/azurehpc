@@ -1,6 +1,6 @@
 # IO-500 HPC Storage benchmark
 
-The [IO-500](https://www.vi4io.org/std/io500/start) is a I/O storage benchmark designed to measure and compare different storage solutions. It runs a suite of throughput, IOPS and metadata benchmarks and gives a score to rank the storage solution. It uses modified versions of LLNL IOR/MDtest and a find benchmark.
+The [IO-500](https://www.vi4io.org/std/io500/start) is a I/O storage benchmark designed to measure and compare different HPC storage solutions. It runs a suite of throughput, IOPS and metadata benchmarks and gives a score to rank the storage solution. It uses modified versions of LLNL IOR/MDtest and a find benchmark.
 
 The IO-500 benchmark needs to be built on HB or HC sku's with CentOS-HPC 7.6 (using mpi/mpich-3.3). See one of the examples for building a Cluster with HB or HC skus and PBS. (e.g. [simple_hpc_pbs](../../examples/simple_hpc_pbs/readme.md))
 
