@@ -112,14 +112,16 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
 status "CycleCloud application server installation finished"
 status "Navigate to https://$fqdn and login using $admin_user"
 
+cyclecloud_storage_key=$(az storage account keys list -g $resource_group -n $projectstore --query "[0].value" | sed 's/\"//g')
+
 if [ "$config" == "" ]; then
-    $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
+    $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
 else
     status "running the cycle_install script on install node"
 
     config_file_no_path=${config##*/}
     config_file_no_path_or_extension=${config_file_no_path%.*}
     tmp_dir=azhpc_install_$config_file_no_path_or_extension
-    azhpc-run -c $config $tmp_dir/scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
+    azhpc-run -c $config $tmp_dir/scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
 fi
 
