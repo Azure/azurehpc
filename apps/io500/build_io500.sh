@@ -5,7 +5,6 @@ SHARED_APPS=/apps
 MODULE_DIR=${SHARED_APP}/modulefiles
 MODULE_NAME=${APP_NAME}
 INSTALL_DIR=${SHARED_APPS}/${APP_NAME}
-PARALLEL_BUILD=8
 
 module load gcc-8.2.0
 module load mpi/mpich-3.3
