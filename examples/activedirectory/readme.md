@@ -11,7 +11,7 @@ Thu Sep  5 11:38:08 CEST 2019 : variables to set: "-v location=,resource_group=,
  
 And build it....
 ```
-$ azhpc-init -c azurehpc/examples/activedirectory/ad-config.json -d adtest -v "location=westeurope,resource_group=ad_demo,win_password=mypassword@1234"
+$ azhpc-init -c azurehpc/examples/activedirectory/ad-config.json -d adtest -v "location=westeurope,resource_group=ad_demo,win_password=secret.ad-demo-vault.winadmin-secret"
 Thu Sep  5 11:40:29 CEST 2019 : creating directory adtest
 Thu Sep  5 11:40:29 CEST 2019 : copying config.json to adtest
 Thu Sep  5 11:40:29 CEST 2019 : updating file adtest/ad-config.json
@@ -20,7 +20,7 @@ $ azhpc-build -c ad-config.json
 
 Now the actual cluster with linux nodes can be initialized and build
 ```
-$ azhpc-init -c ../azurehpc/examples/activedirectory/linuxclient-config.json -v "location=westeurope,resource_group=ad_demo,win_password=mypassword@1234"
+$ azhpc-init -c ../azurehpc/examples/activedirectory/linuxclient-config.json -v "location=westeurope,resource_group=ad_demo,win_password=secret.ad-demo-vault.winadmin-secret"
 Thu Sep  5 11:55:45 CEST 2019 : creating directory .
 Thu Sep  5 11:55:45 CEST 2019 : copying config.json to .
 Thu Sep  5 11:55:45 CEST 2019 : updating file ./ad-config.json
@@ -96,7 +96,7 @@ STDIN.e0  STDIN.o0
 
 Also Windows viz nodes can be added and joined to the domain:
 ```
-$ azhpc-init -c ../azurehpc/examples/activedirectory/winclient-config.json -v "location=westeurope,resource_group=ad_demo,win_password=mypassword@1234"
+$ azhpc-init -c ../azurehpc/examples/activedirectory/winclient-config.json -v "location=westeurope,resource_group=ad_demo,win_password=secret.ad-demo-vault.winadmin-secret"
 Thu Sep  5 11:55:45 CEST 2019 : creating directory .
 Thu Sep  5 11:55:45 CEST 2019 : copying config.json to .
 Thu Sep  5 11:55:45 CEST 2019 : updating file ./ad-config.json
