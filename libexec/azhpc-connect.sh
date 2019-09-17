@@ -103,6 +103,20 @@ fi
 
 status "logging in to $target (via $fqdn)"
 
+vm_os=$(az vm show \
+        --resource-group $resource_group \
+        --name $resource_name \
+	--query storageProfile.osDisk.osType \
+	--output tsv)
+
+if [ "$vm_os" == "Windows" ]; then
+    winfqdn=$(az network public-ip show \
+        --resource-group $resource_group \
+        --name ${resource_name}pip --query dnsSettings.fqdn \
+        --output tsv)
+  exec mstsc.exe /v:$winfqdn
+fi
+
 command=
 
 if [ "$#" -gt "0" ]; then
