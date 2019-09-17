@@ -89,10 +89,12 @@ fi
 
 appId=$(echo $spn | cut -d' ' -f2)
 tenantId=$(echo $spn | cut -d' ' -f3)
+status "Get cyclecloud_install.py"
 downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
 release="latest"
 wget -q "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
 
+status "Run cyclecloud_install.py on $fqdn"
 scp $SSH_ARGS -q -i $ssh_private_key cyclecloud_install.py $admin_user@$fqdn:.
 ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_install.py \
     --applicationSecret ${secret} \
@@ -107,15 +109,17 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
     --password ${password} \
     --storageAccount $projectstore"
 
-
-status "CycleCloud Installation finished"
+status "CycleCloud application server installation finished"
 status "Navigate to https://$fqdn and login using $admin_user"
 
 if [ "$config" == "" ]; then
     $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
 else
     status "running the cycle_install script on install node"
-    azhpc-scp -c $config $DIR/cyclelcli_install.sh 
-    azhpc-run -c $config ./cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
+
+    config_file_no_path=${config##*/}
+    config_file_no_path_or_extension=${config_file_no_path%.*}
+    tmp_dir=azhpc_install_$config_file_no_path_or_extension
+    azhpc-run -c $config $tmp_dir/scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
 fi
 
