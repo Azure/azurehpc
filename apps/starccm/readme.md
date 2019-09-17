@@ -76,8 +76,8 @@ Environment variables can be passed to the PBS job with the `-v` flag.
 
 Submit a job as follows (remembering to substitute your PoD key value):
 
-    qsub -l select=2:ncpus=60:mpiprocs=60:place=scatter:excl \
-        -v PODKEY=#INSERT_POD_KEY# \
+    qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl \
+        -v PODKEY=#INSERT_POD_KEY# -v CASE=#Path to civil.sim# \
         $HOME/apps/starccm/run_case.pbs
 
 > Note: multiple environment variables can be set if they are separated by commas, e.g. `-v VAR1=x,VAR2=y`.
@@ -165,8 +165,8 @@ Environment variables can be passed to the PBS job with the `-v` flag.
 
 Submit a job as follows (remembering to substitute your PoD key value):
 
-    qsub -l select=2:ncpus=60:mpiprocs=60:place=scatter:excl \
-        -v PODKEY=#INSERT_POD_KEY# \
+    qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl \
+        -v PODKEY=#INSERT_POD_KEY# -v CASE=#Path to civil.sim# \
         $HOME/apps/starccm/run_case.pbs
 
 > Note: multiple environment variables can be set if they are separated by commas, e.g. `-v VAR1=x,VAR2=y`.
