@@ -9,6 +9,11 @@ log-on to the headnode
 azhpc-connect headnode
 ```
 
+Copy apps dir to the headnode
+```
+azhpc-scp -r $azhpc_dir/apps hpcuser@headnode:.
+```
+
 Build the IO-500 benchmark suite from the build script.  This will install IO-500 into /apps/io-500-dev and create a modulefile:
 ```
     build_io500.sh
