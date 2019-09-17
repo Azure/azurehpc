@@ -31,15 +31,20 @@ azhpc-scp STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz /mnt/resource/.
 The following environment variables can be used:
 
 | Environment Variable  | Default Value | Description                                                                       |
-|-----------------------|---------------|-----------------------------------------------------------------------------------|
-| APP_INSTALL_DIR       | /apps         | The place to install (a starccm directory will be created here                    |
-| TMP_DIR               | /mnt/resource | A temporary directory for installation files                                      |
-| STARCCM_INSTALLER_DIR | /mnt/resource | The path to the `STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz` installer |
+|------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| APP_INSTALL_DIR        | /apps                                                              | The place to install (a starccm directory will be created here                      |
+| TMP_DIR                | /mnt/resource | A temporary directory for installation files                                                                                                 |
+| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz| The full path to the `STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz` installer |
 
 This will run with the default values:
 
 ```
-azhpc-run -u hpcuser apps/starccm/install_starccm.sh 
+azhpc-run -u hpcuser apps/starccm/install_starccm.sh
+```
+
+Example running with non default values
+```
+azhpc-run -u hpcuser STARCCM_INSTALLER_FILE=/apps/tmp/STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip APP_INSTALL_DIR=/apps/CFD apps/starccm/install_starccm.sh
 ```
 
 # Copy over the benchmark files
