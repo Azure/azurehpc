@@ -30,6 +30,14 @@ if [ "$spn" == "" ]; then
     spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
 else
     echo "SPN $spn exists, make sure its secret is stored in $key_vault"
+    secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
+    if [ "$secret" == "" ]; then
+        echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
+        secret=$(az ad sp credential reset --append -n TotalCycleCloud --credential-description "azhpc" | jq -r '.password')
+        echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
+        az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+    fi
+
 fi
 
 echo "getting FQDN for $vmname"
@@ -64,6 +72,7 @@ password=$(az keyvault secret show --name "CycleAdminPassword" --vault-name $key
 if [ "$password" == "" ]; then
     echo "No secret CycleAdminPassword retrieved from Key Vault $key_vault"
     echo "Generate a password"
+    # Prefix password by a * so that the prequisites for Cycle are met (3 of : Capital Case + Lower Case + Number + Extra)
     password="*$(date +%s | sha256sum | base64 | head -c 16 ; echo)"
     echo "Store password in Key Vault $key_vault secret CycleAdminPassword"
     az keyvault secret set --vault-name $key_vault --name "CycleAdminPassword" --value "$password" --output table
@@ -79,7 +88,7 @@ appId=$(echo $spn | cut -d' ' -f2)
 tenantId=$(echo $spn | cut -d' ' -f3)
 downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
 release="latest"
-wget -q "$downloadURL/$release/cyclecloud_install.py"
+wget -q "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
 
 scp $SSH_ARGS -q -i $ssh_private_key cyclecloud_install.py $admin_user@$fqdn:.
 ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_install.py \
