@@ -1,5 +1,7 @@
 #!/bin/bash
 source "$azhpc_dir/libexec/common.sh"
+DEBUG_ON=0
+COLOR_ON=1
 
 resource_group=$1
 vmname=$2
@@ -13,7 +15,7 @@ ssh_private_key=${admin_user}_id_rsa
 # Create Key Vault to store secrets and keys
 az keyvault show -n $key_vault --output table 2>/dev/null
 if [ "$?" = "0" ]; then
-    echo "keyvault $key_vault already exists"
+    status "keyvault $key_vault already exists"
 else
     az keyvault create --name $key_vault --resource-group $resource_group --output table
 fi
@@ -23,24 +25,24 @@ fi
 spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
 
 if [ "$spn" == "" ]; then
-    echo "Generate a new SPN"
+    status "Generate a new SPN"
     secret=$(az ad sp create-for-rbac --name $spn_appname --years 1 | jq -r '.password')
-    echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
+    status "Store secret in Key Vault $key_vault under secret name $spn_appname"
     az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
     spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
 else
-    echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
+    status "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
     secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
     if [ "$secret" == "" ]; then
-        echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
+        status "No secret stored in $key_vault for $spn_appname, appending a new secret"
         secret=$(az ad sp credential reset --append -n TotalCycleCloud --credential-description "azhpc" | jq -r '.password')
-        echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
+        status "Store new secret in Key Vault $key_vault under secret name $spn_appname"
         az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
     fi
 
 fi
 
-echo "getting FQDN for $vmname"
+status "getting FQDN for $vmname"
 fqdn=$(
     az network public-ip show \
         --resource-group $resource_group \
@@ -59,7 +61,7 @@ az network nsg rule create \
     --destination-port-ranges 443 \
     --output table
 
-echo "Creating storage account $projectstore for projects"
+status "Creating storage account $projectstore for projects"
 az storage account create \
     --name $projectstore \
     --sku Standard_LRS \
@@ -70,18 +72,17 @@ az storage account create \
 # If no password is stored, create a random one
 password=$(az keyvault secret show --name "CycleAdminPassword" --vault-name $key_vault -o json | jq -r '.value')
 if [ "$password" == "" ]; then
-    echo "No secret CycleAdminPassword retrieved from Key Vault $key_vault"
-    echo "Generate a password"
+    status "No secret CycleAdminPassword retrieved from Key Vault $key_vault"
+    status "Generate a password"
     # Prefix password by a * so that the prequisites for Cycle are met (3 of : Capital Case + Lower Case + Number + Extra)
     password="*$(date +%s | sha256sum | base64 | head -c 16 ; echo)"
-    echo "Store password in Key Vault $key_vault secret CycleAdminPassword"
+    status "Store password in Key Vault $key_vault secret CycleAdminPassword"
     az keyvault secret set --vault-name $key_vault --name "CycleAdminPassword" --value "$password" --output table
 fi
 
 secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
 if [ "$secret" == "" ]; then
-    echo "no secret stored in $key_vault for $spn_appname"
-    exit 1
+    error "no secret stored in $key_vault for $spn_appname"
 fi
 
 appId=$(echo $spn | cut -d' ' -f2)
@@ -105,21 +106,21 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
     --storageAccount $projectstore"
 
 
-echo "CycleCloud Installation finished"
-echo "Navigate to https://$fqdn and login using $admin_user"
+status "CycleCloud Installation finished"
+status "Navigate to https://$fqdn and login using $admin_user"
 
 # Installing CycleCloud CLI
-echo "Getting CLI binaries..."
+status "Getting CLI binaries..."
 wget -q "$downloadURL/latest/cyclecloud-cli.zip"
 
 unzip -o cyclecloud-cli.zip
 pushd cyclecloud-cli-installer/
-echo "Installing CLI..."
+status "Installing CLI..."
 ./install.sh -y
 
-echo "Initializing CLI..."
+status "Initializing CLI..."
 name=$(echo $fqdn | cut -d'.' -f1)
-echo $name
+status $name
 ~/bin/cyclecloud initialize --force --batch \
     --name $name \
     --url=https://$fqdn \
