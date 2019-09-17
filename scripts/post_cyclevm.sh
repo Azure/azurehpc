@@ -112,7 +112,7 @@ status "CycleCloud Installation finished"
 status "Navigate to https://$fqdn and login using $admin_user"
 
 if [ "$config" == "" ]; then
-    ./cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
+    $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
 else
     status "running the cycle_install script on install node"
     azhpc-scp -c $config $DIR/cyclelcli_install.sh 
