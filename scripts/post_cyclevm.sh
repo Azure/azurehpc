@@ -1,4 +1,5 @@
 #!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$azhpc_dir/libexec/common.sh"
 DEBUG_ON=0
 COLOR_ON=1
@@ -8,6 +9,7 @@ vmname=$2
 key_vault=$3
 spn_appname=$4
 projectstore=$5
+config=$6
 
 admin_user=hpcadmin
 ssh_private_key=${admin_user}_id_rsa
@@ -109,46 +111,11 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
 status "CycleCloud Installation finished"
 status "Navigate to https://$fqdn and login using $admin_user"
 
-# Installing CycleCloud CLI
-status "Getting CLI binaries..."
-wget -q "$downloadURL/latest/cyclecloud-cli.zip"
-
-unzip -o cyclecloud-cli.zip
-pushd cyclecloud-cli-installer/
-status "Installing CLI..."
-./install.sh -y
-
-status "Initializing CLI..."
-name=$(echo $fqdn | cut -d'.' -f1)
-status $name
-~/bin/cyclecloud initialize --force --batch \
-    --name $name \
-    --url=https://$fqdn \
-    --verify-ssl=false \
-    --username=$admin_user \
-    --password="${password}"
-
-~/bin/cyclecloud config list
-popd
-rm cyclecloud-cli.zip
-rm -rf cyclecloud-cli-installer
-
-# Setup POGO
-cyclecloud_storage_account=$(~/bin/cyclecloud locker list  |  sed -e 's|^[^/]*//||' -e 's|/.*$||')
-pogo_config_file=$HOME/.cycle/pogo.ini
-touch $pogo_config_file
-if ! grep -q "${cyclecloud_storage_account}-storage" $pogo_config_file; then
-    status "Creating ~/.cycle/pogo.ini"
-    cyclecloud_storage_key=$(az storage account keys list -g $resource_group -n $cyclecloud_storage_account --query "[0].value" | sed 's/\"//g')
-
-    cat <<EOF >> $pogo_config_file
-
-[pogo ${cyclecloud_storage_account}-storage]
-type=az
-matches=az://$cyclecloud_storage_account/cyclecloud
-access_key=$cyclecloud_storage_key
-EOF
-
-status "pogo.ini file created"
-
+if [ "$config" == "" ]; then
+    ./cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
+else
+    status "running the cycle_install script on install node"
+    azhpc-scp -c $config $DIR/cyclelcli_install.sh 
+    azhpc-run -c $config ./cyclecli_install.sh $fqdn $admin_user "$password" $resource_group
 fi
+
