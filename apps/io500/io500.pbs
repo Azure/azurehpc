@@ -9,7 +9,7 @@ FILESYSTEM=/beegfs
 
 set -euo pipefail  # better error handling
 
-io500_ior_easy_size=2000
+io500_ior_easy_size=4000
 io500_ior_hard_writes_per_proc=30000
 
 # turn these to True successively while you debug and tune this benchmark.
