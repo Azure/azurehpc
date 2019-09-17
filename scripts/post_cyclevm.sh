@@ -29,7 +29,7 @@ if [ "$spn" == "" ]; then
     az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
     spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
 else
-    echo "SPN $spn exists, make sure its secret is stored in $key_vault"
+    echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
     secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
     if [ "$secret" == "" ]; then
         echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
