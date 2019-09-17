@@ -138,7 +138,7 @@ The following environment variables can be used:
 |-----------------------|---------------|-----------------------------------------------------------------------------------|
 | APP_INSTALL_DIR       | /apps         | The place to install (a starccm directory will be created here                    |
 | TMP_DIR               | /mnt/resource | A temporary directory for installation files                                      |
-| STARCCM_INSTALLER_DIR | /mnt/resource | The path to the `STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz` installer |
+| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz| The full path to the `STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz` installer |
 
 This will run with the default values:
 
