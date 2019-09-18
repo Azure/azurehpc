@@ -2,26 +2,27 @@
 
 # parameters that can be overridden
 APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
-DATA_DIR={DATA_DIR:-.}
-CASE={CASE:-civil}
-# PODKEY is required (pass in as environment variable)
-#PODKEY=
+DATA_DIR=${DATA_DIR:-/data/starccm}
+CASE=${CASE:-civil}
+STARCCM_VERSION=${STARCCM_VERSION:-14.04.013}
 
-if [ "$PODKEY" = "" ];
+# PODKEY is required (pass in as environment variable)
+if [ -z "$PODKEY" ];
+then
     echo "Error: the PODKEY environment variable is not set"
     exit 1
 fi
 
 INSTALL_DIR=$APP_INSTALL_DIR/starccm
-starccm_case=$DATA_DIR/$case.sim
- 
-export PATH=$INSTALL_DIR/starccm/14.06.004/STAR-CCM+14.06.004/star/bin:$PATH
+STARCCM_CASE=$DATA_DIR/${CASE}.sim
+
+export PATH=$INSTALL_DIR/$STARCCM_VERSION/STAR-CCM+$STARCCM_VERSION/star/bin:$PATH
 export CDLMD_LICENSE_FILE=1999@flex.cd-adapco.com
 
 cd $PBS_O_WORKDIR
 
 CORES=$(wc -l <$PBS_NODEFILE)
- 
+
 PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
 PKEY=${PKEY/0x8/0x0}
 
@@ -31,9 +32,9 @@ starccm+ \
     -power \
     -podkey "$PODKEY" \
     -rsh ssh \
-    -mpi openmpi4 \
+    -mpi openmpi \
     -cpubind bandwidth,v \
     -ldlibpath /usr/lib \
     -fabric ucx \
     -mppflags "-mca mca_base_env_list UCX_IB_PKEY=$PKEY,UCX_NET_DEVICES=mlx5_0:1 -mca btl ^vader,openib -mca plm_rsh_no_tree_spawn 1" \
-    $starccm_case -benchmark "-preclear -preits 40 -nits 20 -nps $CORES"
+    $STARCCM_CASE -benchmark "-preclear -preits 40 -nits 20 -nps $CORES"
