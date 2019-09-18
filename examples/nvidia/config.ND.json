@@ -52,7 +52,6 @@
         {
             "script": "cuda_drivers.sh",
             "tag": "nvidia",
-            "reboot": true,
             "sudo": true
         }
     ]
