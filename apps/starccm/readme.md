@@ -17,7 +17,7 @@ azhpc-scp -r $azhpc_dir/apps hpcuser@headnode:.
 The `libXt` package is required on the compute nodes.  This can be installed with the `add_reqs.sh` script that is provided (alternatively add to the install steps for the cluster you but with azurehpc).
 
 ```
-azhpc-run -u hpcuser -n compute ~/apps/starccm/scripts/add_reqs.sh 
+azhpc-run -u hpcuser -n compute apps/starccm/scripts/add_reqs.sh 
 ```
 
 ### Install Starccm+
@@ -25,7 +25,7 @@ azhpc-run -u hpcuser -n compute ~/apps/starccm/scripts/add_reqs.sh
 You must first obtain the starccm installer and copy it to the cluster.  If it is available on the local machine you can copy as follows:
 
 ```
-azhpc-scp STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz /mnt/resource/.
+azhpc-scp STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz hpcuser@headnode:/mnt/resource/.
 ```
 
 The following environment variables can be used:
