@@ -270,7 +270,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
             status "creating anf: $storage_name"
 
             read_value storage_subnet ".storage.$storage_name.subnet"
-            storage_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$storage_subnet"
+            storage_vnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name"
 
             # check if the deletation exists
             delegation_exists=$(\
@@ -299,23 +299,23 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 --output table
 
             # loop over pools
+            mount_script="scripts/auto_netappfiles_mount_${pool_name}.sh"
+            mkdir -p scripts
+            status "Building script: $mount_script"
+            echo "#!/bin/bash" > $mount_script
+            echo "yum install -y nfs-utils" >> $mount_script
             for pool_name in $(jq -r ".storage.$storage_name.pools | keys | .[]" $config_file); do
                 read_value pool_size ".storage.$storage_name.pools.$pool_name.size"
                 read_value pool_service_level ".storage.$storage_name.pools.$pool_name.service_level"
 
-                mount_script="scripts/auto_netappfiles_mount_${pool_name}.sh"
-                mkdir -p scripts
-                status "Building script: $mount_script"
-                echo "#!/bin/bash" > $mount_script
-                echo "yum install -y nfs-utils" >> $mount_script
-
                 # create pool
+                # pool_size is in TiB
                 az netappfiles pool create \
                     --resource-group $resource_group \
                     --account-name $storage_name \
                     --location $location \
                     --service-level $pool_service_level \
-                    --size $(($pool_size * (2 ** 40)))\
+                    --size $pool_size \
                     --pool-name $pool_name \
                     --output table
 
@@ -323,16 +323,18 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 for volume_name in $(jq -r ".storage.$storage_name.pools.$pool_name.volumes | keys | .[]" $config_file); do
                     read_value volume_size ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.size"
 
+                    # volume_size should be in GiB
                     az netappfiles volume create \
                         --resource-group $resource_group \
                         --account-name $storage_name \
                         --location $location \
                         --service-level $pool_service_level \
-                        --usage-threshold $(($volume_size * (2 ** 40))) \
+                        --usage-threshold $volume_size  \
                         --creation-token ${volume_name} \
                         --pool-name $pool_name \
                         --volume-name $volume_name \
-                        --subnet-id $storage_subnet_id \
+                        --vnet $storage_vnet_id \
+                        --subnet $storage_subnet \
                         --output table
 
                     volume_ip=$( \
