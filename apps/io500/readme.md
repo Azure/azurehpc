@@ -48,6 +48,5 @@ The tail end of a results summary file will look like the following (listing all
 [RESULT] IOPS phase 6        mdtest_easy_delete               35.207 kiops : time 195.11 seconds
 [RESULT] IOPS phase 7          mdtest_hard_read                4.803 kiops : time 128.09 seconds
 [RESULT] IOPS phase 8        mdtest_hard_delete                2.625 kiops : time 243.19 seconds
-One or more test phases invalid.  Not valid for IO-500 submission.
 [SCORE-valid] Bandwidth 1.61907 GB/s : IOPS 14.8749 kiops : TOTAL 4.90749
 ```
