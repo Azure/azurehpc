@@ -1,0 +1,59 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "gpumaster",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.1.0/24",
+            "storage": "10.2.3.0/24",
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "variables": {
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "image": "OpenLogic:CentOS:7.6:latest"
+    },
+    "resources": {
+        "gpumaster": {
+            "type": "vm",
+            "vm_type": "Standard_ND24s",
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "admin",
+            "tags": [
+                "nvidia",
+                "disable-selinux"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "update_kernel.sh",
+            "tag": "nvidia",
+            "reboot": true,
+            "sudo": true
+        },
+        {
+            "script": "install_lis.sh",
+            "tag": "nvidia",
+            "reboot": true,
+            "sudo": true
+        },
+        {
+            "script": "cuda_drivers.sh",
+            "tag": "nvidia",
+            "reboot": true,
+            "sudo": true
+        }
+    ]
+}
