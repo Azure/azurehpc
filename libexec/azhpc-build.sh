@@ -187,10 +187,6 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --public-ip-address-dns-name $resource_name$uuid_str \
                 $data_disks_options \
                 --no-wait
-            
-            if [ "$?" -ne "0" ]; then
-                error "Failed to create resource"
-            fi
         ;;
         vmss)
             status "creating vmss: $resource_name"
@@ -247,12 +243,9 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --single-placement-group true \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
+                --subnet $resource_subnet_id \
                 $data_disks_options \
                 --no-wait
-            
-            if [ "$?" -ne "0" ]; then
-                error "Failed to create resource"
-            fi
         ;;
         *)
             error "unknown resource type ($resource_type) for $resource_name"
@@ -299,7 +292,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 --output table
 
             # loop over pools
-            mount_script="scripts/auto_netappfiles_mount_${pool_name}.sh"
+            mount_script="scripts/auto_netappfiles_mount.sh"
             mkdir -p scripts
             status "Building script: $mount_script"
             echo "#!/bin/bash" > $mount_script
@@ -329,7 +322,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --account-name $storage_name \
                         --location $location \
                         --service-level $pool_service_level \
-                        --usage-threshold $volume_size  \
+                        --usage-threshold $volume_size \
                         --creation-token ${volume_name} \
                         --pool-name $pool_name \
                         --volume-name $volume_name \
@@ -454,25 +447,26 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/tags/$tag
         done
 
-        cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/linux
+        cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/global
 
     elif [ "$resource_type" = "vm" ]; then
         # only get ip for passwordless nodes
         read_value resource_password ".resources.$resource_name.password" "<no-password>"
-        
-        az vm show \
-            --resource-group $resource_group \
-            --name $resource_name \
-            --query osProfile.computerName \
-            --output tsv \
-            > $tmp_dir/hostlists/$resource_name
-
-        for tag in $(jq -r ".resources.$resource_name.tags | @tsv" $config_file); do
-            cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/tags/$tag
-        done
-
         if [ "$resource_password" = "<no-password>" ]; then
-            cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/linux
+            resource_credential=(--ssh-key-value "$(<$ssh_public_key)")
+
+            az vm show \
+                --resource-group $resource_group \
+                --name $resource_name \
+                --query osProfile.computerName \
+                --output tsv \
+                > $tmp_dir/hostlists/$resource_name
+
+            for tag in $(jq -r ".resources.$resource_name.tags | @tsv" $config_file); do
+                cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/tags/$tag
+            done
+
+            cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/global
         fi
     fi
 
@@ -510,12 +504,12 @@ chmod 600 ~/.ssh/id_rsa
 chmod 644 ~/.ssh/config
 chmod 644 ~/.ssh/id_rsa.pub
 
-prsync -p $pssh_parallelism -a -h hostlists/linux ~/$tmp_dir ~ >> step_0_install_node_setup.log 2>&1
-prsync -p $pssh_parallelism -a -h hostlists/linux ~/.ssh ~ >> step_0_install_node_setup.log 2>&1
+prsync -p $pssh_parallelism -a -h hostlists/global ~/$tmp_dir ~ >> step_0_install_node_setup.log 2>&1
+prsync -p $pssh_parallelism -a -h hostlists/global ~/.ssh ~ >> step_0_install_node_setup.log 2>&1
 
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> step_0_install_node_setup.log 2>&1
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux 'sudo systemctl restart sshd' >> step_0_install_node_setup.log 2>&1
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> step_0_install_node_setup.log 2>&1
+pssh -p $pssh_parallelism -t 0 -i -h hostlists/global 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> step_0_install_node_setup.log 2>&1
+pssh -p $pssh_parallelism -t 0 -i -h hostlists/global 'sudo systemctl restart sshd' >> step_0_install_node_setup.log 2>&1
+pssh -p $pssh_parallelism -t 0 -i -h hostlists/global "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> step_0_install_node_setup.log 2>&1
 OUTER_EOF
 
     for step in $(seq 1 $nsteps); do
