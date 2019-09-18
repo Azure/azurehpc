@@ -4,15 +4,18 @@ The [IO-500](https://www.vi4io.org/std/io500/start) is a I/O storage benchmark d
 
 The IO-500 benchmark needs to be built on HB or HC sku's with CentOS-HPC 7.6 (using mpi/mpich-3.3). See one of the examples for building a Cluster with HB or HC skus and PBS. (e.g. [simple_hpc_pbs](../../examples/simple_hpc_pbs/readme.md))
 
+
+Copy apps dir to the headnode (to access io500 build and run scripts from the headnode)
+```
+azhpc-scp -r $azhpc_dir/apps hpcuser@headnode:.
+```
+
+
 log-on to the headnode
 ```
 azhpc-connect headnode
 ```
 
-Copy apps dir to the headnode
-```
-azhpc-scp -r $azhpc_dir/apps hpcuser@headnode:.
-```
 
 Build the IO-500 benchmark suite from the build script.  This will install IO-500 into /apps/io-500-dev and create a modulefile:
 ```
