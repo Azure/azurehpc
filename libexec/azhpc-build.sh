@@ -310,14 +310,14 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
             debug "netapp account joining domain"
 	    read_value storage_anf_domain_ad ".storage.$storage_name.ad_server"
 	    read_value storage_anf_domain_password ".storage.$storage_name.ad_password"
-	    read_value storage_anf_domain_username ".storage.$storage_name.ad_username"
+	    read_value storage_anf_domain_admin ".storage.$storage_name.ad_admin"
 	    ad_dns=$(az vm list-ip-addresses -g $resource_group -n $storage_anf_domain_ad --query [0].virtualMachine.network.privateIpAddresses --output tsv)
             az netappfiles account ad add \
                 --dns $ad_dns \
                 --domain $storage_anf_domain \
                 --password $storage_anf_domain_password \
                 --smb-server-name anf \
-                --username $storage_anf_domain_username \
+                --username $storage_anf_domain_admin \
                 --resource-group $resource_group \
                 --name $storage_name
 	    fi
