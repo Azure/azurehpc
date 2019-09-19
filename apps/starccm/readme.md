@@ -25,7 +25,7 @@ azhpc-run -u hpcuser -n compute apps/starccm/scripts/add_reqs.sh
 You must first obtain the starccm installer and copy it to the cluster.  If it is available on the local machine you can copy as follows:
 
 ```
-azhpc-scp STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip /mnt/resource/.
+azhpc-scp STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip hpcuser@headnode:/mnt/resource/.
 ```
 
 The following environment variables can be used:
