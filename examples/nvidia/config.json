@@ -7,14 +7,13 @@
         "name": "hpcvnet",
         "address_prefix": "10.2.0.0/20",
         "subnets": {
-            "admin": "10.2.1.0/24",
-            "storage": "10.2.3.0/24",
-            "compute": "10.2.4.0/22"
+            "admin": "10.2.1.0/24"
         }
     },
     "variables": {
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
+        "vm_type": "<NOT-SET>",
         "image": "OpenLogic:CentOS:7.6:latest"
     },
     "resources": {
@@ -30,7 +29,7 @@
         },
         "gpumaster": {
             "type": "vm",
-            "vm_type": "Standard_ND24s",
+            "vm_type": "variables.vm_type",
             "public_ip": true,
             "image": "variables.image",
             "subnet": "admin",
