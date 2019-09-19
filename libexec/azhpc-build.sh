@@ -299,7 +299,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 --output table
 
             # loop over pools
-            mount_script="scripts/auto_netappfiles_mount_${pool_name}.sh"
+            mount_script="scripts/auto_netappfiles_mount.sh"
             mkdir -p scripts
             status "Building script: $mount_script"
             echo "#!/bin/bash" > $mount_script
