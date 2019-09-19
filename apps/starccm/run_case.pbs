@@ -4,7 +4,6 @@
 APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
 DATA_DIR=${DATA_DIR:-/data/starccm}
 CASE=${CASE:-civil}
-# Valid OMPI values are openmpi and openmpi4
 OMPI=${OMPI:-openmpi}
 STARCCM_VERSION=${STARCCM_VERSION:-14.04.013}
 
