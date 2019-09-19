@@ -25,7 +25,7 @@ azhpc-run -u hpcuser -n compute apps/starccm/scripts/add_reqs.sh
 You must first obtain the starccm installer and copy it to the cluster.  If it is available on the local machine you can copy as follows:
 
 ```
-azhpc-scp STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz hpcuser@headnode:/mnt/resource/.
+azhpc-scp STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip /mnt/resource/.
 ```
 
 The following environment variables can be used:
@@ -34,7 +34,7 @@ The following environment variables can be used:
 |------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | APP_INSTALL_DIR        | /apps                                                              | The place to install (a starccm directory will be created here                      |
 | TMP_DIR                | /mnt/resource | A temporary directory for installation files                                                                                                 |
-| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz| The full path to the `STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz` installer |
+| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip| The full path to the `STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip` installer |
 
 This will run with the default values:
 
@@ -52,7 +52,8 @@ azhpc-run -u hpcuser STARCCM_INSTALLER_FILE=/apps/tmp/STAR-CCM+14.04.013_01_linu
 The benchmark will need to be copied to the cluster.  The default in the run script is `civil`.  You can copy the `sim` file as follows:
 
 ```
-azhpc-scp civil.sim hpcuser@headnode:.
+azhpc-run -u hpcuser -n headnode mkdir /data/starccm
+azhpc-scp civil.sim hpcuser@headnode:/data/starccm/civil.sim
 ```
 
 ## Connect to the headnode
@@ -68,7 +69,7 @@ The `run_case.pbs` script is ready to use.  Below are all the parameters althoug
 | Environment Variable | Default Value | Description                                                                             |
 |----------------------|---------------|-----------------------------------------------------------------------------------------|
 | APP_INSTALL_DIR      | /apps         | The place to install (a starccm directory will be created here                          |
-| DATA_DIR             | .             | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
+| DATA_DIR             | /data/starccm | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
 | CASE                 | civil         | The case to run (excluding path and `.sim` extension)                                   |
 | PODKEY               |               | This is required for the licensing                                                      |
 
@@ -77,7 +78,7 @@ Environment variables can be passed to the PBS job with the `-v` flag.
 Submit a job as follows (remembering to substitute your PoD key value):
 
     qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl \
-        -v PODKEY=#INSERT_POD_KEY# -v CASE=#Path to civil.sim# \
+        -v PODKEY=#INSERT_POD_KEY# \
         $HOME/apps/starccm/run_case.pbs
 
 > Note: multiple environment variables can be set if they are separated by commas, e.g. `-v VAR1=x,VAR2=y`.
@@ -138,7 +139,8 @@ The following environment variables can be used:
 |-----------------------|---------------|-----------------------------------------------------------------------------------|
 | APP_INSTALL_DIR       | /apps         | The place to install (a starccm directory will be created here                    |
 | TMP_DIR               | /mnt/resource | A temporary directory for installation files                                      |
-| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz| The full path to the `STAR-CCM+14.06.004_02_linux-x86_64-2.12_gnu7.1.tar.gz` installer |
+=======
+| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip| The full path to the `STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip` installer |
 
 This will run with the default values:
 
@@ -157,7 +159,7 @@ The `run_case.pbs` script is ready to use.  Below are all the parameters althoug
 | Environment Variable | Default Value | Description                                                                             |
 |----------------------|---------------|-----------------------------------------------------------------------------------------|
 | APP_INSTALL_DIR      | /apps         | The place to install (a starccm directory will be created here                          |
-| DATA_DIR             | .             | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
+| DATA_DIR             | /data/starccm | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
 | CASE                 | civil         | The case to run (excluding path and `.sim` extension)                                   |
 | PODKEY               |               | This is required for the licensing                                                      |
 
