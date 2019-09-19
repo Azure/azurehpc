@@ -329,7 +329,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --account-name $storage_name \
                         --location $location \
                         --service-level $pool_service_level \
-                        --usage-threshold $volume_size  \
+                        --usage-threshold $volume_size \
                         --creation-token ${volume_name} \
                         --pool-name $pool_name \
                         --volume-name $volume_name \
