@@ -15,7 +15,6 @@
     "variables": {
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
-        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "image": "OpenLogic:CentOS:7.6:latest"
     },
     "resources": {
@@ -23,7 +22,7 @@
             "type": "vm",
             "vm_type": "Standard_ND24s",
             "public_ip": true,
-            "image": "variables.hpc_image",
+            "image": "variables.image",
             "subnet": "admin",
             "tags": [
                 "nvidia",
