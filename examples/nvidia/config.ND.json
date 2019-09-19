@@ -1,7 +1,7 @@
 {
     "location": "variables.location",
     "resource_group": "variables.resource_group",
-    "install_from": "gpumaster",
+    "install_from": "jumpbox",
     "admin_user": "hpcadmin",
     "vnet": {
         "name": "hpcvnet",
@@ -18,6 +18,16 @@
         "image": "OpenLogic:CentOS:7.6:latest"
     },
     "resources": {
+        "jumpbox": {
+            "type": "vm",
+            "vm_type": "Standard_D4s_v3",
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "admin",
+            "tags": [
+                "sleep"
+            ]
+        },
         "gpumaster": {
             "type": "vm",
             "vm_type": "Standard_ND24s",
@@ -47,6 +57,13 @@
             "tag": "nvidia",
             "reboot": true,
             "sudo": true
+        },
+        {
+            "script": "wait.sh",
+            "args": [
+                "30"
+            ],
+            "tag": "sleep"
         },
         {
             "script": "cuda_drivers.sh",
