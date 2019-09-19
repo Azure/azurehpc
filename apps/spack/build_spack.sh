@@ -243,7 +243,7 @@ mkdir -p $SPACKDIR
 cd $SPACKDIR
 git clone https://github.com/spack/spack.git
 cd spack
-git checkout tags/$SPACKVERSION
+git checkout tags/v${APP_VERSION}
 source ${SPACKDIR}/spack/share/spack/setup-env.sh
 echo "source ${SPACKDIR}/spack/share/spack/setup-env.sh" >> ~/.bash_profile
 sudo mkdir /mnt/resource/spack
