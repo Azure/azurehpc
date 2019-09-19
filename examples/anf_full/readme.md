@@ -22,6 +22,11 @@ The variables can be set with the `-v` option where variables are comma separate
 azhpc-init -c $azhpc_dir/examples/anf_full -d anf_full -v location=westus2,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],apps_storage_account=appstorageaccount
 ```
 
+> Config File Notes:
+- Pool name and volume name in the same subsciption and region need to be unique. If ANF fails to build, try changing the pool and volume name in the config file
+- Pool size must be between 4-500 in increments of 4. (Units:TiB)
+- Volume size must be between 100-100000 (Units: GiB)
+
 Create the cluster 
 
 ```
