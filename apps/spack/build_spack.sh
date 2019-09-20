@@ -274,7 +274,8 @@ cd $SPACKDIR
 git clone https://github.com/spack/spack.git
 cd spack
 git checkout tags/v${APP_VERSION}
-patch -p0 < ~/${PATCH1}
+mv ~/${PATCH1} .
+patch -p0 < ${PATCH1}
 source ${SPACKDIR}/spack/share/spack/setup-env.sh
 echo "source ${SPACKDIR}/spack/share/spack/setup-env.sh" >> ~/.bash_profile
 sudo mkdir /mnt/resource/spack
