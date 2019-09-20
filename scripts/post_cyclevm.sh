@@ -37,7 +37,7 @@ else
     secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
     if [ "$secret" == "" ]; then
         status "No secret stored in $key_vault for $spn_appname, appending a new secret"
-        secret=$(az ad sp credential reset --append -n TotalCycleCloud --credential-description "azhpc" | jq -r '.password')
+        secret=$(az ad sp credential reset --append -n $spn_appname --credential-description "azhpc" | jq -r '.password')
         status "Store new secret in Key Vault $key_vault under secret name $spn_appname"
         az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
     fi
