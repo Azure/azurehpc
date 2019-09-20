@@ -1,0 +1,18 @@
+#!/bin/bash
+
+SHARED_APPS=/apps
+
+export MODULEPATH=${SHARED_APPS}/modulefiles/spack/tcl/hb/linux-centos7-x86_64:$MODULEPATH
+module load gcc-8.2.0
+module load mpi/openmpi-4.0.1
+spack load osu-micro-benchmarks^openmpi
+
+cat $PBS_NODEFILE
+
+cd $PBS_O_WORKDIR
+sed -e 's/$/ slots=1/' $PBS_NODEFILE > openmpi_hostfile
+
+PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
+PKEY=${PKEY/0x8/0x0}
+
+mpirun -x LD_LIBRARY_PATH -x PATH --hostfile openmpi_hostfile --map-by core --report-bindings --mca pml ucx --mca btl tcp,openib -x UCX_IB_PKEY=$PKEY osu_bw
