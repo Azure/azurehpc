@@ -22,3 +22,14 @@ Build/install spack using the build script.  This will install spack into /apps/
     build_spack.sh <SKU_NAME> <EMAIL_ADDRESS>
 ```
 Where <SKU_NAME> is hb or hc (used as sku identifier to indicate which SKU the software was built on) and <EMAIL_ADDRESS> will be associated with the GPG key that is generated (used when accessing/downloading pre-built binaries from a build cache).
+
+To see what software is available for installation from the binary buildcache.
+```
+   spack buildcache list
+```
+
+To install software available from the buildcache.
+
+```
+   spack buildcache install <spec> or <hash>
+```
