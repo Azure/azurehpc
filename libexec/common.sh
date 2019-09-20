@@ -1,6 +1,12 @@
 #!/bin/bash
 
-SSH_ARGS="-o StrictHostKeyChecking=no"
+if [ "${BASH_SOURCE[0]}" -ef "$0" ]
+then
+    echo "Error: this script should be sourced and not executed"
+    exit 1
+fi
+
+SSH_ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q"
 
 function debug()
 {
