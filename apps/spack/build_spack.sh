@@ -28,9 +28,8 @@ config:
 
   # Locations where different types of modules should be installed.
   module_roots:
-    tcl:    \$spack/share/spack/modules
+    tcl:    /apps/modulefiles/spack/tcl/$sku_type
     lmod:   /apps/modules/spack/lmod/$sku_type
-    dotkit: \$spack/share/spack/dotkit
 
 
   # Temporary locations Spack can try to use for builds.
@@ -121,11 +120,18 @@ cat > ~/${SCRIPT2} << EOF
 # -------------------------------------------------------------------------
 modules:
   enable:
-    - lmod
     - tcl
-    - dotkit
+    - lmod
   prefix_inspections:
     bin:
+      - PATH
+    libexec/osu-micro-benchmarks/mpi/collective:
+      - PATH
+    libexec/osu-micro-benchmarks/mpi/one-sided:
+      - PATH
+    libexec/osu-micro-benchmarks/mpi/pt2pt:
+      - PATH
+    libexec/osu-micro-benchmarks/mpi/startup:
       - PATH
     man:
       - MANPATH
