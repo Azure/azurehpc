@@ -238,22 +238,53 @@ compilers:
     target: x86_64
 EOF
 
+PATCH1=patch_web_py
+cat > ~/${PATCH1} << EOF
+--- lib/spack/spack/util/web.py_orig    2019-09-20 00:04:49.140840143 +0000
++++ lib/spack/spack/util/web.py 2019-09-20 00:05:33.820755495 +0000
+@@ -99,6 +99,7 @@
+        - pages: dict of pages visited (URL) mapped to their full text.
+        - links: set of links encountered while visiting the pages.
+     """
++    url = url + '/index.html'
+     pages = {}     # dict from page URL -> text content.
+     links = set()  # set of all links seen on visited pages.
+
+@@ -135,10 +136,10 @@
+             tty.debug("ignoring page " + url)
+             return pages, links
+
+-        if not resp.headers["Content-type"].startswith('text/html'):
+-            tty.debug("ignoring page " + url + " with content type " +
+-                      resp.headers["Content-type"])
+-            return pages, links
++#        if not resp.headers["Content-type"].startswith('text/html'):
++#            tty.debug("ignoring page " + url + " with content type " +
++#                      resp.headers["Content-type"])
++#            return pages, links
+
+         # Do the real GET request when we know it's just HTML.
+         req.get_method = lambda: "GET"
+EOF
+
+
 SPACKDIR=${SHARED_APPS}/${APP_NAME}/${APP_VERSION}
 mkdir -p $SPACKDIR
 cd $SPACKDIR
 git clone https://github.com/spack/spack.git
 cd spack
 git checkout tags/v${APP_VERSION}
+patch -p0 < ~/${PATCH1}
 source ${SPACKDIR}/spack/share/spack/setup-env.sh
 echo "source ${SPACKDIR}/spack/share/spack/setup-env.sh" >> ~/.bash_profile
 sudo mkdir /mnt/resource/spack
 sudo chown $USER /mnt/resource/spack
 mkdir ~/.spack
-cp ~/${SCRIPT1} ~/.spack
-cp ~/${SCRIPT2} ~/.spack
-cp ~/${SCRIPT3} ~/.spack
-cp ~/${SCRIPT4} ~/.spack
+mv ~/${SCRIPT1} ~/.spack
+mv ~/${SCRIPT2} ~/.spack
+mv ~/${SCRIPT3} ~/.spack
+mv ~/${SCRIPT4} ~/.spack
 mkdir -p /apps/spack/${sku_type}
 spack gpg init
 spack gpg create ${sku_type}_gpg $email_address
-spack mirror add ${sku_type}_buildcache file:///apps/spack/${sku_type}
+spack mirror add ${sku_type}_buildcache https://cgspack.blob.core.windows.net/buildcache/${sku_type}
