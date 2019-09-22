@@ -177,6 +177,10 @@ packages:
     modules:
        hpcx@2.4.1%gcc@8.2.0: mpi/hpcx-v2.4.1
     buildable: False
+  intel-mpi:
+    modules:
+       intel-mpi@2018.5.274: intel_2018.5.274
+    buildable: False
   gcc:
     modules:
        gcc@8.2.0: gcc-8.2.0
