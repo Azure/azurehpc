@@ -1,6 +1,7 @@
 #!/bin/bash
 export azhpc_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 source "$azhpc_dir/libexec/common.sh"
+source "$azhpc_dir/libexec/install_helper.sh"
 
 DEBUG_ON=0
 COLOR_ON=1
@@ -132,100 +133,30 @@ if [ "$fqdn" = "" ]; then
     status "The install node does not have a public IP.  Using hostname - $install_node - and must be on this node must be on the same vnet"
 fi
 
-nsteps=$(jq -r ".install | length" $config_file)
+status "building hostlists"
+build_hostlists "$config_file" "$tmp_dir"
+cp $tmp_dir/$vmss_resource-hosts-added $tmp_dir/hostlists/tags/$vmss_resource.added
 
-if [ "$nsteps" -eq 0 ]; then
+status "building install scripts"
+create_install_scripts \
+    "$config_file" \
+    "$tmp_dir" \
+    "$ssh_public_key" \
+    "$ssh_private_key" \
+    "$SSH_ARGS" \
+    "$admin_user" \
+    "$local_script_dir" \
+    "$fqdn"
 
-    status "no install steps"
-
-else
-
-    timestamp=$(date +%Y%m%d-%H%M%S)
-    status "building install scripts - $nsteps steps"
-    install_sh=$tmp_dir/resize-$vmss_resource-$vmss_target_size-$timestamp.sh
-
-    cat <<OUTER_EOF > $install_sh
-#!/bin/bash
-
-cd ~/$tmp_dir
-
-prsync -a -h $vmss_resource-hosts-added ~/$tmp_dir ~ > resize_${timestamp}_step_0_install_node_setup.log 2>&1
-prsync -a -h $vmss_resource-hosts-added ~/.ssh ~ >> resize_${timestamp}_step_0_install_node_setup.log 2>&1
-
-pssh -t 0 -i -h $vmss_resource-hosts-added 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> resize_${timestamp}_step_0_install_node_setup.log 2>&1
-pssh -t 0 -i -h $vmss_resource-hosts-added 'sudo systemctl restart sshd' >> resize_${timestamp}_step_0_install_node_setup.log 2>&1
-pssh -t 0 -i -h $vmss_resource-hosts-added "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> resize_${timestamp}_step_0_install_node_setup.log 2>&1
-OUTER_EOF
-
-    for step in $(seq 1 $nsteps); do
-        idx=$(($step - 1))
-
-        read_value install_tag ".install[$idx].tag"
-        resource_has_tag=$(jq ".resources.$vmss_resource.tags | index(\"$install_tag\")" $config_file)
-        if [ "$resource_has_tag" = "null" ]; then
-            status "skipping step $step as it doesn't apply to $vmss_resource"
-            continue
-        fi
-
-        read_value install_script ".install[$idx].script"
-        read_value install_reboot ".install[$idx].reboot" false
-        read_value install_sudo ".install[$idx].sudo" false
-        install_nfiles=$(jq -r ".install[$idx].copy | length" $config_file)
-
-        install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
-        install_command_line=$install_script
-        if [ "$install_script_arg_count" -ne "0" ]; then
-            for n in $(seq 0 $((install_script_arg_count - 1))); do
-                read_value arg ".install[$idx].args[$n]"
-                install_command_line="$install_command_line '$arg'"
-            done
-        fi
-
-        echo "echo 'Step $step : $install_script'" >> $install_sh
-        echo "start_time=\$SECONDS" >> $install_sh
-
-        if [ "$install_nfiles" != "0" ]; then
-            echo "## copying files" >>$install_sh
-            for f in $(jq -r ".install[$idx].copy | @tsv" $config_file); do
-                echo "pscp.pssh -h $vmss_resource-hosts-added $f \$(pwd) >> resize_${timestamp}_step_${step}_${install_script%.sh}.log 2>&1" >>$install_sh
-            done
-        fi
-
-        sudo_prefix=
-        if [ "$install_sudo" = "true" ]; then
-            sudo_prefix=sudo
-        fi
-
-        # can run in parallel with pssh
-        echo "pssh -t 0 -i -h $vmss_resource-hosts-added \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> resize_${timestamp}_step_${step}_${install_script%.sh}.log 2>&1" >>$install_sh
-
-        if [ "$install_reboot" = "true" ]; then
-            cat <<EOF >> $install_sh
-pssh -t 0 -i -h $vmss_resource-hosts-added "sudo reboot" >> resize_${timestamp}_step_${step}_${install_script%.sh}.log 2>&1
-echo "    Waiting for nodes to come back"
-sleep 10
-for h in \$(<$vmss_resource-hosts-added); do
-    nc -z \$h 22
-    echo "        \$h rebooted"
-done
-sleep 10
-EOF
-        fi
-
-        echo 'echo "    duration: $(($SECONDS - $start_time)) seconds"' >> $install_sh
-
-    done
-
-    chmod +x $install_sh
-    cp $ssh_private_key $tmp_dir
-    cp $ssh_public_key $tmp_dir
-    cp -r $azhpc_dir/scripts $tmp_dir
-    cp -r $local_script_dir/* $tmp_dir/scripts/. 2>/dev/null
-    rsync -a -e "ssh $SSH_ARGS -i $ssh_private_key" $tmp_dir $admin_user@$fqdn:.
-
-    status "running the install script $fqdn"
-    ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn $install_sh
-
-fi
+status "running the install scripts"
+run_install_scripts \
+    "$config_file" \
+    "$tmp_dir" \
+    "$ssh_private_key" \
+    "$SSH_ARGS" \
+    "$admin_user" \
+    "$local_script_dir" \
+    "$fqdn" \
+    "$vmss_resource"
 
 status "cluster ready"

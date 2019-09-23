@@ -1,12 +1,11 @@
 #!/bin/bash
 export azhpc_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 source "$azhpc_dir/libexec/common.sh"
+source "$azhpc_dir/libexec/install_helper.sh"
 
 DEBUG_ON=0
 COLOR_ON=1
 config_file="config.json"
-
-pssh_parallelism=50
 
 function usage() {
     echo "Command:"
@@ -435,153 +434,28 @@ if [ "$fqdn" = "" ]; then
 fi
 
 status "building hostlists"
-rm -rf $tmp_dir/hostlists
-mkdir -p $tmp_dir/hostlists/tags
-for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
+build_hostlists "$config_file" "$tmp_dir"
 
-    read_value resource_type ".resources.$resource_name.type"
+status "building install scripts"
+create_install_scripts \
+    "$config_file" \
+    "$tmp_dir" \
+    "$ssh_public_key" \
+    "$ssh_private_key" \
+    "$SSH_ARGS" \
+    "$admin_user" \
+    "$local_script_dir" \
+    "$fqdn"
 
-    if [ "$resource_type" = "vmss" ]; then
-
-        az vmss list-instances \
-            --resource-group $resource_group \
-            --name $resource_name \
-            --query [].osProfile.computerName \
-            --output tsv \
-            > $tmp_dir/hostlists/$resource_name
-
-        for tag in $(jq -r ".resources.$resource_name.tags | @tsv" $config_file); do
-            cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/tags/$tag
-        done
-
-        cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/linux
-
-    elif [ "$resource_type" = "vm" ]; then
-        # only get ip for passwordless nodes
-        read_value resource_password ".resources.$resource_name.password" "<no-password>"
-        
-        az vm show \
-            --resource-group $resource_group \
-            --name $resource_name \
-            --query osProfile.computerName \
-            --output tsv \
-            > $tmp_dir/hostlists/$resource_name
-
-        for tag in $(jq -r ".resources.$resource_name.tags | @tsv" $config_file); do
-            cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/tags/$tag
-        done
-
-        if [ "$resource_password" = "<no-password>" ]; then
-            cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/linux
-        fi
-    fi
-
-done
-
-nsteps=$(jq -r ".install | length" $config_file)
-
-if [ "$nsteps" -eq 0 ]; then
-
-    status "no install steps"
-
-else
-
-    status "building install scripts - $nsteps steps"
-    install_sh=$tmp_dir/install.sh
-
-    cat <<OUTER_EOF > $install_sh
-#!/bin/bash
-
-cd ~/$tmp_dir
-
-sudo yum install -y epel-release > step_0_install_node_setup.log 2>&1
-sudo yum install -y pssh nc >> step_0_install_node_setup.log 2>&1
-
-# setting up keys
-cat <<EOF > ~/.ssh/config
-Host *
-    StrictHostKeyChecking no
-    UserKnownHostsFile /dev/null
-    LogLevel ERROR
-EOF
-cp $ssh_public_key ~/.ssh/id_rsa.pub
-cp $ssh_private_key ~/.ssh/id_rsa
-chmod 600 ~/.ssh/id_rsa
-chmod 644 ~/.ssh/config
-chmod 644 ~/.ssh/id_rsa.pub
-
-prsync -p $pssh_parallelism -a -h hostlists/linux ~/$tmp_dir ~ >> step_0_install_node_setup.log 2>&1
-prsync -p $pssh_parallelism -a -h hostlists/linux ~/.ssh ~ >> step_0_install_node_setup.log 2>&1
-
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> step_0_install_node_setup.log 2>&1
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux 'sudo systemctl restart sshd' >> step_0_install_node_setup.log 2>&1
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/linux "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> step_0_install_node_setup.log 2>&1
-OUTER_EOF
-
-    for step in $(seq 1 $nsteps); do
-        idx=$(($step - 1))
-
-        read_value install_script ".install[$idx].script"
-        read_value install_tag ".install[$idx].tag"
-        read_value install_reboot ".install[$idx].reboot" false
-        read_value install_sudo ".install[$idx].sudo" false
-        install_nfiles=$(jq -r ".install[$idx].copy | length" $config_file)
-
-        install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
-        install_command_line=$install_script
-        if [ "$install_script_arg_count" -ne "0" ]; then
-            for n in $(seq 0 $((install_script_arg_count - 1))); do
-                read_value arg ".install[$idx].args[$n]"
-                install_command_line="$install_command_line '$arg'"
-            done
-        fi
-
-        echo "echo 'Step $step : $install_script'" >> $install_sh
-        echo "start_time=\$SECONDS" >> $install_sh
-
-        if [ "$install_nfiles" != "0" ]; then
-            echo "## copying files" >>$install_sh
-            for f in $(jq -r ".install[$idx].copy | @tsv" $config_file); do
-                echo "pscp.pssh -p $pssh_parallelism -h hostlists/tags/$install_tag $f \$(pwd) >> step_${step}_${install_script%.sh}.log 2>&1" >>$install_sh
-            done
-        fi
-
-        sudo_prefix=
-        if [ "$install_sudo" = "true" ]; then
-            sudo_prefix=sudo
-        fi
-
-        # can run in parallel with pssh
-        echo "pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/$install_tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> step_${step}_${install_script%.sh}.log 2>&1" >>$install_sh
-
-        if [ "$install_reboot" = "true" ]; then
-            cat <<EOF >> $install_sh
-pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/$install_tag "sudo reboot" >> step_${step}_${install_script%.sh}.log 2>&1
-echo "    Waiting for nodes to come back"
-sleep 10
-for h in \$(<hostlists/tags/$install_tag); do
-    nc -z \$h 22
-    echo "        \$h rebooted"
-done
-sleep 10
-EOF
-        fi
-
-        echo 'echo "    duration: $(($SECONDS - $start_time)) seconds"' >> $install_sh
-
-    done
-
-    chmod +x $install_sh
-    cp $ssh_private_key $tmp_dir
-    cp $ssh_public_key $tmp_dir
-    cp -r $azhpc_dir/scripts $tmp_dir
-    cp -r $local_script_dir/* $tmp_dir/scripts/. 2>/dev/null
-    rsync -a -e "ssh $SSH_ARGS -i $ssh_private_key" $tmp_dir $admin_user@$fqdn:.
-
-    status "running the install script $fqdn"
-    ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn $install_sh
-
-fi
+status "running the install scripts"
+run_install_scripts \
+    "$config_file" \
+    "$tmp_dir" \
+    "$ssh_private_key" \
+    "$SSH_ARGS" \
+    "$admin_user" \
+    "$local_script_dir" \
+    "$fqdn"
 
 # run a post install script if there is one
 read_value post_install_script ".post_install.script" "<no-post-install>"
