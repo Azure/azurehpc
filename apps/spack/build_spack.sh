@@ -299,3 +299,4 @@ mkdir -p /apps/spack/${sku_type}
 spack gpg init
 spack gpg create ${sku_type}_gpg $email_address
 spack mirror add ${sku_type}_buildcache https://cgspack.blob.core.windows.net/buildcache/${sku_type}
+source ~/.bash_profile
