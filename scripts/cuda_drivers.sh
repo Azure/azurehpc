@@ -13,3 +13,7 @@ rpm -ivh /mnt/resource/${CUDA_REPO_PKG}
 rm -f /mnt/resource/${CUDA_REPO_PKG}
 
 yum install -y cuda-drivers
+
+# dump GPU card status
+nvidia-smi
+
