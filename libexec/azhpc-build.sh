@@ -470,7 +470,7 @@ if [ "$post_install_script" != "<no-post-install>" ]; then
         done
     fi
 
-    $azhpc_dir/scripts/$post_install_script "${post_install_args[@]}"
+    $tmp_dir/scripts/$post_install_script "${post_install_args[@]}"
 fi
 
 status "cluster ready"
