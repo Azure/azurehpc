@@ -122,5 +122,6 @@ else
     # config_file_no_path=${config##*/}
     # config_file_no_path_or_extension=${config_file_no_path%.*}
     # tmp_dir=azhpc_install_$config_file_no_path_or_extension
-    azhpc-run -c ../$config ./scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
+    echo $DIR
+    azhpc-run -c ../$config $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
 fi
