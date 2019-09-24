@@ -2,10 +2,6 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SSH_ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q"
 
-#source "$azhpc_dir/libexec/common.sh"
-#DEBUG_ON=0
-#COLOR_ON=1
-
 resource_group=$1
 vmname=$2
 key_vault=$3
@@ -124,6 +120,5 @@ else
     config_file_no_path=${config##*/}
     config_file_no_path_or_extension=${config_file_no_path%.*}
     tmp_dir=azhpc_install_$config_file_no_path_or_extension
-    echo $DIR
     azhpc-run -c ../$config $tmp_dir/scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
 fi
