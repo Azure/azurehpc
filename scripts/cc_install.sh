@@ -121,9 +121,9 @@ if [ "$config" == "" ]; then
 else
     echo "running the cycle_install script on install node"
 
-    # config_file_no_path=${config##*/}
-    # config_file_no_path_or_extension=${config_file_no_path%.*}
-    # tmp_dir=azhpc_install_$config_file_no_path_or_extension
+    config_file_no_path=${config##*/}
+    config_file_no_path_or_extension=${config_file_no_path%.*}
+    tmp_dir=azhpc_install_$config_file_no_path_or_extension
     echo $DIR
-    azhpc-run -c ../$config $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
+    azhpc-run -c ../$config $tmp_dir/scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
 fi
