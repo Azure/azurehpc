@@ -1,0 +1,73 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "jumpbox",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.1.0/24"
+        }
+    },
+    "variables": {
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "<NOT-SET>",
+        "image": "OpenLogic:CentOS:7.6:latest"
+    },
+    "resources": {
+        "jumpbox": {
+            "type": "vm",
+            "vm_type": "Standard_D4s_v3",
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "admin",
+            "tags": [
+                "sleep"
+            ]
+        },
+        "gpumaster": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "admin",
+            "tags": [
+                "nvidia",
+                "disable-selinux"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "update_kernel.sh",
+            "tag": "nvidia",
+            "reboot": true,
+            "sudo": true
+        },
+        {
+            "script": "install_lis.sh",
+            "tag": "nvidia",
+            "reboot": true,
+            "sudo": true
+        },
+        {
+            "script": "wait.sh",
+            "args": [
+                "30"
+            ],
+            "tag": "sleep"
+        },
+        {
+            "script": "cuda_drivers.sh",
+            "tag": "nvidia",
+            "sudo": true
+        }
+    ]
+}
