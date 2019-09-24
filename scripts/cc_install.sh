@@ -1,5 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SSH_ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q"
+
 #source "$azhpc_dir/libexec/common.sh"
 #DEBUG_ON=0
 #COLOR_ON=1
