@@ -2,7 +2,10 @@
 
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
-yum install -y dkms
+RELEASE=$(cat /etc/redhat-release | cut -d' ' -f4)
+echo $RELEASE
+
+yum install -y --releasever=$RELEASE dkms
 
 CUDA_REPO_PKG=cuda-repo-rhel7-10.1.243-1.x86_64.rpm
 
