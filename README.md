@@ -93,6 +93,7 @@ This dictionary describes the resources for the project.
 | image                  | The OS image to use                                                     |
 | subnet                 | The subnet to place the resource in                                     |
 | instances              | The number of instances (**vmss only**)                                 |
+| low_priority           | Boolean flag for low priority (**vmss only**)                           |
 | tags                   | A list of strings with the tags for the resource                        |
 
 ### Install list
