@@ -75,5 +75,5 @@ Copy apps/nwchem to the cyclecloud master node.
 
 To run on two HB nodes with 8 total cores (4 cores on each node) run (nwchem installation and model are in /scratch)
 ```
-qsub -l select=2:ncpus=60:mpiprocs=4 -v APP_INSTALL_DIR=/scratch,DATA_DIR=/scratch $azhpc_dir/apps/nwchem/run_h2o_freq.sh
+qsub -l select=2:ncpus=60:mpiprocs=4 -v APP_INSTALL_DIR=/scratch,DATA_DIR=/scratch $HOME/apps/nwchem/run_h2o_freq.sh
 ```
