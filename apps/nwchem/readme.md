@@ -52,15 +52,15 @@ These steps require a Azure CycleCloud cluster with PBS.  The `cyclecloud_simple
 
 Follow the steps in the examples/cyclecloud_simple_pbs/readme.md to setup cycle, import the template and start cluster.
 
-Log in to the headnode of the cluster:
+Log in to the headnode of the cluster (from cycleserver):
 
 ```
     $ cyclecloud connect master -c <cyclecloud cluster name>
 ```
 
-## Installing StarCCM
+## Installing nwchem
 
-You will need to copy the /apps/nwchem folder to the cyclecloud master.
+You will need to copy the apps/nwchem folder to the cyclecloud master.
 
 Run the following to install nwchem on the cluster (in /scratch):
 
