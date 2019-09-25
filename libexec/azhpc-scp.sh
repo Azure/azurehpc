@@ -59,4 +59,5 @@ if [ "$fqdn" = "" ]; then
     status "The install node does not have a public IP.  Using hostname - $install_node - and must be on this node must be on the same vnet"
 fi
 
-exec scp -q $SSH_ARGS -i $ssh_private_key -o ProxyCommand="ssh -q $SSH_ARGS -i $ssh_private_key -W %h:%p $admin_user@$fqdn" "$@"
+exec scp -q $SSH_ARGS -i $ssh_private_key -o ProxyCommand="ssh -q $SSH_ARGS -o ConnectTimeout=5 -i $ssh_private_key -W %h:%p $admin_user@$fqdn" "$@"
+#exec scp -q $SSH_ARGS -i $ssh_private_key -o ProxyCommand="ssh -q $SSH_ARGS -i $ssh_private_key -W %h:%p $admin_user@$fqdn" "$@"
