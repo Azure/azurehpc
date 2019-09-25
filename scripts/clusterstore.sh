@@ -1,6 +1,7 @@
 #/bin/bash
 
-CS_CLIENT_URL="https://cgspack.blob.core.windows.net/buildcache/lustre-cray-2.11-int.B5.gf83bed.zip"
+CS_CLIENT_URL=$1
+
 CS_CLIENT_ZIP=lustre-cray-2.11-int.B5.gf83bed.zip
 KERNEL=$(uname -r)
 
