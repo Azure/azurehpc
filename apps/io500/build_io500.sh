@@ -1,10 +1,10 @@
 #!/bin/bash
 
 APP_NAME=io-500-dev
-SHARED_APPS=/apps
+SHARED_APP=/apps
 MODULE_DIR=${SHARED_APP}/modulefiles
-MODULE_NAME=${APP_NAME}
-INSTALL_DIR=${SHARED_APPS}/${APP_NAME}
+MODULE_NAME=${APPS_NAME}
+INSTALL_DIR=${SHARED_APP}/${APP_NAME}
 
 module load gcc-8.2.0
 module load mpi/mpich-3.3
@@ -19,7 +19,7 @@ setenv IO500_INSTALL_BASE ${INSTALL_DIR};
 EOF
 }
 
-cd ${SHARED_APPS}
+cd ${SHARED_APP}
 export CC=`which mpicc`
 git clone https://github.com/VI4IO/io-500-dev
 cd $APP_NAME
