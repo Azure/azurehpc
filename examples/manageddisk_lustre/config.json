@@ -12,17 +12,16 @@
     }
   },
   "variables": {
-    "resource_group": "azhpc-cluster",
-    "lustre_disk_type": "data_disk",
+    "resource_group": "<NOT-SET>",
     "image": "OpenLogic:CentOS:7.6:latest",
     "hpcimage": "OpenLogic:CentOS-HPC:7.6:latest",
-    "storage_account": "xxxxxxxx",
-    "storage_key": "/xxxxxxxxxxxxx",
-    "storage_container": "xxxxxxxxx",
-    "log_analytics_lfs_name": "xxxxxxx",
-    "log_analytics_workspace": "xxxxxxxx",
-    "log_analytics_key": "xxxxxxx",
-    "location": "westeurope"
+    "storage_account": "<NOT-SET>",
+    "storage_key": "<NOT-SET>",
+    "storage_container": "<NOT-SET>",
+    "log_analytics_lfs_name": "<NOT-SET>",
+    "log_analytics_workspace": "<NOT-SET>",
+    "log_analytics_key": "<NOT-SET>",
+    "location": "<NOT-SET>"
   },
   "resources": {
     "headnode": {
