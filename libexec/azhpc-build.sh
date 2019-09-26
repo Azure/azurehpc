@@ -208,6 +208,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_image ".resources.$resource_name.image"
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
+            read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_instances ".resources.$resource_name.instances"
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
@@ -233,6 +234,10 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             else
                 resource_credential=(--admin-password "$resource_password")
             fi
+            lowpri_option=
+            if [ "$resource_lowpri" = "true" ]; then
+                lowpri_option="--priority Low"
+            fi
 
             az vmss create \
                 --resource-group $resource_group \
@@ -247,6 +252,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
                 $data_disks_options \
+                $lowpri_option \
                 --no-wait
             
             if [ "$?" -ne "0" ]; then
