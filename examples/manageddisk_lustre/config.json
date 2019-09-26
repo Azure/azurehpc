@@ -1,0 +1,257 @@
+{
+  "location": "westeurope",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "compute": "10.2.0.0/22",
+      "storage": "10.2.4.0/24"
+    }
+  },
+  "variables": {
+    "resource_group": "azhpc-cluster",
+    "lustre_disk_type": "data_disk",
+    "image": "OpenLogic:CentOS:7.6:latest",
+    "hpcimage": "OpenLogic:CentOS-HPC:7.6:latest",
+    "storage_account": "xxxxxxxx",
+    "storage_key": "/xxxxxxxxxxxxx",
+    "storage_container": "xxxxxxxxx",
+    "log_analytics_lfs_name": "xxxxxxx",
+    "log_analytics_workspace": "xxxxxxxx",
+    "log_analytics_key": "xxxxxxx",
+    "location": "westeurope"
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "vm_type": "Standard_HB60rs",
+      "accelerated_networking": false,
+      "public_ip": true,
+      "image": "variables.hpcimage",
+      "subnet": "compute",
+      "tags": [
+        "disable-selinux",
+        "lfsclient",
+        "lfsazimport",
+        "localuser",
+        "pbsserver",
+        "loginnode",
+        "nfsserver"
+      ]
+    },
+    "compute": {
+      "type": "vmss",
+      "vm_type": "Standard_HB60rs",
+      "accelerated_networking": false,
+      "instances": 2,
+      "image": "variables.hpcimage",
+      "subnet": "compute",
+      "tags": [
+        "disable-selinux",
+        "lfsclient",
+        "localuser",
+        "pbsclient",
+        "nfsclient"
+      ]
+    },
+    "lfsmds": {
+      "type": "vm",
+      "vm_type": "Standard_D16s_v3",
+      "accelerated_networking": true,
+      "image": "variables.image",
+      "subnet": "storage",
+      "storage_sku": "Premium_LRS",
+      "data_disks": [
+        4096
+      ],
+      "tags": [
+        "lfspkgs",
+        "lfsmaster",
+        "disable-selinux",
+        "lfsloganalytics"
+      ]
+    },
+    "lfsoss": {
+      "type": "vmss",
+      "vm_type": "Standard_D16s_v3",
+      "instances": 2,
+      "accelerated_networking": true,
+      "image": "variables.image",
+      "subnet": "storage",
+      "storage_sku": "Premium_LRS",
+      "data_disks": [
+        1024,
+        1024,
+        1024,
+        1024,
+        1024,
+        1024
+      ],
+      "tags": [
+        "lfspkgs",
+        "lfsoss",
+        "disable-selinux",
+        "lfsloganalytics"
+      ]
+    },
+    "lfshsm": {
+      "type": "vmss",
+      "vm_type": "Standard_D16s_v3",
+      "instances": 1,
+      "accelerated_networking": true,
+      "image": "variables.image",
+      "subnet": "storage",
+      "tags": [
+        "lfspkgs",
+        "lfshsm",
+        "disable-selinux"
+      ]
+    },
+    "lfssmb": {
+      "type": "vm",
+      "vm_type": "Standard_D16s_v3",
+      "instances": 1,
+      "accelerated_networking": true,
+      "image": "variables.image",
+      "subnet": "storage",
+      "tags": [
+        "lfspkgs",
+        "lfsclient",
+        "lfssmb",
+        "disable-selinux",
+        "localuser"
+      ]
+    }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "nfsserver.sh",
+      "tag": "nfsserver",
+      "sudo": true
+    },
+    {
+      "script": "nfsclient.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "nfsclient",
+      "sudo": true
+    },
+    {
+      "script": "localuser.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "localuser",
+      "sudo": true
+    },
+    {
+      "script": "create_raid0.sh",
+      "args": [
+        "/dev/md0",
+        "/dev/sdc /dev/sdd /dev/sde /dev/sdf /dev/sdg /dev/sdh"
+      ],
+      "tag": "lfsoss",
+      "sudo": true
+    },
+    {
+      "script": "lfspkgs.sh",
+      "tag": "lfspkgs",
+      "reboot": true,
+      "sudo": true
+    },
+    {
+      "script": "lfsmaster.sh",
+      "tag": "lfsmaster",
+      "args": [
+        "/dev/sdc"
+      ],
+      "sudo": true
+    },
+    {
+      "script": "lfsoss.sh",
+      "args": [
+        "$(<hostlists/tags/lfsmaster)",
+        "/dev/md0"
+      ],
+      "tag": "lfsoss",
+      "sudo": true
+    },
+    {
+      "script": "lfshsm.sh",
+      "args": [
+        "$(<hostlists/tags/lfsmaster)",
+        "variables.storage_account",
+        "variables.storage_key",
+        "variables.storage_container"
+      ],
+      "tag": "lfshsm",
+      "sudo": true
+    },
+    {
+      "script": "lfssmb.sh",
+      "tag": "lfssmb",
+      "sudo": true
+    },
+    {
+      "script": "lfsclient.sh",
+      "args": [
+        "$(<hostlists/tags/lfsmaster)"
+      ],
+      "tag": "lfsclient",
+      "sudo": true
+    },
+    {
+      "script": "lfsimport.sh",
+      "args": [
+        "variables.storage_account",
+        "variables.storage_key",
+        "variables.storage_container"
+      ],
+      "tag": "lfsazimport",
+      "sudo": true
+    },
+    {
+      "script": "lfsloganalytics.sh",
+      "args": [
+        "variables.log_analytics_lfs_name",
+        "variables.log_analytics_workspace",
+        "variables.log_analytics_key"
+      ],
+      "tag": "lfsloganalytics",
+      "sudo": true
+    },
+    {
+      "script": "pbsdownload.sh",
+      "tag": "loginnode",
+      "sudo": false
+    },
+    {
+      "script": "pbsserver.sh",
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsserver",
+      "sudo": false
+    },
+    {
+      "script": "pbsclient.sh",
+      "args": [
+        "$(<hostlists/tags/pbsserver)"
+      ],
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsclient",
+      "sudo": false
+    }
+  ]
+}
