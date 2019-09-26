@@ -1,0 +1,99 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "vm_type": "Standard_Hb60rs",
+    "cs_client_url": "<NOT-SET>",
+    "vnet_resource_group": "variables.resource_group"
+  },
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "hpcvnet",
+    "address_prefix": "10.35.0.0/20",
+    "subnets": {
+      "admin": "10.35.1.0/24",
+      "viz": "10.35.2.0/24",
+      "storage": "10.35.3.0/24",
+      "compute": "10.35.4.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "vm_type": "variables.vm_type",
+      "public_ip": true,
+      "image": "variables.hpc_image",
+      "subnet": "compute",
+      "tags": [
+      ]
+    },
+    "compute": {
+      "type": "vmss",
+      "vm_type": "variables.vm_type",
+      "instances": 2,
+      "low_priority": true,
+      "image": "variables.hpc_image",
+      "subnet": "compute",
+      "tags": [
+        "nfsclient",
+        "pbsclient",
+        "cndefault",
+        "localuser",
+        "disable-selinux",
+        "clusterstore"
+      ]
+    }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "cndefault",
+      "sudo": true
+    },
+    {
+      "script": "nfsclient.sh",
+      "args": [
+        "headnode"
+      ],
+      "tag": "nfsclient",
+      "sudo": true
+    },
+    {
+      "script": "localuser.sh",
+      "args": [
+        "headnode"
+      ],
+      "tag": "localuser",
+      "sudo": true
+    },
+    {
+      "script": "pbsclient.sh",
+      "args": [
+        "headnode"
+      ],
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsclient",
+      "sudo": false
+    },
+    {
+      "script": "clusterstore.sh",
+      "args": [
+        "variables.cs_client_url"
+      ],
+      "tag": "clusterstore",
+      "sudo": true
+    }
+  ]
+}
