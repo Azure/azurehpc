@@ -1,5 +1,5 @@
 {
-  "location": "westeurope",
+  "location": "variables.location",
   "resource_group": "variables.resource_group",
   "install_from": "headnode",
   "admin_user": "hpcadmin",
