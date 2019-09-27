@@ -8,7 +8,7 @@ The pre-requisites for running IOR are those :
 
 - jq
 - mpich-3.3 for HB/HC
-- mpich-2.2-devel for others skus
+- mpich-3.2-devel for others skus
 
 The build script will installed the missing component by default
 
