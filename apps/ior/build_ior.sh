@@ -8,6 +8,8 @@ INSTALL_DIR=${SHARED_APP}/${APP_NAME}
 PARALLEL_BUILD=8
 IOR_VERSION=3.2.1
 
+sudo yum install -y jq
+
 module load gcc-8.2.0
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
@@ -18,7 +20,7 @@ case "$AZHPC_VMSIZE" in
         module load mpi/mpich-3.3
         ;;
     *)
-        yum install -y mpich-3.2-devel
+        sudo yum install -y mpich-3.2-devel
         module load mpi/mpich-3.2-x86_64
         ;;
 esac
