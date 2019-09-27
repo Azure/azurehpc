@@ -6,6 +6,7 @@ IOR can be built on any kind of VM SKU as long as it uses the CentOS-HPC 7.6 ima
 
 The pre-requisites for running IOR are those :
 
+- jq
 - mpich-3.3 for HB/HC
 - mpich-2.2-devel for others skus
 
