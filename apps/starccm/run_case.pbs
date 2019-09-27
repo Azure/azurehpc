@@ -2,7 +2,7 @@
 
 # parameters that can be overridden
 APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
-DATA_DIR=${DATA_DIR:-/data/starccm}
+DATA_DIR=${DATA_DIR:-/data}
 CASE=${CASE:-civil}
 OMPI=${OMPI:-openmpi}
 STARCCM_VERSION=${STARCCM_VERSION:-14.04.013}
@@ -27,6 +27,18 @@ CORES=$(wc -l <$PBS_NODEFILE)
 PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
 PKEY=${PKEY/0x8/0x0}
 
+BM_OPT="-preclear -preits 40 -nits 20 -nps $CORES"
+if [ "$CASE" = "EmpHydroCyclone_30M" ]
+then
+    BM_OPT="-preits 1 -nits 1 -nps $CORES"
+elif [ "$CASE" = "kcs_with_physics" ]
+then
+    BM_OPT="-preits 40 -nits 20 -nps $CORES"
+fi
+
+echo $BM_OPT
+
+
 starccm+ \
     -np $CORES \
     -machinefile $PBS_NODEFILE \
@@ -38,4 +50,4 @@ starccm+ \
     -ldlibpath /usr/lib \
     -fabric ucx \
     -mppflags "-mca mca_base_env_list UCX_IB_PKEY=$PKEY,UCX_NET_DEVICES=mlx5_0:1 -mca btl ^vader,openib -mca plm_rsh_no_tree_spawn 1" \
-    $STARCCM_CASE -benchmark "-preclear -preits 40 -nits 20 -nps $CORES"
+    $STARCCM_CASE -benchmark "$BM_OPT"

@@ -39,18 +39,18 @@
         "script": "disable-selinux.sh",
         "tag": "disable-selinux",
         "sudo": true
-      }
-    ],
-    "post_install": 
-    {
-     "script": "post_cyclevm.sh",
-     "args": [
-        "variables.resource_group",
-        "cycleserver",
-        "variables.key_vault",
-        "variables.spn_name",
-        "variables.projectstore"
+      },
+      {
+        "type": "local_script",
+        "script": "cc_install.sh",
+        "args": [
+           "variables.resource_group",
+           "cycleserver",
+           "variables.key_vault",
+           "variables.spn_name",
+           "variables.projectstore"
         ]
     }
+    ]
   }
   

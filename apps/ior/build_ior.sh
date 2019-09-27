@@ -21,7 +21,7 @@ prepend-path MAN_PATH ${INSTALL_DIR}/share/man;
 EOF
 }
 
-cd /apps
+cd $SHARED_APP
 git clone https://github.com/hpc/ior.git --branch $IOR_GIT_TAG
 cd ior
 ./bootstrap
