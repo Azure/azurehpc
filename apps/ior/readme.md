@@ -27,8 +27,14 @@ bsub -q <queue> -o %J.log -e %J.err "bash /apps/azurehpc/apps/ior/build_ior.sh"
 
 Now submit and run (e.g on HB):
 
+For PBS:
 ```
-qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/apps/ior/ior.sh
+qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/apps/ior/ior.sh <DIR>
+```
+
+For LSF on a single node :
+```
+bsub -q <queue> -o %J.log -e %J.err "bash /apps/azurehpc/apps/ior/ior.sh <DIR>"
 ```
 
 > Note: this will run on 2 node and 15 processes per node.
@@ -38,5 +44,5 @@ The `ior.sh` script runs a throughput (N-N and N-1) and IOPS test.
 A metadata I/O benchmark test can be run using the `mdtest.sh` script.
 
 ```
-qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/apps/ior/mdtest.sh
+qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/apps/ior/mdtest.sh <DIR>
 ```
