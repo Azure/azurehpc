@@ -5,6 +5,8 @@ SHARED_APP=${2:-/apps}
 DIRECTORY=${FILESYSTEM}/testing
 NUMFILES=10000
 
+source /etc/profile # so we can load modules
+
 export MODULEPATH=${SHARED_APP}/modulefiles:$MODULEPATH
 module load gcc-8.2.0
 # ior environment contains mdtest also.

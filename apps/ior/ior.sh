@@ -2,6 +2,8 @@
 FILESYSTEM=$1
 SHARED_APP=${2:-/apps}
 
+source /etc/profile # so we can load modules
+
 export MODULEPATH=${SHARED_APP}/modulefiles:$MODULEPATH
 module load gcc-8.2.0
 module load ior

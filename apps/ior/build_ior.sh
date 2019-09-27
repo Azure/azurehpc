@@ -1,5 +1,4 @@
 #!/bin/bash
-
 APP_NAME=ior
 SHARED_APP=${1:-/apps}
 MODULE_DIR=${SHARED_APP}/modulefiles
@@ -10,10 +9,12 @@ IOR_VERSION=3.2.1
 
 sudo yum install -y jq
 
+source /etc/profile # so we can load modules
 module load gcc-8.2.0
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
+echo $AZHPC_VMSIZE
 
 case "$AZHPC_VMSIZE" in
     standard_hb60rs | standard_hc44rs)
@@ -25,7 +26,7 @@ case "$AZHPC_VMSIZE" in
         ;;
 esac
 
-
+module list
 function create_modulefile {
 mkdir -p ${MODULE_DIR}
 cat << EOF > ${MODULE_DIR}/${MODULE_NAME}
