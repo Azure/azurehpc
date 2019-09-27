@@ -1,10 +1,11 @@
-UTDIR=/data/osu_ring_bw_hpcx
+#!/bin/bash
+
+OUTDIR=/data/osu_ring_bw_hpcx
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
 
 NODE_FILENAME=osu_nodes.txt
-#pbsnodes -avS | tail -n +3 | head -n 5 | awk '{print $5}' > $NODE_FILENAME
-pbsnodes -avS | tail -n +3 | awk '{print $5}' > $NODE_FILENAME
+pbsnodes -avS | tail -n +3 | grep free | awk '{print $5}' > $NODE_FILENAME
 
 
 src=$(tail -n1 $NODE_FILENAME)
