@@ -2,6 +2,15 @@
 
 IOR can be built on any kind of VM SKU as long as it uses the CentOS-HPC 7.6 image. See one of the examples for building a Cluster with HB or HC skus and PBS. (e.g. [simple_hpc_pbs](../../examples/simple_hpc_pbs/readme.md))
 
+## Pre-requisites
+
+The pre-requisites for running IOR are those :
+
+- mpich-3.3 for HB/HC
+- mpich-2.2-devel for others skus
+
+The build script will installed the missing component by default
+
 ## Log-on to the headnode
 
 ```
