@@ -13,16 +13,14 @@ module load gcc-8.2.0
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 
-case $AZHPC_VMSIZE:
-    standard_hb60rs)
-    standard_hc44rs)
+case "$AZHPC_VMSIZE" in
+    standard_hb60rs | standard_hc44rs)
         module load mpi/mpich-3.3
-    ;;
-
-    default)
+        ;;
+    *)
         yum install -y mpich-3.2-devel
         module load mpi/mpich-3.2-x86_64
-    ;;
+        ;;
 esac
 
 

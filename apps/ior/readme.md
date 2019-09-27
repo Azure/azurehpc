@@ -15,12 +15,12 @@ Build IOR/mdtest from the build script.  This will by default install ior and md
 
 For PBS :
 ```
-qsub /apps/azurehpc/ior/build_ior.sh
+qsub /apps/azurehpc/apps/ior/build_ior.sh
 ```
 
 For LSF :
 ```
-bsub -q <queue> -o %J.log -e %J.err "bash /apps/azurehpc/ior/build_ior.sh"
+bsub -q <queue> -o %J.log -e %J.err "bash /apps/azurehpc/apps/ior/build_ior.sh"
 ```
 
 ## Run IOR and MDTEST
@@ -28,7 +28,7 @@ bsub -q <queue> -o %J.log -e %J.err "bash /apps/azurehpc/ior/build_ior.sh"
 Now submit and run (e.g on HB):
 
 ```
-qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/ior/ior.sh
+qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/apps/ior/ior.sh
 ```
 
 > Note: this will run on 2 node and 15 processes per node.
@@ -38,5 +38,5 @@ The `ior.sh` script runs a throughput (N-N and N-1) and IOPS test.
 A metadata I/O benchmark test can be run using the `mdtest.sh` script.
 
 ```
-qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/ior/mdtest.sh
+qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/apps/ior/mdtest.sh
 ```
