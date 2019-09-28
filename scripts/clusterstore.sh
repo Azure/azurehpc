@@ -30,6 +30,7 @@ lnetctl net show --net tcp >> /etc/lnet.conf
 echo "options lnet networks=tcp0(eth0)" >> /etc/modprobe.d/lnet.conf
 
 mkdir $CS_MOUNT_PT
+chmod 777 $CS_MOUNT_PT
 echo "mount -t lustre 172.30.10.14@tcp:172.30.10.15@tcp:/cls02022 $CS_MOUNT_PT" >> /etc/rc.d/rc.local
 mount -t lustre 172.30.10.14@tcp:172.30.10.15@tcp:/cls02022 $CS_MOUNT_PT
 
