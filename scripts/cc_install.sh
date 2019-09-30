@@ -20,24 +20,28 @@ else
     az keyvault create --name $key_vault --resource-group $resource_group --output table
 fi
 
-# Check if we need to create a new SPN
-# If the SPN doesn't exists, create one and store the password in KeyVault. Secret name is the SPN app Name
-spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
-
-if [ "$spn" == "" ]; then
-    echo "Generate a new SPN"
-    secret=$(az ad sp create-for-rbac --name $spn_appname --years 1 | jq -r '.password')
-    echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
-    az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+# If secret is already stored in the Key Vault under the SPN name, just use it
+secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
+if [ "$secret" == "" ]; then
+    # Check if we need to create a new SPN
+    # If the SPN doesn't exists, create one and store the password in KeyVault. Secret name is the SPN app Name
     spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
-else
-    echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
-    secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
-    if [ "$secret" == "" ]; then
-        echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
-        secret=$(az ad sp credential reset --append -n $spn_appname --credential-description "azhpc" | jq -r '.password')
-        echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
+
+    if [ "$spn" == "" ]; then
+        echo "Generate a new SPN"
+        secret=$(az ad sp create-for-rbac --name $spn_appname --years 1 | jq -r '.password')
+        echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
         az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+        spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
+    else
+        echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
+        secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
+        if [ "$secret" == "" ]; then
+            echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
+            secret=$(az ad sp credential reset --append -n $spn_appname --credential-description "azhpc" | jq -r '.password')
+            echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
+            az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+        fi
     fi
 fi
 
