@@ -271,28 +271,36 @@ function run_install_scripts()
             fi
 
         fi
-               
+
         install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
 
         echo "Step $step : $install_script ($install_script_type)"
         start_time=$SECONDS
 
         if [ "$install_script_type" = "jumpbox_script" ]; then
-        
+
             ssh $ssh_args -i $ssh_private_key $admin_user@$fqdn $install_sh $run_tag
+            if [ "$?" -ne "0" ]; then
+                echo "Error while running $install_sh"
+                break
+            fi
 
         elif [ "$install_script_type" = "local_script" ]; then
-            
+
             $install_sh
+            if [ "$?" -ne "0" ]; then
+                echo "Error while running $install_sh"
+                break
+            fi
 
         else
-        
+
             echo "Error: unrecognised script type - $install_script_type"
 
         fi
 
         echo "    duration: $(($SECONDS - $start_time)) seconds"
-    
+
     done
 
     if [ "$is_jumpbox_required" = "1" ]; then
