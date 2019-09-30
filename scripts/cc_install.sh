@@ -25,6 +25,10 @@ fi
 #spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
 
 spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
+if [ "$?" -ne "0" ]; then
+    echo "Error : Unable to list SPN"
+    exit 1
+fi
 
 if [ "$spn" == "" ]; then
     echo "Generate a new SPN"
