@@ -240,6 +240,7 @@ function run_install_scripts()
         fi
     done
 
+    script_error=0
     for step in $(seq 0 $nsteps); do
 
         # skip jumpbox setup if no jumpbox scripts are required
@@ -281,7 +282,8 @@ function run_install_scripts()
 
             ssh $ssh_args -i $ssh_private_key $admin_user@$fqdn $install_sh $run_tag
             if [ "$?" -ne "0" ]; then
-                echo "Error while running $install_sh"
+                echo "Error: Errors while running $install_sh"
+                script_error=1
                 break
             fi
 
@@ -289,7 +291,8 @@ function run_install_scripts()
 
             $install_sh
             if [ "$?" -ne "0" ]; then
-                echo "Error while running $install_sh"
+                echo "Error: Errors while running $install_sh"
+                script_error=1
                 break
             fi
 
@@ -307,6 +310,9 @@ function run_install_scripts()
         rsync -a -e "ssh $ssh_args -i $ssh_private_key" $admin_user@$fqdn:$tmp_dir/install/*.log $tmp_dir/install/.
     fi
 
+    if [ "$script_error" -ne "0" ]; then
+        error "There were errors while running scripts, exiting"
+    fi
 }
 
 function build_hostlists
