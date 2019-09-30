@@ -20,30 +20,31 @@ else
     az keyvault create --name $key_vault --resource-group $resource_group --output table
 fi
 
-# If secret is already stored in the Key Vault under the SPN name, just use it
-secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
-if [ "$secret" == "" ]; then
-    # Check if we need to create a new SPN
-    # If the SPN doesn't exists, create one and store the password in KeyVault. Secret name is the SPN app Name
-    spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
+# Check if we need to create a new SPN
+# If the SPN doesn't exists, create one and store the password in KeyVault. Secret name is the SPN app Name
+#spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
 
-    if [ "$spn" == "" ]; then
-        echo "Generate a new SPN"
-        secret=$(az ad sp create-for-rbac --name $spn_appname --years 1 | jq -r '.password')
-        echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
+spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
+
+if [ "$spn" == "" ]; then
+    echo "Generate a new SPN"
+    secret=$(az ad sp create-for-rbac --name $spn_appname --years 1 | jq -r '.password')
+    echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
+    az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+    #spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
+    spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
+else
+    echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
+    secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
+    if [ "$secret" == "" ]; then
+        echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
+        secret=$(az ad sp credential reset --append -n $spn_appname --credential-description "azhpc" | jq -r '.password')
+        echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
         az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
-        spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
-    else
-        echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
-        secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
-        if [ "$secret" == "" ]; then
-            echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
-            secret=$(az ad sp credential reset --append -n $spn_appname --credential-description "azhpc" | jq -r '.password')
-            echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
-            az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
-        fi
     fi
 fi
+appId=$(echo "$spn" | head -n1)
+tenantId=$(echo "$spn" | tail -n1)
 
 echo "getting FQDN for $vmname"
 fqdn=$(
@@ -89,8 +90,6 @@ if [ "$secret" == "" ]; then
     exit 1
 fi
 
-appId=$(echo $spn | cut -d' ' -f2)
-tenantId=$(echo $spn | cut -d' ' -f3)
 echo "Get cyclecloud_install.py"
 downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
 release="latest"
@@ -110,6 +109,10 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
     --acceptTerms  \
     --password ${password} \
     --storageAccount $projectstore"
+if [ "$?" -ne "0" ]; then
+    echo "Error : Error installing Cycle Cloud"
+    exit 1
+fi
 
 echo "CycleCloud application server installation finished"
 echo "Navigate to https://$fqdn and login using $admin_user"
