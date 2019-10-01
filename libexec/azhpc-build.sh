@@ -333,13 +333,13 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --resource-group $resource_group \
                         --account-name $storage_name \
                         --location $location \
-                        --service-level $pool_service_level 
+                        --service-level $pool_service_level \
                         --usage-threshold $(($volume_size * (2 ** 10))) \
                         --creation-token ${volume_name} \
                         --pool-name $pool_name \
                         --volume-name $volume_name \
                         --vnet $vnet_name \
-                        --subnet $storage_subnet_id \
+                        --subnet $storage_subnet \
                         --output table
 
                         #--usage-threshold $volume_size \
