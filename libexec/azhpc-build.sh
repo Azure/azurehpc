@@ -333,14 +333,22 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --resource-group $resource_group \
                         --account-name $storage_name \
                         --location $location \
-                        --service-level $pool_service_level \
-                        --usage-threshold $volume_size \
+                        --service-level $pool_service_level 
+                        --usage-threshold $(($volume_size * (2 ** 10))) \
                         --creation-token ${volume_name} \
                         --pool-name $pool_name \
                         --volume-name $volume_name \
-                        --vnet $storage_vnet_id \
-                        --subnet $storage_subnet \
+                        --vnet $vnet_name \
+                        --subnet $storage_subnet_id \
                         --output table
+
+                        #--usage-threshold $volume_size \
+                        #--creation-token ${volume_name} \
+                        #--pool-name $pool_name \
+                        #--volume-name $volume_name \
+                        #--vnet $storage_vnet_id \
+                        #--subnet $storage_subnet \
+                        #--output table
 
                     volume_ip=$( \
                         az netappfiles list-mount-targets \
