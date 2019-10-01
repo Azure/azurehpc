@@ -18,6 +18,8 @@
       "key_vault": "<NOT-SET>",
       "spn_name": "<NOT-SET>",
       "projectstore": "<NOT-SET>",
+      "config": "local",
+      "appId": "<NOT-SET>",
       "image": "OpenLogic:CentOS:7.6:latest"
     },
     "resources": {
@@ -48,7 +50,8 @@
            "cycleserver",
            "variables.key_vault",
            "variables.spn_name",
-           "variables.projectstore"
+           "variables.projectstore",
+           "variables.config"
         ]
     }
     ]

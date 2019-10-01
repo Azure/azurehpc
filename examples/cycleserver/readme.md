@@ -15,7 +15,7 @@ $ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -s
 
 The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
 
-The variables you need to set are :
+The required variables you need to set are :
 
 | Name           | Description                                                         |
 |----------------|---------------------------------------------------------------------|
@@ -26,8 +26,16 @@ The variables you need to set are :
 | projectstore   | The name of the Azure Storage to be created to store Cycel Project files |
 
 
+The optional variables you need to set are :
+
+| Name           | Description                                                         |
+|----------------|---------------------------------------------------------------------|
+| config         | `local` or the name of the configuration file to be used to install the cycle cloud CLI remotely |
+| appId          | The appId associated to the `spn_name` in case of an existing SPN not owned by the user running the script |
+
+
 ```
-$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=eastus,resource_group=azhpc-cycle,key_vault=mykv,spn_name=CycleApp,projectstore=azhpccyclestore
+$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=eastus,resource_group=azhpc-cycle,key_vault=mykv,spn_name=CycleApp,projectstore=azhpccyclestore,config=local
 ```
 
 Create the VM
