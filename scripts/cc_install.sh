@@ -1,11 +1,13 @@
 #!/bin/bash
-source "$azhpc_dir/libexec/common.sh"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SSH_ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q"
 
 resource_group=$1
 vmname=$2
 key_vault=$3
 spn_appname=$4
 projectstore=$5
+config=$6
 
 admin_user=hpcadmin
 ssh_private_key=${admin_user}_id_rsa
@@ -28,6 +30,15 @@ if [ "$spn" == "" ]; then
     echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
     az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
     spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
+else
+    echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
+    secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
+    if [ "$secret" == "" ]; then
+        echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
+        secret=$(az ad sp credential reset --append -n $spn_appname --credential-description "azhpc" | jq -r '.password')
+        echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
+        az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+    fi
 fi
 
 echo "getting FQDN for $vmname"
@@ -62,18 +73,26 @@ password=$(az keyvault secret show --name "CycleAdminPassword" --vault-name $key
 if [ "$password" == "" ]; then
     echo "No secret CycleAdminPassword retrieved from Key Vault $key_vault"
     echo "Generate a password"
-    password=$(date +%s | sha256sum | base64 | head -c 16 ; echo)
+    # Prefix password by a * so that the prequisites for Cycle are met (3 of : Capital Case + Lower Case + Number + Extra)
+    password="*$(date +%s | sha256sum | base64 | head -c 16 ; echo)"
     echo "Store password in Key Vault $key_vault secret CycleAdminPassword"
-    az keyvault secret set --vault-name $key_vault --name "CycleAdminPassword" --value $password --output table
+    az keyvault secret set --vault-name $key_vault --name "CycleAdminPassword" --value "$password" --output table
 fi
 
 secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
+if [ "$secret" == "" ]; then
+    echo "no secret stored in $key_vault for $spn_appname"
+    exit 1
+fi
+
 appId=$(echo $spn | cut -d' ' -f2)
 tenantId=$(echo $spn | cut -d' ' -f3)
+echo "Get cyclecloud_install.py"
 downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
 release="latest"
-wget -q "$downloadURL/$release/cyclecloud_install.py"
+wget -q "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
 
+echo "Run cyclecloud_install.py on $fqdn"
 scp $SSH_ARGS -q -i $ssh_private_key cyclecloud_install.py $admin_user@$fqdn:.
 ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_install.py \
     --applicationSecret ${secret} \
@@ -88,30 +107,18 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
     --password ${password} \
     --storageAccount $projectstore"
 
-
-echo "CycleCloud Installation finished"
+echo "CycleCloud application server installation finished"
 echo "Navigate to https://$fqdn and login using $admin_user"
 
-# Installing CycleCloud CLI
-echo "Getting CLI binaries..."
-wget -q "$downloadURL/latest/cyclecloud-cli.zip"
+cyclecloud_storage_key=$(az storage account keys list -g $resource_group -n $projectstore --query "[0].value" | sed 's/\"//g')
 
-unzip -o cyclecloud-cli.zip
-pushd cyclecloud-cli-installer/
-echo "Installing CLI..."
-./install.sh -y
+if [ "$config" == "" ]; then
+    $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
+else
+    echo "running the cycle_install script on install node"
 
-echo "Initializing CLI..."
-name=$(echo $fqdn | cut -d'.' -f1)
-~/bin/cyclecloud initialize --force --batch \
-    --name $name \
-    --url=https://$fqdn \
-    --verify-ssl=false \
-    --username=$admin_user \
-    --password="${password}"
-
-~/bin/cyclecloud config list
-popd
-rm cyclecloud-cli.zip
-rm -rf cyclecloud-cli-installer
-
+    config_file_no_path=${config##*/}
+    config_file_no_path_or_extension=${config_file_no_path%.*}
+    tmp_dir=azhpc_install_$config_file_no_path_or_extension
+    azhpc-run -c ../$config $tmp_dir/scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
+fi

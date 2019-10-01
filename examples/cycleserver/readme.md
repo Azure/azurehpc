@@ -27,7 +27,7 @@ The variables you need to set are :
 
 
 ```
-$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -s -v location=eastus,resource_group=azhpc-cycle,key_vault=mykv,spn_name=CycleApp,projectstore=azhpccyclestore
+$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=eastus,resource_group=azhpc-cycle,key_vault=mykv,spn_name=CycleApp,projectstore=azhpccyclestore
 ```
 
 Create the VM
