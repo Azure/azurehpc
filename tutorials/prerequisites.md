@@ -32,3 +32,5 @@ Initialize your working directory, fill up the missing parameters
 If you are running the tutorials make sure you have quota to run them.
 
 If you are running in WSL you may want to review [this step](https://github.com/Azure/azurehpc/#windows-subsystem-for-linux).
+
+Make sure you have `unzip` installed on your machine
