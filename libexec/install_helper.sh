@@ -281,8 +281,9 @@ function run_install_scripts()
         if [ "$install_script_type" = "jumpbox_script" ]; then
 
             ssh $ssh_args -i $ssh_private_key $admin_user@$fqdn $install_sh $run_tag
-            if [ "$?" -ne "0" ]; then
-                echo "Error: Errors while running $install_sh"
+            exit_code=$?
+            if [ "$exit_code" -ne "0" ]; then
+                echo "Error: ($exit_code) Errors while running $install_sh"
                 script_error=1
                 break
             fi
@@ -290,8 +291,9 @@ function run_install_scripts()
         elif [ "$install_script_type" = "local_script" ]; then
 
             $install_sh
-            if [ "$?" -ne "0" ]; then
-                echo "Error: Errors while running $install_sh"
+            exit_code=$?
+            if [ "$exit_code" -ne "0" ]; then
+                echo "Error: ($exit_code) Errors while running $install_sh"
                 script_error=1
                 break
             fi
