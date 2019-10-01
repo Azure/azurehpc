@@ -19,7 +19,7 @@
       "spn_name": "<NOT-SET>",
       "projectstore": "<NOT-SET>",
       "config": "local",
-      "appId": "<NOT-SET>",
+      "appId": "",
       "image": "OpenLogic:CentOS:7.6:latest"
     },
     "resources": {
@@ -51,7 +51,8 @@
            "variables.key_vault",
            "variables.spn_name",
            "variables.projectstore",
-           "variables.config"
+           "variables.config",
+           "variables.appId"
         ]
     }
     ]
