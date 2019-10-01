@@ -332,7 +332,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --creation-token ${volume_name} \
                         --pool-name $pool_name \
                         --volume-name $volume_name \
- 			--vnet $vnet_name \
+                        --vnet $vnet_name \
                         --subnet $storage_subnet_id \
                         --output table
 
