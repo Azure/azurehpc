@@ -158,13 +158,15 @@ The scripts allow storage account key be retrieved. This is the format: `sakey.<
 
 #### referencing variables in variables names
 
-There are some situation where you want to use variable values inside other names like a keyvault name or a storage account name. To do this just enclose it with `()` like this :
+There are some situation where you want to use variable values inside other names like a keyvault name or a storage account name. To do this just enclose it with `[]` like this :
 
 ```json
-    "secret.(variables.key_vault).CycleAdminPassword"
+    "secret.[.variables.key_vault].CycleAdminPassword"
 ````
 
-In the above example, the key vault name is stored into the `variables.key_vault` value.
+In the above example, the key vault name is stored into the `.variables.key_vault` value.
+
+> Note : Don't forget the `.` prefixing the variables keyword otherwise it won't work.
 
 ## Commands
 

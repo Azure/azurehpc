@@ -96,7 +96,6 @@ function read_value {
 
     elif [ "$prefix" = "sasurl" ]; then
         sasurl_storage_str=${!1#*.}
-        #sasurl_storage_account=${sasurl_storage_str%%.*}
         read_subvalue sasurl_storage_account $sasurl_storage_str
         sasurl_storage_account=${sasurl_storage_account%.*}
         value=$(echo $sasurl_storage_str | sed 's/\[[^]]*\]//')
@@ -104,8 +103,6 @@ function read_value {
         read_subvalue sasurl_storage_container ${sasurl_storage_fullpath%%/*}
 
         sasurl_storage_fullpath="$sasurl_storage_container/${sasurl_storage_str#*/}"
-        #sasurl_storage_fullpath=${sasurl_storage_str#*.}
-        #sasurl_storage_container=${sasurl_storage_fullpath%%/*}
         sasurl_storage_url="$( \
             az storage account show \
                 --name $sasurl_storage_account \
@@ -127,7 +124,6 @@ function read_value {
 
     elif [ "$prefix" = "fqdn" ]; then
         fqdn_str=${!1#*.}
-        #resource_name=${fqdn_str%.*}
         read_subvalue resource_name $fqdn_str
         debug "getting FQDN for $resource_name in $resource_group"
         fqdn=$(
@@ -141,7 +137,6 @@ function read_value {
 
     elif [ "$prefix" = "sakey" ]; then
         sakey_str=${!1#*.}
-        #storage_name=${sakey_str%.*}
         read_subvalue storage_name $sakey_str
         debug "getting storage key for $storage_name in $resource_group"
         storage_key=$(az storage account keys list -g $resource_group -n $storage_name --query "[0].value" | sed 's/\"//g')

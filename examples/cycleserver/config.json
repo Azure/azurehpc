@@ -56,10 +56,10 @@
       "script": "cyclecli_install.sh",
       "args": [
           "fqdn.cycleserver",
-          "hpcadmin",
-          "secret.$(variables.key_vault).CycleAdminPassword",
+          ".variables.admin_user",
+          "secret.[.variables.key_vault].CycleAdminPassword",
           "variables.resource_group",
-          "sakey.$(variables.projectstore)"
+          "sakey.[.variables.projectstore]"
       ]
     }
   ]
