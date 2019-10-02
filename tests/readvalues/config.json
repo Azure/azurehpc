@@ -1,0 +1,20 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "variables": {
+      "location": "eastus",
+      "resource_group": "test_rg",
+      "key_vault": "vault",
+      "projectstore": "store",
+      "container": "container",
+      "resource": "vm1",
+      "secret1": "secret.[.variables.key_vault].secret1",
+      "secret2": "secret.vault.secret2",
+      "sakey1":"sakey.[.variables.projectstore]",
+      "sakey2":"sakey.store",
+      "fqdn1":"fqdn.[.variables.resource]",
+      "fqdn2":"fqdn.vm2",
+      "sasurl1":"sasurl.account.container/path.foo/blob.data.ext",
+      "sasurl2":"sasurl.[.variables.projectstore].[.variables.container]/path.foo/blob.data.ext"
+      }
+  }
