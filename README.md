@@ -62,7 +62,7 @@ The config file will create vnets and subnets from the config file.
 
 Here is an example setup with four subnets:
 
-```
+```json
 ...
 "vnet": {
     "resource_group": "vnet-resource-group",
@@ -119,7 +119,7 @@ For the most part the configuration is just a standard JSON file although there 
 
 If a value is prefixed with `variables.` then it will take the value from the proceeding JSON path under the variables section.  For example:
 
-```
+```json
 {
     "location": "variables.location",
     ...
@@ -143,6 +143,30 @@ The scripts allow secrets to be stored in keyvault.  To read from keyvault use t
 The config file can create a URL with a SAS key for a file in storage.  This is the format: `sasurl.<STORAGE-ACCOUNT>.<STORAGE-PATH>`.
 
 > Note: the `<STORAGE-PATH>` should start at the container (and *do not have a preceeding `/`*)
+
+#### Fqdn
+
+The scripts allow FQDN of resources to be retrieved. This is the format: `fqdn.<RESOURCE-NAME>`.
+
+> Note: this assumes the resource name to be in the same resource group than the one defined in the configuration file.
+
+#### Storage Account Key
+
+The scripts allow storage account key be retrieved. This is the format: `sakey.<STORAGE-ACCOUNT>`.
+
+> Note: this assumes the storage account to be in the same resource group than the one defined in the configuration file.
+
+#### referencing variables in variables names
+
+There are some situation where you want to use variable values inside other names like a keyvault name or a storage account name. To do this just enclose it with `[]` like this :
+
+```json
+    "secret.[.variables.key_vault].CycleAdminPassword"
+````
+
+In the above example, the key vault name is stored into the `.variables.key_vault` value.
+
+> Note : Don't forget the `.` prefixing the variables keyword otherwise it won't work.
 
 ## Commands
 
