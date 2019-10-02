@@ -18,6 +18,7 @@
     "key_vault": "<NOT-SET>",
     "spn_name": "<NOT-SET>",
     "projectstore": "<NOT-SET>",
+    "appId": "",
     "image": "OpenLogic:CentOS:7.6:latest"
   },
   "resources": {
@@ -48,7 +49,8 @@
           "cycleserver",
           "variables.key_vault",
           "variables.spn_name",
-          "variables.projectstore"
+          "variables.projectstore",
+          "variables.appId"
       ]
     },
     {
@@ -56,7 +58,7 @@
       "script": "cyclecli_install.sh",
       "args": [
           "fqdn.cycleserver",
-          ".variables.admin_user",
+          "variables.admin_user",
           "secret.[.variables.key_vault].CycleAdminPassword",
           "variables.resource_group",
           "sakey.[.variables.projectstore]"
