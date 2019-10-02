@@ -23,6 +23,18 @@
     "image": "OpenLogic:CentOS:7.6:latest"
   },
   "resources": {
+    "cycleserver": {
+      "type": "vm",
+      "vm_type": "Standard_D8s_v3",
+      "accelerated_networking": true,
+      "public_ip": true,
+      "image": "variables.image",
+      "subnet": "admin",
+      "tags": [
+        "loginnode",
+        "disable-selinux"
+      ]
+    }
   },
   "install": [
     {
