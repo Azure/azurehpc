@@ -45,6 +45,13 @@ fi
 
 local_script_dir="$(dirname $config_file)/scripts"
 
+az_version=$(az --version | grep ^azure-cli | awk '{print $2}')
+function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+
+if version_gt "2.0.73" "$az_version"; then
+    warning "az version may be too low for some functionality: $az_version"
+fi   
+
 subscription="$(az account show --output tsv --query '[name,id]')"
 subscription_name=$(echo "$subscription" | head -n1)
 subscription_id=$(echo "$subscription" | tail -n1)
@@ -303,6 +310,23 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 --location $location \
                 --output table
 
+	    read_value storage_anf_domain ".storage.$storage_name.joindomain"
+            if [ "$storage_anf_domain" ]; then
+            debug "netapp account joining domain"
+	    read_value storage_anf_domain_ad ".storage.$storage_name.ad_server"
+	    read_value storage_anf_domain_password ".storage.$storage_name.ad_password"
+	    read_value storage_anf_domain_admin ".storage.$storage_name.ad_admin"
+	    ad_dns=$(az vm list-ip-addresses -g $resource_group -n $storage_anf_domain_ad --query [0].virtualMachine.network.privateIpAddresses --output tsv)
+            az netappfiles account ad add \
+                --dns $ad_dns \
+                --domain $storage_anf_domain \
+                --password $storage_anf_domain_password \
+                --smb-server-name anf \
+                --username $storage_anf_domain_admin \
+                --resource-group $resource_group \
+                --name $storage_name
+	    fi
+
             # loop over pools
             mount_script="scripts/auto_netappfiles_mount.sh"
             mkdir -p scripts
@@ -312,6 +336,12 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
             for pool_name in $(jq -r ".storage.$storage_name.pools | keys | .[]" $config_file); do
                 read_value pool_size ".storage.$storage_name.pools.$pool_name.size"
                 read_value pool_service_level ".storage.$storage_name.pools.$pool_name.service_level"
+
+                mount_script="scripts/auto_netappfiles_mount_${pool_name}.sh"
+                mkdir -p scripts
+                status "Building script: $mount_script"
+                echo "#!/bin/bash" > $mount_script
+                echo "yum install -y nfs-utils cifs-utils" >> $mount_script
 
                 # create pool
                 # pool_size is in TiB
@@ -327,7 +357,39 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                 # loop over volumes
                 for volume_name in $(jq -r ".storage.$storage_name.pools.$pool_name.volumes | keys | .[]" $config_file); do
                     read_value volume_size ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.size"
+                    read_value export_type ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.type" nfs
 
+		    if [ "$export_type" == "cifs" ]; then 
+		      echo prepping for cifs
+                      az netappfiles volume create \
+                          --resource-group $resource_group \
+                          --account-name $storage_name \
+                          --location $location \
+                          --service-level $pool_service_level \
+                          --usage-threshold $(($volume_size * (2 ** 10))) \
+                          --creation-token ${volume_name} \
+                          --pool-name $pool_name \
+                          --volume-name $volume_name \
+			  --protocol-type CIFS \
+ 			  --vnet $vnet_name \
+                          --subnet $storage_subnet \
+                          --output table
+
+                      volume_ip=$( \
+                        az netappfiles list-mount-targets \
+                            --resource-group $resource_group \
+                            --account-name $storage_name \
+                            --pool-name $pool_name \
+                            --volume-name $volume_name \
+                            --query [0].ipAddress \
+                            --output tsv \
+                      )
+                      read_value mount_point ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.mount"
+                      echo "mkdir $mount_point" >> $mount_script
+                      echo "echo '\\\\$volume_ip\\$volume_name	$mount_point 	cifs	_netdev,username=$storage_anf_domain_username,password=$storage_anf_domain_password,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0' >> /etc/fstab" >> $mount_script
+                      echo "chmod 777 $mount_point" >> $mount_script
+
+		    else
                     # volume_size should be in GiB
                     az netappfiles volume create \
                         --resource-group $resource_group \
@@ -342,14 +404,6 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --subnet $storage_subnet \
                         --output table
 
-                        #--usage-threshold $volume_size \
-                        #--creation-token ${volume_name} \
-                        #--pool-name $pool_name \
-                        #--volume-name $volume_name \
-                        #--vnet $storage_vnet_id \
-                        #--subnet $storage_subnet \
-                        #--output table
-
                     volume_ip=$( \
                         az netappfiles list-mount-targets \
                             --resource-group $resource_group \
@@ -358,12 +412,13 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                             --volume-name $volume_name \
                             --query [0].ipAddress \
                             --output tsv \
-                    )
-                    read_value mount_point ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.mount"
+                      )
+                      read_value mount_point ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.mount"
 
-                    echo "mkdir $mount_point" >> $mount_script
-                    echo "echo \"$volume_ip:/$volume_name	$mount_point	nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0\" >> /etc/fstab" >> $mount_script
-                    echo "chmod 777 $mount_point" >> $mount_script
+                      echo "mkdir $mount_point" >> $mount_script
+                      echo "echo \"$volume_ip:/$volume_name	$mount_point	nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0\" >> /etc/fstab" >> $mount_script
+                      echo "chmod 777 $mount_point" >> $mount_script
+		    fi
                 done
                 echo "mount -a" >> $mount_script
                 chmod 777 $mount_script
