@@ -102,7 +102,7 @@ function read_value {
         sasurl_storage_fullpath=${value#*.}
         read_subvalue sasurl_storage_container ${sasurl_storage_fullpath%%/*}
 
-        sasurl_storage_fullpath="$sasurl_storage_container${sasurl_storage_str#*/}"
+        sasurl_storage_fullpath="$sasurl_storage_container/${sasurl_storage_str#*/}"
         #sasurl_storage_fullpath=${sasurl_storage_str#*.}
         #sasurl_storage_container=${sasurl_storage_fullpath%%/*}
         sasurl_storage_url="$( \
