@@ -120,7 +120,8 @@ function read_value {
 
     elif [ "$prefix" = "fqdn" ]; then
         fqdn_str=${!1#*.}
-        resource_name=${fqdn_str%.*}
+        #resource_name=${fqdn_str%.*}
+        read_subvalue resource_name $fqdn_str
         debug "getting FQDN for $resource_name in $resource_group"
         fqdn=$(
             az network public-ip show \
