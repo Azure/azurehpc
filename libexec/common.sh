@@ -63,7 +63,7 @@ function read_subvalue {
     firstletter=${value:0:1}
     if [ "$firstletter" == "[" ]; then
         value=$(echo $value | awk -F'[][]' '{print $2}')
-        read_value $value ".${!value}"
+        read_value value ".${!value}"
     fi
     read $1 <<< $value
 }
