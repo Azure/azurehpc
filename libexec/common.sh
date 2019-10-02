@@ -56,6 +56,19 @@ function make_uuid_str {
     fi
 }
 
+# read a read_subvalue. if formatted with brakets like [subvalue], then the subvalue is used as a new value to read from the config file
+# syntax read_subvalue <variable> <value>
+function read_subvalue {
+    value=$2
+    firstletter=${value:0:1}
+    if [ "$firstletter" == "[" ]; then
+        value=$(echo $value | awk -F'[][]' '{print $2}')
+        read_value $value ".${!value}"
+    fi
+    read $1 <<< $value
+}
+
+
 function read_value {
     read $1 <<< $(jq -r "$2" $config_file)
     if [ "${!1}" = "null" ]; then
@@ -75,9 +88,12 @@ function read_value {
     elif [ "$prefix" = "secret" ]; then
         keyvault_str=${!1#*.}
         vault_name=${keyvault_str%.*}
+        read_subvalue vault_name $vault_name
         key_name=${keyvault_str#*.}
+        read_subvalue key_name $key_name
         debug "read_value reading from keyvault (keyvault=$vault_name, key=$key_name)"
         read $1 <<< $(az keyvault secret show --name $key_name --vault-name $vault_name -o json | jq -r '.value')
+
     elif [ "$prefix" = "sasurl" ]; then
         sasurl_storage_str=${!1#*.}
         sasurl_storage_account=${sasurl_storage_str%%.*}
@@ -101,6 +117,28 @@ function read_value {
         sasurl_storage_full="$sasurl_storage_url$sasurl_storage_fullpath?$sasurl_storage_saskey"
         debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full"
         read $1 <<< "$sasurl_storage_full"
+
+    elif [ "$prefix" = "fqdn" ]; then
+        fqdn_str=${!1#*.}
+        resource_name=${fqdn_str%.*}
+        debug "getting FQDN for $resource_name in $resource_group"
+        fqdn=$(
+            az network public-ip show \
+                --resource-group $resource_group \
+                --name ${resource_name}pip --query dnsSettings.fqdn \
+                --output tsv \
+                2>/dev/null \
+        )
+        read $1 <<< "$fqdn"
+
+    elif [ "$prefix" = "sakey" ]; then
+        sakey_str=${!1#*.}
+        storage_name=${sakey_str%.*}
+        read_subvalue storage_name $storage_name
+        debug "getting storage key for $storage_name in $resource_group"
+        storage_key=$(az storage account keys list -g $resource_group -n $storage_name --query "[0].value" | sed 's/\"//g')
+        read $1 <<< "$storage_key"
+
     fi
 
 }

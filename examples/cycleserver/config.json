@@ -50,7 +50,18 @@
            "variables.spn_name",
            "variables.projectstore"
         ]
-    }
+      },
+      {
+        "type": "local_script",
+        "script": "cyclecli_install.sh",
+        "args": [
+           "fqdn.cycleserver",
+           "hpcadmin",
+           "secret.[variables.key_vault].CycleAdminPassword",
+           "variables.resource_group",
+           "sakey.[variables.projectstore]"
+        ]
+      }
     ]
   }
   
