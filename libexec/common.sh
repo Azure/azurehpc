@@ -89,7 +89,7 @@ function read_value {
         keyvault_str=${!1#*.}
         vault_name=${keyvault_str%.*}
         read_subvalue vault_name $vault_name
-        key_name=${keyvault_str#*.}
+        key_name=${keyvault_str##*.}
         read_subvalue key_name $key_name
         debug "read_value reading from keyvault (keyvault=$vault_name, key=$key_name)"
         read $1 <<< $(az keyvault secret show --name $key_name --vault-name $vault_name -o json | jq -r '.value')
