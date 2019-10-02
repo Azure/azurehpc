@@ -98,8 +98,13 @@ function read_value {
         sasurl_storage_str=${!1#*.}
         #sasurl_storage_account=${sasurl_storage_str%%.*}
         read_subvalue sasurl_storage_account $sasurl_storage_str
-        sasurl_storage_fullpath=${sasurl_storage_str#*.}
-        sasurl_storage_container=${sasurl_storage_fullpath%%/*}
+        value=$(echo $sasurl_storage_str | sed 's/\[[^]]*\]//')
+        sasurl_storage_fullpath=${value#*.}
+        read_subvalue sasurl_storage_container ${sasurl_storage_fullpath%%/*}
+
+        sasurl_storage_fullpath="$sasurl_storage_container${sasurl_storage_str#*/}"
+        #sasurl_storage_fullpath=${sasurl_storage_str#*.}
+        #sasurl_storage_container=${sasurl_storage_fullpath%%/*}
         sasurl_storage_url="$( \
             az storage account show \
                 --name $sasurl_storage_account \
