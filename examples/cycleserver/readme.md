@@ -59,6 +59,12 @@ $ key_vault="mykv"
 $ az keyvault secret show --name "CycleAdminPassword" --vault-name $key_vault -o json | jq -r '.value'
 ```
 
+Setup Cycle Cloud CLI
+
+```
+$ azhpc-build -c config_cli.json
+```
+
 
 Browse to the **url** displayed to start the Cycle Web UI, connect with the **hpcadmin** user and the password retrieved above.
 
