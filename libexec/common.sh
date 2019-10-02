@@ -96,7 +96,8 @@ function read_value {
 
     elif [ "$prefix" = "sasurl" ]; then
         sasurl_storage_str=${!1#*.}
-        sasurl_storage_account=${sasurl_storage_str%%.*}
+        #sasurl_storage_account=${sasurl_storage_str%%.*}
+        read_subvalue sasurl_storage_account $sasurl_storage_str
         sasurl_storage_fullpath=${sasurl_storage_str#*.}
         sasurl_storage_container=${sasurl_storage_fullpath%%/*}
         sasurl_storage_url="$( \
