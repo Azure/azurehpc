@@ -133,8 +133,8 @@ function read_value {
 
     elif [ "$prefix" = "sakey" ]; then
         sakey_str=${!1#*.}
-        storage_name=${sakey_str%.*}
-        read_subvalue storage_name $storage_name
+        #storage_name=${sakey_str%.*}
+        read_subvalue storage_name $sakey_str
         debug "getting storage key for $storage_name in $resource_group"
         storage_key=$(az storage account keys list -g $resource_group -n $storage_name --query "[0].value" | sed 's/\"//g')
         read $1 <<< "$storage_key"
