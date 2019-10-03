@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# setup Intel MPI environment for Infiniband
+source /etc/profile # so we can load modules
+module load mpi/impi_2018.4.274
+source $MPI_BIN/mpivars.sh
+
+JOBID=$LSB_JOBID
+hostlist=$(pwd)/hosts.$JOBID
+# Need to unset otherwise IMPI is looking for the LSF launcher !!!!
+unset LSB_JOBID
+sort -u $LSB_DJOB_HOSTFILE > $hostlist
+
+src=$(tail -n 1 $hostlist)
+for line in $(<$hostlist); do
+        dst=$line
+        mpirun -np 2 -ppn 1 -hosts $src,$dst IMB-MPI1 PingPong > ${src}_to_${dst}_ringpingpong.$JOBID.log 2>&1
+        src=$dst
+done
+
+echo "Ring Ping Pong Results (1024 bytes)"
+printf "%-20s %-20s %10s\n" "Source" "Destination" "Time [usec]"
+grep "^         1024 " *_ringpingpong.$JOBID.log \
+        | tr -s ' ' | cut -d ' ' -f 1,4 \
+        | sed 's/_to_/ /g;s/_ringpingpong[^:]*://g' \
+        | sort -nk 3 \
+        | xargs printf "%-20s %-20s %10s\n"

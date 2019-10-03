@@ -18,7 +18,7 @@ While it is building you can watch the progress of the provisioning with in anot
 
 Once the cluster is created copy the apps directory into the `hpcuser` home:
 
-    azhpc-scp -u hpcuser $azhpc_dir/apps hpcuser@headnode:.
+    azhpc-scp $azhpc_dir/apps hpcuser@headnode:.
 
 The rest of this will run as hpcuser from the headnode in the cluster.  Connect as follows:
 

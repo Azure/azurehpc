@@ -9,6 +9,10 @@ storage_account=$2
 storage_key=$3
 storage_container=$4
 
+# adding kernel module for lustre client
+yum install -y https://downloads.whamcloud.com/public/lustre/lustre-2.10.6/el7/client/RPMS/x86_64/kmod-lustre-client-2.10.6-1.el7.x86_64.rpm
+weak-modules --add-kernel $(uname -r)
+
 yum install -y \
     https://github.com/whamcloud/lemur/releases/download/0.5.2/lhsm-0.5.2-1.x86_64.rpm \
     https://github.com/whamcloud/lemur/releases/download/0.5.2/lemur-data-movers-0.5.2-1.x86_64.rpm \
@@ -57,7 +61,7 @@ region = "westeurope"
 az_storage_account = "$storage_account"
 az_storage_key = "$storage_key"
 
-num_threads = 8
+num_threads = 32
 
 #
 # One or more archive definition is required.
@@ -66,7 +70,7 @@ archive  "az-blob" {
     id = 1                           # Must be unique to this endpoint
     container = "$storage_container" # Container used for this archive
     prefix = ""                   # Optional prefix
-    num_threads = 8
+    num_threads = 32
 }
 EOF
 chmod 600 /etc/lhsmd/lhsm-plugin-az

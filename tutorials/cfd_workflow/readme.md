@@ -1,5 +1,7 @@
 # Build a simple PBS compute cluster with a Windows visualization node for OpenFOAM and ParaView
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/tutorials/cfd_workflow/config.json)
+
 This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1 exporting a 4TB NFS space and several CentOS 7.6 HC44 compute nodes; and a Windows visualization node.
 This tutorial uses NFS and RDP for simplicity but you can also easily set it up with an alternate storage or visualization solution using the examples [here](https://github.com/Azure/azurehpc/tree/master/examples). 
 
@@ -66,7 +68,7 @@ exit
 
 First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
 
-    azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
+    azhpc-scp -r $azhpc_dir/apps hpcuser@headnode:.
 
 
 > Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.

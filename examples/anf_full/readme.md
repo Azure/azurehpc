@@ -1,5 +1,8 @@
 # Building a simple PBS compute cluster with a Windows visualization node (ANF will be used for User accounts and scratch storage)
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/anf_full/config.json), [NFS_ANF.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/anf_full/NFS_ANF.json)
+
+
 This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1, a 4TB Azure netapp files volume and several CentOS 7.6 HC44 compute nodes; and a Windows visualization node.
 
 >NOTE: 
@@ -18,6 +21,11 @@ The variables can be set with the `-v` option where variables are comma separate
 ```
 azhpc-init -c $azhpc_dir/examples/anf_full -d anf_full -v location=westus2,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],apps_storage_account=appstorageaccount
 ```
+
+> Config File Notes:
+- Pool name and volume name in the same subsciption and region need to be unique. If ANF fails to build, try changing the pool and volume name in the config file
+- Pool size must be between 4-500 in increments of 4. (Units:TiB)
+- Volume size must be between 100-100000 (Units: GiB)
 
 Create the cluster 
 

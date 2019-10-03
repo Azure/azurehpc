@@ -1,6 +1,12 @@
 #!/bin/bash
 
-SSH_ARGS="-o StrictHostKeyChecking=no"
+if [ "${BASH_SOURCE[0]}" -ef "$0" ]
+then
+    echo "Error: this script should be sourced and not executed"
+    exit 1
+fi
+
+SSH_ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q"
 
 function debug()
 {
@@ -38,8 +44,6 @@ function error()
     else
         echo -e "\e[31m$(date) error : \e[1m$1\e[0m"
     fi
-    echo
-    usage
     exit 1
 }
 
@@ -52,19 +56,7 @@ function make_uuid_str {
     fi
 }
 
-function read_value {
-    read $1 <<< $(jq -r "$2" $config_file)
-    if [ "${!1}" = "null" ]; then
-        if [ -z "$3" ]; then
-            error "failed to read $2 from $config_file"
-        else
-            read $1 <<< $3
-            debug "read_value: $1=${!1} (default)"
-        fi
-    else
-        debug "read_value: $1=${!1}"
-    fi
-
+function process_value {
     prefix=${!1%%.*}
     if [ "$prefix" = "variables" ]; then
         read_value $1 ".${!1}"
@@ -97,6 +89,46 @@ function read_value {
         sasurl_storage_full="$sasurl_storage_url$sasurl_storage_fullpath?$sasurl_storage_saskey"
         debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full"
         read $1 <<< "$sasurl_storage_full"
+    elif [ "$prefix" = "fqdn" ]; then
+        fqdn_str=${!1#*.}
+        resource_name=${fqdn_str%.*}
+        debug "getting FQDN for $resource_name in $resource_group"
+        fqdn=$(
+            az network public-ip show \
+                --resource-group $resource_group \
+                --name ${resource_name}pip --query dnsSettings.fqdn \
+                --output tsv \
+                2>/dev/null \
+        )
+        read $1 <<< "$fqdn"
+    elif [ "$prefix" = "sakey" ]; then
+        sakey_str=${!1#*.}
+        storage_name=${sakey_str%.*}
+        debug "getting storage key for $storage_name in $resource_group"
+        storage_key=$(az storage account keys list -g $resource_group -n $storage_name --query "[0].value" | sed 's/\"//g')
+        read $1 <<< "$storage_key"
+    fi
+}
+
+function read_value {
+    read $1 <<< $(jq -r "$2" $config_file)
+    if [ "${!1}" = "null" ]; then
+        if [ -z "$3" ]; then
+            error "failed to read $2 from $config_file"
+        else
+            read $1 <<< $3
+            debug "read_value: $1=${!1} (default)"
+        fi
+    else
+        debug "read_value: $1=${!1}"
     fi
 
+    while [[ "${!1}" =~ \{\{([^\}]*)\}\} ]]; do
+        local match_fullstr=${BASH_REMATCH[0]}
+        local match_value=${BASH_REMATCH[1]}
+        process_value match_value
+        read $1 <<< "${!1/$match_fullstr/$match_value}"
+    done
+
+    process_value $1
 }

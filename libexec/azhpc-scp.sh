@@ -20,8 +20,6 @@ function usage() {
     echo
 }
 
-ssh_user=
-
 while true; do
     case $1 in
         -h|--help)
@@ -30,11 +28,6 @@ while true; do
         ;;
         -c|--config)
         config_file="$2"
-        shift
-        shift
-        ;;
-        -u|--user)
-        ssh_user="$2"
         shift
         shift
         ;;
@@ -55,11 +48,6 @@ if [ ! -e "$ssh_private_key" ]; then
     error "keys not found"
 fi
 
-if [ "$ssh_user" = "" ]; then
-    ssh_user=$admin_user
-fi
-
-
 fqdn=$(
     az network public-ip show \
         --resource-group $resource_group \
@@ -71,4 +59,4 @@ if [ "$fqdn" = "" ]; then
     status "The install node does not have a public IP.  Using hostname - $install_node - and must be on this node must be on the same vnet"
 fi
 
-exec scp -q $SSH_ARGS -i $ssh_private_key -o ProxyCommand="ssh -q $SSH_ARGS -i $ssh_private_key -W %h:%p $ssh_user@$fqdn" "$@"
+exec scp -q $SSH_ARGS -i $ssh_private_key -o ProxyCommand="ssh -q $SSH_ARGS -i $ssh_private_key -W %h:%p $admin_user@$fqdn" "$@"
