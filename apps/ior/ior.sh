@@ -10,6 +10,7 @@ module load ior
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
+echo $AZHPC_VMSIZE
 
 case "$AZHPC_VMSIZE" in
     standard_hb60rs | standard_hc44rs)
