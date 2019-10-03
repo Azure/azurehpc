@@ -9,7 +9,7 @@ IOR_VERSION=3.2.1
 
 sudo yum install -y jq
 
-source /etc/profile # so we can load modules
+source /etc/profile.d/modules.sh # so we can load modules
 module load gcc-8.2.0
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
