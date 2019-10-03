@@ -56,19 +56,7 @@ function make_uuid_str {
     fi
 }
 
-function read_value {
-    read $1 <<< $(jq -r "$2" $config_file)
-    if [ "${!1}" = "null" ]; then
-        if [ -z "$3" ]; then
-            error "failed to read $2 from $config_file"
-        else
-            read $1 <<< $3
-            debug "read_value: $1=${!1} (default)"
-        fi
-    else
-        debug "read_value: $1=${!1}"
-    fi
-
+function process_value {
     prefix=${!1%%.*}
     if [ "$prefix" = "variables" ]; then
         read_value $1 ".${!1}"
@@ -102,5 +90,27 @@ function read_value {
         debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full"
         read $1 <<< "$sasurl_storage_full"
     fi
+}
 
+function read_value {
+    read $1 <<< $(jq -r "$2" $config_file)
+    if [ "${!1}" = "null" ]; then
+        if [ -z "$3" ]; then
+            error "failed to read $2 from $config_file"
+        else
+            read $1 <<< $3
+            debug "read_value: $1=${!1} (default)"
+        fi
+    else
+        debug "read_value: $1=${!1}"
+    fi
+
+    while [[ "${!1}" =~ \{\{([^\}]*)\}\} ]]; do
+        local match_fullstr=${BASH_REMATCH[0]}
+        local match_value=${BASH_REMATCH[1]}
+        process_value match_value
+        read $1 <<< "${!1/$match_fullstr/$match_value}"
+    done
+
+    process_value $1
 }
