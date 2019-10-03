@@ -30,7 +30,6 @@ The optional variables you need to set are :
 
 | Name           | Description                                                         |
 |----------------|---------------------------------------------------------------------|
-| config         | `local` or the name of the configuration file to be used to install the cycle cloud CLI remotely |
 | appId          | The appId associated to the `spn_name` in case of an existing SPN not owned by the user running the script |
 
 
