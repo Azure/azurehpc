@@ -89,6 +89,24 @@ function process_value {
         sasurl_storage_full="$sasurl_storage_url$sasurl_storage_fullpath?$sasurl_storage_saskey"
         debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full"
         read $1 <<< "$sasurl_storage_full"
+    elif [ "$prefix" = "fqdn" ]; then
+        fqdn_str=${!1#*.}
+        resource_name=${fqdn_str%.*}
+        debug "getting FQDN for $resource_name in $resource_group"
+        fqdn=$(
+            az network public-ip show \
+                --resource-group $resource_group \
+                --name ${resource_name}pip --query dnsSettings.fqdn \
+                --output tsv \
+                2>/dev/null \
+        )
+        read $1 <<< "$fqdn"
+    elif [ "$prefix" = "sakey" ]; then
+        sakey_str=${!1#*.}
+        storage_name=${sakey_str%.*}
+        debug "getting storage key for $storage_name in $resource_group"
+        storage_key=$(az storage account keys list -g $resource_group -n $storage_name --query "[0].value" | sed 's/\"//g')
+        read $1 <<< "$storage_key"
     fi
 }
 

@@ -15,7 +15,7 @@ $ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -s
 
 The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
 
-The variables you need to set are :
+The required variables you need to set are :
 
 | Name           | Description                                                         |
 |----------------|---------------------------------------------------------------------|
@@ -24,6 +24,13 @@ The variables you need to set are :
 | key_vault      | The Key Vault name to use. If it doesn't exists it will be created in the same `resource_group`. If it exists, make sure you have read/write access policies to secrets. |
 | spn_name       | Service Principal Name to be used by CycleCloud. If it doesn't exists it will be created, you have to be owner of the subscription. If it exists you need to store its associated secret in the Key Vault `key_vault` under the secret `CycleAdminPassword`|
 | projectstore   | The name of the Azure Storage to be created to store Cycel Project files |
+
+
+The optional variables you need to set are :
+
+| Name           | Description                                                         |
+|----------------|---------------------------------------------------------------------|
+| appId          | The appId associated to the `spn_name` in case of an existing SPN not owned by the user running the script |
 
 
 ```
@@ -49,6 +56,12 @@ And retrieved the Cycle Admin password
 ```
 $ key_vault="mykv"
 $ az keyvault secret show --name "CycleAdminPassword" --vault-name $key_vault -o json | jq -r '.value'
+```
+
+Setup Cycle Cloud CLI
+
+```
+$ azhpc-build -c config_cli.json
 ```
 
 

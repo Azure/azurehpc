@@ -7,7 +7,7 @@ vmname=$2
 key_vault=$3
 spn_appname=$4
 projectstore=$5
-config=$6
+appId=$6
 
 admin_user=hpcadmin
 ssh_private_key=${admin_user}_id_rsa
@@ -20,25 +20,36 @@ else
     az keyvault create --name $key_vault --resource-group $resource_group --output table
 fi
 
-# Check if we need to create a new SPN
-# If the SPN doesn't exists, create one and store the password in KeyVault. Secret name is the SPN app Name
-spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
-
-if [ "$spn" == "" ]; then
-    echo "Generate a new SPN"
-    secret=$(az ad sp create-for-rbac --name $spn_appname --years 1 | jq -r '.password')
-    echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
-    az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
-    spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
+# If an SPN appId is provided then consider it's associated SPN secret is already stored in the KV
+if [ "$appId" != "" ]; then
+    tenantId="$(az account show --output tsv --query '[tenantId]')"
 else
-    echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
-    secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
-    if [ "$secret" == "" ]; then
-        echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
-        secret=$(az ad sp credential reset --append -n $spn_appname --credential-description "azhpc" | jq -r '.password')
-        echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
-        az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+    # Check if we need to create a new SPN
+    # If the SPN doesn't exists, create one and store the password in KeyVault. Secret name is the SPN app Name
+    spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
+    if [ "$?" -ne "0" ]; then
+        echo "Error : Unable to list SPN"
+        exit 1
     fi
+
+    if [ "$spn" == "" ]; then
+        echo "Generate a new SPN"
+        secret=$(az ad sp create-for-rbac --name $spn_appname --years 1 | jq -r '.password')
+        echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
+        az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+        spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
+    else
+        echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
+        secret=$(az keyvault secret show --name $spn_appname --vault-name $key_vault -o json | jq -r '.value')
+        if [ "$secret" == "" ]; then
+            echo "No secret stored in $key_vault for $spn_appname, appending a new secret"
+            secret=$(az ad sp credential reset --append -n $spn_appname --credential-description "azhpc" | jq -r '.password')
+            echo "Store new secret in Key Vault $key_vault under secret name $spn_appname"
+            az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
+        fi
+    fi
+    appId=$(echo "$spn" | head -n1)
+    tenantId=$(echo "$spn" | tail -n1)
 fi
 
 echo "getting FQDN for $vmname"
@@ -85,8 +96,6 @@ if [ "$secret" == "" ]; then
     exit 1
 fi
 
-appId=$(echo $spn | cut -d' ' -f2)
-tenantId=$(echo $spn | cut -d' ' -f3)
 echo "Get cyclecloud_install.py"
 downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
 release="latest"
@@ -106,19 +115,10 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
     --acceptTerms  \
     --password ${password} \
     --storageAccount $projectstore"
+if [ "$?" -ne "0" ]; then
+    echo "Error : Error installing Cycle Cloud"
+    exit 1
+fi
 
 echo "CycleCloud application server installation finished"
 echo "Navigate to https://$fqdn and login using $admin_user"
-
-cyclecloud_storage_key=$(az storage account keys list -g $resource_group -n $projectstore --query "[0].value" | sed 's/\"//g')
-
-if [ "$config" == "" ]; then
-    $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
-else
-    echo "running the cycle_install script on install node"
-
-    config_file_no_path=${config##*/}
-    config_file_no_path_or_extension=${config_file_no_path%.*}
-    tmp_dir=azhpc_install_$config_file_no_path_or_extension
-    azhpc-run -c ../$config $tmp_dir/scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
-fi

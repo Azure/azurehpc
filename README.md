@@ -62,7 +62,7 @@ The config file will create vnets and subnets from the config file.
 
 Here is an example setup with four subnets:
 
-```
+```json
 ...
 "vnet": {
     "resource_group": "vnet-resource-group",
@@ -119,7 +119,7 @@ For the most part the configuration is just a standard JSON file although there 
 
 If a value is prefixed with `variables.` then it will take the value from the proceeding JSON path under the variables section.  For example:
 
-```
+```json
 {
     "location": "variables.location",
     ...
