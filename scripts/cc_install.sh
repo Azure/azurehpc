@@ -7,7 +7,6 @@ vmname=$2
 key_vault=$3
 spn_appname=$4
 projectstore=$5
-#config=${6-local}
 appId=$6
 
 admin_user=hpcadmin
@@ -27,8 +26,6 @@ if [ "$appId" != "" ]; then
 else
     # Check if we need to create a new SPN
     # If the SPN doesn't exists, create one and store the password in KeyVault. Secret name is the SPN app Name
-    #spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
-
     spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
     if [ "$?" -ne "0" ]; then
         echo "Error : Unable to list SPN"
@@ -40,7 +37,6 @@ else
         secret=$(az ad sp create-for-rbac --name $spn_appname --years 1 | jq -r '.password')
         echo "Store secret in Key Vault $key_vault under secret name $spn_appname"
         az keyvault secret set --vault-name $key_vault --name "$spn_appname" --value $secret --output table
-        #spn=$(az ad sp list --show-mine --output tsv --query "[?displayName=='$spn_appname'].[displayName,appId,appOwnerTenantId]")
         spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
     else
         echo "SPN $spn_appname exists, make sure its secret is stored in $key_vault"
@@ -126,16 +122,3 @@ fi
 
 echo "CycleCloud application server installation finished"
 echo "Navigate to https://$fqdn and login using $admin_user"
-
-# cyclecloud_storage_key=$(az storage account keys list -g $resource_group -n $projectstore --query "[0].value" | sed 's/\"//g')
-
-# if [ "$config" == "local" ]; then
-#     $DIR/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
-# else
-#     echo "running the cycle_install script on install node"
-
-#     config_file_no_path=${config##*/}
-#     config_file_no_path_or_extension=${config_file_no_path%.*}
-#     tmp_dir=azhpc_install_$config_file_no_path_or_extension
-#     azhpc-run -c ../$config $tmp_dir/scripts/cyclecli_install.sh $fqdn $admin_user "$password" $resource_group $cyclecloud_storage_key
-# fi
