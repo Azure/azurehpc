@@ -1,6 +1,6 @@
 # Lustre Cluster
 
-This is a full set up of Lustre using managed disks and with all Lustre features available.
+This is a full set up of Lustre using managed disks and with all Lustre features available. The config.json file may be modified to handle between 2 and 10 disks per Object SStorage Server (OSS).
 
 Resources:
 

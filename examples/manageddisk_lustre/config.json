@@ -156,7 +156,7 @@
       "script": "create_raid0.sh",
       "args": [
         "/dev/md0",
-        "/dev/sdc /dev/sdd /dev/sde /dev/sdf /dev/sdg /dev/sdh"
+	"/dev/sd[c-l]"
       ],
       "tag": "lfsoss",
       "sudo": true
