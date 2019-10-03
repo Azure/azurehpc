@@ -56,32 +56,7 @@ function make_uuid_str {
     fi
 }
 
-# read a read_subvalue. if formatted with brakets like [subvalue], then the subvalue is used as a new value to read from the config file
-# syntax read_subvalue <variable> <value>
-function read_subvalue {
-    value=$2
-    firstletter=${value:0:1}
-    if [ "$firstletter" == "[" ]; then
-        value=$(echo $value | awk -F'[][]' '{print $2}')
-        read_value value "$value"
-    fi
-    read $1 <<< $value
-}
-
-
-function read_value {
-    read $1 <<< $(jq -r "$2" $config_file)
-    if [ "${!1}" = "null" ]; then
-        if [ -z "$3" ]; then
-            error "failed to read $2 from $config_file"
-        else
-            read $1 <<< $3
-            debug "read_value: $1=${!1} (default)"
-        fi
-    else
-        debug "read_value: $1=${!1}"
-    fi
-
+function process_value {
     prefix=${!1%%.*}
     if [ "$prefix" = "variables" ]; then
         read_value $1 ".${!1}"
@@ -143,5 +118,27 @@ function read_value {
         read $1 <<< "$storage_key"
 
     fi
+}
 
+function read_value {
+    read $1 <<< $(jq -r "$2" $config_file)
+    if [ "${!1}" = "null" ]; then
+        if [ -z "$3" ]; then
+            error "failed to read $2 from $config_file"
+        else
+            read $1 <<< $3
+            debug "read_value: $1=${!1} (default)"
+        fi
+    else
+        debug "read_value: $1=${!1}"
+    fi
+
+    while [[ "${!1}" =~ \{\{([^\}]*)\}\} ]]; do
+        local match_fullstr=${BASH_REMATCH[0]}
+        local match_value=${BASH_REMATCH[1]}
+        process_value match_value
+        read $1 <<< "${!1/$match_fullstr/$match_value}"
+    done
+
+    process_value $1
 }
