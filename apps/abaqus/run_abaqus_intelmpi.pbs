@@ -5,12 +5,9 @@ PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
 hostlist=`cat $PBS_NODEFILE | sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/'`   
 
 #NOTE!!!! Update the below details before running the script
-ABAQUS_BENCHMARK_STORAGEENDPOINT="<benchmark storage endpoint>"
-ABAQUS_BENCHMARK_SASKEY="<saskey>"
-LICENSE_SERVER="<license server ip>"
-
-echo "----- get Abaqus test case $MODEL -----"
-wget -q "${ABAQUS_BENCHMARK_STORAGEENDPOINT}/abaqus-benchmarks/${MODEL}.inp?${ABAQUS_BENCHMARK_SASKEY}" -O ${MODEL}.inp
+LICENSE_SERVER="${LICENSE_SERVER_IP}"
+DATA_DIR=${DATA_DIR:-/data}
+MODEL=${MODEL:-e1}
 
 export mpi_options="-env IMPI_FABRICS=shm:ofa -env I_MPI_FALLBACK_DEVICE=0"
 
@@ -37,7 +34,7 @@ ABQ2019="/apps/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x/
 JOBNAME=$MODEL-$CORES
 
 start_time=$SECONDS
-$ABQ2019 -j $JOBNAME -input $MODEL.inp -cpus $CORES -interactive 
+$ABQ2019 -j $JOBNAME -input "${DATA_DIR}/$MODEL.inp" -cpus $CORES -interactive 
 end_time=$SECONDS
 task_time=$(($end_time - $start_time))
 
