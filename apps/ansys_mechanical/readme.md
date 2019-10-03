@@ -12,7 +12,7 @@ Dependencies for binary version:
 
 ## Installation
 
-NOTE: Update the path to the fluent installer tar file in $azhpc_dir/apps/fluent/install_fluent.sh
+NOTE: Update the path to the installer tar file in $azhpc_dir/apps/ansys_mechanical/install_mechanical.sh
 
 First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
 
@@ -29,6 +29,7 @@ azhpc-run -u hpcuser -n "headnode compute" ~/apps/ansys_mechanical/scripts/add_r
 ```
 azhpc-run -u hpcuser -n headnode ~/apps/ansys_mechanical/install_mechanical.sh \<tar file name\> \<URL to tar file of the installer\>
 ```
+
 Example:
 ```
 azhpc-run -u hpcuser -n headnode ~/apps/ansys_mechanical/install_mechanical.sh STRUCTURES_192_LINX64.tar "https://<storage_url>/apps/ansys-mech-19-2/STRUCTURES_192_LINX64.tar?{SAS_KEY}"
@@ -53,7 +54,7 @@ wget -q "${STORAGE_ENDPOINT}/ansys-mechanical-benchmarks/BENCH_V190_LINUX.tgz?${
 NOTE: In the run script you will need to __update the license server__.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
 
 ### Submitting Jobs
-Now, you can run as follows:
+Now, you can now run a set of runs as follows from the ~/ansys/v19 directory
 
 ```
 for ppn in 44 36; do
