@@ -144,6 +144,29 @@ The config file can create a URL with a SAS key for a file in storage.  This is 
 
 > Note: the `<STORAGE-PATH>` should start at the container (and *do not have a preceeding `/`*)
 
+#### Fqdn
+
+The scripts allow FQDN of resources to be retrieved. This is the format: `fqdn.<RESOURCE-NAME>`.
+
+> Note: this assumes the resource name to be in the same resource group than the one defined in the configuration file.
+
+#### Storage Account Key
+
+The scripts allow storage account key be retrieved. This is the format: `sakey.<STORAGE-ACCOUNT>`.
+
+> Note: this assumes the storage account to be in the same resource group than the one defined in the configuration file.
+
+#### referencing variables in variables names
+
+There are some situation where you want to use variable values inside other variables like a keyvault name or a storage account name. To do this just enclose it with double curly braces `{{}}` like this :
+
+```json
+    "secret.{{variables.key_vault}}.CycleAdminPassword"
+````
+
+In the above example, the key vault name is stored into the `.variables.key_vault` value.
+
+
 ## Commands
 
 To set up the environment you first need to _source_ `$azhpc_dir/install.sh`.  This is only required once and will create a `bin` directory with all the commands.  It will also set the `PATH` for the current session (and so there is no issue in running multiple times but you may prefer to just add the `bin` directory to your bashrc).
