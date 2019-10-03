@@ -44,14 +44,13 @@
     },
     {
       "type": "local_script",
-      "script": "cc_install.sh",
+      "script": "cyclecli_install.sh",
       "args": [
+          "fqdn.cycleserver",
+          "variables.admin_user",
+          "secret.{{variables.key_vault}}.CycleAdminPassword",
           "variables.resource_group",
-          "cycleserver",
-          "variables.key_vault",
-          "variables.spn_name",
-          "variables.projectstore",
-          "variables.appId"
+          "sakey.{{variables.projectstore}}"
       ]
     }
   ]
