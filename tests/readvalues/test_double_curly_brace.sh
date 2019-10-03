@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ../libexec/common.sh
+source "$azhpc_dir/libexec/common.sh"
 
 DEBUG_ON=0
 COLOR_ON=1
