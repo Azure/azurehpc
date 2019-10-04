@@ -46,7 +46,9 @@
         "cndefault",
         "localuser",
         "disable-selinux",
-        "clusterstore"
+        "clusterstore",
+        "tune_cs",
+        "tune_cs_tcp"
       ]
     }
   },
@@ -94,6 +96,16 @@
         "variables.cs_client_url"
       ],
       "tag": "clusterstore",
+      "sudo": true
+    },
+    {
+      "script": "tune_cs.sh",
+      "tag": "tune_cs",
+      "sudo": true
+    },
+    {
+      "script": "tune_cs_tcp.sh",
+      "tag": "tune_cs_tcp",
       "sudo": true
     }
   ]
