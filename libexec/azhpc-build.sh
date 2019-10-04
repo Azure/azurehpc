@@ -386,7 +386,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                       )
                       read_value mount_point ".storage.$storage_name.pools.$pool_name.volumes.$volume_name.mount"
                       echo "mkdir $mount_point" >> $mount_script
-                      echo "echo '\\\\$volume_ip\\$volume_name	$mount_point 	cifs	_netdev,username=$storage_anf_domain_username,password=$storage_anf_domain_password,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0' >> /etc/fstab" >> $mount_script
+                      echo "echo '\\\\$volume_ip\\$volume_name	$mount_point 	cifs	_netdev,username=$storage_anf_domain_admin,password=$storage_anf_domain_password,dir_mode=0755,file_mode=0755,uid=500,gid=500 0 0' >> /etc/fstab" >> $mount_script
                       echo "chmod 777 $mount_point" >> $mount_script
 
 		    else
