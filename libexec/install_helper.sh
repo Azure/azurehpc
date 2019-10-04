@@ -240,6 +240,7 @@ function run_install_scripts()
         fi
     done
 
+    script_error=0
     for step in $(seq 0 $nsteps); do
 
         # skip jumpbox setup if no jumpbox scripts are required
@@ -271,34 +272,49 @@ function run_install_scripts()
             fi
 
         fi
-               
+
         install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
 
         echo "Step $step : $install_script ($install_script_type)"
         start_time=$SECONDS
 
         if [ "$install_script_type" = "jumpbox_script" ]; then
-        
+
             ssh $ssh_args -i $ssh_private_key $admin_user@$fqdn $install_sh $run_tag
+            exit_code=$?
+            if [ "$exit_code" -ne "0" ]; then
+                echo "Error: ($exit_code) Errors while running $install_sh"
+                script_error=1
+                break
+            fi
 
         elif [ "$install_script_type" = "local_script" ]; then
-            
+
             $install_sh
+            exit_code=$?
+            if [ "$exit_code" -ne "0" ]; then
+                echo "Error: ($exit_code) Errors while running $install_sh"
+                script_error=1
+                break
+            fi
 
         else
-        
+
             echo "Error: unrecognised script type - $install_script_type"
 
         fi
 
         echo "    duration: $(($SECONDS - $start_time)) seconds"
-    
+
     done
 
     if [ "$is_jumpbox_required" = "1" ]; then
         rsync -a -e "ssh $ssh_args -i $ssh_private_key" $admin_user@$fqdn:$tmp_dir/install/*.log $tmp_dir/install/.
     fi
 
+    if [ "$script_error" -ne "0" ]; then
+        error "There were errors while running scripts, exiting"
+    fi
 }
 
 function build_hostlists

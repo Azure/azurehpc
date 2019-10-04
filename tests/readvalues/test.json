@@ -1,0 +1,7 @@
+{
+	"variables": {
+		"foo": "foo{{variables.bar}}",
+		"bar": "bar{{variables.baz}}",
+		"baz": "baz"
+	}
+}

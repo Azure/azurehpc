@@ -23,6 +23,7 @@ if [ "$(hostname)" = "$nfs_server" ]; then
 Host *
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
+    LogLevel ERROR
 EOF
     ssh-keygen -f $home_root/$new_user/.ssh/id_rsa -t rsa -N ''
     # add admin user public key (the only user in /home)
