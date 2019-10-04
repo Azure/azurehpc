@@ -17,6 +17,9 @@ unzip $CS_CLIENT_ZIP
 sha1sum lustre-2.11.0.300_cray_63_gf83bed8-1.src.rpm; cat sha1sum.txt
 
 rpmbuild --rebuild --without servers --without lustre-tests lustre-*.src.rpm
+
+echo "options ksocklnd peer_credits=32" >> /etc/modprobe.d/ksocklnd.conf
+
 rpm -ivh  /root/rpmbuild/RPMS/x86_64/{kmod-lustre-client,lustre-client}-${CS_CLIENT_VER}*.x86_64.rpm --nodeps
 
 systemctl enable lnet
