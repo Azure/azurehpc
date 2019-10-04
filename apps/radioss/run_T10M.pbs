@@ -1,0 +1,125 @@
+#!/bin/bash -x
+
+#PBS -S /bin/bash
+#PBS -N T10M_BM
+#PBS -j oe
+
+# parameters that can be overridden
+APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
+DATA_DIR=${DATA_DIR:-/data}
+CASE=${CASE:-T10M}
+RADIOSS_VERSION=${RADIOSS_VERSION:-2018}
+
+# OMP_NUM_THREADS is required to be set. Otherwise, the job fails
+if [ -z "$OMP_NUM_THREADS" ];
+then
+    echo "Error: the OMP_NUM_THREADS environment variable is not set. This can be set by adding ompthreads to your select line. (i.e. -l select=1:ncpus=44:mpiprocs=22:ompthreads=2"
+    exit 1
+fi
+# LIC_SRV is required (pass in as environment variable)
+if [ -z "$LIC_SRV" ];
+then
+    echo "Error: the LIC_SRV environment variable is not set"
+    exit 1
+fi
+
+INSTALL_DIR=$APP_INSTALL_DIR/altair/$RADIOSS_VERSION/altair/hwsolvers
+RADIOSS_CASE=$DATA_DIR/${CASE}
+
+NODES=`sort -u < $PBS_NODEFILE | wc -l`
+NMPI=`wc -l < $PBS_NODEFILE`
+CORES=$NCPUS
+echo "------------------------------------------------------"
+echo "PBS job ID           :" $PBS_JOBID
+echo "PBS job name         :" $PBS_JOBNAME
+echo "PBS queue            :" $PBS_QUEUE
+echo "PBS working directory:" $PBS_O_WORKDIR
+echo "NODES           =" $NODES
+echo "NCPUS           =" $NCPUS
+echo "OMP_NUM_THREADS =" $OMP_NUM_THREADS
+echo "Number of MPI   =" $NMPI
+echo "------------------------------------------------------"
+cat $PBS_NODEFILE
+echo "------------------------------------------------------"
+
+## RADIOSS Options
+# Define HW_ROOT (location HyperWorks is installed)
+HW_BASE=$INSTALL_DIR
+HW_ROOT=${HW_BASE}/radioss/bin/linux64
+
+starter=$HW_ROOT/s_2018.0.1_linux64
+engine=$HW_ROOT/e_2018.0.1_linux64_impi
+user=$USER
+
+## Data Options
+ROOTNAME=TAURUS_A05_FFB50
+d00=${ROOTNAME}_0000.rad
+d01=${ROOTNAME}_0001.rad
+MPIBIN=/opt/intel/impi/2018.4.274/intel64/bin
+MPILIB=/opt/intel/impi/2018.4.274/intel64/lib
+
+# JOB Options
+export ALTAIR_LICENSE_PATH=6200@$LIC_SRV
+cp ${HW_BASE}/common/bin/linux64/radflex_2018_linux64 ./radflex_2018_linux64
+export RADFLEX_PATH=${HW_BASE}/common/bin/linux64/
+export LD_LIBRARY_PATH=${HW_ROOT}/:$RADFLEX_PATH:$LD_LIBRARY_PATH
+
+wkdir=$DATA_DIR/projects/${USER}/radioss-$PBS_JOBID
+mkdir -p $wkdir
+cd $wkdir
+ln -s $DATA_DIR/radioss/T10M/* .
+unlink includes
+cp -a $DATA_DIR/radioss/T10M/includes .
+echo Local execution under: `pwd`
+
+# run RADIOSS starter
+echo "------------------------------------------------------"
+echo "RADIOSS Starter"
+echo "------------------------------------------------------"
+ulimit -s unlimited
+$starter -np $NMPI -i $d00
+# run RADIOSS engine
+# this part is needed if using local ssd for the wkdir
+if [[ $wkdir == *"/mnt/resource/"* ]]; then
+    n=1
+    for i in `cat $PBS_NODEFILE`
+    do
+        ssh $i test -f $wkdir/$d01
+        a=$?
+        if [ $a -ne 0 ]; then
+            ssh $i mkdir $wkdir
+            scp $d01 $i:$wkdir/$d01
+        fi
+        if [ $n -lt 10 ]; then
+            scp ${ROOTNAME}_0000_000$n.rst $i:$wkdir/${ROOTNAME}_0000_000$n.rst;
+        elif [ $n -lt 100 ]; then
+            scp ${ROOTNAME}_0000_00$n.rst $i:$wkdir/${ROOTNAME}_0000_00$n.rst;
+        elif [ $n -lt 1000 ]; then
+            scp ${ROOTNAME}_0000_0$n.rst $i:$wkdir/${ROOTNAME}_0000_0$n.rst;
+        else
+            scp ${ROOTNAME}_0000_$n.rst $i:$wkdir/${ROOTNAME}_0000_$n.rst;
+        fi
+        n=$(($n+1))
+    done
+fi
+
+echo "------------------------------------------------------"
+echo "RADIOSS Engine"
+echo "------------------------------------------------------"
+
+
+echo "$MPIBIN/mpirun -r ssh -machinefile $PBS_NODEFILE -genv I_MPI_MPIRUN_CLEANUP 1 -genv I_MPI_PIN_DOMAIN auto -genv OMP_NUM_THREADS $OMP_NUM_THREADS -genv I_MPI_ADJUST_BCAST 1 -genv I_MPI_ADJUST_REDUCE 2 -genv KMP_AFFINITY verbose,scatter -genv KMP_STACKSIZE 400m -genv I_MPI_DEBUG 3 -genv I_MPI_FABRICS shm:ofa -genv LD_LIBRARY_PATH $MPILIB:$LD_LIBRARY_PATH -genv PATH $MPIBIN:$PATH -n $NMPI /opt/pbs/bin/pbs_attach -j $PBS_JOBID -s $engine  -i $d01"
+$MPIBIN/mpirun -r ssh -machinefile $PBS_NODEFILE -genv I_MPI_MPIRUN_CLEANUP 1 -genv I_MPI_PIN_DOMAIN auto -genv OMP_NUM_THREADS $OMP_NUM_THREADS -genv I_MPI_ADJUST_BCAST 1 -genv I_MPI_ADJUST_REDUCE 2 -genv KMP_AFFINITY verbose,scatter -genv KMP_STACKSIZE 400m -genv I_MPI_DEBUG 3 -genv I_MPI_FABRICS shm:ofa -genv LD_LIBRARY_PATH $MPILIB:$LD_LIBRARY_PATH -genv PATH $MPIBIN:$PATH -n $NMPI /opt/pbs/bin/pbs_attach -j $PBS_JOBID -s $engine  -i $d01
+
+
+cp ${ROOTNAME}_0000.out $PBS_O_WORKDIR/${ROOTNAME}-${NODES}n-${CORES}c-${OMP_NUM_THREADS}tpc-MPI-OpenMP-pernode-${PBS_JOBID}_0000.out
+cp ${ROOTNAME}_0001.out $PBS_O_WORKDIR/${ROOTNAME}-${NODES}n-${CORES}c-${OMP_NUM_THREADS}tpc-MPI-OpenMP-pernode-${PBS_JOBID}_0001.out
+
+exit 0
+#clean
+n=1
+for i in `cat $PBS_NODEFILE`
+do
+   ssh $i rm -rf $wkdir
+done
+
