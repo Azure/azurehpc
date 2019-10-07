@@ -87,7 +87,7 @@ if [[ $wkdir == *"/mnt/resource/"* ]]; then
         ssh $i test -f $wkdir/$d01
         a=$?
         if [ $a -ne 0 ]; then
-            ssh $i mkdir $wkdir
+            ssh $i mkdir -p $wkdir
             scp $d01 $i:$wkdir/$d01
         fi
         if [ $n -lt 10 ]; then
@@ -118,7 +118,7 @@ cp ${ROOTNAME}_0001.out $PBS_O_WORKDIR/${ROOTNAME}-${NODES}n-${CORES}c-${OMP_NUM
 exit 0
 #clean
 n=1
-for i in `cat $PBS_NODEFILE`
+for i in `uniq $PBS_NODEFILE`
 do
    ssh $i rm -rf $wkdir
 done
