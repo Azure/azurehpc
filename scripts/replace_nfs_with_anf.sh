@@ -20,6 +20,7 @@ chmod 777 $anf_mount_pt/data
 chmod 777 $anf_mount_pt/home
 #
 if ! [ -L "/apps" ]
+then
     ln -s $anf_mount_pt/apps /apps
 fi
 if ! [ -L "/data" ]
