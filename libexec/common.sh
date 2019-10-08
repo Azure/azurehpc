@@ -107,6 +107,12 @@ function process_value {
         debug "getting storage key for $storage_name in $resource_group"
         storage_key=$(az storage account keys list -g $resource_group -n $storage_name --query "[0].value" | sed 's/\"//g')
         read $1 <<< "$storage_key"
+    elif [ "$prefix" = "acrkey" ]; then
+        acrkey_str=${!1#*.}
+        acr_name=${acrkey_str%.*}
+        debug "getting acr key for $acr_name"
+        acr_key=$(az acr credential show -n $acr_name --query passwords[0].value --output tsv)
+        read $1 <<< "$acr_key"
     fi
 }
 
