@@ -28,6 +28,7 @@
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
+		"localuser",
                 "singularity"
             ]
         }
