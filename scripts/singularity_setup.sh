@@ -1,8 +1,7 @@
 #!/bin/bash
 
-acr_user=$1
-acr_repo=$2
-acr_pass=$3
+acr_repo=$1
+acr_pass=$2
 
 yum --releasever=7.6.1810 -y install singularity
 
