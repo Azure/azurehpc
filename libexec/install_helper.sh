@@ -248,16 +248,17 @@ function run_install_scripts()
             continue
         fi
 
+        idx=$(($step - 1))
+
         if [ "$step" = "0" ]; then
             install_script=install_node_setup.sh
             install_script_type=jumpbox_script
         else
-            idx=$(($step - 1))
             read_value install_script ".install[$idx].script"
             read_value install_script_type ".install[$idx].type" jumpbox_script
         fi
 
-        if [ "$vmss_resized" != "" ]; then
+        if [ "$vmss_resized" != "" -a "$idx" != "-1" ]; then
             
             if [ "$install_script_type" != "jumpbox_script" ]; then
                 status "skipping step $step as it doesn't apply to $vmss_resized"
@@ -280,12 +281,26 @@ function run_install_scripts()
 
         if [ "$install_script_type" = "jumpbox_script" ]; then
 
-            ssh $ssh_args -i $ssh_private_key $admin_user@$fqdn $install_sh $run_tag
-            exit_code=$?
-            if [ "$exit_code" -ne "0" ]; then
-                echo "Error: ($exit_code) Errors while running $install_sh"
-                script_error=1
-                break
+            host_tag=$run_tag
+            if [ "$host_tag" = "" ]; then
+                if [ "$idx" = "-1" ]; then
+                    host_tag=../linux
+                else
+                    read_value host_tag ".install[$idx].tag"
+                fi
+            fi
+            nhosts=$(wc -l <$tmp_dir/hostlists/tags/$host_tag)
+            
+            if [ "$nhosts" = "0" ]; then
+                status "skipping step $step as hostlist is empty ($host_tag)"
+            else
+                ssh $ssh_args -i $ssh_private_key $admin_user@$fqdn $install_sh $run_tag
+                exit_code=$?
+                if [ "$exit_code" -ne "0" ]; then
+                    echo "Error: ($exit_code) Errors while running $install_sh"
+                    script_error=1
+                    break
+                fi
             fi
 
         elif [ "$install_script_type" = "local_script" ]; then
