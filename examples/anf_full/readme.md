@@ -25,7 +25,7 @@ azhpc-init -c $azhpc_dir/examples/anf_full -d anf_full -v location=westus2,resou
 > Config File Notes:
 - Pool name and volume name in the same subsciption and region need to be unique. If ANF fails to build, try changing the pool and volume name in the config file
 - Pool size must be between 4-500 in increments of 4. (Units:TiB)
-- Volume size must be between 100-100000 (Units: GiB)
+- Volume size must be between 1-100 (Units: TiB)
 
 Create the cluster 
 

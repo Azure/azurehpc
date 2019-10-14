@@ -1,9 +1,9 @@
 #!/bin/bash
 
+# parameters that can be overridden
+ABAQUS_INSTALLER_DIR=${ABAQUS_INSTALLER_DIR:-/mnt/resource}
 #NOTE!!!! Update the below details before running the script
-ABAQUS_INSTALL_STORAGEENDPOINT="<installer tar storage endpoint>"
-ABAQUS_INSTALL_SASKEY="<saskey>"
-LICENSE_SERVER="<license server ip>"
+LICENSE_SERVER="${LICENSE_SERVER_IP}"
 
 LICIP=27000@${LICENSE_SERVER}
 echo $LICIP
@@ -21,11 +21,11 @@ sudo chmod -R 777 /apps/abaqus
 #Get Abaqus bits
 echo "----- get Abaqus install bits -----"
 cd /apps/abaqus/INSTALLERS
-wget "${ABAQUS_INSTALL_STORAGEENDPOINT}/abaqus-2019/2019.AM_SIM_Abaqus_Extend.AllOS.1-5.tar?${ABAQUS_INSTALL_SASKEY}" -O -| tar -x 
-wget "${ABAQUS_INSTALL_STORAGEENDPOINT}/abaqus-2019/2019.AM_SIM_Abaqus_Extend.AllOS.2-5.tar?${ABAQUS_INSTALL_SASKEY}" -O -| tar -x 
-wget "${ABAQUS_INSTALL_STORAGEENDPOINT}/abaqus-2019/2019.AM_SIM_Abaqus_Extend.AllOS.3-5.tar?${ABAQUS_INSTALL_SASKEY}" -O -| tar -x 
-wget "${ABAQUS_INSTALL_STORAGEENDPOINT}/abaqus-2019/2019.AM_SIM_Abaqus_Extend.AllOS.4-5.tar?${ABAQUS_INSTALL_SASKEY}" -O -| tar -x 
-wget "${ABAQUS_INSTALL_STORAGEENDPOINT}/abaqus-2019/2019.AM_SIM_Abaqus_Extend.AllOS.5-5.tar?${ABAQUS_INSTALL_SASKEY}" -O -| tar -x 
+tar -xvf "${ABAQUS_INSTALLER_DIR}/2019.AM_SIM_Abaqus_Extend.AllOS.1-5.tar"  
+tar -xvf "${ABAQUS_INSTALLER_DIR}/2019.AM_SIM_Abaqus_Extend.AllOS.2-5.tar"  
+tar -xvf "${ABAQUS_INSTALLER_DIR}/2019.AM_SIM_Abaqus_Extend.AllOS.3-5.tar"  
+tar -xvf "${ABAQUS_INSTALLER_DIR}/2019.AM_SIM_Abaqus_Extend.AllOS.4-5.tar"  
+tar -xvf "${ABAQUS_INSTALLER_DIR}/2019.AM_SIM_Abaqus_Extend.AllOS.5-5.tar" 
 
 echo "----- install Abaqus solvers -----"
 cat << EOF |  ksh /apps/abaqus/INSTALLERS/AM_SIM_Abaqus_Extend.AllOS/3/SIMULIA_AbaqusServices/Linux64/1/StartTUI.sh

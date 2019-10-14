@@ -3,85 +3,50 @@
     "resource_group": "variables.resource_group",
     "install_from": "headnode",
     "admin_user": "hpcadmin",
-    "variables" : {
-        "image" : "OpenLogic:CentOS:7.6:latest",
+    "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
-        "location": "<NOT-SET>",
+        "location": "southcentralus",
         "resource_group": "<NOT-SET>",
-        "vnet_resource_group": "variables.resource_group",
-        "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
-        "win_password": "<NOT-SET>",
-        "apps_storage_account": "<NOT-SET>"
+        "vm_type": "Standard_HB60rs",
+        "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
         "name": "hpcvnet",
         "address_prefix": "10.2.0.0/20",
         "subnets": {
-            "admin": "10.2.1.0/24",
-            "viz": "10.2.2.0/24",
-            "compute": "10.2.4.0/22",
-            "storage": "10.2.8.0/22"
-        }
-    },
-    "storage": {
-        "hpcnetapp": {
-            "type": "anf",
-            "subnet": "storage",
-            "pools": {
-                "anfpool" : {
-                    "size": 4,
-                    "service_level": "Premium",
-                    "volumes": {
-                        "anfvol1" : {
-                            "size": 4,
-                            "mount": "/netapps"
-                        }
-                    }
-                }
-            }
+            "compute": "10.2.4.0/22"
         }
     },
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "Standard_D8s_v3",
+            "vm_type": "variables.vm_type",
             "public_ip": true,
-            "image": "variables.image",
+            "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
                 "cndefault",
+                "nfsserver",
                 "pbsserver",
                 "loginnode",
-                "disable-selinux",
-                "mount-anf",
-                "replace_nfs_with_anf",
-                "localuser"
+                "localuser",
+                "disable-selinux"
             ]
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HC44rs",
-            "instances": 2,
+            "vm_type": "variables.vm_type",
+            "low_priority": true,
+            "instances": 1,
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
+                "nfsclient",
                 "pbsclient",
                 "cndefault",
-                "disable-selinux",
-                "mount-anf",
-                "replace_nfs_with_anf",
-                "localuser"
-            ]
-        },
-        "nvnode": {
-            "type": "vm",
-            "public_ip": "true",
-            "password": "variables.win_password",
-            "vm_type": "Standard_NV6",
-            "image": "variables.nv_image",
-            "subnet": "viz",
-            "tags": [
+                "localuser",
+                "disable-selinux"
             ]
         }
     },
@@ -97,22 +62,22 @@
             "sudo": true
         },
         {
-            "script": "auto_netappfiles_mount.sh",
-            "tag": "mount-anf",
+            "script": "nfsserver.sh",
+            "tag": "nfsserver",
             "sudo": true
         },
         {
-            "script": "replace_nfs_with_anf.sh",
+            "script": "nfsclient.sh",
             "args": [
-                "/netapps"
+                "$(<hostlists/tags/nfsserver)"
             ],
-            "tag": "replace_nfs_with_anf",
+            "tag": "nfsclient",
             "sudo": true
         },
         {
             "script": "localuser.sh",
             "args": [
-                "$(<hostlists/tags/loginnode)"
+                "$(<hostlists/tags/nfsserver)"
             ],
             "tag": "localuser",
             "sudo": true
@@ -140,15 +105,11 @@
             ],
             "tag": "pbsclient",
             "sudo": false
+        },
+        {
+            "script": "dockersetup.sh",
+            "tag": "cndefault",
+            "sudo": true
         }
-    ],
-    "post_install": {
-        "script": "setup_win_rgs.sh",
-        "args": [
-            "variables.resource_group",
-            "nvnode",
-            "headnode",
-            "variables.apps_storage_account"
-        ]
-    }
+    ]
 }
