@@ -39,7 +39,6 @@
             "sudo": true,
             "tag": "singularity",
             "args": [
-                "variables.admin_user",
                 "variables.acr_repo",
                 "acrkey.{{variables.acr_repo}}"
             ]
