@@ -104,7 +104,6 @@
         {
             "script": "lfspkgs.sh",
             "tag": "lustre",
-            "reboot": true,
             "sudo": true
         },
         {
