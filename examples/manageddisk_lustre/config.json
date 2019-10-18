@@ -164,7 +164,6 @@
     {
       "script": "lfspkgs.sh",
       "tag": "lfspkgs",
-      "reboot": true,
       "sudo": true
     },
     {

@@ -3,12 +3,18 @@
 # arg: $1 = lfsserver
 master=$1
 
-yum install -y https://downloads.whamcloud.com/public/lustre/lustre-2.10.6/el7/client/RPMS/x86_64/kmod-lustre-client-2.10.6-1.el7.x86_64.rpm
-yum install -y https://downloads.whamcloud.com/public/lustre/lustre-2.10.6/el7/client/RPMS/x86_64/lustre-client-2.10.6-1.el7.x86_64.rpm
+cat << EOF >/etc/yum.repos.d/LustrePack.repo
+[lustreclient]
+name=lustreclient
+baseurl=https://downloads.whamcloud.com/public/lustre/latest-2.10-release/el7/client/
+enabled=1
+gpgcheck=0
+EOF
+
+yum install -y kmod-lustre-client lustre-client
 weak-modules --add-kernel $(uname -r)
 
 mkdir /lustre
-#mount -t lustre ${master}@tcp0:/LustreFS /lustre
 echo "${master}@tcp0:/LustreFS /lustre lustre defaults,_netdev 0 0" >> /etc/fstab
 mount -a
 chmod 777 /lustre
