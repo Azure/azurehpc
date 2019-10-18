@@ -1,6 +1,6 @@
 # Build a PBS compute cluster
 
-Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/simple_hpc_pbs_singulraity/config.json)
+Visualization: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/simple_hpc_pbs_singularity/config.json)
 
 This example will create an HPC cluster ready to run with PBS Pro and singularity.
 
