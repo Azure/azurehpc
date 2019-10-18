@@ -10,7 +10,7 @@
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
-        "vm_type": "Standard_HB60rs",
+        "vm_type": "Standard_D4s_v3",
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
