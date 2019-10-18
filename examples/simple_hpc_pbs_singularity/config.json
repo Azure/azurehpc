@@ -10,7 +10,8 @@
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
-        "vm_type": "Standard_D4s_v3",
+        "head_vm_type": "Standard_D4s_v3",
+        "vm_type": "Standard_H44rs",
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
@@ -24,7 +25,7 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "variables.vm_type",
+            "vm_type": "variables.head_vm_type",
             "public_ip": true,
             "image": "variables.hpc_image",
             "subnet": "compute",
