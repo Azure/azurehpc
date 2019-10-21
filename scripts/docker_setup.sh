@@ -6,7 +6,7 @@ USER=$3
 
 RELEASE=$(cat /etc/redhat-release | cut -d' ' -f4)
 
-yum --releasever=7.6.1810 -y install docker pssh
+yum --releasever=$RELEASE -y install docker pssh
 
 groupadd docker
 usermod -aG docker $USER
