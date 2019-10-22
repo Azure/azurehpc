@@ -107,7 +107,7 @@ OUTER_EOF
     fi
 
     # can run in parallel with pssh
-    echo "pssh -p $pssh_parallelism -t 0 -i -o $install_logdir -e $install_logdir -h hostlists/tags/\$tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> $log_file" >>$install_sh
+    echo "pssh -p $pssh_parallelism -t 0 -o $install_logdir -e $install_logdir -h hostlists/tags/\$tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> $log_file" >>$install_sh
 
     if [ "$install_reboot" = "true" ]; then
         cat <<EOF >> $install_sh
