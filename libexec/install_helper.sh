@@ -67,7 +67,7 @@ function create_jumpbox_script()
 
     install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
     log_file=install/$(printf %02d $step)_${install_script%.sh}.log
-    install_logdir="install/${install_sh%.sh}"
+    install_logdir=install/$(printf %02d $step)_${install_script%.sh}
     read_value install_tag ".install[$idx].tag"
 
 
