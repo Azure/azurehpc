@@ -67,8 +67,9 @@ function create_jumpbox_script()
 
     install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
     log_file=install/$(printf %02d $step)_${install_script%.sh}.log
-
+    install_logdir="install/${install_sh%.sh}"
     read_value install_tag ".install[$idx].tag"
+
 
 cat <<OUTER_EOF > $install_sh
 #!/bin/bash
@@ -77,7 +78,7 @@ set -e
 cd "\$( dirname "\${BASH_SOURCE[0]}" )/.."
 
 tag=\${1:-$install_tag}
-
+mkdir -p $install_logdir
 OUTER_EOF
 
     read_value install_reboot ".install[$idx].reboot" false
@@ -106,7 +107,7 @@ OUTER_EOF
     fi
 
     # can run in parallel with pssh
-    echo "pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/\$tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> $log_file 2>&1" >>$install_sh
+    echo "pssh -p $pssh_parallelism -t 0 -i -o $install_logdir -e $install_logdir -h hostlists/tags/\$tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> $log_file" >>$install_sh
 
     if [ "$install_reboot" = "true" ]; then
         cat <<EOF >> $install_sh
