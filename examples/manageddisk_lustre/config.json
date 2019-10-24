@@ -33,6 +33,7 @@
       "subnet": "compute",
       "tags": [
         "disable-selinux",
+        "lfsrepo",
         "lfsclient",
         "lfsazimport",
         "localuser",
@@ -50,6 +51,7 @@
       "subnet": "compute",
       "tags": [
         "disable-selinux",
+        "lfsrepo",
         "lfsclient",
         "localuser",
         "pbsclient",
@@ -68,6 +70,7 @@
       ],
       "tags": [
         "lfspkgs",
+        "lfsrepo",
         "lfsmaster",
         "disable-selinux",
         "lfsloganalytics"
@@ -91,6 +94,7 @@
       ],
       "tags": [
         "lfspkgs",
+        "lfsrepo",
         "lfsoss",
         "disable-selinux",
         "lfsloganalytics"
@@ -105,6 +109,7 @@
       "subnet": "storage",
       "tags": [
         "lfspkgs",
+        "lfsrepo",
         "lfshsm",
         "disable-selinux"
       ]
@@ -118,6 +123,7 @@
       "subnet": "storage",
       "tags": [
         "lfspkgs",
+        "lfsrepo",
         "lfsclient",
         "lfssmb",
         "disable-selinux",
@@ -159,6 +165,11 @@
 	"/dev/sd[c-l]"
       ],
       "tag": "lfsoss",
+      "sudo": true
+    },
+    {
+      "script": "lfsrepo.sh",
+      "tag": "lfsrepo",
       "sudo": true
     },
     {
