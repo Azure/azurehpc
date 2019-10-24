@@ -24,10 +24,11 @@ function create_jumpbox_setup_script()
 # expecting to be in $tmp_dir
 cd "\$( dirname "\${BASH_SOURCE[0]}" )/.."
 
-tag=\${1:-linux}
+tag=linux
 
-if [ -z "\$1" ]; then
-
+if [ "\$1" != "" ]; then
+    tag=tags/\$1
+else
     sudo yum install -y epel-release > $log_file 2>&1
     sudo yum install -y pssh nc >> $log_file 2>&1
 
@@ -226,7 +227,7 @@ function run_install_scripts()
     local vmss_resized="$8"
 
     local run_tag=
-    if [ "$vmss_resize" != "" ]; then
+    if [ "$vmss_resized" != "" ]; then
         run_tag=$vmss_resized.added
     fi
 
