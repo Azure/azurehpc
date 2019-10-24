@@ -28,6 +28,7 @@
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
+                "lfsrepo",
                 "lfsclient",
                 "lfsazimport",
                 "localuser",
@@ -45,6 +46,7 @@
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
+                "lfsrepo",
                 "lfsclient",
                 "localuser",
                 "pbsclient",
@@ -61,6 +63,7 @@
             "subnet": "storage",
             "tags": [
                 "lustre",
+                "lfsrepo",
                 "disable-selinux"
             ]
         }
@@ -99,6 +102,11 @@
                 "/dev/nvme*n1"
             ],
             "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfsrepo.sh",
+            "tag": "lfsrepo",
             "sudo": true
         },
         {
