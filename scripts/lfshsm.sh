@@ -10,7 +10,7 @@ storage_key=$3
 storage_container=$4
 
 # adding kernel module for lustre client
-yum install -y https://downloads.whamcloud.com/public/lustre/lustre-2.10.6/el7/client/RPMS/x86_64/kmod-lustre-client-2.10.6-1.el7.x86_64.rpm
+yum install -y kmod-lustre-client
 weak-modules --add-kernel $(uname -r)
 
 yum install -y \
