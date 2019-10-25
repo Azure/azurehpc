@@ -326,7 +326,7 @@ function run_install_scripts()
     done
 
     if [ "$is_jumpbox_required" = "1" ]; then
-        rsync -a -e "ssh $ssh_args -i $ssh_private_key" $admin_user@$fqdn:$tmp_dir/install/*.log $tmp_dir/install/.
+        rsync -r -a -e "ssh $ssh_args -i $ssh_private_key" $admin_user@$fqdn:$tmp_dir/install/ $tmp_dir/install/.
     fi
 
     if [ "$script_error" -ne "0" ]; then
