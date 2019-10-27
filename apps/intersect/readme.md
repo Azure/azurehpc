@@ -61,7 +61,7 @@ To see if the job is running do
 qstat -aw
 ````
 
-## Install and run nwchem Benchmarks using [Azure CycleCloud](https://docs.microsoft.com/en-us/azure/cyclecloud/) Cluster
+## Install and run intersect Benchmarks using [Azure CycleCloud](https://docs.microsoft.com/en-us/azure/cyclecloud/) Cluster
 
 ## Prerequisites
 
@@ -79,7 +79,7 @@ Log in to the headnode of the cluster (from cycleserver):
 
 You will need to copy the apps/intersect folder to the cyclecloud master.
 
-Run the following to install nwchem on the cluster (in /scratch):
+Run the following to install ntersect on the cluster (in /scratch):
 
 export APP_INSTALL_DIR=/scratch
 ```
