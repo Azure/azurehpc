@@ -4,19 +4,21 @@ set -o pipefail
 
 APP_NAME=intersect
 APP_VERSION=2018.2
-SHARED_APP=/apps
-SHARED_DATA=/data
-ECLPATH=$SHARED_APP/ecl
+case=${case:-BO_192_192_28}
+APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
+DATA_INSTALL_DIR=${DATA_INSTALL_DIR:-/scratch}
+ECLPATH=$APP_INSTALL_DIR/ecl
 #NOTE!! this path will depend on the dataset tar structure. the tar we used had case files under data e.g. data/BO_192_192_28 
-CASEPATH=data/${case}
-source /etc/profile # so we can load modules
-module use $SHARED_APP/modulefiles
+CASEPATH=${PBS_O_WORKDIR}/${case}
+export MODULEPATH=${APP_INSTALL_DIR}/modulefiles:$MODULEPATH
+module use $APP_INSTALL_DIR/modulefiles
 module load intersect_${APP_VERSION}
 source ${ECLPATH}/tools/linux_x86_64/intel/mpi/2018.1.163/intel64/bin/mpivars.sh
 
 cores=`cat $PBS_NODEFILE | wc -l`
 
-cp $SHARED_DATA/${case}.tgz .
+cd $PBS_O_WORKDIR
+cp $DATA_INSTALL_DIR/${case}.tgz .
 tar xvf ${case}.tgz
 #
 start_time=$SECONDS
@@ -30,8 +32,6 @@ end_time=$SECONDS
 eclrun_time=$(($end_time - $start_time))
 
 case_output=$CASEPATH/${case}.LOG
-
-cp -r $CASEPATH $SHARED_DATA
 
 # extract telemetry
 if [ -f "${case_output}" ]; then
