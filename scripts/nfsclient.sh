@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 # arg: $1 = nfsserver
 nfs_server=$1
 if [ -z "$nfs_server" ]; then
