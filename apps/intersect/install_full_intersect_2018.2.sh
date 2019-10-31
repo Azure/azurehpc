@@ -25,7 +25,7 @@ cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 #
 prepend-path            PATH                   ${APP_INSTALL_DIR}/${APP_NAME}/tools/linux_x86_64/eclpython/bin
 prepend-path            PATH                   ${APP_INSTALL_DIR}/${APP_NAME}/macros
-setenv                  LM_LICENSE_FILE        ${LICENSE_PORT_IP}
+setenv                  LM_LICENSE_FILE        ${IX_LICENSE_PORT_IP}
 setenv                  F_UFMTENDIAN           big
 EOF
 }
