@@ -11,10 +11,10 @@ PACKAGE2=${APP_VERSION}_DVD.iso
 MODULE_DIR=${APP_INSTALL_DIR}/modulefiles
 MODULE_NAME=intersect_${APP_VERSION}
 
-#NOTE!!! Populate these variables before running the script
-LICENSE_PORT_IP=<PORT@IP for license server>
-IX_ISO_SAS_URL=/path/to/2018.2_IX_DVD.iso
-ECLIPSE_ISO_SAS_URL=/path/to/2018.2_DVD.iso
+#NOTE!!! Set these environmental variables before running the script
+#IX_LICENSE_PORT_IP=<PORT@IP for license server>
+#IX_ISO_SAS_URL=/path/to/2018.2_IX_DVD.iso
+#ECLIPSE_ISO_SAS_URL=/path/to/2018.2_DVD.iso
 
 function create_intersect_modulefile {
 mkdir -p ${MODULE_DIR}
