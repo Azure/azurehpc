@@ -3,7 +3,7 @@
 VPN_CLIENT_LIC_TAR_SAS_URL=$1
 VPN_CLIENT_CONF=$2
 
-if [[ $VPN_CLIENT_LIC_SAS_URL =~ .*\/(.+)\? ]]; then
+if [[ $VPN_CLIENT_LIC_TAR_SAS_URL =~ .*\/(.+)\? ]]; then
    VPN_CLIENT_LIC_TAR=${BASH_REMATCH[1]}
    echo $VPN_CLIENT_LIC_TAR
 fi 
@@ -11,7 +11,7 @@ fi
 yum install -y openvpn
 
 pushd /tmp
-wget -O $VPN_CLIENT_LIC_TAR "${VPN_CLIENT_LIC_SAS_URL}"
+wget -O $VPN_CLIENT_LIC_TAR "${VPN_CLIENT_LIC_TAR_SAS_URL}"
 mkdir /tmp/lic
 pushd lic
 tar xvf ../$VPN_CLIENT_LIC_TAR
