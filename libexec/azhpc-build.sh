@@ -435,6 +435,7 @@ done
 for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
     status "waiting for $resource_name to be created"
     read_value resource_type ".resources.$resource_name.type"
+    az deployment list
     az $resource_type wait \
         --resource-group $resource_group \
         --name $resource_name \
