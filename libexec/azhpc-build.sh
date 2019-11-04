@@ -445,8 +445,9 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
         az group deployment list \
             --resource-group $resource_group \
             --filter "provisioningState eq 'Failed'" \
-            --query "[].properties.error.details.message"
-        error "Failed waiting to create resource"
+            --query "[].properties.error.details[0].message" \
+            --output tsv
+        error "Error to create resource $resource_name in $resource_group"
     fi
 
 done
