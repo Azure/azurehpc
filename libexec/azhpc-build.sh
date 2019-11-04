@@ -241,7 +241,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             else
                 resource_credential=(--admin-password "$resource_password")
             fi
-            lowpri_option=
+            lowpri_option="--priority Regular"
             if [ "$resource_lowpri" = "true" ]; then
                 lowpri_option="--priority Low"
             fi
