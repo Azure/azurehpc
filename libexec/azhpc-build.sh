@@ -440,7 +440,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
         --resource-group $resource_group \
         --name $resource_name \
         --created \
-        --output table
+        --output table 2>/dev/null
     if [ "$?" -ne "0" ]; then
         az group deployment list \
             --resource-group $resource_group \
@@ -450,6 +450,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
         error "Error to create resource $resource_name in $resource_group"
     fi
 
+    status "$resource_name created"
 done
 
 # setting up a route
