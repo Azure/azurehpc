@@ -243,7 +243,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             fi
             lowpri_option="--priority Regular"
             if [ "$resource_lowpri" = "true" ]; then
-                lowpri_option="--priority Low"
+                lowpri_option="--priority Low --max-billing -1"
             fi
 
             az vmss create \
