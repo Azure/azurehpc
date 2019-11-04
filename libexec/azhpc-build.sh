@@ -435,14 +435,17 @@ done
 for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
     status "waiting for $resource_name to be created"
     read_value resource_type ".resources.$resource_name.type"
-    az group deployment list --resource-group $resource_group
-    
+
     az $resource_type wait \
         --resource-group $resource_group \
         --name $resource_name \
         --created \
         --output table
     if [ "$?" -ne "0" ]; then
+        az group deployment list \
+            --resource-group $resource_group \
+            --filter "provisioningState eq 'Failed'" \
+            --query "[].properties.error.details.message"
         error "Failed waiting to create resource"
     fi
 
