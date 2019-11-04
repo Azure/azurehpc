@@ -440,6 +440,10 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
         --name $resource_name \
         --created \
         --output table
+    if [ "$?" -ne "0" ]; then
+        error "Failed waiting to create resource"
+    fi
+
 done
 
 # setting up a route
