@@ -27,10 +27,6 @@ else
     # Check if we need to create a new SPN
     # If the SPN doesn't exists, create one and store the password in KeyVault. Secret name is the SPN app Name
     spn=$(az ad sp show --id http://$spn_appname --query "[appId,appOwnerTenantId]" -o tsv)
-    if [ "$?" -ne "0" ]; then
-        echo "Error : Unable to list SPN"
-        exit 1
-    fi
 
     if [ "$spn" == "" ]; then
         echo "Generate a new SPN"
