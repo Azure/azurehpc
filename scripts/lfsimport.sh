@@ -3,9 +3,11 @@
 # arg: $1 = storage account
 # arg: $2 = storage key
 # arg: $3 = storage container
+# arg: $3 = lfs mount
 storage_account=$1
 storage_key=$2
 storage_container=$3
+lfs_mount=${4:-/lustre}
 
 yum install -y \
     https://github.com/whamcloud/lemur/releases/download/0.5.2/lhsm-0.5.2-1.x86_64.rpm
@@ -20,7 +22,7 @@ go build github.com/edwardsp/lemur/cmd/azure-import
 mkdir -p /usr/local/bin
 cp azure-import /usr/local/bin/.
 
-cd /lustre
+cd $lfs_mount
 export STORAGE_ACCOUNT=$storage_account
 export STORAGE_KEY=$storage_key
 /usr/local/bin/azure-import ${storage_container}

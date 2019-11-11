@@ -35,8 +35,6 @@ mkdir -p /etc/lhsmd
 chmod 755 /etc/lhsmd
 
 cat <<EOF >/etc/lhsmd/agent
-mount_root="/mnt/lustre"
-
 # Lustre NID and filesystem name for the front end filesystem, the agent will mount this
 client_device="${master}@tcp:/LustreFS"
 
@@ -57,7 +55,6 @@ EOF
 chmod 600 /etc/lhsmd/agent
 
 cat <<EOF >/etc/lhsmd/lhsm-plugin-az
-region = "westeurope"
 az_storage_account = "$storage_account"
 az_storage_key = "$storage_key"
 
