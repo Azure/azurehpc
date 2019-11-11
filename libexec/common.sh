@@ -104,8 +104,8 @@ function process_value {
     elif [ "$prefix" = "sakey" ]; then
         local sakey_str=${!1#*.}
         local storage_name=${sakey_str%.*}
-        debug "getting storage key for $storage_name in $resource_group"
-        local storage_key=$(az storage account keys list -g $resource_group -n $storage_name --query "[0].value" | sed 's/\"//g')
+        debug "getting storage key for $storage_name"
+        local storage_key=$(az storage account keys list -n $storage_name --query "[0].value" | sed 's/\"//g')
         read $1 <<< "$storage_key"
     elif [ "$prefix" = "acrkey" ]; then
         local acrkey_str=${!1#*.}
