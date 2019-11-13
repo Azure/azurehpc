@@ -306,7 +306,6 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 lowpri_option="--priority Low"
             fi
 
-#                --platform-fault-domain-count 0 \
             az vmss create \
                 --resource-group $resource_group \
                 --name $resource_name \
