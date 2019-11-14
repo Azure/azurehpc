@@ -4,7 +4,7 @@ source "$azhpc_dir/libexec/common.sh"
 
 config_file="config.json"
 
-DEBUG_ON=0
+DEBUG_ON=1
 COLOR_ON=1
 
 function usage() {
@@ -104,10 +104,10 @@ fi
 status "logging in to $target (via $fqdn)"
 
 vm_os=$(az vm show \
-        --resource-group $resource_group \
-        --name $resource_name \
+    --resource-group $resource_group \
+    --name $resource_name \
 	--query storageProfile.osDisk.osType \
-	--output tsv)
+	--output tsv 2>/dev/null)
 
 if [ "$vm_os" == "Windows" ]; then
     winfqdn=$(az network public-ip show \
