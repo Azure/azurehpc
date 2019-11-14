@@ -4,7 +4,7 @@ source "$azhpc_dir/libexec/common.sh"
 
 config_file="config.json"
 
-DEBUG_ON=1
+DEBUG_ON=0
 COLOR_ON=1
 
 function usage() {
