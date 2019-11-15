@@ -63,6 +63,9 @@ read_value vnet_name ".vnet.name"
 read_value address_prefix ".vnet.address_prefix"
 read_value admin_user ".admin_user"
 read_value install_node ".install_from"
+if [ ! $(jq -r ".ppg_name" $config_file) = "null" ]; then
+  read_value ppg_name ".ppg_name"
+fi
 
 #tmp_dir=build_$(date +%Y%m%d-%H%M%S)
 config_file_no_path=${config_file##*/}
@@ -85,6 +88,16 @@ az group create \
     --location $location \
     --tags 'CreatedBy='$USER'' 'CreatedOn='$(date +%Y%m%d-%H%M%S)'' \
     --output table
+
+if [ -n "$ppg_name" ]; then
+   status "creating proximity placement group"
+   az ppg show -n $ppg_name -g $resource_group --output table 2>/dev/null
+   if [ "$?" = "0" ]; then
+      status "proximity placement group already exists"
+   else
+      az ppg create -n $ppg_name -g $resource_group -l $location -t standard --output table
+   fi
+fi
 
 status "creating network"
 read_value vnet_resource_group ".vnet.resource_group" $resource_group
@@ -205,6 +218,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_vm_type ".resources.$resource_name.vm_type"
             read_value resource_image ".resources.$resource_name.image"
             read_value resource_pip ".resources.$resource_name.public_ip" false
+            read_value ppg ".resources.$resource_name.ppg" false
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
@@ -214,7 +228,10 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             if [ "$resource_pip" = "true" ]; then
                 public_ip_address="${resource_name}pip"
             fi
-
+            ppg_option=
+            if [ "$ppg" = "true" ]; then
+               ppg_option="--ppg $ppg_name"
+            fi
             data_disks_options=
             if [ "$resource_disk_count" -gt 0 ]; then
                 data_cache="ReadWrite"
@@ -250,6 +267,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --public-ip-address "$public_ip_address" \
                 --public-ip-address-dns-name $resource_name$uuid_str \
                 $data_disks_options \
+                $ppg_option \
                 --no-wait
             
             if [ "$?" -ne "0" ]; then
@@ -274,9 +292,11 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
+            read_value ppg ".resources.$resource_name.ppg" false
             read_value resource_instances ".resources.$resource_name.instances"
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
+
 
             resource_storage_sku=StandardSSD_LRS
             data_disks_options=
@@ -303,6 +323,10 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             if [ "$resource_lowpri" = "true" ]; then
                 lowpri_option="--priority Low"
             fi
+            ppg_option=
+            if [ "$ppg" = "true" ]; then
+               ppg_option="--ppg $ppg_name"
+            fi
 
             az vmss create \
                 --resource-group $resource_group \
@@ -318,6 +342,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --instance-count $resource_instances \
                 $data_disks_options \
                 $lowpri_option \
+                $ppg_option \
                 --no-wait
             
             if [ "$?" -ne "0" ]; then
