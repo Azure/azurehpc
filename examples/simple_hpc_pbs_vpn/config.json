@@ -11,7 +11,7 @@
         "compute_vm_type": "Standard_HC44rs",
         "compute_instances": 2,
         "vnet_resource_group": "variables.resource_group",
-        "vpn_client_lic_tar_sas_url": "<NOT-SET>",
+        "vpn_client_lic_tar_sas_url": "sasurl.[account].[container]/data/slb_vpn_lic/vpn_client_lic.tar",
         "vpn_client_conf": "<NOT-SET>",
         "vpn_address_prefix": "<NOT-SET>"
     },
