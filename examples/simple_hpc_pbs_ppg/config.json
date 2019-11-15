@@ -3,7 +3,7 @@
     "resource_group": "variables.resource_group",
     "install_from": "headnode",
     "admin_user": "hpcadmin",
-    "ppg_name": "variables.ppg_name",
+    "proximity_placement_group_name": "variables.proximity_placement_group_name",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "location": "southcentralus",
@@ -12,7 +12,7 @@
         "vm_type": "Standard_D8s_v3",
         "compute_instances": 2,
         "vnet_resource_group": "variables.resource_group",
-        "ppg_name": "<NOT-SET>"
+        "proximity_placement_group_name": "<NOT-SET>"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -27,7 +27,7 @@
             "type": "vm",
             "vm_type": "variables.vm_type",
             "public_ip": true,
-            "ppg": true,
+            "proximity_placement_group": true,
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
@@ -45,7 +45,7 @@
             "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
-            "ppg": true,
+            "proximity_placement_group": true,
             "tags": [
                 "nfsclient",
                 "pbsclient",
