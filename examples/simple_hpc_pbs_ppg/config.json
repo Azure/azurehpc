@@ -8,7 +8,8 @@
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
-        "vm_type": "Standard_HB60rs",
+        "compute_vm_type": "Standard_HB60rs",
+        "vm_type": "Standard_D8s_v3",
         "compute_instances": 2,
         "vnet_resource_group": "variables.resource_group",
         "ppg_name": "<NOT-SET>"
@@ -40,7 +41,7 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "variables.vm_type",
+            "vm_type": "variables.compute_vm_type",
             "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
