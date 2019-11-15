@@ -104,10 +104,10 @@ fi
 status "logging in to $target (via $fqdn)"
 
 vm_os=$(az vm show \
-        --resource-group $resource_group \
-        --name $resource_name \
+    --resource-group $resource_group \
+    --name $resource_name \
 	--query storageProfile.osDisk.osType \
-	--output tsv)
+	--output tsv 2>/dev/null)
 
 if [ "$vm_os" == "Windows" ]; then
     winfqdn=$(az network public-ip show \

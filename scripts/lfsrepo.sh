@@ -19,3 +19,4 @@ baseurl=https://downloads.whamcloud.com/public/lustre/latest-2.10-release/el7/cl
 enabled=1
 gpgcheck=0
 EOF
+
