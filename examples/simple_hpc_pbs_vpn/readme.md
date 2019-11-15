@@ -15,13 +15,14 @@ azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_vpn -d simple_hpc_pbs_vpn -s
 The variables can be set with the `-v` option where variables are comma separated.  The output from the previous command as a starting point.  The `-d` option is required and will create a new directory name for you.  Please update to whatever `resource_group` you would like to deploy to:
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_vpn -d simple_hpc_pbs_vpn -v resource_group=azurehpc-cluster,vpn_client_lic_tar_sas_url="https://test.blob.core.windows.net/data/vpn_client_lic.tar?sp=rl&st=2017-10-30T21:35:44Z&se=2017-10-31T21:35:4Z&sv=2017-02-02&sr=b&sig=hR8VJeo8JmakqRklLpqT%2Bc1ORHfgZ90rc%3D",vpn_client_conf=cloud-license-server,vpn_address_prefix=172.10.0.0/16
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_vpn -d simple_hpc_pbs_vpn -v resource_group=azurehpc-cluster,vpn_client_conf=cloud-license-server,vpn_address_prefix=172.10.0.0/16
 ```
+Remember to edit the config.json file and replace [account] and [container], with the storage account name, container and path to the vpn_client_lic.tar (which contains the vpn client keys and certificates).
 
 > Note:  You can still update variables even if they are already set.  For example, in the command below we change the region to `westus2` and the SKU to `Standard_HC44rs`:
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs_vpn -v location=westus2,vm_type=Standard_HC44rs,resource_group=azhpc-cluster,vpn_client_lic_tar_sas_url="https://lfswe.blob.core.windows.net/data/vpn_client_lic.tar?sp=rl&st=2017-10-30T21:35:44Z&se=2017-10-31T21:35:4Z&sv=2017-02-02&sr=b&sig=hR8VJeo8JmakqRklLpqT%2Bc1ORHfgZ90rc%3D",vpn_client_conf=cloud-license-server,vpn_address_prefix=172.10.0.0/16
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs_vpn -v location=westus2,vm_type=Standard_HC44rs,resource_group=azhpc-cluster,vpn_client_conf=cloud-license-server,vpn_address_prefix=172.10.0.0/16
 ```
 
 ## Create the cluster 
