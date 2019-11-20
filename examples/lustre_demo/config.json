@@ -16,7 +16,9 @@
         "image": "OpenLogic:CentOS:7.6:latest",
         "storage_account": "<NOT-SET>",
         "storage_key": "<NOT-SET>",
-        "storage_container": "<NOT-SET>"
+        "storage_container": "<NOT-SET>",
+        "lustre_version": "2.10",
+        "lustre_mount": "/lustre"
     },
     "resources": {
         "headnode": {
@@ -126,6 +128,9 @@
         {
             "script": "lfsrepo.sh",
             "tag": "lfsrepo",
+            "args": [
+                "variables.lustre_version"
+            ],
             "sudo": true
         },
         {
@@ -156,7 +161,8 @@
                 "$(<hostlists/tags/lfsmaster)",
                 "variables.storage_account",
                 "variables.storage_key",
-                "variables.storage_container"
+                "variables.storage_container",
+                "variables.lustre_version"
             ],
             "tag": "lfshsm",
             "sudo": true
@@ -164,7 +170,8 @@
         {
             "script": "lfsclient.sh",
             "args": [
-                "$(<hostlists/tags/lfsmaster)"
+                "$(<hostlists/tags/lfsmaster)",
+                "variables.lustre_mount"
             ],
             "tag": "lfsclient",
             "sudo": true
@@ -174,7 +181,9 @@
             "args": [
                 "variables.storage_account",
                 "variables.storage_key",
-                "variables.storage_container"
+                "variables.storage_container",
+                "variables.lustre_mount",
+                "variables.lustre_version"
             ],
             "tag": "lfsazimport",
             "sudo": true
