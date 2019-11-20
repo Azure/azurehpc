@@ -12,8 +12,10 @@ storage_container=$4
 lustre_version=${5-2.10}
 
 # adding kernel module for lustre client
-yum install -y kmod-lustre-client
-weak-modules --add-kernel $(uname -r)
+if [ "$lustre_version" = "2.10" ]; then
+    yum install -y kmod-lustre-client
+    weak-modules --add-kernel $(uname -r)
+fi
 
 yum -y install \
     https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0-lustre_${lustre_version}.x86_64.rpm \
