@@ -11,6 +11,12 @@ if [ "$PSSH_NODENUM" = "0" ]; then
     echo "$device /mnt/mgsmds lustre noatime,nodiratime,nobarrier 0 2" >> /etc/fstab
     mount -a
 
+    sleep 10
+    umount /mnt/mgsmds
+    tunefs.lustre --mountfsoptions="user_xattr,errors=remount-ro" $device
+    mount -a
+
+
     # set up hsm
     lctl set_param -P mdt.*-MDT0000.hsm_control=enabled
     lctl set_param -P mdt.*-MDT0000.hsm.default_archive_id=1

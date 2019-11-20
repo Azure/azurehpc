@@ -18,3 +18,8 @@ mkfs.lustre \
 mkdir /mnt/oss
 echo "$device /mnt/oss lustre noatime,nodiratime,nobarrier 0 2" >> /etc/fstab
 mount -a
+
+sleep 10
+umount /mnt/oss
+tunefs.lustre --mountfsoptions="errors=remount-ro" $device
+mount -a
