@@ -1,0 +1,26 @@
+#!/bin/bash
+FILESYSTEM=$1
+SHARED_APP=${2:-/apps}
+CORES=$3
+PPN=$4
+
+source /etc/profile # so we can load modules
+
+export MODULEPATH=${SHARED_APP}/modulefiles:$MODULEPATH
+module load ior
+module load mpi/impi
+export I_MPI_DEBUG=5
+export I_MPI_FABRICS=shm:tcp
+
+#printenv | grep LSB_
+
+# Throughput test (N-N)
+mpirun -hostfile $LSB_DJOB_HOSTFILE -ppn $PPN -np $CORES $mpi_options ior -a POSIX -v -z -i 3 -m -d 1 -B -e -F -r -w -t 32m -b 4G -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S")
+
+#sleep 2
+# Throughput test (N-1)
+mpirun -hostfile $LSB_DJOB_HOSTFILE -ppn $PPN -np $CORES $mpi_options ior -a POSIX -v -z -i 3 -m -d 1 -B -e -r -w -t 32m -b 4G -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S")
+
+#sleep 2
+# IOPS test
+mpirun -hostfile $LSB_DJOB_HOSTFILE -ppn $PPN -np $CORES $mpi_options ior -a POSIX -v -z -i 3 -m -d 1 -B -e -F -r -w -t 4k -b 128M -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S")

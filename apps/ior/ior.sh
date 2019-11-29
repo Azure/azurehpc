@@ -5,7 +5,8 @@ SHARED_APP=${2:-/apps}
 source /etc/profile # so we can load modules
 
 export MODULEPATH=${SHARED_APP}/modulefiles:$MODULEPATH
-module load gcc-8.2.0
+# GCC 8 is no longer provided with CentOS-HPC 7.7 image, it is now 9.2, but is this really needed ?
+#module load gcc-8.2.0
 module load ior
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')

@@ -42,9 +42,9 @@ For PBS:
 qsub -l select=2:ncpus=60:mpiprocs=15 /apps/azurehpc/apps/ior/ior.sh <DIR>
 ```
 
-For LSF on a single node :
+For LSF on 2 nodes, using 8 process per node :
 ```
-bsub -q <queue> -o %J.log -e %J.err "bash /apps/azurehpc/apps/ior/ior.sh <DIR>"
+bsub -q <queue> -R "span[ptile=8]" -n 16 -o %J.log -e %J.err "bash /apps/azurehpc/apps/ior/ior.sh <DIR>"
 ```
 
 > Note: this will run on 2 node and 15 processes per node.
