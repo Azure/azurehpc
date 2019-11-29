@@ -15,7 +15,7 @@ Dependencies for binary version:
 
 First upload the install packages and cases in your favourite blob storage account.
 
-> NOTE: Update the `INSTALL_TAR`, `TAR_SAS_URL`, `LICENSE_PORT_IP` and `APP_VERSION` in **$azhpc_dir/apps/prolb/install_prolb.sh**
+> NOTE: Provide the `INSTALL_TAR`, `TAR_SAS_URL`, `LICENSE_PORT_IP` and `APP_VERSION` as parameters to the **$azhpc_dir/apps/prolb/install_prolb.sh**
 
 Then copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
 
