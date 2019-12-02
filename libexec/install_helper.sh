@@ -15,8 +15,8 @@ function create_jumpbox_setup_script()
     local ssh_public_key="$2"
     local ssh_private_key="$3"
 
-    install_sh=$tmp_dir/install/00_install_node_setup.sh
-    log_file=install/00_install_node_setup.log
+    local install_sh=$tmp_dir/install/00_install_node_setup.sh
+    local log_file=install/00_install_node_setup.log
 
     cat <<OUTER_EOF > $install_sh
 #!/bin/bash
@@ -24,10 +24,11 @@ function create_jumpbox_setup_script()
 # expecting to be in $tmp_dir
 cd "\$( dirname "\${BASH_SOURCE[0]}" )/.."
 
-tag=\${1:-linux}
+tag=linux
 
-if [ -z "\$1" ]; then
-
+if [ "\$1" != "" ]; then
+    tag=tags/\$1
+else
     sudo yum install -y epel-release > $log_file 2>&1
     sudo yum install -y pssh nc >> $log_file 2>&1
 
@@ -62,11 +63,11 @@ function create_jumpbox_script()
     local tmp_dir=$2
     local step=$3
 
-    idx=$(($step - 1))
+    local idx=$(($step - 1))
     read_value install_script ".install[$idx].script"
 
-    install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
-    log_file=install/$(printf %02d $step)_${install_script%.sh}.log
+    local install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
+    local log_file=install/$(printf %02d $step)_${install_script%.sh}.log
 
     read_value install_tag ".install[$idx].tag"
 
@@ -82,10 +83,10 @@ OUTER_EOF
 
     read_value install_reboot ".install[$idx].reboot" false
     read_value install_sudo ".install[$idx].sudo" false
-    install_nfiles=$(jq -r ".install[$idx].copy | length" $config_file)
+    local install_nfiles=$(jq -r ".install[$idx].copy | length" $config_file)
 
-    install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
-    install_command_line=$install_script
+    local install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
+    local install_command_line=$install_script
     if [ "$install_script_arg_count" -ne "0" ]; then
         for n in $(seq 0 $((install_script_arg_count - 1))); do
             read_value arg ".install[$idx].args[$n]"
@@ -100,7 +101,7 @@ OUTER_EOF
         done
     fi
 
-    sudo_prefix=
+    local sudo_prefix=
     if [ "$install_sudo" = "true" ]; then
         sudo_prefix=sudo
     fi
@@ -129,11 +130,11 @@ function create_local_script()
     local tmp_dir=$2
     local step=$3
 
-    idx=$(($step - 1))
+    local idx=$(($step - 1))
     read_value install_script ".install[$idx].script"
 
-    install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
-    log_file=install/$(printf %02d $step)_${install_script%.sh}.log
+    local install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
+    local log_file=install/$(printf %02d $step)_${install_script%.sh}.log
 
     cat <<OUTER_EOF > $install_sh
 #!/bin/bash
@@ -143,8 +144,8 @@ cd "\$( dirname "\${BASH_SOURCE[0]}" )/.."
 
 OUTER_EOF
 
-    install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
-    install_command_line=$install_script
+    local install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
+    local install_command_line=$install_script
     if [ "$install_script_arg_count" -ne "0" ]; then
         for n in $(seq 0 $((install_script_arg_count - 1))); do
             read_value arg ".install[$idx].args[$n]"
@@ -208,6 +209,7 @@ function create_install_scripts()
     cp -r $local_script_dir/* $tmp_dir/scripts/. 2>/dev/null
     
     if [ "$is_jumpbox_required" = "1" ]; then
+        echo "rsync $tmp_dir to $fqdn"
         rsync -a -e "ssh $ssh_args -i $ssh_private_key" $tmp_dir $admin_user@$fqdn:.
     fi
 
@@ -226,7 +228,7 @@ function run_install_scripts()
     local vmss_resized="$8"
 
     local run_tag=
-    if [ "$vmss_resize" != "" ]; then
+    if [ "$vmss_resized" != "" ]; then
         run_tag=$vmss_resized.added
     fi
 
@@ -240,6 +242,7 @@ function run_install_scripts()
         fi
     done
 
+    local script_error=0
     for step in $(seq 0 $nsteps); do
 
         # skip jumpbox setup if no jumpbox scripts are required
@@ -247,16 +250,17 @@ function run_install_scripts()
             continue
         fi
 
+        idx=$(($step - 1))
+
         if [ "$step" = "0" ]; then
             install_script=install_node_setup.sh
             install_script_type=jumpbox_script
         else
-            idx=$(($step - 1))
             read_value install_script ".install[$idx].script"
             read_value install_script_type ".install[$idx].type" jumpbox_script
         fi
 
-        if [ "$vmss_resized" != "" ]; then
+        if [ "$vmss_resized" != "" -a "$idx" != "-1" ]; then
             
             if [ "$install_script_type" != "jumpbox_script" ]; then
                 status "skipping step $step as it doesn't apply to $vmss_resized"
@@ -271,34 +275,63 @@ function run_install_scripts()
             fi
 
         fi
-               
+
         install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
 
         echo "Step $step : $install_script ($install_script_type)"
         start_time=$SECONDS
 
         if [ "$install_script_type" = "jumpbox_script" ]; then
-        
-            ssh $ssh_args -i $ssh_private_key $admin_user@$fqdn $install_sh $run_tag
+
+            host_tag=$run_tag
+            if [ "$host_tag" = "" ]; then
+                if [ "$idx" = "-1" ]; then
+                    host_tag=../linux
+                else
+                    read_value host_tag ".install[$idx].tag"
+                fi
+            fi
+            nhosts=$(wc -l <$tmp_dir/hostlists/tags/$host_tag)
+            
+            if [ "$nhosts" = "0" ]; then
+                status "skipping step $step as hostlist is empty ($host_tag)"
+            else
+                ssh $ssh_args -i $ssh_private_key $admin_user@$fqdn $install_sh $run_tag
+                exit_code=$?
+                if [ "$exit_code" -ne "0" ]; then
+                    echo "Error: ($exit_code) Errors while running $install_sh"
+                    script_error=1
+                    break
+                fi
+            fi
 
         elif [ "$install_script_type" = "local_script" ]; then
-            
+
             $install_sh
+            exit_code=$?
+            if [ "$exit_code" -ne "0" ]; then
+                echo "Error: ($exit_code) Errors while running $install_sh"
+                script_error=1
+                break
+            fi
 
         else
-        
+
             echo "Error: unrecognised script type - $install_script_type"
 
         fi
 
         echo "    duration: $(($SECONDS - $start_time)) seconds"
-    
+
     done
 
     if [ "$is_jumpbox_required" = "1" ]; then
         rsync -a -e "ssh $ssh_args -i $ssh_private_key" $admin_user@$fqdn:$tmp_dir/install/*.log $tmp_dir/install/.
     fi
 
+    if [ "$script_error" -ne "0" ]; then
+        error "There were errors while running scripts, exiting"
+    fi
 }
 
 function build_hostlists

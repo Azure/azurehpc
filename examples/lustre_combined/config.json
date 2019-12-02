@@ -16,7 +16,9 @@
         "image": "OpenLogic:CentOS:7.6:latest",
         "storage_account": "<NOT-SET>",
         "storage_key": "<NOT-SET>",
-        "storage_container": "<NOT-SET>"
+        "storage_container": "<NOT-SET>",
+        "lustre_version": "2.10",
+        "lustre_mount": "/lustre"
     },
     "resources": {
         "headnode": {
@@ -28,6 +30,7 @@
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
+                "lfsrepo",
                 "lfsclient",
                 "lfsazimport",
                 "localuser",
@@ -45,6 +48,7 @@
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
+                "lfsrepo",
                 "lfsclient",
                 "localuser",
                 "pbsclient",
@@ -61,6 +65,7 @@
             "subnet": "storage",
             "tags": [
                 "lustre",
+                "lfsrepo",
                 "disable-selinux"
             ]
         }
@@ -102,9 +107,16 @@
             "sudo": true
         },
         {
+            "script": "lfsrepo.sh",
+            "tag": "lfsrepo",
+            "args": [
+                "variables.lustre_version"
+            ],
+            "sudo": true
+        },
+        {
             "script": "lfspkgs.sh",
             "tag": "lustre",
-            "reboot": true,
             "sudo": true
         },
         {
@@ -130,7 +142,8 @@
                 "$(head -n1 hostlists/tags/lustre)",
                 "variables.storage_account",
                 "variables.storage_key",
-                "variables.storage_container"
+                "variables.storage_container",
+                "variables.lustre_version"
             ],
             "tag": "lustre",
             "sudo": true
@@ -138,7 +151,8 @@
         {
             "script": "lfsclient.sh",
             "args": [
-                "$(head -n1 hostlists/tags/lustre)"
+                "$(head -n1 hostlists/tags/lustre)",
+                "variables.lustre_mount"
             ],
             "tag": "lfsclient",
             "sudo": true
@@ -148,7 +162,9 @@
             "args": [
                 "variables.storage_account",
                 "variables.storage_key",
-                "variables.storage_container"
+                "variables.storage_container",
+                "variables.lustre_mount",
+                "variables.lustre_version"
             ],
             "tag": "lfsazimport",
             "sudo": true

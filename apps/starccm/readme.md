@@ -52,8 +52,7 @@ azhpc-run -u hpcuser STARCCM_INSTALLER_FILE=/apps/tmp/STAR-CCM+14.04.013_01_linu
 The benchmark will need to be copied to the cluster.  The default in the run script is `civil`.  You can copy the `sim` file as follows:
 
 ```
-azhpc-run -u hpcuser -n headnode mkdir /data/starccm
-azhpc-scp civil.sim hpcuser@headnode:/data/starccm/civil.sim
+azhpc-scp civil.sim hpcuser@headnode:/data/civil.sim
 ```
 
 ## Connect to the headnode
@@ -68,8 +67,8 @@ The `run_case.pbs` script is ready to use.  Below are all the parameters althoug
 
 | Environment Variable | Default Value | Description                                                                             |
 |----------------------|---------------|-----------------------------------------------------------------------------------------|
-| APP_INSTALL_DIR      | /apps         | The place to install (a starccm directory will be created here                          |
-| DATA_DIR             | /data/starccm | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
+| APP_INSTALL_DIR      | /apps         | The place where starccm is installed                                                    |
+| DATA_DIR             | /data         | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
 | CASE                 | civil         | The case to run (excluding path and `.sim` extension)                                   |
 | PODKEY               |               | This is required for the licensing                                                      |
 
@@ -79,7 +78,7 @@ Submit a job as follows (remembering to substitute your PoD key value):
 
     qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl \
         -v PODKEY=#INSERT_POD_KEY# \
-        $HOME/apps/starccm/run_case.pbs
+        apps/starccm/run_case.pbs
 
 > Note: multiple environment variables can be set if they are separated by commas, e.g. `-v VAR1=x,VAR2=y`.
 
@@ -97,31 +96,7 @@ Note: Before creating the cluster with above template we need to update the defa
 
 yum -y install libXt
 ```
-Follow the steps in the examples/cyclecloud_simple_pbs/readme.md to setup cycle and import the template.
-
-### Starting the cluster
-
-Now, go to the Azure CycleCloud web page and create a new cluster.
-
-![New cluster](images/01_new_cluster.PNG)
-
-Fill in the name.
-
-![Cluster Name](images/02_starccm_name.PNG)
-
-Set the node type to `Standard_HC44rs` in the required settings.  Choose your maximum number of cores and select the vnet you wish to use.
-
-![Required Settings](images/03_required_settings.PNG)
-
-Set the Base OS to OpenLogic:CentOS-HPC:7.6:latest and select custom image in the Advanced Settings. 
-
-![Advanced Settings](images/04_advanced_settings.PNG)
-
-Now save and start the cluster.
-
-![Start the cluster](images/05_start_cluster.PNG)
-
-The web page will show progress as the headnode for the cluster starts.
+Follow the steps in the examples/cyclecloud_simple_pbs/readme.md to setup cycle, import the template and start cluster.
 
 Log in to the headnode of the cluster:
 
@@ -135,11 +110,10 @@ You will need to copy the /apps/starccm folder to the headnode. Now obtain the s
 
 The following environment variables can be used:
 
-| Environment Variable  | Default Value | Description                                                                       |
-|-----------------------|---------------|-----------------------------------------------------------------------------------|
-| APP_INSTALL_DIR       | /apps         | The place to install (a starccm directory will be created here                    |
-| TMP_DIR               | /mnt/resource | A temporary directory for installation files                                      |
-=======
+| Environment Variable   | Default Value | Description                                                                       |
+|------------------------|---------------|-----------------------------------------------------------------------------------|
+| APP_INSTALL_DIR        | /scratch      | The place to install (a starccm directory will be created here                    |
+| TMP_DIR                | /mnt/resource | A temporary directory for installation files                                      |
 | STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip| The full path to the `STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip` installer |
 
 This will run with the default values:
@@ -147,19 +121,20 @@ This will run with the default values:
 Run the following to install StarCCM+ on the cluster:
 
 ```
+export APP_INSTALL_DIR=/scratch
 apps/starccm/install_starccm.sh
 ```
 
 ## Running StarCCM
 
-The benchmark will need to be copied to the cluster.  The default in the run script is `civil`.  You can copy the `sim` file to the headnode.
+The benchmark will need to be copied to the cluster.  The default in the run script is `civil`.  You can copy the `sim` file to the headnode under /scratch.
 
 The `run_case.pbs` script is ready to use.  Below are all the parameters although the only one that is required if you have followed the previous steps is the PoD key for StarCCM licensing:
 
 | Environment Variable | Default Value | Description                                                                             |
 |----------------------|---------------|-----------------------------------------------------------------------------------------|
-| APP_INSTALL_DIR      | /apps         | The place to install (a starccm directory will be created here                          |
-| DATA_DIR             | /data/starccm | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
+| APP_INSTALL_DIR      | /scratch      | The place to install (a starccm directory will be created here                          |
+| DATA_DIR             | /scratch      | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
 | CASE                 | civil         | The case to run (excluding path and `.sim` extension)                                   |
 | PODKEY               |               | This is required for the licensing                                                      |
 
@@ -168,8 +143,8 @@ Environment variables can be passed to the PBS job with the `-v` flag.
 Submit a job as follows (remembering to substitute your PoD key value):
 
     qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl \
-        -v PODKEY=#INSERT_POD_KEY# \
-        $HOME/apps/starccm/run_case.pbs
+         -v PODKEY=#INSERT_POD_KEY#,APP_INSTALL_DIR=/scratch,DATA_DIR=/scratch \
+         apps/starccm/run_case.pbs
 
 > Note: multiple environment variables can be set if they are separated by commas, e.g. `-v VAR1=x,VAR2=y`.
 

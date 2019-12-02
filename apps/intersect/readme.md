@@ -60,3 +60,44 @@ To see if the job is running do
 ````
 qstat -aw
 ````
+
+## Install and run intersect Benchmarks using [Azure CycleCloud](https://docs.microsoft.com/en-us/azure/cyclecloud/) Cluster
+
+## Prerequisites
+
+These steps require a Azure CycleCloud cluster with PBS.  The `cyclecloud_simple_pbs` template in the examples directory a suitable choice.
+
+Follow the steps in the examples/cyclecloud_simple_pbs/readme.md to setup cycle, import the template and start cluster.
+
+Log in to the headnode of the cluster (from cycleserver):
+
+```
+    $ cyclecloud connect master -c <cyclecloud cluster name>
+```
+
+## Installing Intersect
+
+You will need to copy the apps/intersect folder to the cyclecloud master.
+
+Run the following to install ntersect on the cluster (in /scratch):
+
+export APP_INSTALL_DIR=/scratch
+```
+apps/intersect/install_full_intersect_2018.2.sh
+```
+
+## Install the data sets for intersect
+
+export DATA_INSTALL_DIR=/scratch
+```
+apps/intersect/install_case_intersect_2018.2.sh
+```
+
+## Running Intersect
+
+Copy apps/intersect to the cyclecloud master node.
+
+To run on two HB nodes with 8 total cores (4 cores on each node) run ( Intersect installation and case model are in /scratch)
+```
+qsub -l select=2:ncpus=60:mpiprocs=4 -v case=BO_192_192_28,APP_INSTALL_DIR=/scratch,DATA_INSTALL_DIR=/scratch apps/intersect/run_intersect_2018.2.sh
+```

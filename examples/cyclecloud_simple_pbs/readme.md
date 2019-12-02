@@ -159,3 +159,26 @@ Finally, upload the new template:
 
 The new template will now show in the Azure CycleCloud webpage.
 
+### Starting the cluster
+
+Now, go to the Azure CycleCloud web page and create a new cluster.
+
+![New cluster](images/01_new_cluster.PNG)
+
+Fill in the name.
+
+![Cluster Name](images/02_name.PNG)
+
+Set the node type to `Standard_HC44rs` in the required settings.  Choose your maximum number of cores and select the vnet you wish to use.
+
+![Required Settings](images/03_required_settings.PNG)
+
+Set the Base OS to OpenLogic:CentOS-HPC:7.6:latest and select custom image in the Advanced Settings. 
+
+![Advanced Settings](images/04_advanced_settings.PNG)
+
+Now save and start the cluster.
+
+![Start the cluster](images/05_start_cluster.PNG)
+
+The web page will show progress as the headnode for the cluster starts.

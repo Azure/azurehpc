@@ -34,7 +34,7 @@
                     "service_level": "Premium",
                     "volumes": {
                         "anfvol1" : {
-                            "size": 4000,
+                            "size": 4,
                             "mount": "/netapps"
                         }
                     }
