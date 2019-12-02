@@ -161,6 +161,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
 		-n rg-${vnet_resource_group}-${vnet_name}-2-${peer_vnet_name} \
 		--vnet-name $vnet_name \
 		--remote-vnet $id_2 \
+		--allow-forwarded-traffic \
 		--allow-vnet-access
 	fi
 
@@ -179,6 +180,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
 		-n rg-${vnet_resource_group}-${vnet_name}-2-${peer_vnet_name} \
 		--vnet-name $peer_vnet_name \
 		--remote-vnet $id_1 \
+		--allow-forwarded-traffic \
 		--allow-vnet-access
 	fi
     done
