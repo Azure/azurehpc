@@ -1,14 +1,15 @@
 #!/bin/bash
 
 APP_NAME=spack
-APP_VERSION=0.12.1
+APP_VERSION=0.13.1
 SHARED_APPS=/apps
+STORAGE_ENDPOINT=https://cgspack.blob.core.windows.net
 USER=`whoami`
 SCRIPT1=config.yaml
 
 sku_type=$1
 email_address=$2
-
+STORAGE_ENDPOINT=$3
 
 cat > ~/${SCRIPT1} << EOF
 # -------------------------------------------------------------------------
@@ -44,9 +45,9 @@ config:
   #
   # The build stage can be purged with \`spack clean --stage\`.
   build_stage:
-    - \$tempdir
-    - /nfs/tmp2/\$USER
-    - \$spack/var/spack/stage
+    - \$tempdir/spack-stage
+    - ~/.spack/stage
+#    - \$spack/var/spack/stage
 
 
   # Cache directory for already downloaded source tarballs and archived
@@ -62,6 +63,12 @@ config:
   # If this is false, tools like curl that use SSL will not verify
   # certifiates. (e.g., curl will use use the -k option)
   verify_ssl: true
+
+
+  # If set to true, Spack will attempt to build any compiler on the spec
+  # that is not already available. If set to False, Spack will only use
+  # compilers already configured in compilers.yaml
+  install_missing_compilers: False
 
 
   # If set to true, Spack will always check checksums after downloading
@@ -93,8 +100,8 @@ config:
 
   # The default number of jobs to use when running \`make\` in parallel.
   # If set to 4, for example, \`spack install\` will run \`make -j4\`.
-  # If not set, all available cores are used by default.
-  build_jobs: 16
+  # If not set, Spack will use all available cores up to 16.
+  # build_jobs: 16
 
 
   # If set to true, Spack will use ccache to cache C compiles.
@@ -113,6 +120,12 @@ config:
   # anticipates that a significant delay indicates that the lock attempt will
   # never succeed.
   package_lock_timeout: null
+
+
+  # Control whether Spack embeds RPATH or RUNPATH attributes in ELF binaries.
+  # Has no effect on macOS. DO NOT MIX these within the same install tree.
+  # See the Spack documentation for details.
+  shared_linking: 'rpath'
 EOF
 
 SCRIPT2=modules.yaml
@@ -141,8 +154,10 @@ modules:
       - ACLOCAL_PATH
     lib:
       - LIBRARY_PATH
+      - LD_LIBRARY_PATH
     lib64:
       - LIBRARY_PATH
+      - LD_LIBRARY_PATH
     include:
       - CPATH
     lib/pkgconfig:
@@ -163,30 +178,26 @@ cat > ~/${SCRIPT3} << EOF
 packages:
   openmpi:
     modules:
-       openmpi@4.0.1%gcc@8.2.0: mpi/openmpi-4.0.1
-    buildable: False
-  mpich:
-    modules:
-       mpich@3.3%gcc@8.2.0: mpi/mpich-3.3
+       openmpi@4.0.2%gcc@9.2.0: mpi/openmpi-4.0.2
     buildable: False
   mvapich2:
     modules:
-       mvapich2@2.3.1%gcc@8.2.0: mpi/mvapich2-2.3.1
+       mvapich2@2.3.2%gcc@9.2.0: mpi/mvapich2-2.3.2
     buildable: False
   hpcx:
     modules:
-       hpcx@2.4.1%gcc@8.2.0: mpi/hpcx-v2.4.1
+       hpcx@2.5.0%gcc@9.2.0: mpi/hpcx-v2.5.0
     buildable: False
   intel-mpi:
     modules:
-       intel-mpi@2018.5.274: intel_2018.5.274
+       intel-mpi@2019.5.281: mpi/impi_2019.5.281
     buildable: False
   gcc:
     modules:
-       gcc@8.2.0: gcc-8.2.0
+       gcc@9.2.0: gcc-9.2.0
     buildable: False
   all:
-    compiler: [gcc, intel, pgi, clang, xl, nag]
+    compiler: [gcc, intel, pgi, clang, xl, nag, fj]
     providers:
       D: [ldc]
       awk: [gawk]
@@ -194,18 +205,20 @@ packages:
       daal: [intel-daal]
       elf: [elfutils]
       fftw-api: [fftw]
-      gl: [mesa, opengl]
+      gl: [mesa+opengl, opengl]
+      glx: [mesa+glx, opengl]
       glu: [mesa-glu, openglu]
       golang: [gcc]
       ipp: [intel-ipp]
-      java: [jdk]
+      java: [openjdk, jdk, ibm-java]
       jpeg: [libjpeg-turbo, libjpeg]
       lapack: [openblas]
+      mariadb-client: [mariadb-c-client, mariadb]
       mkl: [intel-mkl]
       mpe: [mpe2]
       mpi: [openmpi, mpich, mvapich2, hpcx]
+      mysql-client: [mysql, mariadb-c-client]
       opencl: [pocl]
-      openfoam: [openfoam-com, openfoam-org, foam-extend]
       pil: [py-pillow]
       pkgconfig: [pkgconf, pkg-config]
       scalapack: [netlib-scalapack]
@@ -237,14 +250,14 @@ compilers:
     environment: {}
     extra_rpaths: []
     flags: {}
-    modules: [gcc-8.2.0]
+    modules: [gcc-9.2.0]
     operating_system: centos7
     paths:
-      cc: /opt/gcc-8.2.0/bin/gcc
-      cxx: /opt/gcc-8.2.0/bin/g++
-      f77: /opt/gcc-8.2.0/bin/gfortran
-      fc: /opt/gcc-8.2.0/bin/gfortran
-    spec: gcc@8.2.0
+      cc: /opt/gcc-9.2.0/bin/gcc
+      cxx: /opt/gcc-9.2.0/bin/g++
+      f77: /opt/gcc-9.2.0/bin/gfortran
+      fc: /opt/gcc-9.2.0/bin/gfortran
+    spec: gcc@9.2.0
     target: x86_64
 EOF
 
@@ -278,6 +291,8 @@ cat > ~/${PATCH1} << EOF
 EOF
 
 
+sudo yum install -y python3
+
 SPACKDIR=${SHARED_APPS}/${APP_NAME}/${APP_VERSION}
 mkdir -p $SPACKDIR
 cd $SPACKDIR
@@ -285,7 +300,7 @@ git clone https://github.com/spack/spack.git
 cd spack
 git checkout tags/v${APP_VERSION}
 mv ~/${PATCH1} .
-patch -p0 < ${PATCH1}
+#patch -p0 < ${PATCH1}
 source ${SPACKDIR}/spack/share/spack/setup-env.sh
 echo "source ${SPACKDIR}/spack/share/spack/setup-env.sh" >> ~/.bash_profile
 sudo mkdir /mnt/resource/spack
@@ -298,5 +313,4 @@ mv ~/${SCRIPT4} ~/.spack
 mkdir -p /apps/spack/${sku_type}
 spack gpg init
 spack gpg create ${sku_type}_gpg $email_address
-spack mirror add ${sku_type}_buildcache https://cgspack.blob.core.windows.net/buildcache/${sku_type}
-source ~/.bash_profile
+spack mirror add ${sku_type}_buildcache ${STORAGE_ENDPOINT}/buildcache/${sku_type}
