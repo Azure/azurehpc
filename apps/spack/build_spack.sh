@@ -343,4 +343,4 @@ mv ~/${SCRIPT4} ~/.spack
 mkdir -p /apps/spack/${sku_type}
 spack gpg init
 spack gpg create ${sku_type}_gpg $email_address
-spack mirror add ${sku_type}_buildcache ${STORAGE_ENDPOINT}/buildcache/${sku_type}
+#spack mirror add ${sku_type}_buildcache ${STORAGE_ENDPOINT}/buildcache/${sku_type}
