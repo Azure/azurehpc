@@ -216,7 +216,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_vm_type ".resources.$resource_name.vm_type"
             read_value resource_image ".resources.$resource_name.image"
             read_value resource_pip ".resources.$resource_name.public_ip" false
-            read_value ppg ".resources.$resource_name.proximity_placement_group" false
+            read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
@@ -227,8 +227,12 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 public_ip_address="${resource_name}pip"
             fi
             ppg_option=
-            if [ "$ppg" = "true" ]; then
-               ppg_option="--ppg $ppg_name"
+            if [ "$resource_ppg" = "true" ]; then
+               if [ "$ppg_name" != null ]; then
+                   ppg_option="--ppg $ppg_name"
+               else
+                   error "Failed: ppg_name needs to be defined to use proximity placement group"
+               fi
             fi
             data_disks_options=
             if [ "$resource_disk_count" -gt 0 ]; then
@@ -290,7 +294,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
-            read_value ppg ".resources.$resource_name.proximity_placement_group" false
+            read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
             read_value resource_instances ".resources.$resource_name.instances"
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
@@ -322,8 +326,12 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 lowpri_option="--priority Low"
             fi
             ppg_option=
-            if [ "$ppg" = "true" ]; then
-               ppg_option="--ppg $ppg_name"
+            if [ "$resource_ppg" = "true" ]; then
+               if [ "$ppg_name" != null ]; then
+                   ppg_option="--ppg $ppg_name"
+               else
+                   error "Failed: ppg_name needs to be defined to use proximity placement group"
+               fi
             fi
 
             az vmss create \
