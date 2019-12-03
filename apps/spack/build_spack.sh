@@ -3,7 +3,6 @@
 APP_NAME=spack
 APP_VERSION=0.13.1
 SHARED_APPS=/apps
-STORAGE_ENDPOINT=https://cgspack.blob.core.windows.net
 USER=`whoami`
 SCRIPT1=config.yaml
 
