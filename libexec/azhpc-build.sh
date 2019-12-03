@@ -274,6 +274,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_vm_type ".resources.$resource_name.vm_type"
             read_value resource_image ".resources.$resource_name.image"
             read_value resource_subnet ".resources.$resource_name.subnet"
+            read_value resource_fault_domain_count ".resources.$resource_name.fault_domain_count" 5
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_instances ".resources.$resource_name.instances"
@@ -316,6 +317,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --subnet $resource_subnet_id \
                 --lb "" \
                 --single-placement-group true \
+                --platform-fault-domain-count  $resource_fault_domain_count \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
                 $data_disks_options \
