@@ -19,8 +19,6 @@ AZHPC_MPI_HOSTFILE=$AZHPC_JOBDIR/hostfile
 cat $PBS_NODEFILE > $AZHPC_MPI_HOSTFILE
 
 AZHPC_PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
-AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
-export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 AZHPC_CORES=`cat $PBS_NODEFILE | wc -l`
 
 PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
@@ -96,11 +94,9 @@ fi
 
 # Set the memory per core based on the SKU. It would be better to calculate this dynamically based on the the amount of memory
 # on the node, the PPN and leaving some room for the OS.
-if [ "$AZHPC_VMSIZE" == "standard_hb60rs" ]; then
-    memory=4000
-elif [ "$AZHPC_VMSIZE" == "standard_hc44rs" ]; then
-    memory=7500
-fi
+total_mem=$(free -m | grep Mem: | xargs | cut -d' ' -f2)
+memory=$(( ($total_mem * 95 / 100) / $AZHPC_PPN ))
+echo "memory per rank=$memory"
 
 iter_option=""
 if [ -n "$ITER" ]; then
