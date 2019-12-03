@@ -12,3 +12,5 @@ spack load osu-micro-benchmarks^mvapich2
 cat $PBS_NODEFILE
 
 mpirun osu_bw
+sleep 2
+mpirun osu_latency
