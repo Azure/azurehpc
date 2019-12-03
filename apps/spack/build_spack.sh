@@ -189,8 +189,8 @@ packages:
        hpcx@2.5.0%gcc@9.2.0: mpi/hpcx-v2.5.0
     buildable: False
   intel-mpi:
-    modules:
-       intel-mpi@2019.5.281: mpi/impi_2019.5.281
+    paths:
+       intel-mpi@2019.5.281: /opt/intel/compilers_and_libraries_2019.5.281/linux/mpi
     buildable: False
   gcc:
     modules:
