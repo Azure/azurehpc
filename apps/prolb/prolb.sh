@@ -1,3 +1,4 @@
+#!/bin/bash
 CASE=$1
 CASE_DIR=$2
 APP_VERSION=$3
@@ -29,10 +30,10 @@ source /etc/profile # so we can load modules
 
 module use /usr/share/Modules/modulefiles
 module use $AZHPC_APPS/modulefiles
-module load gcc-8.2.0
+module load gcc-9.2.0
 module load ${AZHPC_APPLICATION}_${APP_VERSION}
 if [ "$APP_VERSION" = "2.5.1" ]; then
-    module load mpi/openmpi-4.0.1
+    module load mpi/openmpi-4.0.2
 else
     # hpcx need to be build with C++ bindings
     module load hpcx-2.4.1
@@ -67,7 +68,7 @@ printenv
 
 echo "downloading case ${CASE}..."
 start_time=$SECONDS
-cp $CASE_DIR/$CASE $AZHPC_JOBDIR/$CASE
+cp -r $CASE_DIR/* $AZHPC_JOBDIR
 end_time=$SECONDS
 download_time=$(($end_time - $start_time))
 echo "Download time is ${download_time}"
@@ -111,7 +112,7 @@ echo $mpi_options
 $MPI_HOME/bin/mpirun $mpi_options \
     -hostfile $AZHPC_MPI_HOSTFILE \
     -np $AZHPC_CORES \
-    $PROLB_HOME/bin/LBsolver.exe -np $AZHPC_CORES -s $PROLB_HOME/schemes/ -m $memory $iter_option -p $AZHPC_JOBDIR/$CASE | tee prolb.log
+    $PROLB_HOME/bin/lbolver.exe -np $AZHPC_CORES -s $PROLB_HOME/schemes/ -m $memory $iter_option -p $AZHPC_JOBDIR/$CASE | tee prolb.log
 
 end_time=$SECONDS
 task_time=$(($end_time - $start_time))
