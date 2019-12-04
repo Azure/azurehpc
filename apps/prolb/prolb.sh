@@ -92,10 +92,9 @@ if [ -n "${LD_PRELOAD}" ]; then
     mpi_options+=" -x LD_PRELOAD"
 fi
 
-# Set the memory per core based on the SKU. It would be better to calculate this dynamically based on the the amount of memory
-# on the node, the PPN and leaving some room for the OS.
+# Use 98% of the memory 
 total_mem=$(free -m | grep Mem: | xargs | cut -d' ' -f2)
-memory=$(( ($total_mem * 95 / 100) / $AZHPC_PPN ))
+memory=$(( ($total_mem * 98 / 100) / $AZHPC_PPN ))
 echo "memory per rank=$memory"
 
 iter_option=""
@@ -108,7 +107,7 @@ echo $mpi_options
 $MPI_HOME/bin/mpirun $mpi_options \
     -hostfile $AZHPC_MPI_HOSTFILE \
     -np $AZHPC_CORES \
-    $PROLB_HOME/bin/lbolver.exe -np $AZHPC_CORES -s $PROLB_HOME/schemes/ -m $memory $iter_option -p $AZHPC_JOBDIR/$CASE | tee prolb.log
+    $PROLB_HOME/bin/lbsolver -np $AZHPC_CORES -s $PROLB_HOME/schemes/ -m $memory $iter_option -p $AZHPC_JOBDIR/$CASE | tee prolb.log
 
 end_time=$SECONDS
 task_time=$(($end_time - $start_time))
