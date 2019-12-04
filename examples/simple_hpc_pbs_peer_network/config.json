@@ -4,14 +4,15 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables": {
-        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
-        "vm_type": "Standard_HB60rs",
+        "vm_type": "Standard_D8_v3",
+        "compute_vm_type": "Standard_HB60rs",
         "compute_instances": 2,
         "vnet_resource_group": "variables.resource_group",
-        "peer_network_resource_group": "",
-        "peer_vnet_name": ""
+        "peer_network_resource_group": "<NOT-SET>",
+        "peer_vnet_name": "<NOT_SET>"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -45,7 +46,7 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "variables.vm_type",
+            "vm_type": "variables.compute_vm_type",
             "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
