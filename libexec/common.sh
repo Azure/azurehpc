@@ -107,6 +107,28 @@ function process_value {
         debug "getting storage key for $storage_name"
         local storage_key=$(az storage account keys list -n $storage_name --query "[0].value" | sed 's/\"//g')
         read $1 <<< "$storage_key"
+    elif [ "$prefix" = "laworkspace" ]; then
+        local la_str=${!1#*.}
+        local la_resource_group=${la_str%%.*}
+        local la_name=${la_str#*.}
+        local la_workspace="$( \
+            az monitor log-analytics workspace list \
+                --query "[?name=='$la_name'&&resourceGroup=='$la_resource_group'].customerId" \
+                --output tsv \
+        )"
+        read $1 <<< "$la_workspace"
+    elif [ "$prefix" = "lakey" ]; then
+        local la_str=${!1#*.}
+        local la_resource_group=${la_str%%.*}
+        local la_name=${la_str#*.}
+        local la_key="$( \
+            az monitor log-analytics workspace get-shared-keys \
+                --workspace-name $la_name \
+                --resource-group $la_resource_group \
+                --query "primarySharedKey" \
+                --output tsv \
+        )"
+        read $1 <<< "$la_key"
     elif [ "$prefix" = "acrkey" ]; then
         local acrkey_str=${!1#*.}
         local acr_name=${acrkey_str%.*}
