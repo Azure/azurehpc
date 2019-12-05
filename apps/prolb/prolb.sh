@@ -19,6 +19,9 @@ AZHPC_MPI_HOSTFILE=$AZHPC_JOBDIR/hostfile
 cat $PBS_NODEFILE > $AZHPC_MPI_HOSTFILE
 
 AZHPC_PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
+AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
+export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
+echo "running on $AZHPC_VMSIZE"
 AZHPC_CORES=`cat $PBS_NODEFILE | wc -l`
 
 PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
@@ -31,7 +34,7 @@ module use $AZHPC_APPS/modulefiles
 module load gcc-9.2.0
 module load ${AZHPC_APPLICATION}_${APP_VERSION}
 if [ "$APP_VERSION" = "2.5.1" ]; then
-    module load mpi/openmpi-4.0.2
+    module load mpi/openmpi
 else
     # hpcx need to be build with C++ bindings
     module load hpcx-2.4.1
@@ -104,10 +107,18 @@ fi
 echo "iter_option=$iter_option"
 echo $mpi_options
 
+# Keep tuning files separate for each VM Type
+TUNING_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$AZHPC_VMSIZE
+mkdir -p $TUNING_DIR
+
 $MPI_HOME/bin/mpirun $mpi_options \
     -hostfile $AZHPC_MPI_HOSTFILE \
     -np $AZHPC_CORES \
-    $PROLB_HOME/bin/lbsolver -np $AZHPC_CORES -s $PROLB_HOME/schemes/ -m $memory $iter_option -p $AZHPC_JOBDIR/$CASE | tee prolb.log
+    $PROLB_HOME/bin/lbsolver -np $AZHPC_CORES \
+                             -s $PROLB_HOME/schemes/ \
+                             -tuning $TUNING_DIR \
+                             -m $memory $iter_option \
+                             -p $AZHPC_JOBDIR/$CASE | tee prolb.log
 
 end_time=$SECONDS
 task_time=$(($end_time - $start_time))
