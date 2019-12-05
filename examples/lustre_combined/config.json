@@ -36,7 +36,8 @@
                 "localuser",
                 "pbsserver",
                 "loginnode",
-                "nfsserver"
+                "nfsserver",
+                "addmpich"
             ]
         },
         "compute": {
