@@ -1,0 +1,65 @@
+#!/bin/bash
+
+fs_name=__FS_NAME__
+workspace_id=__LOG_ANALYTICS_WORKSPACE_ID__
+key="__LOG_ANALYTICS_KEY__"
+
+DATE=`date '+%Y-%m-%d %H:%M:%S'`
+echo "Lustre Log Analytics service started at ${DATE}" | systemd-cat -p info
+
+me=$(hostname)
+node=$(ls /proc/fs/lustre/osd-ldiskfs | grep LustreFS)
+
+eth0=$(grep eth0 /proc/net/dev | sed 's/  */ /g')
+bytesrecv_last=$(cut -d' ' -f 3 <<<"$eth0")
+bytessend_last=$(cut -d' ' -f 11 <<<"$eth0")
+
+while true
+do
+    sleep 60;
+
+    eth0=$(grep eth0 /proc/net/dev | sed 's/  */ /g')
+    bytesrecv=$(cut -d' ' -f 3 <<<"$eth0")
+    bytessend=$(cut -d' ' -f 11 <<<"$eth0")
+    bytesrecv_int=$(($bytesrecv - $bytesrecv_last))
+    bytessend_int=$(($bytessend - $bytessend_last))
+    bytesrecv_last=$bytesrecv
+    bytessend_last=$bytessend
+
+    loadavg=$(cut -f1 -d' ' < /proc/loadavg)
+    kbytesfree=$(</proc/fs/lustre/osd-ldiskfs/${node}/kbytesfree)
+
+    content=$(cat <<EOF
+{
+    "fsname":"$fs_name",
+    "hostname":"$me",
+    "uuid":"$node",
+    "loadavg":$loadavg,
+    "kbytesfree":$kbytesfree,
+    "bytessend":$bytessend_int,
+    "bytesrecv":$bytesrecv_int
+}
+EOF
+    )
+
+    content_len=${#content}
+
+    rfc1123date="$(date -u +%a,\ %d\ %b\ %Y\ %H:%M:%S\ GMT)"
+
+    string_to_hash="POST\n${content_len}\napplication/json\nx-ms-date:${rfc1123date}\n/api/logs"
+    utf8_to_hash=$(echo -n "$string_to_hash" | iconv -t utf8)
+
+    decoded_hex_key="$(echo "$key" | base64 --decode --wrap=0 | xxd -p -c256)"
+    signature="$(echo -ne "$utf8_to_hash" | openssl dgst -sha256 -mac HMAC -macopt "hexkey:$decoded_hex_key" -binary | base64)"
+    auth_token="SharedKey $workspace_id:$signature"
+
+    curl -s -S \
+        -H "Content-Type: application/json" \
+        -H "Log-Type: $fs_name" \
+        -H "Authorization: $auth_token" \
+        -H "x-ms-date: $rfc1123date" \
+        -X POST \
+        --data "$content" \
+        https://$workspace_id.ods.opinsights.azure.com/api/logs?api-version=2016-04-01
+
+done
