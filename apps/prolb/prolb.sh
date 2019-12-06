@@ -71,8 +71,7 @@ download_time=$(($end_time - $start_time))
 echo "Download time is ${download_time}"
 
 case $AZHPC_VMSIZE in
-    standard_hc44rs)
-    standard_hb60rs)
+    standard_hc44rs|standard_hb60rs)
         # self is required by PROLB
         mpi_options+=" -mca btl self"
 
