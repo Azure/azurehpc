@@ -33,32 +33,28 @@ module use /usr/share/Modules/modulefiles
 module use $AZHPC_APPS/modulefiles
 module load gcc-9.2.0
 module load ${AZHPC_APPLICATION}_${APP_VERSION}
-if [ "$APP_VERSION" = "2.5.1" ]; then
-    module load mpi/openmpi
-else
-    # hpcx need to be build with C++ bindings
-    module load hpcx-2.4.1
-    if [ -n "${PROFILE}" ]; then
-        export HPCX_IPM_DIR=${HPCX_DIR}/ompi/tests/ipm-2.0.6
-        export IPM_KEYFILE=${HPCX_IPM_DIR}/etc/ipm_key_mpi
-        export IPM_LOG=FULL
-        export LD_PRELOAD=${HPCX_IPM_DIR}/lib/libipm.so
+module load mpi/hpcx
 
-        BARRIER=0  # Barrier is important to have a clean picture of the MPI API commands
-        # BARRIER==1 doesn't works here
-        if [[ "$BARRIER" == "1" ]]; then
-            export IPM_ADD_BARRIER_TO_REDUCE=1
-            export IPM_ADD_BARRIER_TO_ALLREDUCE=1
-            export IPM_ADD_BARRIER_TO_GATHER=1
-            export IPM_ADD_BARRIER_TO_ALL_GATHER=1
-            export IPM_ADD_BARRIER_TO_ALLTOALL=1
-            export IPM_ADD_BARRIER_TO_ALLTOALLV=1
-            export IPM_ADD_BARRIER_TO_BROADCAST=1
-            export IPM_ADD_BARRIER_TO_SCATTER=1
-            export IPM_ADD_BARRIER_TO_SCATTERV=1
-            export IPM_ADD_BARRIER_TO_GATHERV=1
-            export IPM_ADD_BARRIER_TO_ALLGATHERV=1
-        fi
+if [ -n "${PROFILE}" ]; then
+    export HPCX_IPM_DIR=${HPCX_DIR}/ompi/tests/ipm-2.0.6
+    export IPM_KEYFILE=${HPCX_IPM_DIR}/etc/ipm_key_mpi
+    export IPM_LOG=FULL
+    export LD_PRELOAD=${HPCX_IPM_DIR}/lib/libipm.so
+
+    BARRIER=0  # Barrier is important to have a clean picture of the MPI API commands
+    # BARRIER==1 doesn't works here
+    if [[ "$BARRIER" == "1" ]]; then
+        export IPM_ADD_BARRIER_TO_REDUCE=1
+        export IPM_ADD_BARRIER_TO_ALLREDUCE=1
+        export IPM_ADD_BARRIER_TO_GATHER=1
+        export IPM_ADD_BARRIER_TO_ALL_GATHER=1
+        export IPM_ADD_BARRIER_TO_ALLTOALL=1
+        export IPM_ADD_BARRIER_TO_ALLTOALLV=1
+        export IPM_ADD_BARRIER_TO_BROADCAST=1
+        export IPM_ADD_BARRIER_TO_SCATTER=1
+        export IPM_ADD_BARRIER_TO_SCATTERV=1
+        export IPM_ADD_BARRIER_TO_GATHERV=1
+        export IPM_ADD_BARRIER_TO_ALLGATHERV=1
     fi
 fi
 
@@ -74,18 +70,24 @@ end_time=$SECONDS
 download_time=$(($end_time - $start_time))
 echo "Download time is ${download_time}"
 
-# self is required by PROLB
-mpi_options+=" -mca btl self"
+case $AZHPC_VMSIZE in
+    standard_hc44rs)
+    standard_hb60rs)
+        # self is required by PROLB
+        mpi_options+=" -mca btl self"
 
-# Use UCX
-mpi_options+=" --mca pml ucx -mca osc ucx"
-mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY -x UCX_LOG_LEVEL=ERROR"
+        # Use UCX
+        mpi_options+=" --mca pml ucx -mca osc ucx"
+        mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY"
 
-mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
+        mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 
-# Enable HCOLL
-mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
+        # Enable HCOLL
+        mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
+    ;;
+esac
 
+mpi_options+=" -x UCX_LOG_LEVEL=ERROR"
 mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
 mpi_options+=" -x LD_LIBRARY_PATH"
 mpi_options+=" -bind-to core"
@@ -108,7 +110,7 @@ echo "iter_option=$iter_option"
 echo $mpi_options
 
 # Keep tuning files separate for each VM Type
-TUNING_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$AZHPC_VMSIZE
+TUNING_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$AZHPC_VMSIZE/
 mkdir -p $TUNING_DIR
 
 $MPI_HOME/bin/mpirun $mpi_options \
