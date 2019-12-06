@@ -29,13 +29,13 @@ module use /usr/share/Modules/modulefiles
 module use $AZHPC_APPS/modulefiles
 module load gcc-9.2.0
 module load ${AZHPC_APPLICATION}
-module load mpi/impi_2019
+module load mpi/impi-2019
 
 export PAMCRASH=$PAMHOME/pamcrash_safe/2018.01/Linux_x86_64/bin/pamcrash
 
 export MPI_DIR=$MPI_BIN
 PAM_MPI=impi-5.1.3
-export MPI_OPTIONS="-hosts $MPI_HOSTLIST -perhost ${PPN} -genv I_MPI_FABRICS shm:ofa -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
+export MPI_OPTIONS="-hosts $MPI_HOSTLIST -perhost ${PPN} -genv I_MPI_FABRICS shm:ofi -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
 
 echo "downloading case ${CASE}..."
 start_time=$SECONDS
