@@ -1,0 +1,16 @@
+#!/bin/bash
+
+SHARED_APPS=/apps
+
+module load gcc-9.2.0
+module load mpi/impi-2019.5.281
+spack load osu-micro-benchmarks^intel-mpi
+
+export OMP_NUM_THREADS=1
+export I_MPI_DEBUG=5
+
+cat $PBS_NODEFILE
+
+mpirun osu_bw
+sleep 2
+mpirun osu_latency

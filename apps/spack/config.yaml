@@ -1,0 +1,112 @@
+# -------------------------------------------------------------------------
+config:
+  # This is the path to the root of the Spack install tree.
+  install_tree: /apps/spack/hbv2
+
+
+  # Locations where templates should be found
+  template_dirs:
+    - $spack/share/spack/templates
+
+
+  # Default directory layout
+  install_path_scheme: "${ARCHITECTURE}/${COMPILERNAME}-${COMPILERVER}/${PACKAGE}-${VERSION}-${HASH}"
+
+
+  # Locations where different types of modules should be installed.
+  module_roots:
+    tcl:    /apps/modulefiles/spack/tcl/hbv2
+    lmod:   /apps/modules/spack/lmod/hbv2
+
+
+  # Temporary locations Spack can try to use for builds.
+  #
+  # Spack will use the first one it finds that exists and is writable.
+  # You can use $tempdir to refer to the system default temp directory
+  # (as returned by tempfile.gettempdir()).
+  #
+  # A value of $spack/var/spack/stage indicates that Spack should run
+  # builds directly inside its install directory without staging them in
+  # temporary space.
+  #
+  # The build stage can be purged with \`spack clean --stage\`.
+  build_stage:
+    - $tempdir/spack-stage
+    - ~/.spack/stage
+
+
+  # Cache directory for already downloaded source tarballs and archived
+  # repositories. This can be purged with \`spack clean --downloads\`.
+  source_cache: /apps/spack/cache
+
+
+  # Cache directory for miscellaneous files, like the package index.
+  # This can be purged with \`spack clean --misc-cache\`
+  misc_cache: ~/.spack/cache
+
+
+  # If this is false, tools like curl that use SSL will not verify
+  # certifiates. (e.g., curl will use use the -k option)
+  verify_ssl: true
+
+
+  # If set to true, Spack will attempt to build any compiler on the spec
+  # that is not already available. If set to False, Spack will only use
+  # compilers already configured in compilers.yaml
+  install_missing_compilers: False
+                                                                                                   
+  # If set to true, Spack will always check checksums after downloading
+  # archives. If false, Spack skips the checksum step.
+  checksum: true
+
+
+  # If set to true, \`spack install\` and friends will NOT clean
+  # potentially harmful variables from the build environment. Use wisely.
+  dirty: false
+
+
+  # The language the build environment will use. This will produce English
+  # compiler messages by default, so the log parser can highlight errors.
+  # If set to C, it will use English (see man locale).
+  # If set to the empty string (''), it will use the language from the
+  # user's environment.
+  build_language: C
+
+
+  # When set to true, concurrent instances of Spack will use locks to
+  # avoid modifying the install tree, database file, etc. If false, Spack
+  # will disable all locking, but you must NOT run concurrent instances
+  # of Spack.  For filesystems that don't support locking, you should set
+  # this to false and run one Spack at a time, but otherwise we recommend
+  # enabling locks.
+  locks: true
+
+
+  # The default number of jobs to use when running \`make\` in parallel.
+  # If set to 4, for example, \`spack install\` will run \`make -j4\`.
+  # If not set, Spack will use all available cores up to 16.
+  # build_jobs: 16
+
+
+  # If set to true, Spack will use ccache to cache C compiles.
+  ccache: false
+
+  # How long to wait to lock the Spack installation database. This lock is used
+  # when Spack needs to manage its own package metadata and all operations are
+  # expected to complete within the default time limit. The timeout should
+  # therefore generally be left untouched.
+  db_lock_timeout: 120
+
+
+  # How long to wait when attempting to modify a package (e.g. to install it).
+  # This value should typically be 'null' (never time out) unless the Spack
+  # instance only ever has a single user at a time, and only if the user
+  # anticipates that a significant delay indicates that the lock attempt will
+  # never succeed.
+  package_lock_timeout: null
+
+
+  # Control whether Spack embeds RPATH or RUNPATH attributes in ELF binaries.
+  # Has no effect on macOS. DO NOT MIX these within the same install tree.
+  # See the Spack documentation for details.
+  shared_linking: 'rpath'
