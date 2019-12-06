@@ -2,7 +2,6 @@
 
 SHARED_APPS=/apps
 
-export MODULEPATH=${SHARED_APPS}/modulefiles/spack/tcl/hb/linux-centos7-x86_64:$MODULEPATH
 export OMP_NUM_THREADS=1
 
 module load gcc-9.2.0
@@ -15,3 +14,5 @@ cd $PBS_O_WORKDIR
 sed -e 's/$/ slots=1/' $PBS_NODEFILE > openmpi_hostfile
 
 mpirun -x PATH --hostfile openmpi_hostfile --map-by core --report-bindings --mca pml ucx osu_bw
+sleep 2
+mpirun -x PATH --hostfile openmpi_hostfile --map-by core --report-bindings --mca pml ucx osu_latency

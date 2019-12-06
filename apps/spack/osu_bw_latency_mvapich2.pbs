@@ -2,7 +2,6 @@
 
 SHARED_APPS=/apps
 
-export MODULEPATH=${SHARED_APPS}/modulefiles/spack/tcl/hbv2/linux-centos7-x86_64:$MODULEPATH
 export OMP_NUM_THREADS=1
 
 module load gcc-9.2.0
