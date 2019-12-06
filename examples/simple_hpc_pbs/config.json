@@ -8,6 +8,7 @@
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_HB60rs",
+        "compute_instances": 2,
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
@@ -15,9 +16,6 @@
         "name": "hpcvnet",
         "address_prefix": "10.2.0.0/20",
         "subnets": {
-            "admin": "10.2.1.0/24",
-            "viz": "10.2.2.0/24",
-            "storage": "10.2.3.0/24",
             "compute": "10.2.4.0/22"
         }
     },
@@ -40,7 +38,7 @@
         "compute": {
             "type": "vmss",
             "vm_type": "variables.vm_type",
-            "instances": 2,
+            "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [

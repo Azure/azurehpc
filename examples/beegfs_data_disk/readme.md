@@ -1,5 +1,7 @@
 # BeeGFS Cluster built with data disks 
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/beegfs_data_disk/config.json)
+
 This will deploy a BeeGFS PFS using managed data disks, each D16_v3 will have 2xP30 for storage (xfs filesystem) and 2xP10 for metadata (ext4 filesystem), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed.
 
 >NOTE:

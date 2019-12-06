@@ -1,5 +1,7 @@
 # Lustre Cluster
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_demo/config.json)
+
 This is a demo set up for lustre to use the HSM plugin.
 
 Resources:

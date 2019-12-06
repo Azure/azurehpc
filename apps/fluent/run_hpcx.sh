@@ -18,8 +18,8 @@ NODES=`cat $PBS_NODEFILE | sort | uniq | wc -l`
 cat $PBS_NODEFILE | uniq -c | awk '{ print $2 ":" $1 }' > hosts
 PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
 DATE=`date +"%Y%m%d_%H%M%S"`
-PKEY=`cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/* | grep -v 0000 | grep -v 0x7fff`
-PKEY=`echo "${PKEY/0x8/0x0}"`
+PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
+PKEY=${PKEY/0x8/0x0}
 echo "PKEY: $PKEY"
 
 HPCX_DIR=$(ls -atr /opt | grep hpcx | tail -n1)

@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # arg: $1 = lfsserver
+# arg: $2 = mount point (default: /lustre)
 master=$1
+lfs_mount=${2:-/lustre}
 
-yum install -y https://downloads.whamcloud.com/public/lustre/lustre-2.10.6/el7/client/RPMS/x86_64/kmod-lustre-client-2.10.6-1.el7.x86_64.rpm
-yum install -y https://downloads.whamcloud.com/public/lustre/lustre-2.10.6/el7/client/RPMS/x86_64/lustre-client-2.10.6-1.el7.x86_64.rpm
+yum install -y kmod-lustre-client lustre-client
 weak-modules --add-kernel $(uname -r)
 
-mkdir /lustre
-#mount -t lustre ${master}@tcp0:/LustreFS /lustre
-echo "${master}@tcp0:/LustreFS /lustre lustre defaults,_netdev 0 0" >> /etc/fstab
+mkdir $lfs_mount
+echo "${master}@tcp0:/LustreFS $lfs_mount lustre defaults,_netdev 0 0" >> /etc/fstab
 mount -a
-chmod 777 /lustre
+chmod 777 $lfs_mount

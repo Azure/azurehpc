@@ -16,8 +16,6 @@ The `azhpc_*` scripts only require the azure cli and a few utilities (bash, jq a
 
 All of this is available in the Cloud Shell.  Alternatively you can run on a Linux VM on Azure or from the Windows Ubuntu Shell.
 
-> Note: you can also install `dot` (part of the graphviz pacakge) if you would like to use `azhpc-view`.
-
 Multiple [examples](https://github.com/Azure/azurehpc/tree/master/examples) for building blocks commonly used, scripts for building, installing and running [some applications](https://github.com/Azure/azurehpc/tree/master/apps) are included here so they can be used as you build your environment and run benchmarks.
 
 We have also made [some tutorials](https://github.com/Azure/azurehpc/tree/master/tutorials) available that you can follow to not only learn more about the framework but also to understand how you can easily set an environment up e2e for your own application.
@@ -64,7 +62,7 @@ The config file will create vnets and subnets from the config file.
 
 Here is an example setup with four subnets:
 
-```
+```json
 ...
 "vnet": {
     "resource_group": "vnet-resource-group",
@@ -95,6 +93,7 @@ This dictionary describes the resources for the project.
 | image                  | The OS image to use                                                     |
 | subnet                 | The subnet to place the resource in                                     |
 | instances              | The number of instances (**vmss only**)                                 |
+| low_priority           | Boolean flag for low priority (**vmss only**)                           |
 | tags                   | A list of strings with the tags for the resource                        |
 
 ### Install list
@@ -120,7 +119,7 @@ For the most part the configuration is just a standard JSON file although there 
 
 If a value is prefixed with `variables.` then it will take the value from the proceeding JSON path under the variables section.  For example:
 
-```
+```json
 {
     "location": "variables.location",
     ...
@@ -144,6 +143,29 @@ The scripts allow secrets to be stored in keyvault.  To read from keyvault use t
 The config file can create a URL with a SAS key for a file in storage.  This is the format: `sasurl.<STORAGE-ACCOUNT>.<STORAGE-PATH>`.
 
 > Note: the `<STORAGE-PATH>` should start at the container (and *do not have a preceeding `/`*)
+
+#### Fqdn
+
+The scripts allow FQDN of resources to be retrieved. This is the format: `fqdn.<RESOURCE-NAME>`.
+
+> Note: this assumes the resource name to be in the same resource group than the one defined in the configuration file.
+
+#### Storage Account Key
+
+The scripts allow storage account key be retrieved. This is the format: `sakey.<STORAGE-ACCOUNT>`.
+
+> Note: this assumes the storage account to be in the same resource group than the one defined in the configuration file.
+
+#### referencing variables in variables names
+
+There are some situation where you want to use variable values inside other variables like a keyvault name or a storage account name. To do this just enclose it with double curly braces `{{}}` like this :
+
+```json
+    "secret.{{variables.key_vault}}.CycleAdminPassword"
+````
+
+In the above example, the key vault name is stored into the `.variables.key_vault` value.
+
 
 ## Commands
 
@@ -239,7 +261,6 @@ Usage:
 |---------------|:-----:|-----------------------------------------------|
 | --help        | -h    | Display help message                          |
 | --config FILE | -c    | The config file to use (default: config.json) |
-| --user USER   | -u    | The user to run as (default: <admin-user>)    |
 
 ### azhpc-status
 

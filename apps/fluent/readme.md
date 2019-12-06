@@ -15,7 +15,7 @@ NOTE: Update the path to the fluent installer tar file in $azhpc_dir/apps/fluent
 First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
 
 ```
-azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
+azhpc-scp -r $azhpc_dir/apps hpcuser@headnode:.
 ```
 
 > Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.

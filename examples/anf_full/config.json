@@ -54,7 +54,7 @@
                 "pbsserver",
                 "loginnode",
                 "disable-selinux",
-                "mount-anfpool",
+                "mount-anf",
                 "replace_nfs_with_anf",
                 "localuser"
             ]
@@ -69,7 +69,7 @@
                 "pbsclient",
                 "cndefault",
                 "disable-selinux",
-                "mount-anfpool",
+                "mount-anf",
                 "replace_nfs_with_anf",
                 "localuser"
             ]
@@ -97,8 +97,8 @@
             "sudo": true
         },
         {
-            "script": "auto_netappfiles_mount_anfpool.sh",
-            "tag": "mount-anfpool",
+            "script": "auto_netappfiles_mount.sh",
+            "tag": "mount-anf",
             "sudo": true
         },
         {

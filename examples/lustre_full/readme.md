@@ -1,5 +1,7 @@
 # Lustre Cluster
 
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_full/config.json)
+
 This is a full set up with all the lustre features available.
 
 Resources:

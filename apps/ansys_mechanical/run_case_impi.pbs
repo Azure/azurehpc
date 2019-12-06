@@ -1,0 +1,47 @@
+#!/bin/bash
+#PBS -N ansys_mech
+#PBS -l select=2:ncpus=44:mpiprocs=44:mem=340gb
+#PBS -joe
+#PBS -koed
+
+case_name=V19cg-2
+cd $PBS_O_WORKDIR
+
+source /opt/intel/impi/*/bin64/mpivars.sh
+
+export I_MPI_FABRICS=shm:ofa
+export I_MPI_FALLBACK_DEVICE=0
+export VERSION=192
+export PATH=/apps/ansys_inc/v$VERSION/ansys/bin:$PATH
+export ANSYSLMD_LICENSE_FILE=1055@localhost
+export ANSYSLI_SERVERS=2325@localhost
+export APPLICATION=ansys_mechanical
+
+CORES=$(( cat $PBS_NODEFILE | wc -l ))
+PPN=`cat $PBS_NODEFILE | uniq -c | tail -n1 | awk '{print $1}'`
+cat $PBS_NODEFILE | sort -u > ${PBS_JOBID}.hosts
+MACHINES="$(xargs printf %s:$PPN: < ${PBS_JOBID}.hosts | sed 's/.$//' )"
+
+# Setup SSH tunnel to license server. Requires ssh keys to be setup to license server
+#ssh -fNT -g -L 1055:localhost:1055 -L 2325:localhost:2325 -L 58878:localhost:58878 user@<ip-address>
+
+OUTPUT_FILE=${case_name}-${CORES}c.out
+
+# note ansys takes number of cores from host list, not -np
+ansys$VERSION -b -dis -mpi intelmpi -ssh -machines $MACHINES -i ${case_name}.dat -o ${OUTPUT_FILE}
+
+
+# extract telemetry
+if [ -f "${OUTPUT_FILE}" ]; then
+    compute_time=$(grep "Elapsed time spent computing solution" ${OUTPUT_FILE}  | awk '{print $7}')
+    total_cpu_time=$(grep "Total CPU time summed for all threads" ${OUTPUT_FILE}  | awk '{print $9}')
+
+    cat <<EOF >$APPLICATION.json
+    {
+    "version": "$VERSION",
+    "model": "$case_name",
+    "compute_time": $compute_time,
+    "total_cpu_time": $total_cpu_time
+    }
+EOF
+fi

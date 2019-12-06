@@ -1,39 +1,40 @@
 # Build a PBS compute cluster
 
-This example will create an HPC cluster with a CentOS 7.6 headnode running PBS Pro 19.1 exporting a 4TB NFS space and multiple CentOS 7.6 HB60rs compute nodes
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/simple_hpc_pbs/config.json)
 
->NOTE: 
-- MAKE SURE you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here
+This example will create an HPC cluster ready to run with PBS Pro.
 
-First initialise a new project. AZHPC provides the `azhpc-init` command that will help here.  Running with the `-s` parameter will show all the variables that need to be set, e.g.
+## Initialise the project
+
+To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by compying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
 
 ```
 azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -s
 ```
 
-The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
+The variables can be set with the `-v` option where variables are comma separated.  The output from the previous command as a starting point.  The `-d` option is required and will create a new directory name for you.  Please update to whatever `resource_group` you would like to deploy to:
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret]
-
-(Optional) If you would like to change the location and the vm_type you can run the following command
-
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v location=southcentralus,resource_group=azhpc-cluster,win_password=[password or secret.azhpc-vault.winadmin-secret],vm_type=Standard_HB60rs
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v resource_group=azurehpc-cluster
 ```
 
-Create the cluster 
+> Note:  You can still update variables even if they are already set.  For example, in the command below we change the region to `westus2` and the SKU to `Standard_HC44rs`:
+
+```
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v location=westus2,vm_type=Standard_HC44rs,resource_group=azhpc-cluster
+```
+
+## Create the cluster 
 
 ```
 cd simple_hpc_pbs
 azhpc-build
 ```
 
-Allow ~10 minutes for deployment.
+Allow ~10 minutes for deployment.  You are able to view the status VMs being deployed by running `azhpc-status` in another terminal.
 
-To check the status of the VMs run
-```
-azhpc-status
-```
+## Log in the cluster
+
 Connect to the headnode and check PBS and NFS
 
 ```
@@ -51,8 +52,10 @@ compuc407000002 free            --       --       10.2.4.7        --            
 /mnt/resource/scratch
                 <world>(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
 [hpcuser@headnode ~]$
+```
 
 To check the state of the cluster you can run the following commands
+
 ```
 azhpc-connect -u hpcuser headnode
 qstat -Q
