@@ -17,7 +17,7 @@ pushd ${DOWNLOAD_DIR}
 if [ ! -f ${INSTALL_DIR} ]; then
     mkdir -p ${INSTALL_DIR}
     wget -q "$TAR_SAS_URL" -O ${INSTALL_TAR}
-    tar xvzf ${INSTALL_TAR} -C ${INSTALL_DIR}
+    tar xvf ${INSTALL_TAR} -C ${INSTALL_DIR}
 fi
 
 popd
