@@ -46,6 +46,7 @@ class AzurehpcApp extends React.Component {
             xmlhttp.open("GET", url, true);
             xmlhttp.send();
         }
+
     }
 
     onFileSelection(event) {
@@ -69,6 +70,15 @@ class AzurehpcApp extends React.Component {
         this.fileOpenRef.current.click();
     }
 
+    onExportClick() {
+      var json = JSON.stringify(this.state.config, null, 4);
+      const a = document.createElement("a");
+      const file = new Blob([json], { type: "application/json" });
+      a.href = URL.createObjectURL(file);
+      a.download = "azurehpc.json";
+      a.click();
+    }
+
     render() {
         var content;
         const active_button = "btn btn-dark my-2 my-sm-0 active";
@@ -83,17 +93,7 @@ class AzurehpcApp extends React.Component {
                         onClick={() => {this.setState({page: "overview"})} }
                     >
                         <i className="fa fa-cloud"></i> Overview
-            </button>
-                </li>
-                <li className="nav-item nav-link">
-                    <button
-                        className={
-                            this.state.page === "install" ? active_button : inactive_button
-                        }
-                        onClick={() => {this.setState({page: "install"})} }
-                    >
-                        <i className="fa fa-reorder"></i> Install Steps
-            </button>
+                    </button>
                 </li>
                 <li className="nav-item nav-link">
                     <button
@@ -103,22 +103,32 @@ class AzurehpcApp extends React.Component {
                         onClick={() => {this.setState({page: "code"})} }
                     >
                         <i className="fa fa-code"></i> Code
-            </button>
+                    </button>
+                </li>
+                <li className="nav-item nav-link">
+                    <button
+                        className={
+                            this.state.page === "install" ? active_button : inactive_button
+                        }
+                        onClick={() => {this.setState({page: "install"})} }
+                    >
+                        <i className="fa fa-reorder"></i> Install Steps
+                    </button>
                 </li>
             </ul>
         );
         if (this.state.page === "overview") {
             content = <AzurehpcVnetView config={this.state.config} />;
+        } else if (this.state.page === "code") {
+            content = <AzurehpcEditorView code={JSON.stringify(this.state.config, null, 4)} app={this} />;
         } else if (this.state.page === "install") {
             content = <AzurehpcInstallView config={this.state.config} />;
-        } else if (this.state.page === "code") {
-            content = <AzurehpcEditorView code={JSON.stringify(this.state.config, null, 4)} />;
         }
 
         return (
             <div>
                 <nav className="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-                    <a className="navbar-brand" href="#">azurehpc</a>
+                    <a className="navbar-brand" href="#top">azurehpc</a>
                     <button
                         className="navbar-toggler"
                         type="button"
@@ -147,6 +157,13 @@ class AzurehpcApp extends React.Component {
                                 onChange={this.onFileSelection.bind(this)}
                                 hidden
                             />
+                            &nbsp;
+                            <button
+                                className="btn btn-sm btn-success my-2 my-sm-0"
+                                onClick={() => this.onExportClick(this.state.config)}
+                            >
+                                <i className="fa fa-folder-export"></i> Export
+                            </button>
                         </div>
                     </div>
                 </nav>

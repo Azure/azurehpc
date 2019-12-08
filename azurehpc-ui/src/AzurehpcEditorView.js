@@ -5,16 +5,22 @@ import ReactResizeDetector from 'react-resize-detector';
 class AzurehpcEditorView extends React.Component {
     editor = null;
 
-    editorDidMount = (editor) => {
+    editorDidMount = (_, editor) => {
+        console.log('Didmount');
         this.editor = editor;
         //editor.focus();
-    };
+    }
+
+    listenEditorChanges() {
+        console.log(this.editor.getValue());
+        this.props.app.setState({config: JSON.parse(this.editor.getValue())});
+    }
 
     render() {
         const code = this.props.code;
         const options = {
             selectOnLineNumbers: true,
-            readOnly: true
+            readOnly: false
         };
         return (<ReactResizeDetector
             handleWidth
@@ -25,6 +31,9 @@ class AzurehpcEditorView extends React.Component {
                 }
             }}
         >
+            <button onClick={this.listenEditorChanges.bind(this)} key="savekey">
+                  Save Code 
+            </button>
             <Editor
                 language="json"
                 theme="vs"
