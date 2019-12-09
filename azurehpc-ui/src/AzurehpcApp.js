@@ -9,23 +9,28 @@ class AzurehpcApp extends React.Component {
         super(props);
         this.state = {
             config: {
-                location: "NOT-SET",
-                resource_group: "NOT-SET",
+                location: "westeurope",
+                resource_group: "hpcresourcegroup",
                 install_from: "NOT-SET",
-                admin_user: "NOT-SET",
+                admin_user: "hpcadmin",
                 vnet: {
-                    name: "NOT-SET",
-                    address_prefix: "NOT-SET",
-                    subnets: {}
+                    name: "hpc",
+                    address_prefix: "10.2.0.0/16",
+                    subnets: { "compute": "10.2.4.0/22" }
                 },
                 variables: {},
                 storage: {},
                 resources: {},
                 install: []
             },
-            page: "overview"
+            page: "overview",
+            showMenu: false
         };
         this.fileOpenRef = React.createRef();
+        this.showMenu = this.showMenu.bind(this);
+        this.addVMResource = this.addVMResource.bind(this);
+        this.addVMSSResource = this.addVMSSResource.bind(this);
+        this.addStorage = this.addStorage.bind(this);
 
         const params = new URL(document.location.href).searchParams;
         if (params && params.get("o")) {
@@ -79,6 +84,102 @@ class AzurehpcApp extends React.Component {
       a.click();
     }
 
+    showMenu(event) {
+      event.preventDefault();
+     this.setState(prevState => ({
+       showMenu: !prevState.showMenu
+     }));
+    }
+
+    addVMResource() {
+      this.setState(prevState => ({
+        config: {
+          ...prevState.config,      
+            resources: {
+              ...prevState.config.resources,
+            "newnode": {
+              "type" : "vm",
+              "vm_type": "Standard_DS8_v3",
+              "public_ip": true,
+              "image": "my",
+              "subnet": "compute",
+              "tags": [
+                "cndefault",
+                "disable-selinux"
+              ] }
+            },
+            vnet: {
+            ...prevState.config.vnet,
+              subnets: {
+              ...prevState.config.vnet.subnets,
+                "compute": "10.2.4.0/22"
+              }
+            }
+        }
+      }))
+    }
+
+    addVMSSResource() {
+      this.setState(prevState => ({
+        config: {
+          ...prevState.config,      
+            resources: {
+              ...prevState.config.resources,
+            "newvmss": {
+              "type" : "vmss",
+              "vm_type": "Standard_DS8_v3",
+              "image": "my",
+              "subnet": "compute",
+              "tags": [
+                "cndefault",
+                "disable-selinux"
+              ] }
+            },
+            vnet: {
+            ...prevState.config.vnet,
+              subnets: {
+              ...prevState.config.vnet.subnets,
+                "compute": "10.2.4.0/22"
+              }
+            }
+        }
+      }))
+    }
+
+    addStorage() {
+      this.setState(prevState => ({
+        config: {
+          ...prevState.config,      
+            storage: {
+              ...prevState.config.storage,
+                "hpcnetapp": {
+                  "type": "anf",
+                  "subnet": "netapp",
+                  "pools": {
+                    "anfpool": {
+                      "size": 10,
+                      "service_level": "Premium",
+                        "volumes": {
+                          "anfvol1": {
+                            "size": 4,
+                            "mount": "/data"
+                          }
+                        }
+                      }
+                    }
+                  }
+            },
+            vnet: {
+            ...prevState.config.vnet,
+              subnets: {
+              ...prevState.config.vnet.subnets,
+                "netapp": "10.2.4.0/22"
+              }
+            }
+        }
+      }))
+    }
+
     render() {
         var content;
         const active_button = "btn btn-dark my-2 my-sm-0 active";
@@ -115,6 +216,17 @@ class AzurehpcApp extends React.Component {
                         <i className="fa fa-reorder"></i> Install Steps
                     </button>
                 </li>
+                <li className="nav-item nav-link">
+                    <button className={active_button} data-toggle="dropdown" onClick={this.showMenu}>
+                    <i className="fa fa-reorder"></i> Add component
+                    </button>
+                </li>
+          { this.state.showMenu ? (
+              <div className="nav-item nav-link">
+                <button className={inactive_button} onClick={this.addVMResource} > <i className="fa fa-reorder"> </i> VM </button>
+                <button className={inactive_button} onClick={this.addVMSSResource} > <i className="fa fa-reorder"> </i> VMSS </button>
+                <button className={inactive_button} onClick={this.addStorage} > <i className="fa fa-reorder"> </i> Storage </button>
+              </div> ) : (null) }
             </ul>
         );
         if (this.state.page === "overview") {
