@@ -7,6 +7,7 @@ import azure_netappfiles_icon from './azure-netappfiles.svg';
 import azure_vmss_icon from './azure-vmss.svg';
 import azure_vm_icon from './azure-vm.svg';
 import azure_vnet_icon from './azure-vnet.svg';
+import azure_cyclecloud_icon from './cyclecloud.png';
 
 class AnfPoolView extends React.Component {
     render() {
@@ -173,6 +174,20 @@ class SubnetView extends React.Component {
                 }
             });
         }
+        if ("cyclecloud" in this.props.config) {
+            Object.keys(this.props.config.cyclecloud).forEach(resource_name => {
+                const resource = this.props.config.cyclecloud[resource_name];
+                if (resource.subnet === subnet_name) {
+                    resources.push(
+                        <CycleNodeView
+                            key={resource_name}
+                            resource_name={resource_name}
+                            config={this.props.config}
+                        />
+                    );
+                }
+            });
+        }
         Object.keys(this.props.config.resources).forEach(resource_name => {
             const resource = this.props.config.resources[resource_name];
             if (resource.subnet === subnet_name) {
@@ -232,6 +247,76 @@ class AzurehpcVnetView extends React.Component {
                 </div>
                 <div className="card-body">
                     <div className="d-flex flex-wrap">{subnets}</div>
+                </div>
+            </div>
+        );
+    }
+}
+
+class CycleNodeView extends React.Component {
+    render() {
+        const config = this.props.config;
+        const resource_name = this.props.resource_name;
+        const resource_type = read_value(
+            config,
+            "cyclecloud." + resource_name + ".type"
+        );
+        const resource_sku = read_value(
+            config,
+            "cyclecloud." + resource_name + ".vm_type"
+        );
+        const resource_image = read_value(
+            config,
+            "cyclecloud." + resource_name + ".image"
+        );
+        const tags = [];
+        this.props.config.cyclecloud[resource_name].roles.forEach(tag => {
+            const key = resource_name + "_" + tag;
+            tags.push(
+                <span key={key} className="badge badge-primary m-1">
+                    {tag}
+                </span>
+            );
+        });
+        const nodes = [];
+        if (resource_type === "node") {
+            nodes.push(
+                <li key={resource_name} className="list-group-item">
+                    {resource_name}
+                </li>
+            );
+        } else if (resource_type === "nodearray") {
+            const instances = read_value(
+                config,
+                "resources." + resource_name + ".instances"
+            );
+            for (var i = 0; i < instances; i++) {
+                const node_name = resource_name + "_" + i;
+                nodes.push(
+                    <li key={node_name} className="list-group-item">
+                        {node_name}
+                    </li>
+                );
+            }
+        }
+        return (
+            <div className="resource card m-1">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                    <img src={resource_type === "node" ? azure_cyclecloud_icon : azure_cyclecloud_icon} alt="" width="24" height="24" />
+                    {resource_name}
+                    <span className="badge badge-info">{resource_type}</span>
+                </div>
+                <div className="card-body">
+                    <p className="card-text m-0 p-0">
+                        <b>SKU:</b> {resource_sku}
+                    </p>
+                    <p className="card-text m-0 p-0">
+                        <b>Image:</b> {resource_image}
+                    </p>
+                    <p className="card-text m-0 p-0">
+                        <b>Roles:</b> {tags}
+                    </p>
+                    <ul className="list-group mt-3 d-flex text-center">{nodes}</ul>
                 </div>
             </div>
         );
