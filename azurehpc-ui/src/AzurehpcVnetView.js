@@ -252,13 +252,13 @@ class AzurehpcVnetView extends React.Component {
 
 class CycleClusterView extends React.Component {
     render() {
-        const config = this.props.config;
+        //const config = this.props.config;
         const cluster = this.props.cluster_name;
         const subnet = this.props.subnet_name;
         const nodes = [];
         Object.keys(this.props.config.resources[cluster]).forEach(node_name => {
             if (node_name !== "type") {
-              if (this.props.config.resources[cluster][node_name].subnet === subnet) {
+              if (this.props.config.resources[cluster][node_name].subnet === subnet) { 
               nodes.push(
                 <CycleNodeView
                     key={cluster}
@@ -270,6 +270,7 @@ class CycleClusterView extends React.Component {
               }
             }
         });
+        if (nodes.length > 0) {
         return (
             <div className="card m-1">
                 <div className="card-header d-flex justify-content-between align-items-center">
@@ -282,6 +283,12 @@ class CycleClusterView extends React.Component {
                 </div>
             </div>
         );
+        } else {
+        return(
+           <div></div>
+        );
+        }
+
     }
 }
 
