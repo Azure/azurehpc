@@ -84,19 +84,22 @@ case $AZHPC_VMSIZE in
         # Enable HCOLL
         mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
     ;;
+    standard_hb120rs_v2)
+        #mpi_options+=" -x UCX_DC_MLX5_RNR_TIMEOUT=2000.00us -x UCX_DC_MLX5_RNR_RETRY_COUNT=20"
+    ;;
 esac
 
 mpi_options+=" -x UCX_LOG_LEVEL=ERROR"
 mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
 mpi_options+=" -x LD_LIBRARY_PATH"
-mpi_options+=" -bind-to core"
-mpi_options+=" -report-bindings --display-allocation -v"
+mpi_options+=" --bind-to core"
+mpi_options+=" --report-bindings --display-allocation -v"
 
 if [ -n "${LD_PRELOAD}" ]; then
     mpi_options+=" -x LD_PRELOAD"
 fi
 
-# Use 98% of the memory 
+# Use 98% of the memory
 total_mem=$(free -m | grep Mem: | xargs | cut -d' ' -f2)
 memory=$(( ($total_mem * 98 / 100) / $AZHPC_PPN ))
 echo "memory per rank=$memory"
@@ -110,13 +113,18 @@ echo $mpi_options
 
 # Keep tuning files separate for each VM Type
 TUNING_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$AZHPC_VMSIZE/
-mkdir -p $TUNING_DIR
+SCHEME_DIR=$PROLB_HOME/schemes/
+if [ ! -f ${TUNING_DIR} ]; then
+    mkdir -p $TUNING_DIR
+    cp ${SCHEME_DIR}* $TUNING_DIR
+    SCHEME_DIR=$TUNING_DIR
+fi
 
 $MPI_HOME/bin/mpirun $mpi_options \
     -hostfile $AZHPC_MPI_HOSTFILE \
     -np $AZHPC_CORES \
     $PROLB_HOME/bin/lbsolver -np $AZHPC_CORES \
-                             -s $PROLB_HOME/schemes/ \
+                             -s $SCHEME_DIR \
                              -tuning $TUNING_DIR \
                              -m $memory $iter_option \
                              -p $AZHPC_JOBDIR/$CASE | tee prolb.log
@@ -140,7 +148,7 @@ if [ -f "${output}" ]; then
     else
         total_cpu_time=$(grep "LBsolver normal termination" ${output} | cut -d' ' -f7 | xargs)
     fi
-    
+
     FluidLinks_time=$(grep "FluidLinks         |" ${output} | cut -d'|' -f3 | cut -d'=' -f1 | xargs)
     Migrate_time=$(grep "Migrate            |" ${output} | cut -d'|' -f3 | cut -d'=' -f1 | xargs)
     Solver_time=$(grep "Solver             |" ${output} | cut -d'|' -f3 | cut -d'=' -f1 | xargs)
@@ -160,4 +168,3 @@ if [ -f "${output}" ]; then
     }
 EOF
 fi
-
