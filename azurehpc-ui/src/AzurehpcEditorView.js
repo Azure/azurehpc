@@ -12,7 +12,12 @@ class AzurehpcEditorView extends React.Component {
     }
 
     listenEditorChanges() {
-        console.log(this.editor.getValue());
+        //console.log(this.editor.getValue());
+        try {
+        JSON.parse(this.editor.getValue());
+        } catch (e) {
+        return false;
+        }
         this.props.app.setState({config: JSON.parse(this.editor.getValue())});
     }
 
