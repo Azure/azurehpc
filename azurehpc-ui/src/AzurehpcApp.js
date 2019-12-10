@@ -106,6 +106,9 @@ class AzurehpcApp extends React.Component {
         }
         txt += "imagename = " + this.state.config.cyclecloud[resource_name].image + "\n"
         txt += "subnetid = " + this.state.config.resource_group + "/" + this.state.config.vnet.name + "/" + this.state.config.cyclecloud[resource_name].subnet + "\n"
+        txt += "isreturnproxy = true\n";
+        txt += "[[[network-interface eth0]]]\n";
+        txt += "AssociatePublicIpAddress = true\n";
       });
       //txt += "[[node " + this.state.config.cyclecloud.master.type + "]]\n";
       const a = document.createElement("a");
@@ -139,7 +142,7 @@ class AzurehpcApp extends React.Component {
               "type" : "vm",
               "vm_type": "Standard_DS8_v3",
               "public_ip": true,
-              "image": "OpenLogic:CentOS-HPC:7.6:latest",
+              "image": "OpenLogic:CentOS:7.7:latest",
               "subnet": "compute",
               "tags": [
                 "cndefault",
@@ -166,7 +169,7 @@ class AzurehpcApp extends React.Component {
             "newvmss": {
               "type" : "vmss",
               "vm_type": "Standard_DS8_v3",
-              "image": "OpenLogic:CentOS-HPC:7.6:latest",
+              "image": "OpenLogic:CentOS:7.7:latest",
               "subnet": "compute",
               "tags": [
                 "cndefault",
@@ -222,20 +225,24 @@ class AzurehpcApp extends React.Component {
       this.setState(prevState => ({
         config: {
           ...prevState.config,      
-            cyclecloud: {
-              ...prevState.config.cyclecloud,
-                "master": {
-                  "type": "node",
-                  "vm_type": "Standard_DS8_v3",
-                  "subnet": "compute",
-                  "image": "OpenLogic:CentOS-HPC:7.6:latest",
-                  "tags": [
-                    "cndefault",
-                    "disable-selinux"
-                  ],
-                  "roles": [
-                    "pbspro-master"
-                  ] }
+            resources: {
+              ...prevState.config.resources,
+                "mycluster": {
+                ...prevState.config.resources.mycluster,
+                  "type": "cluster",
+                  "master": {
+                    "type": "node",
+                    "vm_type": "Standard_DS8_v3",
+                    "subnet": "compute",
+                    "image": "OpenLogic:CentOS:7.7:latest",
+                    "tags": [
+                      "cndefault",
+                      "disable-selinux"
+                    ],
+                    "roles": [
+                      "pbspro-master"
+                    ] }
+                 }
             },
             vnet: {
             ...prevState.config.vnet,
@@ -252,16 +259,20 @@ class AzurehpcApp extends React.Component {
       this.setState(prevState => ({
         config: {
           ...prevState.config,      
-            cyclecloud: {
-              ...prevState.config.cyclecloud,
-                "execute": {
-                  "type": "nodearray",
-                  "vm_type": "Standard_DS8_v3",
-                  "subnet": "compute",
-                  "image": "OpenLogic:CentOS-HPC:7.6:latest",
-                  "roles": [
-                    "execute"
-                  ] }
+            resources: {
+              ...prevState.config.resources,
+                "mycluster": {
+                ...prevState.config.resources.mycluster,
+                  "type": "cluster",
+                  "execute": {
+                    "type": "nodearray",
+                    "vm_type": "Standard_DS8_v3",
+                    "subnet": "compute",
+                    "image": "OpenLogic:CentOS:7.7:latest",
+                    "roles": [
+                      "execute"
+                    ] }
+                  }
             },
             vnet: {
             ...prevState.config.vnet,
