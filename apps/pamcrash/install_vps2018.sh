@@ -1,8 +1,9 @@
 #!/bin/bash
-INSTALL_TAR=$1
-TAR_SAS_URL="$2"
+TAR_SASURL="$1"
+MPM_SASURL="$2"
 LICENSE_PORT_IP=$3
 
+# TODO : Extract file name from SAS URL
 APP_NAME=VPS2018
 DOWNLOAD_DIR=/mnt/resource
 SHARED_APP=/apps
@@ -16,8 +17,18 @@ pushd ${DOWNLOAD_DIR}
 
 if [ ! -f ${INSTALL_DIR} ]; then
     mkdir -p ${INSTALL_DIR}
-    wget -q "$TAR_SAS_URL" -O ${INSTALL_TAR}
-    tar xvf ${INSTALL_TAR} -C ${INSTALL_DIR}
+    blob=${TAR_SASURL%%\?*}
+    tarfile=${blob##*/}
+    echo "get $TAR_SASURL to ${tarfile}"
+    wget -q "$TAR_SASURL" -O ${tarfile}
+    tar xvf ${tarfile} -C ${INSTALL_DIR}
+
+    blob=${MPM_SASURL%%\?*}
+    tarfile=${blob##*/}
+    echo "get $MPM_SASURL to ${tarfile}"
+    wget -q "$MPM_SASURL" -O ${tarfile}
+    tar -xvf ${tarfile} -C $INSTALL_DIR/pamcrash_safe/2018.01/Linux_x86_64/lib/
+
 fi
 
 popd
