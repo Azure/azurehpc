@@ -190,6 +190,7 @@ class SubnetView extends React.Component {
                     <CycleClusterView
                         key={resource_name}
                         cluster_name={resource_name}
+                        subnet_name={subnet_name}
                         config={this.props.config}
                     />
                 );
@@ -253,17 +254,20 @@ class CycleClusterView extends React.Component {
     render() {
         const config = this.props.config;
         const cluster = this.props.cluster_name;
+        const subnet = this.props.subnet_name;
         const nodes = [];
         Object.keys(this.props.config.resources[cluster]).forEach(node_name => {
             if (node_name !== "type") {
-            nodes.push(
+              if (this.props.config.resources[cluster][node_name].subnet === subnet) {
+              nodes.push(
                 <CycleNodeView
                     key={cluster}
                     cluster_name={cluster}
                     node_name={node_name}
                     config={this.props.config}
                 />
-            );
+              );
+              }
             }
         });
         return (
@@ -283,25 +287,8 @@ class CycleClusterView extends React.Component {
 
 class CycleNodeView extends React.Component {
     render() {
-        //const config = this.props.config;
         const cluster = this.props.cluster_name;
         const node = this.props.node_name;
-        //const nodes = [];
-        //Object.keys(config.resources[cluster]).forEach(node => {
-        //    nodes.push(
-        //        <li key={node} className="list-group-item">
-        //            <p className="card-text m-0 p-0">
-        //                <b>Node:</b> {node}
-        //            </p>
-        //            <p className="card-text m-0 p-0">
-        //                <b>Size:</b> {config.resources[cluster][node].type}
-        //            </p>
-        //            <p className="card-text m-0 p-0">
-        //                <b>Mount:</b> {config.resources[cluster].type}
-        //            </p>
-         //       </li>
-         //   );
-        //});
         return (
             <div className="resource card m-1">
                 <div className="card-header d-flex justify-content-between align-items-center">
@@ -311,12 +298,11 @@ class CycleNodeView extends React.Component {
                 </div>
                 <div className="card-body">
                     <p className="card-text m-0 p-0">
-                        <b>Type:</b> {this.props.config.resources[cluster][node].type} 
+                        <b>SKU:</b> {this.props.config.resources[cluster][node].vm_type} 
                     </p>
                     <p className="card-text m-0 p-0">
-                        <b>Size:</b> 456 TB
-            </p>
-                    <ul className="list-group mt-3 d-flex">567</ul>
+                        <b>Image:</b> {this.props.config.resources[cluster][node].image} 
+                    </p>
                 </div>
             </div>
         );
