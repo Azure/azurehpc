@@ -22,6 +22,9 @@ for line in $(<$hostlist); do
     src=$dst
 done
 
+# clean up
+rm $hostlist
+
 echo "Ring Ping Pong Results (1024 bytes)"
 printf "%-20s %-20s %10s\n" "Source" "Destination" "Time [usec]"
 grep "^         1024 " *_ringpingpong.$PBS_JOBID.log \
