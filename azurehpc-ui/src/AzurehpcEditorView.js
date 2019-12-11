@@ -1,9 +1,21 @@
 import React from 'react';
 import Editor from "@monaco-editor/react"
 import ReactResizeDetector from 'react-resize-detector';
+import Popup from './Popup';
 
 class AzurehpcEditorView extends React.Component {
     editor = null;
+
+    constructor(props){  
+      super(props);  
+      this.state = { showPopup: false };  
+    }  
+
+    togglePopup() {  
+      this.setState({  
+        showPopup: !this.state.showPopup  
+      });  
+    }  
 
     editorDidMount = (_, editor) => {
         console.log('Didmount');
@@ -14,10 +26,11 @@ class AzurehpcEditorView extends React.Component {
     listenEditorChanges() {
         //console.log(this.editor.getValue());
         try {
-        JSON.parse(this.editor.getValue());
+          JSON.parse(this.editor.getValue());
         } catch (e) {
-        return false;
-        }
+          //this.togglePopup()
+          return false;
+        } 
         this.props.app.setState({config: JSON.parse(this.editor.getValue())});
     }
 
@@ -27,7 +40,8 @@ class AzurehpcEditorView extends React.Component {
             selectOnLineNumbers: true,
             readOnly: false
         };
-        return (<ReactResizeDetector
+        return (
+          <ReactResizeDetector
             handleWidth
             handleHeight
             onResize={() => {
@@ -35,10 +49,17 @@ class AzurehpcEditorView extends React.Component {
                     //this.editor.layout();
                 }
             }}
-        >
-            <button onClick={this.listenEditorChanges.bind(this)} key="savekey">
-                  Save Code 
-            </button>
+          >
+            <button onClick={this.listenEditorChanges.bind(this)} key="savekey"> Save Code </button>
+
+          {this.state.showPopup ?  
+            <Popup  
+                text='Click "Close Button" to hide popup'  
+                closePopup={this.togglePopup.bind(this)}  
+            />  
+          : null  
+          }  
+
             <Editor
                 language="json"
                 theme="vs"

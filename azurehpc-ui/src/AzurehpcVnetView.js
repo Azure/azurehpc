@@ -296,6 +296,16 @@ class CycleNodeView extends React.Component {
     render() {
         const cluster = this.props.cluster_name;
         const node = this.props.node_name;
+
+        const tags = [];
+        this.props.config.resources[cluster][node].clusterinit.forEach(tag => {
+            const key = node + "_" + tag;
+            tags.push(
+                <span key={key} className="badge badge-primary m-1">
+                    {tag}
+                </span>
+            );
+        });
         return (
             <div className="resource card m-1">
                 <div className="card-header d-flex justify-content-between align-items-center">
@@ -309,6 +319,9 @@ class CycleNodeView extends React.Component {
                     </p>
                     <p className="card-text m-0 p-0">
                         <b>Image:</b> {this.props.config.resources[cluster][node].image} 
+                    </p>
+                    <p className="card-text m-0 p-0">
+                        <b>Cluster-init:</b> {tags}
                     </p>
                 </div>
             </div>
