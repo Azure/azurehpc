@@ -303,7 +303,7 @@ class AzurehpcApp extends React.Component {
                     "image": "OpenLogic:CentOS:7.7:latest",
                     "clusterinit": [
                       "cyclecloud/pbspro:default:1.3.2",
-                      "cyclecloud/pbspro:master:1.3.2"
+                      "cyclecloud/pbspro:execute:1.3.2"
                     ], 
                     "configuration": [
                       "autoscale.disabled = false"
