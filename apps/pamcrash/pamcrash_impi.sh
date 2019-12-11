@@ -1,8 +1,8 @@
 #!/bin/bash
-CASE=$1
-CASE_DIR=$2
-THREADS=${3-1}
-SHARED_ROOT=$4
+CASE=${1##*/}
+CASE_DIR=${1%$CASE}
+THREADS=${2-1}
+SHARED_ROOT=$3
 
 # Set AZHPC_XXX environment variables
 AZHPC_DATA=${SHARED_ROOT}/data
@@ -16,6 +16,11 @@ cd $AZHPC_JOBDIR
 AZHPC_MPI_HOSTFILE=$AZHPC_JOBDIR/hostfile
 cat $PBS_NODEFILE > $AZHPC_MPI_HOSTFILE
 
+# remove long domain name from hostfile
+h=$(tail -n 1 $AZHPC_MPI_HOSTFILE)
+d=${h#*.}
+sed -i 's/.'$d'//g' $AZHPC_MPI_HOSTFILE
+
 AZHPC_PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
@@ -27,8 +32,8 @@ PKEY=${PKEY/0x8/0x0}
 source /etc/profile # so we can load modules
 module use /usr/share/Modules/modulefiles
 module use $AZHPC_APPS/modulefiles
-module load gcc-9.2.0
 module load ${AZHPC_APPLICATION}
+
 module load mpi/impi-2019
 source $MPI_BIN/mpivars.sh
 
@@ -48,8 +53,7 @@ $PAMCRASH -np ${AZHPC_CORES} \
     -nt $THREADS \
     -lic CRASHSAF \
     -mpi $PAM_MPI \
-    -mpiexe mpirun \
     -mpidir $MPI_BIN \
+    -mpiexe mpirun \
     -mpiext '$MPI_OPTIONS' \
-    $CASE.pc
-
+    $CASE
