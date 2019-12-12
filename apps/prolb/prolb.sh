@@ -61,6 +61,8 @@ fi
 
 numa_domains="$(numactl -H |grep available|cut -d' ' -f2)"
 AZHPC_PPR=$(( ($AZHPC_PPN + $numa_domains - 1) / $numa_domains ))
+AZHPC_PPS=$(( ($AZHPC_PPN) / 2 ))
+
 
 printenv
 
@@ -92,6 +94,8 @@ esac
 
 mpi_options+=" -x UCX_LOG_LEVEL=ERROR"
 mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
+#mpi_options+=" --map-by ppr:$AZHPC_PPN:socket"
+#mpi_options+=" --map-by ppr:$AZHPC_PPN:node"
 mpi_options+=" -x LD_LIBRARY_PATH"
 mpi_options+=" --bind-to core"
 mpi_options+=" --report-bindings --display-allocation -v"
