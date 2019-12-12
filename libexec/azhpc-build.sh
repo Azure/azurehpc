@@ -597,7 +597,9 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
 
                         read_value mount_point ".storage.\"$storage_name\".pools.\"$pool_name\".volumes.\"$volume_name\".mount"
                         echo "mkdir -p $mount_point" >> $mount_script
-                        echo "echo \"$volume_ip:/$volume_name	$mount_point	nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0\" >> /etc/fstab" >> $mount_script
+                        echo "grep -v '\s${mount_point}' /etc/fstab > /etc/fstab.bak" >> $mount_script
+                        echo "echo \"$volume_ip:/$volume_name  $mount_point  nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0\" >> /etc/fstab.bak" >> $mount_script
+                        echo "mv /etc/fstab.bak /etc/fstab" >> $mount_script
                         echo "chmod 777 $mount_point" >> $mount_script
 		    fi
                 done
