@@ -3,7 +3,7 @@
 # this script needs to run without sudo
 #  - the keys from the user are used for the root user
 
-sudo wget -O /etc/yum.repos.d/beegfs-rhel7.repo https://www.beegfs.io/release/beegfs_7_1/dists/beegfs_rhel7.repo
+sudo wget -O /etc/yum.repos.d/beegfs-rhel7.repo https://www.beegfs.io/release/beegfs_7_1/dists/beegfs-rhel7.repo
 sudo rpm --import https://www.beegfs.io/release/latest-stable/gpg/RPM-GPG-KEY-beegfs
 
 sudo yum install -y epel-release
