@@ -85,7 +85,7 @@ az group create \
     --resource-group $resource_group \
     --location $location \
     --tags 'CreatedBy='$USER'' 'CreatedOn='$(date +%Y%m%d-%H%M%S)'' \
-    --output table || exit -1
+    --output table || exit 1
 
 if [ "$ppg_name" != null ]; then
    status "creating proximity placement group"
@@ -113,7 +113,7 @@ else
         --resource-group $vnet_resource_group \
         --name $vnet_name \
         --address-prefix "$address_prefix" \
-        --output table || exit -1
+        --output table || exit 1
 fi
 
 read_value vnet_dns_domain ".vnet.dns_domain" null
@@ -129,7 +129,7 @@ if [ $vnet_dns_domain != null ]; then
   az network private-dns zone create \
       --resource-group $resource_group \
       --name $vnet_dns_domain \
-      --output table || exit -1
+      --output table || exit 1
   fi
   status "creating vnet link to private dns"
   az network private-dns link vnet show \
@@ -146,7 +146,7 @@ if [ $vnet_dns_domain != null ]; then
       --zone-name $vnet_dns_domain \
       --virtual-network $vnet_name \
       --registration-enabled true \
-      --output table || exit -1
+      --output table || exit 1
   fi
 fi
 
@@ -168,7 +168,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
             --vnet-name $vnet_name \
             --name $subnet_name \
             --address-prefix "$subnet_address_prefix" \
-            --output table || exit -1
+            --output table || exit 1
     fi
     
     read_value peer_exists ".vnet.peer" "None"
@@ -208,7 +208,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
 		--vnet-name $vnet_name \
 		--remote-vnet $id_2 \
 		--allow-forwarded-traffic \
-		--allow-vnet-access || exit -1
+		--allow-vnet-access || exit 1
 	fi
 
 	status "Checking if rg-${vnet_resource_group}-${vnet_name}-2-${peer_vnet_name} for $peer_vnet_name already exists"
@@ -227,7 +227,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
 		--vnet-name $peer_vnet_name \
 		--remote-vnet $id_1 \
 		--allow-forwarded-traffic \
-		--allow-vnet-access || exit -1
+		--allow-vnet-access || exit 1
 	fi
     done
 done
@@ -307,7 +307,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --public-ip-address-dns-name $resource_name$uuid_str \
                 $data_disks_options \
                 $ppg_option \
-                --no-wait || exit -1
+                --no-wait || exit 1
             
             if [ "$?" -ne "0" ]; then
                 error "Failed to create resource"
@@ -388,7 +388,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 $data_disks_options \
                 $lowpri_option \
                 $ppg_option \
-                --no-wait || exit -1
+                --no-wait || exit 1
             
             if [ "$?" -ne "0" ]; then
                 error "Failed to create resource"
@@ -431,7 +431,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                     --vnet-name $vnet_name \
                     --name $storage_subnet \
                     --delegations "Microsoft.Netapp/volumes" \
-                    --output table || exit -1
+                    --output table || exit 1
             fi
 
             debug "creating netapp account"
@@ -446,7 +446,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                     --resource-group $storage_resource_group \
                     --account-name $storage_name \
                     --location $location \
-                    --output table || exit -1
+                    --output table || exit 1
 	    fi
 
 	    read_value storage_anf_domain ".storage.\"$storage_name\".joindomain" "None"
@@ -463,7 +463,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                     --smb-server-name anf \
                     --username $storage_anf_domain_admin \
                     --resource-group $storage_resource_group \
-                    --name $storage_name || exit -1
+                    --name $storage_name || exit 1
             fi
 
             # loop over pools
@@ -503,7 +503,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --service-level $pool_service_level \
                         --size $pool_size \
                         --pool-name $pool_name \
-                        --output table || exit -1
+                        --output table || exit 1
                 fi
                 # loop over volumes
                 for volume_name in $(jq -r ".storage.\"$storage_name\".pools.\"$pool_name\".volumes | keys | .[]" $config_file); do
@@ -524,7 +524,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
 			  --protocol-type CIFS \
  			  --vnet $vnet_name \
                           --subnet $storage_subnet \
-                          --output table || exit -1
+                          --output table || exit 1
 
                       volume_ip=$( \
                           az netappfiles list-mount-targets \
@@ -533,7 +533,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                             --pool-name $pool_name \
                             --volume-name $volume_name \
                             --query [0].ipAddress \
-                            --output tsv || exit -1
+                            --output tsv || exit 1
                       )
                       read_value mount_point ".storage.\"$storage_name\".pools.\"$pool_name\".volumes.\"$volume_name\".mount"
                       echo "mkdir -p $mount_point" >> $mount_script
@@ -563,7 +563,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                                 --volume-name $volume_name \
                                 --vnet $vnet_name \
                                 --subnet $storage_subnet \
-                                --output table || exit -1
+                                --output table || exit 1
                         fi
                         volume_ip=$( \
                             az netappfiles list-mount-targets \
@@ -572,7 +572,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                                 --pool-name $pool_name \
                                 --volume-name $volume_name \
                                 --query [0].ipAddress \
-                                --output tsv || exit -1
+                                --output tsv || exit 1
                         )
                         # if we have private-dns: register ip-addres for ANF
                         if [ $vnet_dns_domain != null ]; then
@@ -591,7 +591,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                               --zone-name $vnet_dns_domain \
                               --record-set-name ${storage_name}-${volume_name} \
                               --ipv4-address $volume_ip \
-                              --output table || exit -1
+                              --output table || exit 1
                           fi
                         fi
 
@@ -651,7 +651,7 @@ for route_name in $(jq -r ".vnet.routes | keys | @tsv" $config_file 2>/dev/null)
     az network route-table create \
         --resource-group $vnet_resource_group \
         --name $route_name \
-        --output table || exit -1
+        --output table || exit 1
     az network route-table route create \
         --resource-group $vnet_resource_group \
         --address-prefix $route_address_prefix \
@@ -659,13 +659,13 @@ for route_name in $(jq -r ".vnet.routes | keys | @tsv" $config_file 2>/dev/null)
         --route-table-name $route_name \
         --next-hop-ip-address $route_next_hop \
         --name $route_name \
-        --output table || exit -1
+        --output table || exit 1
     az network vnet subnet update \
         --vnet-name $vnet_name \
         --name $route_subnet \
         --resource-group $vnet_resource_group \
         --route-table $route_name \
-        --output table || exit -1
+        --output table || exit 1
 
 done
 
