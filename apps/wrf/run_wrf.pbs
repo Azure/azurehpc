@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export MODULEPATH=/avere/apps/modulefiles/${SKU_TYPE}:$MODULEPATH
+export MODULEPATH=/apps/modulefiles/${SKU_TYPE}:$MODULEPATH
 
 spack load netcdf-fortran
 spack load netcdf
