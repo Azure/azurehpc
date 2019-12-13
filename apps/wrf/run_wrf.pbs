@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export MODULEPATH=/apps/modulefiles/${SKU_TYPE}:$MODULEPATH
+export MODULEPATH=/apps/modulefiles:$MODULEPATH
 
 spack load netcdf-fortran
 spack load netcdf
