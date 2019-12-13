@@ -53,7 +53,9 @@ case $MPI in
         PAM_MPI=impi-5.1.3
         PAM_OPTIONS="-np ${AZHPC_CORES}"
         mpi_options="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN}"
-        mpi_options+=" -genv I_MPI_FABRICS shm:ofa -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
+        mpi_options+=" -genv I_MPI_FABRICS shm:dapl -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
+        mpi_options+=" -genv I_MPI_DAPL_TRANSLATION_CACHE 0"
+        mpi_options+=" -genv I_MPI_DAPL_UD enable"
         mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1 -genv KMP_BLOCKTIME 0"
         mpi_options+=" -genv I_MPI_DEBUG 6"
         if [ "$THREADS" != "1" ]; then
@@ -117,7 +119,7 @@ download_time=$(($end_time - $start_time))
 echo "Download time is ${download_time}"
 
 echo "create the local working dir on all nodes"
-mpirun -np ${AZHPC_NODES} $MPI_SCRATCH_OPTIONS mkdir -p $AZHPC_SCRATCH_DIR
+$MPI_BIN/mpirun -np ${AZHPC_NODES} $MPI_SCRATCH_OPTIONS mkdir -p $AZHPC_SCRATCH_DIR
 
 $PAMCRASH $PAM_OPTIONS \
     -nt $THREADS \
@@ -137,7 +139,7 @@ upload_time=$(($end_time - $start_time))
 echo "Upload time is ${upload_time}"
 
 echo "Clean up local scratch files"
-mpirun -np ${AZHPC_NODES} $MPI_SCRATCH_OPTIONS rm -rf $AZHPC_SCRATCH_DIR
+$MPI_BIN/mpirun -np ${AZHPC_NODES} $MPI_SCRATCH_OPTIONS rm -rf $AZHPC_SCRATCH_DIR
 
 case $MPI in
     ompi)
