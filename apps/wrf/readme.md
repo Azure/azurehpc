@@ -42,7 +42,7 @@ apps/wrf/install_wps.sh
 Now, you can run wrf as follows:
 
 ```
-qsub -l select=2:ncpus=60:mpiprocs=15 -v SKU_TYPE=hb,INPUTDIR=/path/to/inputfiles apps/wrf/run_wrf.pbs
+qsub -l select=2:ncpus=60:mpiprocs=15 -v INPUTDIR=/path/to/inputfiles apps/wrf/run_wrf.pbs
 
 ```
-Where SKU_TYPE is hb, hbv2 or hc and INPUTDIR contains the location of wrf input files (namelist.input, wrfbdy_d01 and wrfinput_d01)
+Where INPUTDIR contains the location of wrf input files (namelist.input, wrfbdy_d01 and wrfinput_d01)
