@@ -24,6 +24,7 @@ spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2
 
 cd $SHARED_APP
 wget https://github.com/wrf-model/WRF/archive/v${APP_VERSION}.tar.gz
+tar xvf v${APP_VERSION}.tar.gz
 
 spack load netcdf-fortran
 spack load netcdf
@@ -40,11 +41,12 @@ ln -sf $NETCDF_C/include/* $NETCDF/include/
 ln -sf $NETCDF_C/lib/* $NETCDF/lib/
 ln -sf $NETCDF_C/lib/pkgconfig/* $NETCDF/lib/pkgconfig
 
+cd WRF-${APP_VERSION}
 ./configure << EOF
 34
 
 EOF
 
-./compile -j 16 em real
+./compile -j 16 em_real
 
 create_modulefile
