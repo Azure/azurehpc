@@ -52,7 +52,12 @@ case $MPI in
         source $MPI_BIN/mpivars.sh
         PAM_MPI=impi-5.1.3
         PAM_OPTIONS="-np ${AZHPC_CORES}"
-        export MPI_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN} -genv I_MPI_FABRICS shm:ofa -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
+        mpi_options="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN}"
+        mpi_options+=" -genv I_MPI_FABRICS shm:ofa -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
+        mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1 -genv KMP_BLOCKTIME 0"
+        # if [ "$THREADS" != "1" ]; then
+        #     mpi_options+=" -genv I_MPI_PIN_DOMAIN numa"
+        # fi
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
     impi2019)
@@ -60,7 +65,10 @@ case $MPI in
         source $MPI_BIN/mpivars.sh
         PAM_MPI=impi-5.1.3
         PAM_OPTIONS="-np ${AZHPC_CORES}"
-        export MPI_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN} -genv I_MPI_FABRICS shm:ofi -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
+        mpi_options="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN}"
+        #mpi_options+=" -genv I_MPI_COLL_EXTERNAL 1 -genv FI_PROVIDER mlx"
+        mpi_options+=" -genv I_MPI_FABRICS shm:ofi -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
+        mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1 -genv KMP_BLOCKTIME 0"
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
     ompi)
@@ -75,22 +83,28 @@ case $MPI in
         AZHPC_PPR=$(( ($AZHPC_PPN + $numa_domains - 1) / $numa_domains ))
 
         mpi_options=" -np $AZHPC_CORES"
-        mpi_options+=" --mca pml ucx -mca osc ucx"
+        #mpi_options+=" --mca pml ucx -mca osc ucx"
         mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY -x UCX_LOG_LEVEL=ERROR"
 
         # Enable HCOLL
-        mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
+        #mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
 
+        mpi_options+=" -x MXM_SHM_RNDV_THRESH=32768"
+        mpi_options+=" -x MALLOC_MMAP_MAX_=0 -x MALLOC_TRIM_THRESHOLD_=-1 -x KMP_BLOCKTIME=0"
         mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
         mpi_options+=" -x LD_LIBRARY_PATH"
-        mpi_options+=" -bind-to core"
+        if [ "$THREADS" = "1" ]; then
+            mpi_options+=" -bind-to core"
+        else
+            mpi_options+=" -bind-to numa"
+        fi
         mpi_options+=" -report-bindings --display-allocation -v"
-        export MPI_OPTIONS=$mpi_options
         MPI_SCRATCH_OPTIONS="-hostfile $AZHPC_MPI_HOSTFILE -npernode 1"
         MPI_BIN=$MPI_HOME/bin
     ;;
 esac
 
+export MPI_OPTIONS=$mpi_options
 export PAMCRASH=$PAMHOME/pamcrash_safe/2018.01/Linux_x86_64/bin/pamcrash
 
 echo "downloading case ${CASE}..."
@@ -110,6 +124,7 @@ $PAMCRASH $PAM_OPTIONS \
     -mpidir $MPI_BIN \
     -mpiexe mpirun \
     -mpiext '$MPI_OPTIONS' \
+    -debug 2 \
     $CASE | tee stdout.log
 
 echo "upload results"
