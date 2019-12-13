@@ -17,8 +17,8 @@ append-path      PATH              \$WRFROOT/main
 EOF
 }
 
-sudo yum install jasper-devel
-sudo yum install libpng-devel
+sudo yum install -y jasper-devel
+sudo yum install -y libpng-devel
 
 spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^mvapich2@2.3.2
 
