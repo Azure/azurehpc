@@ -55,9 +55,10 @@ case $MPI in
         mpi_options="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN}"
         mpi_options+=" -genv I_MPI_FABRICS shm:ofa -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
         mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1 -genv KMP_BLOCKTIME 0"
-        # if [ "$THREADS" != "1" ]; then
-        #     mpi_options+=" -genv I_MPI_PIN_DOMAIN numa"
-        # fi
+        mpi_options+=" -genv I_MPI_DEBUG 6"
+        if [ "$THREADS" != "1" ]; then
+            mpi_options+=" -genv I_MPI_PIN_DOMAIN omp"
+        fi
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
     impi2019)
@@ -69,6 +70,7 @@ case $MPI in
         #mpi_options+=" -genv I_MPI_COLL_EXTERNAL 1 -genv FI_PROVIDER mlx"
         mpi_options+=" -genv I_MPI_FABRICS shm:ofi -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
         mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1 -genv KMP_BLOCKTIME 0"
+        mpi_options+=" -genv I_MPI_DEBUG 6"
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
     ompi)
