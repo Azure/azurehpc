@@ -1,4 +1,4 @@
-## Install and run WRF and WPS
+## Install and run WRF v4 and WPS v4
 
 ## Prerequisites
 
