@@ -4,8 +4,8 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables" : {
-        "image" : "OpenLogic:CentOS:7.6:latest",
-        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "image" : "OpenLogic:CentOS:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
@@ -40,7 +40,7 @@
                 "loginnode",
                 "localuser",
                 "disable-selinux",
-                "beegfspkgs",
+                "beegfspkgs-713",
                 "beegfsc"
             ]
         },
@@ -56,7 +56,7 @@
                 "cndefault",
                 "localuser",
                 "disable-selinux",
-                "beegfspkgs",
+                "beegfspkgs-713",
                 "beegfsc"
             ]
         },
@@ -67,7 +67,7 @@
             "image": "variables.image",
             "subnet": "compute",
             "tags": [
-                "beegfspkgs",
+                "beegfspkgs-713",
                 "beegfsm",
                 "disable-selinux",
                 "beegfsc"
@@ -83,7 +83,7 @@
             "storage_sku": "Premium_LRS",
             "data_disks": [128, 128, 1024, 1024],
             "tags": [
-                "beegfspkgs",
+                "beegfspkgs-713",
                 "beegfssd",
                 "beegfsmd",
                 "disable-selinux"
@@ -97,8 +97,8 @@
             "sudo": true
         },
         {
-            "script": "beegfspkgs.sh",
-            "tag": "beegfspkgs",
+            "script": "beegfspkgs-713.sh",
+            "tag": "beegfspkgs-713",
             "sudo": true
         },
         {
