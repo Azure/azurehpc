@@ -28,12 +28,12 @@ azhpc-connect -u hpcuser headnode
 
 ### Run wrf install script
 ```
-apps/wrf/install_wrf.sh 
+apps/wrf/install_wrf_openmpi.sh 
 ```
 
 Run the WPS installation script if you need to install WPS (WRF needs to be installed first)
 ```
-apps/wrf/install_wps.sh 
+apps/wrf/install_wps_openmpi.sh 
 ```
 
 ## Running
@@ -42,7 +42,7 @@ apps/wrf/install_wps.sh
 Now, you can run wrf as follows:
 
 ```
-qsub -l select=2:ncpus=60:mpiprocs=15 -v INPUTDIR=/path/to/inputfiles apps/wrf/run_wrf.pbs
+qsub -l select=2:ncpus=60:mpiprocs=15 -v INPUTDIR=/path/to/inputfiles apps/wrf/run_wrf_openmpi.pbs
 
 ```
 Where INPUTDIR contains the location of wrf input files (namelist.input, wrfbdy_d01 and wrfinput_d01)
