@@ -55,23 +55,24 @@ case $MPI in
         mpi_options="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN}"
         mpi_options+=" -genv I_MPI_FABRICS shm:dapl -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
         mpi_options+=" -genv I_MPI_DAPL_TRANSLATION_CACHE 0"
-        mpi_options+=" -genv I_MPI_DAPL_UD enable"
-        mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1 -genv KMP_BLOCKTIME 0"
+        case $AZHPC_VMSIZE in
+            standard_hb120rs_v2)
+                mpi_options+=" -genv I_MPI_DAPL_UD enable"
+            ;;
+        esac
+        mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1"
         mpi_options+=" -genv I_MPI_DEBUG 6"
-        if [ "$THREADS" != "1" ]; then
-            mpi_options+=" -genv I_MPI_PIN_DOMAIN omp"
-        fi
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
     impi2019)
-        module load mpi/impi-2019
-        source $MPI_BIN/mpivars.sh
+        module load mpi/impi_2019.6.166
+        source $MPI_BIN/mpivars.sh -ofi_internal
         PAM_MPI=impi-5.1.3
         PAM_OPTIONS="-np ${AZHPC_CORES}"
         mpi_options="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN}"
-        #mpi_options+=" -genv I_MPI_COLL_EXTERNAL 1 -genv FI_PROVIDER mlx"
         mpi_options+=" -genv I_MPI_FABRICS shm:ofi -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
-        mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1 -genv KMP_BLOCKTIME 0"
+        mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1"
+        mpi_options+=" -genv FI_PROVIDER mlx -genv UCX_TLS rc -genv I_MPI_COLL_EXTERNAL 1"
         mpi_options+=" -genv I_MPI_DEBUG 6"
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
@@ -93,8 +94,8 @@ case $MPI in
         # Enable HCOLL
         #mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
 
-        mpi_options+=" -x MXM_SHM_RNDV_THRESH=32768"
-        mpi_options+=" -x MALLOC_MMAP_MAX_=0 -x MALLOC_TRIM_THRESHOLD_=-1 -x KMP_BLOCKTIME=0"
+        #mpi_options+=" -x MXM_SHM_RNDV_THRESH=32768"
+        mpi_options+=" -x MALLOC_MMAP_MAX_=0 -x MALLOC_TRIM_THRESHOLD_=-1"
         mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
         mpi_options+=" -x LD_LIBRARY_PATH"
         if [ "$THREADS" = "1" ]; then
