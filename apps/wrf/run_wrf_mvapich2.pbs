@@ -2,9 +2,9 @@
 
 export MODULEPATH=/apps/modulefiles:$MODULEPATH
 
-spack load netcdf-fortran
-spack load netcdf
-spack load hdf5
+spack load netcdf-fortran^mvapich2
+spack load netcdf^mvapich2
+spack load hdf5^mvapich2
 spack load perl
 spack load mvapich2
 module load gcc-9.2.0
