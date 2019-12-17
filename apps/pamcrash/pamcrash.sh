@@ -62,6 +62,8 @@ case $MPI in
         esac
         mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1"
         mpi_options+=" -genv I_MPI_DEBUG 6"
+        #mpi_options+=" -genv I_MPI_STATS ipm"
+        mpi_options+=" -genv I_MPI_ADJUST_ALLREDUCE 11"
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
     impi2019)
@@ -74,6 +76,7 @@ case $MPI in
         mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1"
         mpi_options+=" -genv FI_PROVIDER mlx -genv UCX_TLS rc -genv I_MPI_COLL_EXTERNAL 1"
         mpi_options+=" -genv I_MPI_DEBUG 6"
+        mpi_options+=" -genv I_MPI_ADJUST_ALLREDUCE 11"
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
     ompi)
