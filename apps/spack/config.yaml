@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------
 config:
   # This is the path to the root of the Spack install tree.
-  install_tree: /apps/spack/hbv2
+  install_tree: /apps/spack/SKU_TYPE
 
 
   # Locations where templates should be found
@@ -15,8 +15,8 @@ config:
 
   # Locations where different types of modules should be installed.
   module_roots:
-    tcl:    /apps/modulefiles/spack/tcl/hbv2
-    lmod:   /apps/modules/spack/lmod/hbv2
+    tcl:    /apps/modulefiles/spack/tcl/SKU_TYPE
+    lmod:   /apps/modules/spack/lmod/SKU_TYPE
 
 
   # Temporary locations Spack can try to use for builds.
