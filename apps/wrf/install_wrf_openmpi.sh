@@ -1,17 +1,20 @@
 #!/bin/bash
-SHARED_APP=/apps
-MODULE_DIR=${SHARED_APP}/modulefiles
+
 APP_NAME=wrf
 APP_VERSION=4.1.3
-MODULE_NAME=${APP_NAME}_${APP_VERSION}
+SKU_TYPE=hb
+SHARED_APP=/apps
+MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
+MODULE_NAME=${APP_VERSION}-openmpi
+APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-openmpi
 
 function create_modulefile {
 mkdir -p ${MODULE_DIR}
 cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 #%Module
 set              wrfversion        ${APP_VERSION}
-set              WRFROOT           ${SHARED_APP}/WRF-\$wrfversion
-setenv           WRFROOT           ${SHARED_APP}/WRF-\$wrfversion
+set              WRFROOT           ${APP_DIR}/WRF-\$wrfversion
+setenv           WRFROOT           ${APP_DIR}/WRF-\$wrfversion
 
 append-path      PATH              \$WRFROOT/main
 EOF
@@ -22,7 +25,8 @@ sudo yum install -y libpng-devel
 
 spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^openmpi@4.0.2
 
-cd $SHARED_APP
+mkdir -p ${APP_DIR}
+cd ${APP_DIR}
 wget https://github.com/wrf-model/WRF/archive/v${APP_VERSION}.tar.gz
 tar xvf v${APP_VERSION}.tar.gz
 

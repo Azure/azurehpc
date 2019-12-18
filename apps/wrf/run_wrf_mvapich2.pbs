@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export MODULEPATH=/apps/modulefiles:$MODULEPATH
+export MODULEPATH=/apps/modulefiles/${SKU_TYPE}:$MODULEPATH
 
 spack load netcdf-fortran^mvapich2
 spack load netcdf^mvapich2
@@ -8,7 +8,7 @@ spack load hdf5^mvapich2
 spack load perl
 spack load mvapich2
 module load gcc-9.2.0
-module load wrf_4.1.3
+module load wrf/4.1.3-mvapich2
 
 which mpicc
 which wrf.exe

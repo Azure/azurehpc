@@ -1,10 +1,14 @@
 #!/bin/bash
-SHARED_APP=/apps
+
 APP_NAME=wps
 APP_VERSION=4.1
+SKU_TYPE=hb
+SHARED_APP=/apps
 WRF_VERSION=4.1.3
+APP_DIR=${SHARED_APP}/${SKU_TYPE}/${APP_NAME}-mvapich2
 
-cd $SHARED_APP
+mkdir -p ${APP_DIR}
+cd ${APP_DIR}
 wget https://github.com/wrf-model/WPS/archive/v${APP_VERSION}.tar.gz
 tar xvf v${APP_VERSION}.tar.gz
 

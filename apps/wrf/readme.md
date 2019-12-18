@@ -30,6 +30,7 @@ azhpc-connect -u hpcuser headnode
 ```
 apps/wrf/install_wrf_openmpi.sh 
 ```
+> Note: Set SKU_TYPE to the type of sku you are using (e.h hb, hbv2 or hc).
 
 Run the WPS installation script if you need to install WPS (WRF needs to be installed first)
 ```
@@ -42,7 +43,7 @@ apps/wrf/install_wps_openmpi.sh
 Now, you can run wrf as follows:
 
 ```
-qsub -l select=2:ncpus=60:mpiprocs=15 -v INPUTDIR=/path/to/inputfiles apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=2:ncpus=60:mpiprocs=15 -v SKU_TYPE=hb,INPUTDIR=/path/to/inputfiles apps/wrf/run_wrf_openmpi.pbs
 
 ```
-Where INPUTDIR contains the location of wrf input files (namelist.input, wrfbdy_d01 and wrfinput_d01)
+> Where SKU_TYPE is the sku type you are running on and INPUTDIR contains the location of wrf input files (namelist.input, wrfbdy_d01 and wrfinput_d01)
