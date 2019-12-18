@@ -40,7 +40,7 @@
                 "loginnode",
                 "localuser",
                 "disable-selinux",
-                "beegfspkgs-713",
+                "beegfspkgs",
                 "beegfsc"
             ]
         },
@@ -56,7 +56,7 @@
                 "cndefault",
                 "localuser",
                 "disable-selinux",
-                "beegfspkgs-713",
+                "beegfspkgs",
                 "beegfsc"
             ]
         },
@@ -67,7 +67,7 @@
             "image": "variables.image",
             "subnet": "compute",
             "tags": [
-                "beegfspkgs-713",
+                "beegfspkgs",
                 "beegfsm",
                 "disable-selinux",
                 "beegfsc"
@@ -83,7 +83,7 @@
             "storage_sku": "Premium_LRS",
             "data_disks": [128, 128, 1024, 1024],
             "tags": [
-                "beegfspkgs-713",
+                "beegfspkgs",
                 "beegfssd",
                 "beegfsmd",
                 "disable-selinux"
@@ -97,8 +97,8 @@
             "sudo": true
         },
         {
-            "script": "beegfspkgs-713.sh",
-            "tag": "beegfspkgs-713",
+            "script": "beegfspkgs.sh",
+            "tag": "beegfspkgs",
             "sudo": true
         },
         {
