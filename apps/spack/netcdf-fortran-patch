@@ -1,0 +1,22 @@
+--- var/spack/repos/builtin/packages/netcdf-fortran/package.py_orig	2019-12-09 17:21:01.487836000 -0700
++++ var/spack/repos/builtin/packages/netcdf-fortran/package.py	2019-12-09 17:24:52.140254700 -0700
+@@ -20,6 +20,9 @@
+     variant('pic', default=True,
+             description='Produce position-independent code (for shared libs)')
+ 
++    variant('mpi', default=False,
++            description='Enable parallel netcdf-fortran')
++
+     depends_on('netcdf')
+ 
+     # The default libtool.m4 is too old to handle NAG compiler properly:
+@@ -53,3 +56,9 @@
+         return find_libraries(
+             libraries, root=self.prefix, shared=shared, recursive=True
+         )
++
++    def configure_args(self):
++        config_args=[]
++        if '+mpi' in self.spec in self.spec:
++            config_args.append('FC=%s' % self.spec['mpi'].mpifc)
++        return config_args
