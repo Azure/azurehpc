@@ -1,14 +1,15 @@
 #!/bin/bash
-CASE=$1
-CASE_DIR=$2
-APP_VERSION=$3
-SHARED_ROOT=$4
-ITER=$5
-PROFILE=$6
+CASE=${1##*/}
+CASE_DIR=${1%$CASE}
+SHARED_ROOT=${3-/}
+ITER=$4
+PROFILE=$5
+
+APP_VERSION=2.5.1
 
 # Set AZHPC_XXX environment variables
-AZHPC_DATA=${SHARED_ROOT}/data
-AZHPC_APPS=${SHARED_ROOT}/apps
+AZHPC_DATA=${SHARED_ROOT}data
+AZHPC_APPS=${SHARED_ROOT}apps
 AZHPC_APPLICATION=prolb
 AZHPC_JOBID=$PBS_JOBID
 AZHPC_SHARED_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$PBS_JOBID
@@ -118,12 +119,11 @@ echo $mpi_options
 
 # Keep tuning files separate for each VM Type
 TUNING_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$AZHPC_VMSIZE/
-SCHEME_DIR=$PROLB_HOME/schemes/
-if [ ! -f ${TUNING_DIR} ]; then
+if [ ! -d ${TUNING_DIR} ]; then
     mkdir -p $TUNING_DIR
-    cp ${SCHEME_DIR}* $TUNING_DIR
-    SCHEME_DIR=$TUNING_DIR
+    cp $PROLB_HOME/schemes/* $TUNING_DIR
 fi
+SCHEME_DIR=$TUNING_DIR
 
 $MPI_HOME/bin/mpirun $mpi_options \
     -hostfile $AZHPC_MPI_HOSTFILE \
