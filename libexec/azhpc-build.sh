@@ -518,7 +518,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                           --location $location \
                           --service-level $pool_service_level \
                           --usage-threshold $(($volume_size * (2 ** 10))) \
-                          --creation-token ${volume_name} \
+                          --file-path ${volume_name} \
                           --pool-name $pool_name \
                           --volume-name $volume_name \
 			  --protocol-type CIFS \
@@ -558,7 +558,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                                 --location $location \
                                 --service-level $pool_service_level \
                                 --usage-threshold $(($volume_size * (2 ** 10))) \
-                                --creation-token ${volume_name} \
+                                --file-path ${volume_name} \
                                 --pool-name $pool_name \
                                 --volume-name $volume_name \
                                 --vnet $vnet_name \
