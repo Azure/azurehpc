@@ -1,0 +1,71 @@
+diff -Naur external/RSL_LITE/c_code.c external/RSL_LITE/c_code.c
+--- external/RSL_LITE/c_code.c	2018-06-08 18:39:31.000000000 -0600
++++ external/RSL_LITE/c_code.c	2018-07-19 23:10:55.579362888 -0600
+@@ -44,7 +44,7 @@
+ 
+ /* redirect standard out*/
+ # ifndef RSL0_ONLY
+-    sprintf(filename,"rsl.out.%04d",*me) ;
++    sprintf(filename,"rsl.out.%08d",*me) ;
+ # else
+     if (*me == 0)
+      {
+@@ -74,7 +74,7 @@
+     if ( *me != 0 ) {   /* stderr from task 0 should come to screen on windows because it is buffered if redirected */
+ #endif
+ # ifndef RSL0_ONLY
+-    sprintf(filename,"rsl.error.%04d",*me) ;
++    sprintf(filename,"rsl.error.%08d",*me) ;
+ # else
+     if (*me == 0)
+      {
+@@ -134,7 +134,7 @@
+         
+     /* TASKOUTPUT directory exists, continue with task specific directory */
+                                                                                                                                               
+-    sprintf(dirname, "TASKOUTPUT/%04d", *me);
++    sprintf(dirname, "TASKOUTPUT/%08d", *me);
+     rc=mkdir(dirname, 0777);
+     if (  rc !=0 && errno!=EEXIST ) {
+         perror("mkdir error");
+@@ -144,7 +144,7 @@
+                                                                                                                                               
+    /* Each tasks creates/opens its own output and error files */
+                                                                                                                                               
+-   sprintf(filename, "%s/%04d/rsl.out.%04d","TASKOUTPUT",*me,*me) ;
++   sprintf(filename, "%s/%08d/rsl.out.%08d","TASKOUTPUT",*me,*me) ;
+         
+    if ((newfd = open( filename, O_CREAT | O_WRONLY | O_TRUNC, 0666 )) < 0 )
+    {
+@@ -161,7 +161,7 @@
+         return ;
+    }
+         
+-   sprintf(filename, "%s/%04d/rsl.error.%04d","TASKOUTPUT",*me,*me) ;
++   sprintf(filename, "%s/%08d/rsl.error.%08d","TASKOUTPUT",*me,*me) ;
+    if ((newfd = open( filename, O_CREAT | O_WRONLY | O_TRUNC, 0666 )) < 0 )
+    {
+        perror("error_dup: cannot open ./TASKOUTPUT/nnnn/rsl.error.nnnn") ;
+diff -Naur external/RSL_LITE/rsl_lite.h external/RSL_LITE/rsl_lite.h
+--- external/RSL_LITE/rsl_lite.h	2018-06-08 18:39:31.000000000 -0600
++++ external/RSL_LITE/rsl_lite.h	2018-07-19 23:00:10.465201000 -0600
+@@ -148,7 +148,7 @@
+ #define RSL_SENDBUF 0
+ #define RSL_RECVBUF 1
+ #define RSL_FREEBUF 3
+-#define RSL_MAXPROC 10000
++#define RSL_MAXPROC 200000
+ #define RSL_INVALID -1
+ 
+ /* this must be the same as defined in frame/module_driver_constants.F */
+@@ -188,8 +188,8 @@
+   int info1 ;                   /* blank info field */
+   int info2 ;                   /* blank info field */
+ #else
+-  short info1 ;                 /* blank info field */
+-  short info2 ;                 /* blank info field */
++  int info1 ;                 /* blank info field */
++  int info2 ;                 /* blank info field */
+ #endif
+ } rsl_list_t ;
+ 
