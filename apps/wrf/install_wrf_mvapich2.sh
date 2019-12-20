@@ -7,6 +7,7 @@ SHARED_APP=/apps
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 MODULE_NAME=${APP_VERSION}-mvapich2
 APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-mvapich2
+APPS_WRF_DIR=`pwd`
 
 function create_modulefile {
 mkdir -p ${MODULE_DIR}
@@ -47,6 +48,8 @@ ln -sf $NETCDF_C/lib/* $NETCDF/lib/
 ln -sf $NETCDF_C/lib/pkgconfig/* $NETCDF/lib/pkgconfig
 
 cd WRF-${APP_VERSION}
+patch -p0 < ${APPS_WRF_DIR}/WRFV4.0-rsl-8digit.patch
+
 ./configure << EOF
 34
 
