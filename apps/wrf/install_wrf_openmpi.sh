@@ -24,6 +24,7 @@ sudo yum install -y jasper-devel
 sudo yum install -y libpng-devel
 
 spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^openmpi@4.0.2
+source ${SPACK_ROOT}/share/spack/setup-env.sh
 
 mkdir -p ${APP_DIR}
 cd ${APP_DIR}

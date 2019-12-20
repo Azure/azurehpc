@@ -12,6 +12,8 @@ cd ${APP_DIR}
 wget https://github.com/wrf-model/WPS/archive/v${APP_VERSION}.tar.gz
 tar xvf v${APP_VERSION}.tar.gz
 
+source ${SPACK_ROOT}/share/spack/setup-env.sh
+
 spack load netcdf-fortran^mvapich2
 spack load netcdf^mvapich2
 spack load hdf5^mvapich2
