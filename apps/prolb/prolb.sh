@@ -1,9 +1,9 @@
 #!/bin/bash
 CASE=${1##*/}
 CASE_DIR=${1%$CASE}
-SHARED_ROOT=${3-/}
-ITER=$4
-PROFILE=$5
+SHARED_ROOT=${2-/}
+ITER=$3
+PROFILE=$4
 
 APP_VERSION=2.5.1
 
