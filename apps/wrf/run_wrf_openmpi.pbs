@@ -15,6 +15,8 @@ which wrf.exe
 
 cat $PBS_NODEFILE
 
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+
 cd $PBS_O_WORKDIR
 ln -s ${WRFROOT}/run/* .
 cp ${INPUTDIR}/*_d01 .

@@ -7,6 +7,9 @@ SHARED_APP=/apps
 WRF_VERSION=4.1.3
 APP_DIR=${SHARED_APP}/${SKU_TYPE}/${APP_NAME}-openmpi
 
+sudo yum install -y jasper-devel
+sudo yum install -y libpng-devel
+
 mkdir -p ${APP_DIR}
 cd ${APP_DIR}
 wget https://github.com/wrf-model/WPS/archive/v${APP_VERSION}.tar.gz
@@ -23,7 +26,7 @@ module load gcc-9.2.0
 
 export HDF5=$(spack location -i hdf5^openmpi)
 export NETCDF=$(spack location -i netcdf-fortran^openmpi)
-export WRF_DIR=${SHARED_APP}/WRF-${WRF_VERSION}
+export WRF_DIR=${SHARED_APP}/${SKU_TYPE}/wrf-openmp/WRF-${WRF_VERSION}
 
 cd WPS-${APP_VERSION}
 ./configure << EOF
