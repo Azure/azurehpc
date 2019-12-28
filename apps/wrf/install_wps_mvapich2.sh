@@ -21,7 +21,7 @@ spack load netcdf-fortran^mvapich2
 spack load netcdf^mvapich2
 spack load hdf5^mvapich2
 spack load perl
-spack load mvapich2
+module load mpi/mvapich2-2.3.2
 module load gcc-9.2.0
 
 export HDF5=$(spack location -i hdf5^mvapich2)
