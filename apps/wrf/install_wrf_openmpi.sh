@@ -36,7 +36,7 @@ spack load netcdf-fortran^openmpi
 spack load netcdf^openmpi
 spack load hdf5^openmpi
 spack load perl
-spack load openmpi
+module load mpi/openmpi-4.0.2
 module load gcc-9.2.0
 
 export HDF5=$(spack location -i hdf5^openmpi)
