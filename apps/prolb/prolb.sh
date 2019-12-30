@@ -83,16 +83,21 @@ case $AZHPC_VMSIZE in
         mpi_options+=" --mca pml ucx -mca osc ucx"
         mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY"
 
-        mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
+        #mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 
         # Enable HCOLL
         mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
     ;;
     standard_hb120rs_v2)
+        #mpi_options+=" --mca pml ucx -mca osc ucx"
+        #mpi_options+=" --mca pml yalla"
+        #mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0"
+        #mpi_options+=" -x HCOLL_CONTEXT_CACHE_ENABLE=1"
         #mpi_options+=" -x UCX_DC_MLX5_RNR_TIMEOUT=2000.00us -x UCX_DC_MLX5_RNR_RETRY_COUNT=20"
     ;;
 esac
 
+mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 mpi_options+=" -x UCX_LOG_LEVEL=ERROR"
 mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
 #mpi_options+=" --map-by ppr:$AZHPC_PPN:socket"
