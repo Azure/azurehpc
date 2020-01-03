@@ -101,7 +101,7 @@ case $AZHPC_VMSIZE in
         mpi_options+=" --mca pml ucx -mca osc ucx"
         mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY"
 
-        #mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
+        mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 
         # Enable HCOLL
         mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
@@ -115,7 +115,6 @@ case $AZHPC_VMSIZE in
     ;;
 esac
 
-mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 mpi_options+=" -x UCX_LOG_LEVEL=ERROR"
 mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
 #mpi_options+=" --map-by ppr:$AZHPC_PPN:socket"
@@ -209,3 +208,4 @@ sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d
 end_time=$SECONDS
 stop_time=$(($end_time - $start_time))
 echo "BEEOND Stopped in $stop_time"
+
