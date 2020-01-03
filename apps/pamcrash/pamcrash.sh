@@ -3,11 +3,12 @@ CASE=${1##*/}
 CASE_DIR=${1%$CASE}
 THREADS=${2-1}
 MPI=${3-impi2018}
-SHARED_ROOT=$4
+SHARED_ROOT=${4-/}
+SIM_TIME=$5
 
 # Set AZHPC_XXX environment variables
-AZHPC_DATA=${SHARED_ROOT}/data
-AZHPC_APPS=${SHARED_ROOT}/apps
+AZHPC_DATA=${SHARED_ROOT}data
+AZHPC_APPS=${SHARED_ROOT}apps
 AZHPC_APPLICATION=VPS2018
 AZHPC_JOBID=$PBS_JOBID
 AZHPC_SHARED_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$AZHPC_JOBID
@@ -38,6 +39,9 @@ AZHPC_NODES=$(sort -u < $PBS_NODEFILE | wc -l)
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 
+PHYS_CORES=$(lscpu -p | egrep -v '^#' | sort -u -t, -k 2,4 | wc -l)
+DOMAINS=$(( $PHYS_CORES / $AZHPC_PPN ))
+
 PKEY=$(grep -v -e 0000 -e 0x7fff --no-filename /sys/class/infiniband/mlx5_0/ports/1/pkeys/*)
 PKEY=${PKEY/0x8/0x0}
 
@@ -62,20 +66,31 @@ case $MPI in
         esac
         mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1"
         mpi_options+=" -genv I_MPI_DEBUG 6"
+        if [ $THREADS -gt 1 ]; then
+            #mpi_options+=" -genv I_MPI_PIN_DOMAIN $DOMAINS:scatter"
+            mpi_options+=" -genv I_MPI_PIN_DOMAIN omp"
+            mpi_options+=" -genv I_MPI_PIN_CELL=core -genv I_MPI_PIN_ORDER bunch"
+        fi
         #mpi_options+=" -genv I_MPI_STATS ipm"
         mpi_options+=" -genv I_MPI_ADJUST_ALLREDUCE 11"
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
     impi2019)
-        module load mpi/impi_2019.6.166
+        #module load mpi/impi_2019.6.166
+        module load mpi/impi-2019
         source $MPI_BIN/mpivars.sh -ofi_internal
         PAM_MPI=impi-5.1.3
         PAM_OPTIONS="-np ${AZHPC_CORES}"
         mpi_options="-f $AZHPC_MPI_HOSTFILE -perhost ${AZHPC_PPN}"
         mpi_options+=" -genv I_MPI_FABRICS shm:ofi -genv I_MPI_DYNAMIC_CONNECTION 0 -genv I_MPI_FALLBACK_DEVICE 0"
         mpi_options+=" -genv MALLOC_MMAP_MAX_ 0 -genv MALLOC_TRIM_THRESHOLD_ -1"
-        mpi_options+=" -genv FI_PROVIDER mlx -genv UCX_TLS rc -genv I_MPI_COLL_EXTERNAL 1"
+        #mpi_options+=" -genv FI_PROVIDER mlx -genv UCX_TLS rc -genv I_MPI_COLL_EXTERNAL 1"
         mpi_options+=" -genv I_MPI_DEBUG 6"
+        if [ $THREADS -gt 1 ]; then
+            #mpi_options+=" -genv I_MPI_PIN_DOMAIN $DOMAINS:scatter"
+            mpi_options+=" -genv I_MPI_PIN_DOMAIN omp"
+            mpi_options+=" -genv I_MPI_PIN_CELL=core -genv I_MPI_PIN_ORDER bunch"
+        fi
         mpi_options+=" -genv I_MPI_ADJUST_ALLREDUCE 11"
         MPI_SCRATCH_OPTIONS="-f $AZHPC_MPI_HOSTFILE -perhost 1"
     ;;
@@ -121,6 +136,13 @@ cp -r $CASE_DIR/* .
 end_time=$SECONDS
 download_time=$(($end_time - $start_time))
 echo "Download time is ${download_time}"
+
+# set simulation time
+if [ -n "$SIM_TIME" ]; then
+    echo "Update simulation time to $SIM_TIME"
+    sed -i "s/ TIME      110.01/ TIME      $SIM_TIME/g" $CASE
+    grep " TIME " $CASE
+fi
 
 echo "create the local working dir on all nodes"
 $MPI_BIN/mpirun -np ${AZHPC_NODES} $MPI_SCRATCH_OPTIONS mkdir -p $AZHPC_SCRATCH_DIR
