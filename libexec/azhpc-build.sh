@@ -48,7 +48,7 @@ local_script_dir="$(dirname $config_file)/scripts"
 az_version=$(az --version | grep ^azure-cli | awk '{print $2}')
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
-if version_gt "2.0.73" "$az_version"; then
+if version_gt "2.0.78" "$az_version"; then
     warning "az version may be too low for some functionality: $az_version"
 fi   
 
@@ -518,7 +518,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                           --location $location \
                           --service-level $pool_service_level \
                           --usage-threshold $(($volume_size * (2 ** 10))) \
-                          --creation-token ${volume_name} \
+                          --file-path ${volume_name} \
                           --pool-name $pool_name \
                           --volume-name $volume_name \
 			  --protocol-type CIFS \
@@ -558,7 +558,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                                 --location $location \
                                 --service-level $pool_service_level \
                                 --usage-threshold $(($volume_size * (2 ** 10))) \
-                                --creation-token ${volume_name} \
+                                --file-path ${volume_name} \
                                 --pool-name $pool_name \
                                 --volume-name $volume_name \
                                 --vnet $vnet_name \
