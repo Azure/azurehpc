@@ -5,8 +5,8 @@ APP_VERSION=4.1.3
 SKU_TYPE=hb
 SHARED_APP=/apps
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
-MODULE_NAME=${APP_VERSION}-mvapich2
-APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-mvapich2
+MODULE_NAME=${APP_VERSION}-omp-mvapich2
+APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-omp-mvapich2
 APPS_WRF_DIR=`pwd`
 
 function create_modulefile {
@@ -51,7 +51,7 @@ cd WRF-${APP_VERSION}
 patch -p0 < ${APPS_WRF_DIR}/WRFV4.0-rsl-8digit.patch
 
 ./configure << EOF
-34
+35
 
 EOF
 
