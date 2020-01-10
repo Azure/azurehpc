@@ -18,6 +18,11 @@ sudo /opt/pbs/bin/qmgr -c "import hook stop_wa application/x-python default $HOO
 /opt/pbs/bin/qmgr -c 'set hook chk_ib event=exechost_startup'
 /opt/pbs/bin/qmgr -c "import hook chk_ib application/x-python default $HOOKS_DIR/chk_ib.py"
 
+# Install user cleaup
+/opt/pbs/bin/qmgr -c 'create hook user_cleanup'
+/opt/pbs/bin/qmgr -c 'set hook user_cleanup event=execjob_end'
+/opt/pbs/bin/qmgr -c "import hook user_cleanup application/x-python default $HOOKS_DIR/pbs_user_cleanup.py"
+
 # Install the stream test
 mkdir -p /data/node_utils
 cd /data/node_utils
