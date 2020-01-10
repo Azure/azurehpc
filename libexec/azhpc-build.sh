@@ -256,12 +256,16 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
+            read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
 
+            nsg_option=
             public_ip_address=
             if [ "$resource_pip" = "true" ]; then
                 public_ip_address="${resource_name}pip"
+            else
+                nsg_option='--nsg ""'
             fi
             ppg_option=
             if [ "$resource_ppg" = "true" ]; then
@@ -300,11 +304,12 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --size $resource_vm_type \
                 --admin-username $admin_user \
                 "${resource_credential[@]}" \
-                --storage-sku StandardSSD_LRS \
+                --storage-sku $resource_storage_sku \
                 --subnet $resource_subnet_id \
                 --accelerated-networking $resource_an \
                 --public-ip-address "$public_ip_address" \
                 --public-ip-address-dns-name $resource_name$uuid_str \
+                $nsg_option \
                 $data_disks_options \
                 $ppg_option \
                 --no-wait || exit 1
