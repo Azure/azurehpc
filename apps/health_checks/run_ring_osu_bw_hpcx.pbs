@@ -6,16 +6,10 @@ if [ ! -d $OUTDIR ]; then
 fi
 cd $OUTDIR
 
-module load gcc-8.2.0
-hpcx_dir=$(ls -atr /opt | grep hpcx-* | tail -n1)
-echo $hpcx_dir
-module use /opt/$hpcx_dir/modulefiles
-module load hpcx
+module load gcc-9.2.0
+module load mpi/hpcx
 
-PKEY=`cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/* | grep -v 0000 | grep -v 0x7fff`
-PKEY=`echo "${PKEY/0x8/0x0}"`
-echo "PKEY: $PKEY"
 src=$(tail -n1 $PBS_NODEFILE)
 dst=$(head -n1 $PBS_NODEFILE)
-mpirun -np 2 --host $src,$dst --map-by node -mca btl self -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY $HPCX_OSU_DIR/osu_latency | tee ${src}_to_${dst}_osu_latency.log_$$
-mpirun -np 2 --host $src,$dst --map-by node -mca btl self -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY $HPCX_OSU_DIR/osu_bibw | tee ${src}_to_${dst}_osu_bw.log_$$
+mpirun -np 2 --host $src,$dst --map-by node $HPCX_OSU_DIR/osu_latency | tee ${src}_to_${dst}_osu_latency.log_$$
+mpirun -np 2 --host $src,$dst --map-by node $HPCX_OSU_DIR/osu_bibw | tee ${src}_to_${dst}_osu_bw.log_$$
