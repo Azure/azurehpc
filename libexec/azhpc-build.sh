@@ -257,7 +257,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
-            read_value resource_os_disk ".resources.$resource_name.os_disk" 32
+            read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
             read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
@@ -318,7 +318,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --public-ip-address "$public_ip_address" \
                 --public-ip-address-dns-name $resource_name$uuid_str \
                 --nsg "$nsg_name" \
-                --os-disk-size-gb $resource_os_disk \
+                --os-disk-size-gb $resource_os_disk_size \
                 $data_disks_options \
                 $ppg_option \
                 --no-wait || exit 1
@@ -346,7 +346,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_fault_domain_count ".resources.$resource_name.fault_domain_count" 5
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
-            read_value resource_os_disk ".resources.$resource_name.os_disk" 32
+            read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
             read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
@@ -408,7 +408,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --platform-fault-domain-count  $resource_fault_domain_count \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
-                --os-disk-size-gb $resource_os_disk \
+                --os-disk-size-gb $resource_os_disk_size \
                 $data_disks_options \
                 $lowpri_option \
                 $ppg_option \
