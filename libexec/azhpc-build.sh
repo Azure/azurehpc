@@ -346,7 +346,6 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_fault_domain_count ".resources.$resource_name.fault_domain_count" 5
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
-            read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
             read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
@@ -408,7 +407,6 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --platform-fault-domain-count  $resource_fault_domain_count \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
-                --os-disk-size-gb $resource_os_disk_size \
                 $data_disks_options \
                 $lowpri_option \
                 $ppg_option \
