@@ -256,12 +256,19 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
+            read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
+            read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
+            read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
 
+            storage_sku_str="os=${resource_os_storage_sku}"
+
+            nsg_name=
             public_ip_address=
             if [ "$resource_pip" = "true" ]; then
-                public_ip_address="${resource_name}pip"
+                public_ip_address="${resource_name}PIP"
+                nsg_name="${resource_name}NSG"
             fi
             ppg_option=
             if [ "$resource_ppg" = "true" ]; then
@@ -273,6 +280,11 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             fi
             data_disks_options=
             if [ "$resource_disk_count" -gt 0 ]; then
+
+                for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
+                    storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
+                done
+
                 data_cache="ReadWrite"
                 resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
                 for size in $resource_disk_sizes; do
@@ -300,11 +312,13 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --size $resource_vm_type \
                 --admin-username $admin_user \
                 "${resource_credential[@]}" \
-                --storage-sku StandardSSD_LRS \
+                --storage-sku $storage_sku_str \
                 --subnet $resource_subnet_id \
                 --accelerated-networking $resource_an \
                 --public-ip-address "$public_ip_address" \
                 --public-ip-address-dns-name $resource_name$uuid_str \
+                --nsg "$nsg_name" \
+                --os-disk-size-gb $resource_os_disk_size \
                 $data_disks_options \
                 $ppg_option \
                 --no-wait || exit 1
@@ -331,16 +345,24 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_fault_domain_count ".resources.$resource_name.fault_domain_count" 5
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
+            read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
+            read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
+            read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
             read_value resource_instances ".resources.$resource_name.instances"
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
 
+            storage_sku_str="os=${resource_os_storage_sku}"
 
-            resource_storage_sku=StandardSSD_LRS
             data_disks_options=
             if [ "$resource_disk_count" -gt 0 ]; then
+
+                for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
+                    storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
+                done
+
                 read_value resource_storage_sku ".resources.$resource_name.storage_sku"
                 data_cache="ReadWrite"
                 resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
@@ -349,7 +371,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                         data_cache="None"
                     fi
                 done
-                data_disks_options="--storage-sku $resource_storage_sku --data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
+                data_disks_options="--data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
                 debug "$data_disks_options"
             fi
 
@@ -379,12 +401,14 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --vm-sku $resource_vm_type \
                 --admin-username $admin_user \
                 "${resource_credential[@]}" \
+                --storage-sku $storage_sku_str \
                 --subnet $resource_subnet_id \
                 --lb "" \
                 --single-placement-group true \
                 --platform-fault-domain-count  $resource_fault_domain_count \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
+                --os-disk-size-gb $resource_os_disk_size \
                 $data_disks_options \
                 $lowpri_option \
                 $ppg_option \
