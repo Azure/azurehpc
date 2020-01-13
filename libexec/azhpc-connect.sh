@@ -81,11 +81,15 @@ read_value resource_type ".resources.$resource_name.type" "<not-a-resource>"
 
 target=
 if [ "$resource_type" = "vm" ]; then
-    target=$(az vm show \
-        --resource-group $resource_group \
-        --name $resource_name \
-        --query osProfile.computerName \
-        --output tsv | head -n1)
+
+    read_value instances ".resources.$resource_name.instances" 1
+
+    if [ "$instances" = "1" ]; then
+        target=$resource_name
+    else
+        # get the correct number of leading zeros
+        target=$(printf "${resource_name}%0$(echo -n $instances | wc -c)d" 1)
+    fi
 
 elif [ "$resource_type" = "vmss" ]; then
     debug "choosing first node in $resource_name vmss"

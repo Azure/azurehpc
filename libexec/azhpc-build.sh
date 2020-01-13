@@ -239,16 +239,18 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
 
     case $resource_type in
         vm)
-            status "creating vm: $resource_name"
+            read_value resource_instances ".resources.$resource_name.instances" 1
 
-            az vm show \
-                --resource-group $resource_group \
-                --name $resource_name \
-                --output table 2>/dev/null
-            if [ "$?" = "0" ]; then
-                status "resource already exists - skipping"
-                continue
+            vm_list=()
+            if [ "$resource_instances" = 1 ]; then
+                vm_list+=($resource_name)
+            else
+                for i in $(seq -w $resource_instances); do
+                    vm_list+=(${resource_name}${i})
+                done
             fi
+
+            
 
             read_value resource_vm_type ".resources.$resource_name.vm_type"
             read_value resource_image ".resources.$resource_name.image"
@@ -264,68 +266,84 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
 
             storage_sku_str="os=${resource_os_storage_sku}"
 
-            nsg_name=
-            public_ip_address=
-            if [ "$resource_pip" = "true" ]; then
-                public_ip_address="${resource_name}PIP"
-                nsg_name="${resource_name}NSG"
-            fi
-            ppg_option=
-            if [ "$resource_ppg" = "true" ]; then
-               if [ "$ppg_name" != null ]; then
-                   ppg_option="--ppg $ppg_name"
-               else
-                   error "Failed: ppg_name needs to be defined to use proximity placement group"
-               fi
-            fi
-            data_disks_options=
-            if [ "$resource_disk_count" -gt 0 ]; then
+            # using resource_vm_name for the postfixed version
+            for resource_vm_name in ${vm_list[@]}; do
+                
+                status "creating vm: $resource_vm_name"
 
-                for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
-                    storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
-                done
+                az vm show \
+                    --resource-group $resource_group \
+                    --name $resource_vm_name \
+                    --output table 2>/dev/null
+                if [ "$?" = "0" ]; then
+                    status "resource already exists - skipping"
+                    continue
+                fi
 
-                data_cache="ReadWrite"
-                resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
-                for size in $resource_disk_sizes; do
-                    if [ $size -gt 4095 ]; then
-                        data_cache="None"
-                    fi
-                done
-                data_disks_options="--data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
-                debug "$data_disks_options"
-            fi
+                nsg_name=
+                public_ip_address=
+                if [ "$resource_pip" = "true" ]; then
+                    public_ip_address="${resource_vm_name}PIP"
+                    nsg_name="${resource_vm_name}NSG"
+                fi
+                ppg_option=
+                if [ "$resource_ppg" = "true" ]; then
+                if [ "$ppg_name" != null ]; then
+                    ppg_option="--ppg $ppg_name"
+                else
+                    error "Failed: ppg_name needs to be defined to use proximity placement group"
+                fi
+                fi
+                data_disks_options=
+                if [ "$resource_disk_count" -gt 0 ]; then
 
-            read_value resource_password ".resources.$resource_name.password" "<no-password>"
-            if [ "$resource_password" = "<no-password>" ]; then
-                resource_credential=(--ssh-key-value "$(<$ssh_public_key)")
-            else
-                resource_credential=(--admin-password "$resource_password")
-            fi
+                    for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
+                        storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
+                    done
 
-            make_uuid_str
+                    data_cache="ReadWrite"
+                    resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
+                    for size in $resource_disk_sizes; do
+                        if [ $size -gt 4095 ]; then
+                            data_cache="None"
+                        fi
+                    done
+                    data_disks_options="--data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
+                    debug "$data_disks_options"
+                fi
 
-            az vm create \
-                --resource-group $resource_group \
-                --name $resource_name \
-                --image $resource_image \
-                --size $resource_vm_type \
-                --admin-username $admin_user \
-                "${resource_credential[@]}" \
-                --storage-sku $storage_sku_str \
-                --subnet $resource_subnet_id \
-                --accelerated-networking $resource_an \
-                --public-ip-address "$public_ip_address" \
-                --public-ip-address-dns-name $resource_name$uuid_str \
-                --nsg "$nsg_name" \
-                --os-disk-size-gb $resource_os_disk_size \
-                $data_disks_options \
-                $ppg_option \
-                --no-wait || exit 1
+                read_value resource_password ".resources.$resource_name.password" "<no-password>"
+                if [ "$resource_password" = "<no-password>" ]; then
+                    resource_credential=(--ssh-key-value "$(<$ssh_public_key)")
+                else
+                    resource_credential=(--admin-password "$resource_password")
+                fi
+
+                make_uuid_str
+
+                az vm create \
+                    --resource-group $resource_group \
+                    --name $resource_vm_name \
+                    --image $resource_image \
+                    --size $resource_vm_type \
+                    --admin-username $admin_user \
+                    "${resource_credential[@]}" \
+                    --storage-sku $storage_sku_str \
+                    --subnet $resource_subnet_id \
+                    --accelerated-networking $resource_an \
+                    --public-ip-address "$public_ip_address" \
+                    --public-ip-address-dns-name $resource_name$uuid_str \
+                    --nsg "$nsg_name" \
+                    --os-disk-size-gb $resource_os_disk_size \
+                    $data_disks_options \
+                    $ppg_option \
+                    --no-wait || exit 1
+                
+                if [ "$?" -ne "0" ]; then
+                    error "Failed to create resource"
+                fi
             
-            if [ "$?" -ne "0" ]; then
-                error "Failed to create resource"
-            fi
+            done
         ;;
         vmss)
             status "creating vmss: $resource_name"
@@ -640,11 +658,22 @@ done
 for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
     status "waiting for $resource_name to be created"
     read_value resource_type ".resources.$resource_name.type"
-    az $resource_type wait \
-        --resource-group $resource_group \
-        --name $resource_name \
-        --created \
-        --output table
+    read_value resource_instances ".resources.$resource_name.instances" 1
+    if [ "$resource_type" = "vm" ] && [ "$resource_instances" != "1" ]; then
+        for i in $(seq -w $resource_instances); do
+            az $resource_type wait \
+                --resource-group $resource_group \
+                --name ${resource_name}${i} \
+                --created \
+                --output table
+        done
+    else
+        az $resource_type wait \
+            --resource-group $resource_group \
+            --name $resource_name \
+            --created \
+            --output table
+    fi
 done
 
 # setting up a route
