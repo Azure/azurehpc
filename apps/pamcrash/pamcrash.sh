@@ -119,12 +119,14 @@ case $MPI in
             mpi_options+=" -bind-to core"
             mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
         else
-            mpi_options+=" -bind-to numa"
-            mpi_options+=" --map-by ppr:$THREADS:numa"
+            #mpi_options+=" -bind-to core"
+            mpi_options+=" --map-by ppr:$THREADS:numa --oversubscribe"
         fi
         mpi_options+=" -report-bindings --display-allocation -v"
         MPI_SCRATCH_OPTIONS="-hostfile $AZHPC_MPI_HOSTFILE -npernode 1"
         MPI_BIN=$MPI_HOME/bin
+        # slow workaround to use hostname instead of IP addresses, otherwise the launcher is failing
+        for i in $(<$PBS_NODEFILE); do ssh $i hostname; done > $AZHPC_MPI_HOSTFILE
     ;;
 esac
 
