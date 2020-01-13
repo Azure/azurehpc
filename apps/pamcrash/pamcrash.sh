@@ -23,7 +23,7 @@ AZHPC_MPI_HOSTFILE=hostfile
 cat $PBS_NODEFILE > $AZHPC_MPI_HOSTFILE
 
 # remove long domain name from hostfile
-h=$(tail -n 1 $AZHPC_MPI_HOSTFILE)
+h=$(hostname -f)
 d=${h#*.}
 sed -i 's/.'$d'//g' $AZHPC_MPI_HOSTFILE
 # convert to uppercase as pamworld is case sensitive when using -cf option
@@ -32,9 +32,9 @@ sed -i 's/.*/\U&/g' $AZHPC_MPI_HOSTFILE
 sed -i 's/IP/ip/g' $AZHPC_MPI_HOSTFILE
 
 
-AZHPC_PPN=`cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }'`
-AZHPC_CORES=`cat $PBS_NODEFILE | wc -l`
-AZHPC_NODES=$(sort -u < $PBS_NODEFILE | wc -l)
+AZHPC_PPN=`cat $AZHPC_MPI_HOSTFILE | uniq -c | head -1 | awk '{ print $1 }'`
+AZHPC_CORES=`cat $AZHPC_MPI_HOSTFILE | wc -l`
+AZHPC_NODES=$(sort -u < $AZHPC_MPI_HOSTFILE | wc -l)
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
@@ -114,12 +114,13 @@ case $MPI in
 
         #mpi_options+=" -x MXM_SHM_RNDV_THRESH=32768"
         mpi_options+=" -x MALLOC_MMAP_MAX_=0 -x MALLOC_TRIM_THRESHOLD_=-1"
-        mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
         mpi_options+=" -x LD_LIBRARY_PATH"
         if [ "$THREADS" = "1" ]; then
             mpi_options+=" -bind-to core"
+            mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
         else
             mpi_options+=" -bind-to numa"
+            mpi_options+=" --map-by ppr:$THREADS:numa"
         fi
         mpi_options+=" -report-bindings --display-allocation -v"
         MPI_SCRATCH_OPTIONS="-hostfile $AZHPC_MPI_HOSTFILE -npernode 1"
