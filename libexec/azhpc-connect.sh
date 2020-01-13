@@ -126,5 +126,5 @@ fi
 if [ "$resource_name" = "$install_node" ]; then
     exec ssh -t -q $SSH_ARGS -i $ssh_private_key $ssh_user@$fqdn "$command"
 else
-    exec ssh -t -q $SSH_ARGS -i $ssh_private_key $ssh_user@$fqdn "ssh -t -q $target \"$command\""
+    exec ssh -t -q $SSH_ARGS -i $ssh_private_key $ssh_user@$fqdn "ssh -t $target \"$command\""
 fi
