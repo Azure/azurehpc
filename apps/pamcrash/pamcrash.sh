@@ -105,23 +105,33 @@ case $MPI in
         numa_domains="$(numactl -H |grep available|cut -d' ' -f2)"
         AZHPC_PPR=$(( ($AZHPC_PPN + $numa_domains - 1) / $numa_domains ))
 
-        mpi_options=" -np $AZHPC_CORES"
-        #mpi_options+=" --mca pml ucx -mca osc ucx"
-        mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY -x UCX_LOG_LEVEL=ERROR"
+        case $AZHPC_VMSIZE in
+            standard_hc44rs|standard_hb60rs)
+                # Use UCX
+                mpi_options+=" --mca pml ucx -mca osc ucx"
+                mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY"
+                #mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 
-        # Enable HCOLL
-        #mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
+                # Enable HCOLL
+                mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
+            ;;
+            standard_hb120rs_v2)
+                #mpi_options+=" -x UCX_DC_MLX5_RNR_TIMEOUT=2000.00us -x UCX_DC_MLX5_RNR_RETRY_COUNT=20"
+            ;;
+        esac
+
+        mpi_options=" -np $AZHPC_CORES"
+        mpi_options+=" -x UCX_LOG_LEVEL=ERROR"
 
         #mpi_options+=" -x MXM_SHM_RNDV_THRESH=32768"
         mpi_options+=" -x MALLOC_MMAP_MAX_=0 -x MALLOC_TRIM_THRESHOLD_=-1"
         mpi_options+=" -x LD_LIBRARY_PATH"
         if [ "$THREADS" = "1" ]; then
-            mpi_options+=" -bind-to core"
             mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
         else
-            #mpi_options+=" -bind-to core"
-            mpi_options+=" --map-by ppr:$THREADS:numa --oversubscribe"
+            mpi_options+=" --map-by numa:PE=$THREADS"
         fi
+        mpi_options+=" --bind-to core"
         mpi_options+=" -report-bindings --display-allocation -v"
         MPI_SCRATCH_OPTIONS="-hostfile $AZHPC_MPI_HOSTFILE -npernode 1"
         MPI_BIN=$MPI_HOME/bin
