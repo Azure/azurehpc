@@ -246,7 +246,7 @@ function run_install_scripts()
     for step in $(seq 0 $nsteps); do
 
         # skip jumpbox setup if no jumpbox scripts are required
-        if [ "$is_jumpbox_required" = "0" ]; then
+        if [ "$is_jumpbox_required" = "0" -a "$step" = "0" ]; then
             continue
         fi
 
