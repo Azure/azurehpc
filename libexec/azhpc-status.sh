@@ -76,11 +76,16 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
     fi
 
     if [ "$resource_type" = "vm" ]; then
-        nodes+=($(az vm show \
-            --resource-group $resource_group \
-            --name $resource_name \
-            --query osProfile.computerName \
-            --output tsv))
+
+        read_value resource_instances ".resources.$resource_name.instances" 1
+        
+        if [ "$resource_instances" = 1 ]; then
+            nodes+=($resource_name)
+        else
+            for i in $(seq -w $resource_instances); do
+                nodes+=(${resource_name}${i})
+            done
+        fi
 
     elif [ "$resource_type" = "vmss" ]; then
         nodes+=($(az vmss list-instances \

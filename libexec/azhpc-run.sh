@@ -88,11 +88,15 @@ for resource_name in "${hosts[@]}"; do
     read_value resource_type ".resources.$resource_name.type" "<unknown>"
 
     if [ "$resource_type" = "vm" ]; then
-        hostnames+=($(az vm show \
-            --resource-group $resource_group \
-            --name $resource_name \
-            --query osProfile.computerName \
-            --output tsv))
+
+        read_value resource_instances ".resources.$resource_name.instances" 1
+        if [ "$resource_instances" = "1" ]; then            
+            hostnames+=($resource_name)
+        else
+            for i in $(seq -w $resource_instances); do
+                hostnames+=(${resource_name}${i})
+            done
+        fi
 
     elif [ "$resource_type" = "vmss" ]; then
         hostnames+=($(az vmss list-instances \

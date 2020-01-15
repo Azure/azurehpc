@@ -59,15 +59,30 @@ while true; do
 
         case $resource_type in
             vm)
-                output+=($resource_name "$( \
-                    az vm show \
-                        --resource-group $resource_group \
-                        --name $resource_name \
-                        --query provisioningState \
-                        --output tsv 2>/dev/null \
-                        | sort | uniq -c \
-                        | sed 's/^ */ /g' | tr '\n' ',' | sed 's/,$/ /g' \
-                    )")
+                read_value resource_instances ".resources.$resource_name.instances" 1
+                if [ "$resource_instances" = 1 ]; then
+                    output+=($resource_name "$( \
+                        az vm show \
+                            --resource-group $resource_group \
+                            --name $resource_name \
+                            --query provisioningState \
+                            --output tsv 2>/dev/null \
+                            | sort | uniq -c \
+                            | sed 's/^ */ /g' | tr '\n' ',' | sed 's/,$/ /g' \
+                        )")
+                else
+                    for i in $(seq -w $resource_instances); do
+                        output+=(${resource_name}${i} "$( \
+                            az vm show \
+                                --resource-group $resource_group \
+                                --name ${resource_name}${i} \
+                                --query provisioningState \
+                                --output tsv 2>/dev/null \
+                                | sort | uniq -c \
+                                | sed 's/^ */ /g' | tr '\n' ',' | sed 's/,$/ /g' \
+                            )")
+                    done
+                fi
             ;;
             vmss)
                 output+=($resource_name "$( \
