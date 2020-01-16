@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -N OpenFOAM
 #PBS -q workq
-#PBS -l nodes=2:ppn=60,mpiprocs=60,place=scatter:excl
+#PBS -l nodes=2:ppn=60
 cd $PBS_O_WORKDIR
 
 CASE_NAME="motorbike20m"
