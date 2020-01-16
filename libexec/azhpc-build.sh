@@ -48,7 +48,7 @@ local_script_dir="$(dirname $config_file)/scripts"
 az_version=$(az --version | grep ^azure-cli | awk '{print $2}')
 function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
-if version_gt "2.0.73" "$az_version"; then
+if version_gt "2.0.78" "$az_version"; then
     warning "az version may be too low for some functionality: $az_version"
 fi   
 
@@ -85,7 +85,7 @@ az group create \
     --resource-group $resource_group \
     --location $location \
     --tags 'CreatedBy='$USER'' 'CreatedOn='$(date +%Y%m%d-%H%M%S)'' \
-    --output table
+    --output table || exit 1
 
 if [ "$ppg_name" != null ]; then
    status "creating proximity placement group"
@@ -113,8 +113,43 @@ else
         --resource-group $vnet_resource_group \
         --name $vnet_name \
         --address-prefix "$address_prefix" \
-        --output table
+        --output table || exit 1
 fi
+
+read_value vnet_dns_domain ".vnet.dns_domain" null
+if [ $vnet_dns_domain != null ]; then
+  status "creating private dns"
+  az network private-dns zone show \
+      --resource-group $resource_group \
+      --name $vnet_dns_domain \
+      --output table 2>/dev/null
+  if [ "$?" = "0" ]; then
+      status "private dns already exists"
+  else
+  az network private-dns zone create \
+      --resource-group $resource_group \
+      --name $vnet_dns_domain \
+      --output table || exit 1
+  fi
+  status "creating vnet link to private dns"
+  az network private-dns link vnet show \
+      --resource-group $resource_group \
+      --name $vnet_name \
+      --zone-name $vnet_dns_domain \
+      --output table 2>/dev/null
+  if [ "$?" = "0" ]; then
+      status "vnet link to private dns already exists"
+  else
+  az network private-dns link vnet create \
+      --resource-group $resource_group \
+      --name $vnet_name \
+      --zone-name $vnet_dns_domain \
+      --virtual-network $vnet_name \
+      --registration-enabled true \
+      --output table || exit 1
+  fi
+fi
+
 for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
     status "creating subnet $subnet_name"
     read_value subnet_address_prefix ".vnet.subnets.$subnet_name"
@@ -133,7 +168,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
             --vnet-name $vnet_name \
             --name $subnet_name \
             --address-prefix "$subnet_address_prefix" \
-            --output table
+            --output table || exit 1
     fi
     
     read_value peer_exists ".vnet.peer" "None"
@@ -173,7 +208,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
 		--vnet-name $vnet_name \
 		--remote-vnet $id_2 \
 		--allow-forwarded-traffic \
-		--allow-vnet-access
+		--allow-vnet-access || exit 1
 	fi
 
 	status "Checking if rg-${vnet_resource_group}-${vnet_name}-2-${peer_vnet_name} for $peer_vnet_name already exists"
@@ -192,7 +227,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
 		--vnet-name $peer_vnet_name \
 		--remote-vnet $id_1 \
 		--allow-forwarded-traffic \
-		--allow-vnet-access
+		--allow-vnet-access || exit 1
 	fi
     done
 done
@@ -204,16 +239,18 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
 
     case $resource_type in
         vm)
-            status "creating vm: $resource_name"
+            read_value resource_instances ".resources.$resource_name.instances" 1
 
-            az vm show \
-                --resource-group $resource_group \
-                --name $resource_name \
-                --output table 2>/dev/null
-            if [ "$?" = "0" ]; then
-                status "resource already exists - skipping"
-                continue
+            vm_list=()
+            if [ "$resource_instances" = 1 ]; then
+                vm_list+=($resource_name)
+            else
+                for i in $(seq -w $resource_instances); do
+                    vm_list+=(${resource_name}${i})
+                done
             fi
+
+            
 
             read_value resource_vm_type ".resources.$resource_name.vm_type"
             read_value resource_image ".resources.$resource_name.image"
@@ -221,62 +258,92 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
+            read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
+            read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
+            read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
 
-            public_ip_address=
-            if [ "$resource_pip" = "true" ]; then
-                public_ip_address="${resource_name}pip"
-            fi
-            ppg_option=
-            if [ "$resource_ppg" = "true" ]; then
-               if [ "$ppg_name" != null ]; then
-                   ppg_option="--ppg $ppg_name"
-               else
-                   error "Failed: ppg_name needs to be defined to use proximity placement group"
-               fi
-            fi
-            data_disks_options=
-            if [ "$resource_disk_count" -gt 0 ]; then
-                data_cache="ReadWrite"
-                resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
-                for size in $resource_disk_sizes; do
-                    if [ $size -gt 4095 ]; then
-                        data_cache="None"
-                    fi
-                done
-                data_disks_options="--data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
-                debug "$data_disks_options"
-            fi
+            storage_sku_str="os=${resource_os_storage_sku}"
 
-            read_value resource_password ".resources.$resource_name.password" "<no-password>"
-            if [ "$resource_password" = "<no-password>" ]; then
-                resource_credential=(--ssh-key-value "$(<$ssh_public_key)")
-            else
-                resource_credential=(--admin-password "$resource_password")
-            fi
+            # using resource_vm_name for the postfixed version
+            for resource_vm_name in ${vm_list[@]}; do
+                
+                status "creating vm: $resource_vm_name"
 
-            make_uuid_str
+                az vm show \
+                    --resource-group $resource_group \
+                    --name $resource_vm_name \
+                    --output table 2>/dev/null
+                if [ "$?" = "0" ]; then
+                    status "resource already exists - skipping"
+                    continue
+                fi
 
-            az vm create \
-                --resource-group $resource_group \
-                --name $resource_name \
-                --image $resource_image \
-                --size $resource_vm_type \
-                --admin-username $admin_user \
-                "${resource_credential[@]}" \
-                --storage-sku StandardSSD_LRS \
-                --subnet $resource_subnet_id \
-                --accelerated-networking $resource_an \
-                --public-ip-address "$public_ip_address" \
-                --public-ip-address-dns-name $resource_name$uuid_str \
-                $data_disks_options \
-                $ppg_option \
-                --no-wait
+                nsg_name=
+                public_ip_address=
+                if [ "$resource_pip" = "true" ]; then
+                    public_ip_address="${resource_vm_name}PIP"
+                    nsg_name="${resource_vm_name}NSG"
+                fi
+                ppg_option=
+                if [ "$resource_ppg" = "true" ]; then
+                if [ "$ppg_name" != null ]; then
+                    ppg_option="--ppg $ppg_name"
+                else
+                    error "Failed: ppg_name needs to be defined to use proximity placement group"
+                fi
+                fi
+                data_disks_options=
+                if [ "$resource_disk_count" -gt 0 ]; then
+
+                    for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
+                        storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
+                    done
+
+                    data_cache="ReadWrite"
+                    resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
+                    for size in $resource_disk_sizes; do
+                        if [ $size -gt 4095 ]; then
+                            data_cache="None"
+                        fi
+                    done
+                    data_disks_options="--data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
+                    debug "$data_disks_options"
+                fi
+
+                read_value resource_password ".resources.$resource_name.password" "<no-password>"
+                if [ "$resource_password" = "<no-password>" ]; then
+                    resource_credential=(--ssh-key-value "$(<$ssh_public_key)")
+                else
+                    resource_credential=(--admin-password "$resource_password")
+                fi
+
+                make_uuid_str
+
+                az vm create \
+                    --resource-group $resource_group \
+                    --name $resource_vm_name \
+                    --image $resource_image \
+                    --size $resource_vm_type \
+                    --admin-username $admin_user \
+                    "${resource_credential[@]}" \
+                    --storage-sku $storage_sku_str \
+                    --subnet $resource_subnet_id \
+                    --accelerated-networking $resource_an \
+                    --public-ip-address "$public_ip_address" \
+                    --public-ip-address-dns-name $resource_name$uuid_str \
+                    --nsg "$nsg_name" \
+                    --os-disk-size-gb $resource_os_disk_size \
+                    $data_disks_options \
+                    $ppg_option \
+                    --no-wait || exit 1
+                
+                if [ "$?" -ne "0" ]; then
+                    error "Failed to create resource"
+                fi
             
-            if [ "$?" -ne "0" ]; then
-                error "Failed to create resource"
-            fi
+            done
         ;;
         vmss)
             status "creating vmss: $resource_name"
@@ -296,16 +363,23 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_fault_domain_count ".resources.$resource_name.fault_domain_count" 5
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
+            read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
+            read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
             read_value resource_instances ".resources.$resource_name.instances"
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
 
+            storage_sku_str="os=${resource_os_storage_sku}"
 
-            resource_storage_sku=StandardSSD_LRS
             data_disks_options=
             if [ "$resource_disk_count" -gt 0 ]; then
+
+                for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
+                    storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
+                done
+
                 read_value resource_storage_sku ".resources.$resource_name.storage_sku"
                 data_cache="ReadWrite"
                 resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
@@ -314,7 +388,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                         data_cache="None"
                     fi
                 done
-                data_disks_options="--storage-sku $resource_storage_sku --data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
+                data_disks_options="--data-disk-sizes-gb "$resource_disk_sizes" --data-disk-caching $data_cache "
                 debug "$data_disks_options"
             fi
 
@@ -344,6 +418,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --vm-sku $resource_vm_type \
                 --admin-username $admin_user \
                 "${resource_credential[@]}" \
+                --storage-sku $storage_sku_str \
                 --subnet $resource_subnet_id \
                 --lb "" \
                 --single-placement-group true \
@@ -353,7 +428,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 $data_disks_options \
                 $lowpri_option \
                 $ppg_option \
-                --no-wait
+                --no-wait || exit 1
             
             if [ "$?" -ne "0" ]; then
                 error "Failed to create resource"
@@ -396,7 +471,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                     --vnet-name $vnet_name \
                     --name $storage_subnet \
                     --delegations "Microsoft.Netapp/volumes" \
-                    --output table
+                    --output table || exit 1
             fi
 
             debug "creating netapp account"
@@ -411,7 +486,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                     --resource-group $storage_resource_group \
                     --account-name $storage_name \
                     --location $location \
-                    --output table
+                    --output table || exit 1
 	    fi
 
 	    read_value storage_anf_domain ".storage.\"$storage_name\".joindomain" "None"
@@ -428,7 +503,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                     --smb-server-name anf \
                     --username $storage_anf_domain_admin \
                     --resource-group $storage_resource_group \
-                    --name $storage_name
+                    --name $storage_name || exit 1
             fi
 
             # loop over pools
@@ -468,7 +543,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                         --service-level $pool_service_level \
                         --size $pool_size \
                         --pool-name $pool_name \
-                        --output table
+                        --output table || exit 1
                 fi
                 # loop over volumes
                 for volume_name in $(jq -r ".storage.\"$storage_name\".pools.\"$pool_name\".volumes | keys | .[]" $config_file); do
@@ -483,13 +558,13 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                           --location $location \
                           --service-level $pool_service_level \
                           --usage-threshold $(($volume_size * (2 ** 10))) \
-                          --creation-token ${volume_name} \
+                          --file-path ${volume_name} \
                           --pool-name $pool_name \
                           --volume-name $volume_name \
 			  --protocol-type CIFS \
  			  --vnet $vnet_name \
                           --subnet $storage_subnet \
-                          --output table
+                          --output table || exit 1
 
                       volume_ip=$( \
                           az netappfiles list-mount-targets \
@@ -498,7 +573,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                             --pool-name $pool_name \
                             --volume-name $volume_name \
                             --query [0].ipAddress \
-                            --output tsv \
+                            --output tsv || exit 1
                       )
                       read_value mount_point ".storage.\"$storage_name\".pools.\"$pool_name\".volumes.\"$volume_name\".mount"
                       echo "mkdir -p $mount_point" >> $mount_script
@@ -523,12 +598,12 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                                 --location $location \
                                 --service-level $pool_service_level \
                                 --usage-threshold $(($volume_size * (2 ** 10))) \
-                                --creation-token ${volume_name} \
+                                --file-path ${volume_name} \
                                 --pool-name $pool_name \
                                 --volume-name $volume_name \
                                 --vnet $vnet_name \
                                 --subnet $storage_subnet \
-                                --output table
+                                --output table || exit 1
                         fi
                         volume_ip=$( \
                             az netappfiles list-mount-targets \
@@ -537,11 +612,34 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                                 --pool-name $pool_name \
                                 --volume-name $volume_name \
                                 --query [0].ipAddress \
-                                --output tsv \
+                                --output tsv || exit 1
                         )
+                        # if we have private-dns: register ip-addres for ANF
+                        if [ $vnet_dns_domain != null ]; then
+                          aRecord=$( \
+                            az network private-dns record-set a show \
+                              --resource-group $resource_group \
+                              --zone-name $vnet_dns_domain \
+                              --name ${storage_name}-${volume_name} \
+                              --query [aRecords] 2>/dev/null | jq -r '.[][].ipv4Address') 
+                          if [ ${aRecord}x == ${volume_ip}x ]; then
+                            status "entry in dns for ${storage_name}-${volume_name} already exists"
+                          else   
+                            status "create entry in ${vnet_dns_domain} dns for ${storage_name}-${volume_name}"
+                            az network private-dns record-set a add-record \
+                              --resource-group $resource_group \
+                              --zone-name $vnet_dns_domain \
+                              --record-set-name ${storage_name}-${volume_name} \
+                              --ipv4-address $volume_ip \
+                              --output table || exit 1
+                          fi
+                        fi
+
                         read_value mount_point ".storage.\"$storage_name\".pools.\"$pool_name\".volumes.\"$volume_name\".mount"
                         echo "mkdir -p $mount_point" >> $mount_script
-                        echo "echo \"$volume_ip:/$volume_name	$mount_point	nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0\" >> /etc/fstab" >> $mount_script
+                        echo "grep -v '\s${mount_point}' /etc/fstab > /etc/fstab.bak" >> $mount_script
+                        echo "echo \"$volume_ip:/$volume_name  $mount_point  nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0\" >> /etc/fstab.bak" >> $mount_script
+                        echo "mv /etc/fstab.bak /etc/fstab" >> $mount_script
                         echo "chmod 777 $mount_point" >> $mount_script
 		    fi
                 done
@@ -560,11 +658,22 @@ done
 for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
     status "waiting for $resource_name to be created"
     read_value resource_type ".resources.$resource_name.type"
-    az $resource_type wait \
-        --resource-group $resource_group \
-        --name $resource_name \
-        --created \
-        --output table
+    read_value resource_instances ".resources.$resource_name.instances" 1
+    if [ "$resource_type" = "vm" ] && [ "$resource_instances" != "1" ]; then
+        for i in $(seq -w $resource_instances); do
+            az $resource_type wait \
+                --resource-group $resource_group \
+                --name ${resource_name}${i} \
+                --created \
+                --output table
+        done
+    else
+        az $resource_type wait \
+            --resource-group $resource_group \
+            --name $resource_name \
+            --created \
+            --output table
+    fi
 done
 
 # setting up a route
@@ -595,7 +704,7 @@ for route_name in $(jq -r ".vnet.routes | keys | @tsv" $config_file 2>/dev/null)
     az network route-table create \
         --resource-group $vnet_resource_group \
         --name $route_name \
-        --output table
+        --output table || exit 1
     az network route-table route create \
         --resource-group $vnet_resource_group \
         --address-prefix $route_address_prefix \
@@ -603,13 +712,13 @@ for route_name in $(jq -r ".vnet.routes | keys | @tsv" $config_file 2>/dev/null)
         --route-table-name $route_name \
         --next-hop-ip-address $route_next_hop \
         --name $route_name \
-        --output table
+        --output table || exit 1
     az network vnet subnet update \
         --vnet-name $vnet_name \
         --name $route_subnet \
         --resource-group $vnet_resource_group \
         --route-table $route_name \
-        --output table
+        --output table || exit 1
 
 done
 

@@ -7,15 +7,33 @@ PROFILE=$4
 
 APP_VERSION=2.5.1
 
+# BEEOND
+start_time=$SECONDS
+set +e
+sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d
+set -e
+NODES=$(cat $PBS_NODEFILE | uniq -c | wc -l)
+sudo beeond start -F -P -n $(readlink -f $PBS_NODEFILE) -m $NODES -d /mnt/resource/beeond -c /beeond
+end_time=$SECONDS
+start_time=$(($end_time - $start_time))
+echo "BEEOND Started in $start_time"
+
+
 # Set AZHPC_XXX environment variables
 AZHPC_DATA=${SHARED_ROOT}data
 AZHPC_APPS=${SHARED_ROOT}apps
 AZHPC_APPLICATION=prolb
 AZHPC_JOBID=$PBS_JOBID
 AZHPC_SHARED_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$PBS_JOBID
+AZHPC_SCRATCH_DIR=/beeond/$PBS_JOBID
+
 mkdir -p $AZHPC_SHARED_DIR
-AZHPC_JOBDIR=$AZHPC_SHARED_DIR
+sudo mkdir -p $AZHPC_SCRATCH_DIR
+sudo chmod 777 $AZHPC_SCRATCH_DIR
+AZHPC_JOBDIR=$AZHPC_SCRATCH_DIR
 cd $AZHPC_JOBDIR
+set +e
+
 AZHPC_MPI_HOSTLIST=$(cat $PBS_NODEFILE)
 AZHPC_MPI_HOSTFILE=$AZHPC_JOBDIR/hostfile
 cat $PBS_NODEFILE > $AZHPC_MPI_HOSTFILE
@@ -83,7 +101,7 @@ case $AZHPC_VMSIZE in
         mpi_options+=" --mca pml ucx -mca osc ucx"
         mpi_options+=" -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY"
 
-        #mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
+        mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 
         # Enable HCOLL
         mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
@@ -97,7 +115,6 @@ case $AZHPC_VMSIZE in
     ;;
 esac
 
-mpi_options+=" -x UCX_ZCOPY_THRESH=262144"
 mpi_options+=" -x UCX_LOG_LEVEL=ERROR"
 mpi_options+=" --map-by ppr:$AZHPC_PPR:numa"
 #mpi_options+=" --map-by ppr:$AZHPC_PPN:socket"
@@ -178,3 +195,17 @@ if [ -f "${output}" ]; then
     }
 EOF
 fi
+
+echo "upload results"
+start_time=$SECONDS
+cp -r * $AZHPC_SHARED_DIR/
+end_time=$SECONDS
+upload_time=$(($end_time - $start_time))
+echo "Upload time is ${upload_time}"
+
+start_time=$SECONDS
+sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d
+end_time=$SECONDS
+stop_time=$(($end_time - $start_time))
+echo "BEEOND Stopped in $stop_time"
+

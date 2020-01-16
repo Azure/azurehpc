@@ -118,7 +118,7 @@ class AzurehpcApp extends React.Component {
         return (
             <div>
                 <nav className="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-                    <a className="navbar-brand" href="#">azurehpc</a>
+                    <a className="navbar-brand" href="#top">azurehpc</a>
                     <button
                         className="navbar-toggler"
                         type="button"

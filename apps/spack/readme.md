@@ -35,11 +35,11 @@ spack install osu-micro-benchmarks%gcc@9.2.0^openmpi@4.0.2
 ```
 Using hpcx
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@v2.5.0
+spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@2.5.0
 ```
 Using intel mpi 
 ```
-a /opt/intel/impi/2019.5.281/intel64/bin/mpivars.sh
+source /opt/intel/impi/2019.5.281/intel64/bin/mpivars.sh
 spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2019.5.281
 ```
 

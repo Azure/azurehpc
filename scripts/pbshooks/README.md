@@ -45,6 +45,21 @@ set hook stop_wa event="execjob_begin,execjob_end"
 import hook stop_wa application/x-python default stop_waagent.py
 ```
 
+## Kill any orphan processes on the node for the user running the job
+Purpose:
+- To delete all of the user processes on the nodes once the job has completed
+
+### Required files
+- pbs_user_proc_cleanup.py
+
+### Setup hook
+qmgr commands
+```
+create hook user_cleanup
+set hook user_cleanup event="execjob_end"
+import hook user_cleanup application/x-python default pbs_user_cleanup.py
+```
+
 ## Run nhc_run_stream
 Purpose:
 - To check the memory stream performance of the node when it is boots up

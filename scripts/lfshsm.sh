@@ -17,9 +17,11 @@ if [ "$lustre_version" = "2.10" ]; then
     weak-modules --add-kernel $(uname -r)
 fi
 
-yum -y install \
-    https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0-lustre_${lustre_version}.x86_64.rpm \
-    https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0-lustre_${lustre_version}.x86_64.rpm
+if ! rpm -q lemur-azure-hsm-agent lemur-azure-data-movers; then
+    yum -y install \
+        https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0-lustre_${lustre_version}.x86_64.rpm \
+        https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0-lustre_${lustre_version}.x86_64.rpm
+fi
 
 mkdir -p /var/run/lhsmd
 chmod 755 /var/run/lhsmd

@@ -12,9 +12,11 @@ storage_container=$3
 lfs_mount=${4:-/lustre}
 lustre_version=${5-2.10}
 
-yum -y install \
-    https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0-lustre_${lustre_version}.x86_64.rpm \
-    https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0-lustre_${lustre_version}.x86_64.rpm
+if ! rpm -q lemur-azure-hsm-agent lemur-azure-data-movers; then
+    yum -y install \
+        https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0-lustre_${lustre_version}.x86_64.rpm \
+        https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0-lustre_${lustre_version}.x86_64.rpm
+fi
 
 cd $lfs_mount
 export STORAGE_ACCOUNT=$storage_account

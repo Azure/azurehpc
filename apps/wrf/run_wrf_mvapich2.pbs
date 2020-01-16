@@ -1,0 +1,29 @@
+#!/bin/bash
+
+export MODULEPATH=/apps/modulefiles/${SKU_TYPE}:$MODULEPATH
+
+spack load netcdf-fortran^mvapich2
+spack load netcdf^mvapich2
+spack load hdf5^mvapich2
+spack load perl
+module load mpi/mvapich2-2.3.2
+module load gcc-9.2.0
+module load wrf/4.1.3-mvapich2
+
+which mpicc
+which wrf.exe
+
+cat $PBS_NODEFILE
+
+cd $PBS_O_WORKDIR
+ln -s ${WRFROOT}/run/* .
+cp ${INPUTDIR}/*_d01 .
+cp ${INPUTDIR}/namelist.input .
+
+export export MV2_SHOW_HCA_BINDING=1
+# For hbv2 (90 processes per node)
+#export MV2_CPU_MAPPING=0:4:8:12:16:20:24:28:32:36:40:44:48:52:56:60:64:68:72:76:80:84:88:92:96:100:104:108:112:116:1:5:9:13:17:21:25:29:33:37:41:45:49:53:57:61:65:69:73:77:81:85:89:93:97:101:105:109:113:117:2:6:10:14:18:22:26:30:34:38:42:46:50:54:58:62:66:70:74:78:82:86:90:94:98:102:106:110:114:118
+# For hbv1 (45 processes per node)
+#export MV2_CPU_MAPPING=0:4:8:12:16:20:24:28:32:36:40:44:48:52:56:1:5:9:13:17:21:25:29:33:37:41:45:49:53:57:2:6:10:14:18:22:26:30:34:38:42:46:50:54:58
+
+mpirun wrf.exe

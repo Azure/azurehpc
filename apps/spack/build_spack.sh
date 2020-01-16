@@ -23,6 +23,7 @@ git checkout tags/v${APP_VERSION}
 
 mkdir ${SPACKDIR}/spack/var/spack/repos/builtin/packages/hpcx
 cp ${APPS_SPACK_DIR}/package.py  ${SPACKDIR}/spack/var/spack/repos/builtin/packages/hpcx
+patch -p0 < ${APPS_SPACK_DIR}/netcdf-fortran-patch
 
 source ${SPACKDIR}/spack/share/spack/setup-env.sh
 echo "source ${SPACKDIR}/spack/share/spack/setup-env.sh" >> ~/.bash_profile
