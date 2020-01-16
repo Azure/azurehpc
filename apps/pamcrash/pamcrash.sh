@@ -105,6 +105,7 @@ case $MPI in
         numa_domains="$(numactl -H |grep available|cut -d' ' -f2)"
         AZHPC_PPR=$(( ($AZHPC_PPN + $numa_domains - 1) / $numa_domains ))
 
+        mpi_options=" -np $AZHPC_CORES"
         case $AZHPC_VMSIZE in
             standard_hc44rs|standard_hb60rs)
                 # Use UCX
@@ -116,11 +117,11 @@ case $MPI in
                 mpi_options+=" --mca coll_hcoll_enable 1 -x coll_hcoll_np=0 -x HCOLL_MAIN_IB=mlx5_0:1"
             ;;
             standard_hb120rs_v2)
+                mpi_options+=" -x UCX_TLS=dc,sm"
                 #mpi_options+=" -x UCX_DC_MLX5_RNR_TIMEOUT=2000.00us -x UCX_DC_MLX5_RNR_RETRY_COUNT=20"
             ;;
         esac
 
-        mpi_options=" -np $AZHPC_CORES"
         mpi_options+=" -x UCX_LOG_LEVEL=ERROR"
 
         #mpi_options+=" -x MXM_SHM_RNDV_THRESH=32768"
