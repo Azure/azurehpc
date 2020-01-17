@@ -414,6 +414,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             az vmss create \
                 --resource-group $resource_group \
                 --name $resource_name \
+                --computer-name-prefix $resource_name \
                 --image $resource_image \
                 --vm-sku $resource_vm_type \
                 --admin-username $admin_user \
