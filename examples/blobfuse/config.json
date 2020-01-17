@@ -1,0 +1,72 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "variables.ad_admin",
+  "variables": {
+    "image": "OpenLogic:CentOS:7.6:latest",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "vnet_resource_group": "variables.resource_group",
+    "blob_account": "<NOT-SET>",
+    "blob_container": "<NOT-SET>",
+    "blob_key": "<NOT-SET>",
+    "blob_mount": "/blob"
+  },
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "compute": "10.2.4.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "vm_type": "Standard_HC44rs",
+      "public_ip": true,
+      "image": "variables.image",
+      "subnet": "compute",
+      "tags": [
+ 	"cndefault",
+        "loginnode",
+        "localuser",
+        "disable-selinux",
+        "blobfuse"
+      ]
+    }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "cndefault",
+      "sudo": true
+    },
+    {
+      "script": "localuser.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "localuser",
+      "sudo": true
+    },
+    {
+      "script": "blobfuse.sh",
+      "tag": "blobfuse",
+      "args": [
+                "variables.blob_account",
+                "variables.blob_container",
+                "variables.blob_key",
+                "variables.blob_mount"
+              ],
+      "sudo": false
+    }
+  ]
+}
