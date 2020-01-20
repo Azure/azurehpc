@@ -50,7 +50,7 @@ function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$
 
 if version_gt "2.0.78" "$az_version"; then
     warning "az version may be too low for some functionality: $az_version"
-fi   
+fi
 
 subscription="$(az account show --output tsv --query '[name,id]')"
 subscription_name=$(echo "$subscription" | head -n1)
@@ -170,7 +170,7 @@ for subnet_name in $(jq -r ".vnet.subnets | keys | @tsv" $config_file); do
             --address-prefix "$subnet_address_prefix" \
             --output table || exit 1
     fi
-    
+
     read_value peer_exists ".vnet.peer" "None"
     if [ "$peer_exists" = "None" ]; then
         continue
@@ -250,7 +250,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 done
             fi
 
-            
+
 
             read_value resource_vm_type ".resources.$resource_name.vm_type"
             read_value resource_image ".resources.$resource_name.image"
@@ -259,6 +259,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
+            read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
             read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
@@ -268,7 +269,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
 
             # using resource_vm_name for the postfixed version
             for resource_vm_name in ${vm_list[@]}; do
-                
+
                 status "creating vm: $resource_vm_name"
 
                 az vm show \
@@ -285,6 +286,10 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 if [ "$resource_pip" = "true" ]; then
                     public_ip_address="${resource_vm_name}PIP"
                     nsg_name="${resource_vm_name}NSG"
+                fi
+                lowpri_option=
+                if [ "$resource_lowpri" = "true" ]; then
+                    lowpri_option="--priority Spot --eviction-policy Deallocate"
                 fi
                 ppg_option=
                 if [ "$resource_ppg" = "true" ]; then
@@ -336,13 +341,14 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                     --nsg "$nsg_name" \
                     --os-disk-size-gb $resource_os_disk_size \
                     $data_disks_options \
+                    $lowpri_option \
                     $ppg_option \
                     --no-wait || exit 1
-                
+
                 if [ "$?" -ne "0" ]; then
                     error "Failed to create resource"
                 fi
-            
+
             done
         ;;
         vmss)
@@ -400,7 +406,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             fi
             lowpri_option=
             if [ "$resource_lowpri" = "true" ]; then
-                lowpri_option="--priority Low"
+                lowpri_option="--priority Spot --eviction-policy Deallocate"
             fi
             ppg_option=
             if [ "$resource_ppg" = "true" ]; then
@@ -430,7 +436,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 $lowpri_option \
                 $ppg_option \
                 --no-wait || exit 1
-            
+
             if [ "$?" -ne "0" ]; then
                 error "Failed to create resource"
             fi
@@ -551,7 +557,7 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                     read_value volume_size ".storage.\"$storage_name\".pools.\"$pool_name\".volumes.\"$volume_name\".size"
                     read_value export_type ".storage.\"$storage_name\".pools.\"$pool_name\".volumes.\"$volume_name\".type" nfs
 
-		    if [ "$export_type" == "cifs" ]; then 
+		    if [ "$export_type" == "cifs" ]; then
 		      echo prepping for cifs
                       az netappfiles volume create \
                           --resource-group $storage_resource_group \
@@ -622,10 +628,10 @@ for storage_name in $(jq -r ".storage | keys | @tsv" $config_file 2>/dev/null); 
                               --resource-group $resource_group \
                               --zone-name $vnet_dns_domain \
                               --name ${storage_name}-${volume_name} \
-                              --query [aRecords] 2>/dev/null | jq -r '.[][].ipv4Address') 
+                              --query [aRecords] 2>/dev/null | jq -r '.[][].ipv4Address')
                           if [ ${aRecord}x == ${volume_ip}x ]; then
                             status "entry in dns for ${storage_name}-${volume_name} already exists"
-                          else   
+                          else
                             status "create entry in ${vnet_dns_domain} dns for ${storage_name}-${volume_name}"
                             az network private-dns record-set a add-record \
                               --resource-group $resource_group \
