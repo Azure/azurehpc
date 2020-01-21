@@ -15,7 +15,7 @@ export I_MPI_FALLBACK_DEVICE=0
 export I_MPI_DEBUG=4
 
 src=$(tail -n 1 $hostlist)
-src=${src%%.*} # use short name
+#src=${src%%.*} # use short name
 for line in $(<$hostlist); do
     dst=${line%%.*}
     mpirun -np 2 -ppn 1 -hosts $src,$dst IMB-MPI1 PingPong > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log 2>&1
