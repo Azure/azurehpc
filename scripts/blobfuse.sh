@@ -13,7 +13,7 @@ export AZURE_STORAGE_ACCESS_KEY="${blob_key}"
 
 sudo mkdir -p /mnt/resource/blobfusetmp
 sudo chmod 777 /mnt/resource/blobfusetmp
-sudo mkdir /${blob_mount}
+sudo mkdir -p /${blob_mount}
 sudo chmod 777 /${blob_mount}
 
 blobfuse /${blob_mount} --container-name=${blob_container} --tmp-path=/mnt/resource/blobfusetmp
