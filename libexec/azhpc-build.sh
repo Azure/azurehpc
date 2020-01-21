@@ -663,23 +663,44 @@ done
 
 # now wait for resources
 for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
-    status "waiting for $resource_name to be created"
+    
     read_value resource_type ".resources.$resource_name.type"
     read_value resource_instances ".resources.$resource_name.instances" 1
+
     if [ "$resource_type" = "vm" ] && [ "$resource_instances" != "1" ]; then
         for i in $(seq -w $resource_instances); do
+            status "waiting for ${resource_name}${i} to be created"
             az $resource_type wait \
                 --resource-group $resource_group \
                 --name ${resource_name}${i} \
                 --created \
-                --output table
+                --output table 2>/dev/null
+            
+            if [ "$?" -ne "0" ]; then
+                az group deployment list \
+                    --resource-group $resource_group \
+                    --filter "provisioningState eq 'Failed'" \
+                    --query "[].properties.error.details[0].message" \
+                    --output tsv
+                error "Error to create resource ${resource_name}${i} in $resource_group"
+            fi
         done
     else
+        status "waiting for $resource_name to be created"
         az $resource_type wait \
             --resource-group $resource_group \
             --name $resource_name \
             --created \
-            --output table
+            --output table 2>/dev/null
+        
+        if [ "$?" -ne "0" ]; then
+            az group deployment list \
+                --resource-group $resource_group \
+                --filter "provisioningState eq 'Failed'" \
+                --query "[].properties.error.details[0].message" \
+                --output tsv
+            error "Error to create resource $resource_name in $resource_group"
+        fi
     fi
 done
 
