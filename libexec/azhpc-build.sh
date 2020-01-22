@@ -250,8 +250,6 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 done
             fi
 
-
-
             read_value resource_vm_type ".resources.$resource_name.vm_type"
             read_value resource_image ".resources.$resource_name.image"
             read_value resource_pip ".resources.$resource_name.public_ip" false
@@ -354,7 +352,6 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
         vmss)
             status "creating vmss: $resource_name"
 
-
             az vmss show \
                 --resource-group $resource_group \
                 --name $resource_name \
@@ -367,7 +364,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_vm_type ".resources.$resource_name.vm_type"
             read_value resource_image ".resources.$resource_name.image"
             read_value resource_subnet ".resources.$resource_name.subnet"
-            read_value resource_fault_domain_count ".resources.$resource_name.fault_domain_count" 5
+            read_value resource_fault_domain_count ".resources.$resource_name.fault_domain_count" -1
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
             read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
@@ -378,6 +375,13 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
 
             storage_sku_str="os=${resource_os_storage_sku}"
+
+            # Set Fault Domains only if not specified (default is set to -1)
+            # Default can change for Low Priority on some SKUs, so it's better to leave the CLI manage it and set the option only in case we want to force it
+            fd_options=
+            if [ "$resource_fault_domain_count" -ne -1 ]; then
+                fd_options="--platform-fault-domain-count $resource_fault_domain_count"
+            done
 
             data_disks_options=
             if [ "$resource_disk_count" -gt 0 ]; then
@@ -429,7 +433,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --subnet $resource_subnet_id \
                 --lb "" \
                 --single-placement-group true \
-                --platform-fault-domain-count  $resource_fault_domain_count \
+                $fd_options \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
                 $data_disks_options \
