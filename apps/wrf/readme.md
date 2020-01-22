@@ -50,7 +50,7 @@ qsub -l select=2:ncpus=60:mpiprocs=15 -v SKU_TYPE=hb,INPUTDIR=/path/to/inputfile
 
 ## How to create WRF input cases with WPS
 WPS (WRF preprocessing system) is used to create WRF input cases. WRF v3 models are not compatible with WRF v4, so some WRF v4 input cases will need to be generated with WSP v4.
-I will outline the procedure I used to create a new_conus2.5km input case for WRF v4.
+I will outline the procedure used to create a new_conus2.5km input case for WRF v4.
 
 Git clone the following repository to get access to the WRF benchmarks cases namelist.input and namelist.wps files (which will be needed later as WPS input and an master input file for WRF).
 
@@ -63,7 +63,7 @@ Go to the "data Access" section and download the following data (2018, 2018-06-1
 
 Modify your namelist.wps file, setting the correct paths for geog_data_path, opt_geogrid_tbl_path and opt_metgrid_tbl_path.
 
-cd to your WPS directory and copy the new_conus2.5km naelist.wps to this location.
+cd to your WPS installation directory and copy the new_conus2.5km namelist.wps to this location.
 
 Download WPS v4 geopraphical static data for WPS v4. (https://www2.mmm.ucar.edu/wrf/users/download/get_sources_wps_geog.html), Download topo_gmted2010_30s, modis_landuse_20class_30s_with_lakes, soiltemp_1deg, soiltype_top_30s, albedo_modis, greenfrac_fpar_modis, lai_modis_10m, maxsnowalb_modis_10m and orogwd_10m. Extract into a directory.
 ```
@@ -83,12 +83,13 @@ ln -s ungrib/Variable_Tables/Vtable.GFS Vtable
 mpirun ./metgrid.exe
 ```
 Should see the following files
-rw-rw-r--. 1 hpcuser hpcuser  79075286 Dec 12 04:11 met_em.d01.2018-06-17_12:00:00.nc
+```
+-rw-rw-r--. 1 hpcuser hpcuser  79075286 Dec 12 04:11 met_em.d01.2018-06-17_12:00:00.nc
 -rw-rw-r--. 1 hpcuser hpcuser  78622472 Dec 12 04:11 met_em.d01.2018-06-17_09:00:00.nc
 -rw-rw-r--. 1 hpcuser hpcuser  79054700 Dec 12 04:10 met_em.d01.2018-06-17_06:00:00.nc
 -rw-rw-r--. 1 hpcuser hpcuser  78668607 Dec 12 04:10 met_em.d01.2018-06-17_03:00:00.nc
 -rw-rw-r--. 1 hpcuser hpcuser  79435709 Dec 12 04:10 met_em.d01.2018-06-17_00:00:00.nc
-
+```
 cd WRF v4 run directory
 cp new_conus2.5km namelist.input to this location
 cp the file met_em*.nc files to this location
@@ -97,5 +98,7 @@ cp the file met_em*.nc files to this location
 mpirun ./real.exe
 ```
 The following files should be generated (These are the input files required to run WRF v4)
+```
 -rw-rw-r--. 1 hpcuser hpcuser  31285895 Dec 12 15:50 wrfbdy_d01
 -rw-rw-r--. 1 hpcuser hpcuser 127618030 Dec 12 15:50 wrfinput_d01
+```
