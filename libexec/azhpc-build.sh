@@ -417,8 +417,6 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                fi
             fi
 
-#                 --platform-fault-domain-count  $resource_fault_domain_count \
-
             az vmss create \
                 --resource-group $resource_group \
                 --name $resource_name \
@@ -431,6 +429,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 --subnet $resource_subnet_id \
                 --lb "" \
                 --single-placement-group true \
+                --platform-fault-domain-count  $resource_fault_domain_count \
                 --accelerated-networking $resource_an \
                 --instance-count $resource_instances \
                 $data_disks_options \
