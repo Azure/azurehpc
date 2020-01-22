@@ -381,7 +381,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             fd_options=
             if [ "$resource_fault_domain_count" -ne -1 ]; then
                 fd_options="--platform-fault-domain-count $resource_fault_domain_count"
-            done
+            fi
 
             data_disks_options=
             if [ "$resource_disk_count" -gt 0 ]; then
