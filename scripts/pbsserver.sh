@@ -13,6 +13,7 @@ if [ "$(rpm -qa pbspro-server)" = "" ];then
 
     # Update the sched_config file to schedule jobs that request pool_name
     sudo sed -i "s/^resources: \"ncpus,/resources: \"ncpus, pool_name,/g" /var/spool/pbs/sched_priv/sched_config
+    sudo systemctl restart pbs
 else
     echo "PBSPro already installed"
 fi
