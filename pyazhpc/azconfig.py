@@ -1,26 +1,70 @@
 import logging
+import re
+import sys
 import yaml
+
+log = logging.getLogger(__name__)
 
 class ConfigFile:
     def __init__(self):
         self.data = {}
+        self.regex = re.compile(r'({{([^{}]*)}})')
 
     def open(self, fname):
-        logging.debug("opening "+fname)
+        log.debug("opening "+fname)
         with open(fname) as f:
             self.data = yaml.safe_load(f.read())
+    
+    def read_keys(self, v):
+        log.debug("read_keys (enter): " + v)
+
+        try:
+            it = self.data
+            for x in v.split('.'):
+                it = it[x]
+        except KeyError:
+            log.error("read_keys : "+v+" not in config")
+            sys.exit(1)
         
-    def read_value(self, v):
-        logging.debug("reading " + v)
-        it = self.data
-        for x in v.split('.'):
-            it = it[x]
-        res = self.__process_value(it)
+        if type(it) is not dict:
+            log.error("read_keys : "+v+" is not a dict")
+        
+        keys = list(it.keys())
+        log.debug("read_keys (exit): keys("+v+")="+",".join(keys))
+        return keys
+
+    def read_value(self, v, default=None):
+        log.debug("read_value (enter): " + v)
+
+        try:
+            it = self.data
+            for x in v.split('.'):
+                it = it[x]
+        except KeyError:
+            if default is not None:
+                res = default
+            else:
+                log.error("read_value : "+v+" not in config")
+                sys.exit(1)
+        
+        def repl(match):
+            return str(self.__process_value(match.group()[2:-2]))
+    
+        if type(it) == str:
+            it = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2])), it)
+        
+        if type(it) is str:
+            res = self.__process_value(it)
+        else:
+            res = it
+
+        log.debug("read_value (exit): "+v+"="+str(res))
+
         return res
 
     def __process_value(self, v):
-        if type(v) is not str:
-            return v
+        log.debug("process_value (enter): "+str(v))
+        
         parts = v.split('.')
         prefix = parts[0]
 
@@ -29,5 +73,6 @@ class ConfigFile:
         else:
             res = v
         
+        log.debug("process_value (exit): "+str(v)+"="+str(res))
         return res
 

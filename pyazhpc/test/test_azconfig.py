@@ -17,5 +17,8 @@ class TestConfigFile(unittest.TestCase):
     def test_read_variable(self):
         self.assertEqual(self.config.read_value("use_variable"), 42)
 
+    def test_replace_double_curly_braces(self):
+        self.assertEqual(self.config.read_value("double_curly_braces"), "simple_variable=42")
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,9 @@
 import logging
 import shlex
 import subprocess
+import sys
+
+log = logging.getLogger(__name__)
 
 def _make_subprocess_error_string(res):
     return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout, res.stderr)
@@ -12,12 +15,48 @@ def get_subscription():
     print(proc.stderr)
     print(proc.returncode)
 
+def create_resource_group(resource_group, location):
+    log.debug("creating resource group")
+    cmd = [
+        "az", "group", "create",
+            "--name", resource_group,
+            "--location", location
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+
+def delete_resource_group(resource_group):
+    log.debug("deleting resource group")
+    cmd = [
+        "az", "group", "delete",
+            "--name", resource_group, "--yes"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+
+
+def deploy(resource_group, arm_template):
+    log.debug("deploying template")
+    cmd = [
+        "az", "group", "deployment", "create",
+            "--resource-group", resource_group,
+            "--template-file", arm_template
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+
 def get_keyvault_secret(vault, key):
-    cmd = """
-        az keyvault secret show \
-            --name {} --vault-name {} \
-            --query value --output tsv \
-    """.format(key, vault)
+    cmd = [
+        "az", "keyvault", "secret", "show",
+            "--name", key, "--vault-name", "vault",
+            "--query", "value", "--output", "tsv"
+    ]
     res = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
@@ -27,7 +66,7 @@ def get_keyvault_secret(vault, key):
     secret = out[0].decode('utf-8')
     return secret
 
-def get_storage_url(account)
+def get_storage_url(account):
     cmd = """
         az storage account show \
             --name {} \
@@ -43,7 +82,7 @@ def get_storage_url(account)
     url = out[0].decode('utf-8')
     return url
 
-def get_storage_key(account)
+def get_storage_key(account):
     cmd = """
         az storage account keys list 
             --account-name {} --query "[0].value" --output tsv
