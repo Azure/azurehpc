@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -o pipefail
 # setup Intel MPI environment for Infiniband
 source /etc/profile # so we can load modules
 module load mpi/impi-2019
