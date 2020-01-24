@@ -1,6 +1,6 @@
 #!/bin/bash
 source /etc/profile
-module load mpi/impi
+module load mpi/impi-2019
 
 file=output.log
 grep -A3 "t_min" ${file} | tr -s ' ' | \
