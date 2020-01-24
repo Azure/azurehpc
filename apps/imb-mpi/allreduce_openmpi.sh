@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o pipefail
 source /etc/profile
 module use /usr/share/Modules/modulefiles
 module load mpi/hpcx
