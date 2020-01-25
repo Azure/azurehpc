@@ -12,7 +12,7 @@ cat <<EOF >app.json
 {
     "app": "imb-mpi",
     "benchmark": "allreduce",
-    "mpi": "impi",
+    "mpi": "impi2019",
     "mpi_version": "$mpi_version"
 }
 EOF

@@ -10,6 +10,7 @@ hostlist=$(pwd)/hosts.$PBS_JOBID
 sort -u $PBS_NODEFILE > $hostlist
 
 export I_MPI_FABRICS="shm:ofi"
+export I_MPI_FALLBACK_DEVICE=0
 export I_MPI_DEBUG=4
 
 src=$(tail -n 1 $hostlist)
