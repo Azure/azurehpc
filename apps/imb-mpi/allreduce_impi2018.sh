@@ -7,7 +7,7 @@ source $MPI_BIN/mpivars.sh
 
 num_ranks=$(wc -l <$PBS_NODEFILE)
 mpi_options="-genv I_MPI_FABRICS shm:ofa"
-mpi_options+="-genv I_MPI_FALLBACK_DEVICE 0"
+mpi_options+=" -genv I_MPI_FALLBACK_DEVICE 0"
 
 mpirun -hostfile $PBS_NODEFILE $mpi_options -np $num_ranks \
         IMB-MPI1 Allreduce -npmin $num_ranks \
