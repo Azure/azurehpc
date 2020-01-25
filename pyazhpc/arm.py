@@ -1,7 +1,5 @@
 import json
 
-import azconfig
-
 class ArmTemplate:
     def __init__(self):
         self.parameters = {}
@@ -10,9 +8,9 @@ class ArmTemplate:
         self.outputs = {}
     
     def _read_network(self, cfg):
-        location = cfg.read_value("location")
-        vnet_name = cfg.read_value("vnet.name")
-        address_prefix = cfg.read_value("vnet.address_prefix")
+        location = cfg["location"]
+        vnet_name = cfg["vnet"]["name"]
+        address_prefix = cfg["vnet"]["address_prefix"]
         
         res = {
             "apiVersion": "2018-10-01",
@@ -29,9 +27,9 @@ class ArmTemplate:
             "resources": []
         }
 
-        subnets = cfg.read_keys("vnet.subnets")
+        subnets = cfg["vnet"]["subnets"]
         for subnet_name in subnets:
-            subnet_address_prefix = cfg.read_value("vnet.subnets."+subnet_name)
+            subnet_address_prefix = cfg["vnet"]["subnets"][subnet_name]
             res["resources"].append({
                 "apiVersion": "2018-10-01",
                 "type": "subnets",
@@ -47,8 +45,29 @@ class ArmTemplate:
 
         self.resources.append(res)
 
+    def _read_vm(self, cfg, r):
+        res = cfg["resources"][r]
+        rimage = res["image"]
+        rpip = res.get("public_ip", False)
+        rppg = res.get("proximity_placement_group", False)
+        rsubnet = res["subnet"]
+        ran = res.get("accelerated_networking", False)
+        rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
+        rlowpri = res.get("low_priority", False)
+        rosdisksize = res.get("os_disk_size", 32)
+        rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
+        rdiskcount = len(res.get("data_disks", []))
+        #r = res["os_storage_sku"]
+        #r = res[""]
+
     def read(self, cfg):
         self._read_network(cfg)
+
+        resources = cfg["resources"]
+        for r in resources.keys():
+            rtype = cfg["resources"][r]["type"]
+            if rtype == "vm":
+                self._read_vm(cfg, r)
 
     def to_json(self):
         return json.dumps({

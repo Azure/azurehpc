@@ -9,11 +9,12 @@ def _make_subprocess_error_string(res):
     return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout, res.stderr)
 
 def get_subscription():
-    cmd = "az account show --output tsv --query '[name,id]'"
-    proc = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print(proc.stdout)
-    print(proc.stderr)
-    print(proc.returncode)
+    cmd = [ "az", "account", "show", "--output", "tsv", "--query", "[name,id]" ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+    return res.stdout
 
 def create_resource_group(resource_group, location):
     log.debug("creating resource group")

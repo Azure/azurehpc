@@ -9,10 +9,17 @@ import azutil
 
 log = logging.getLogger(__name__)
 
-def do_deploy(args):
+def do_preprocess(args):
     log.info("reading config file ({})".format(args.config_file))
     config = azconfig.ConfigFile()
     config.open(args.config_file)
+    print(json.dumps(config.preprocess(), indent=4))
+
+def do_deploy(args):
+    log.info("reading config file ({})".format(args.config_file))
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    config = c.preprocess()
     tpl = arm.ArmTemplate()
     tpl.read(config)
 
@@ -20,14 +27,14 @@ def do_deploy(args):
     with open(args.output_template, "w") as f:
         f.write(tpl.to_json())
 
-    log.info("creating resource group " + config.read_value("resource_group"))
+    log.info("creating resource group " + config["resource_group"])
     azutil.create_resource_group(
-        config.read_value("resource_group"), 
-        config.read_value("location")
+        config["resource_group"],
+        config["location"]
     )
     log.info("deploying arm template")
     azutil.deploy(
-        config.read_value("resource_group"),
+        config["resource_group"],
         args.output_template
     )
 
@@ -59,6 +66,15 @@ if __name__ == "__main__":
     )
 
     subparsers = parser.add_subparsers(help="actions")
+
+    preprocess_parser = subparsers.add_parser(
+        "preprocess", 
+        parents=[parser],
+        add_help=False,
+        description="preprocess the config file",
+        help="expand all the config macros"
+    )
+    preprocess_parser.set_defaults(func=do_preprocess)
 
     deploy_parser = subparsers.add_parser(
         "deploy", 

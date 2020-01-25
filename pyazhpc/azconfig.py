@@ -15,6 +15,29 @@ class ConfigFile:
         with open(fname) as f:
             self.data = yaml.safe_load(f.read())
     
+    def __evaluate_dict(self, x):
+        ret = {}
+        for k in x.keys():
+            ret[k] = self.__evaluate(x[k])
+        return ret
+
+    def __evaluate_list(self, x):
+        return [ self.__evaluate(v) for v in x ]
+
+    def __evaluate(self, input):
+        if type(input) == dict:
+            return self.__evaluate_dict(input)
+        elif type(input) == list:
+            return self.__evaluate_list(input)
+        elif type(input) == str:
+            return self.__process_value(input)
+        else:
+            return input
+
+    def preprocess(self):
+        res = self.__evaluate(self.data)
+        return res
+
     def read_keys(self, v):
         log.debug("read_keys (enter): " + v)
 
@@ -75,4 +98,3 @@ class ConfigFile:
         
         log.debug("process_value (exit): "+str(v)+"="+str(res))
         return res
-
