@@ -6,7 +6,7 @@ import sys
 log = logging.getLogger(__name__)
 
 def _make_subprocess_error_string(res):
-    return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout, res.stderr)
+    return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout.decode("utf-8"), res.stderr.decode("utf-8"))
 
 def get_subscription():
     cmd = [ "az", "account", "show", "--output", "tsv", "--query", "[name,id]" ]
