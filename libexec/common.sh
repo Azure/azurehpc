@@ -69,7 +69,7 @@ function process_value {
     elif [ "$prefix" = "sasurl" ]; then
         local sasurl_storage_str=${!1#*.}
         local sasurl_storage_account=${sasurl_storage_str%%.*}
-        local sasurl_storage_fullpath=${sasurl_storage_str#*.}
+        local sasurl_storage_fullpath=$(echo ${sasurl_storage_str#*.} | cut -d',' -f1) # remove permission option if any
         local sasurl_storage_container=${sasurl_storage_fullpath%%/*}
         # read permission this will be added after a comma at the end of the value
         local sasurl_permission=${sasurl_storage_str#*,}
@@ -94,7 +94,7 @@ function process_value {
             --output tsv
         )
         local sasurl_storage_full="$sasurl_storage_url$sasurl_storage_fullpath?$sasurl_storage_saskey"
-        debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full"
+        debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full, permission=$permission"
         read $1 <<< "$sasurl_storage_full"
     elif [ "$prefix" = "fqdn" ]; then
         local fqdn_str=${!1#*.}
