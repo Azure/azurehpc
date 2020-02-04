@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Relevant PBS variables (qsub -v option)
+#
+# SKU_TYPE = hb, hc or hbv2
+# INPUTDIR, location of namd input files.
+
+export MODULEPATH=/apps/modulefiles/${SKU_TYPE}:$MODULEPATH
+
+module load mpi/openmpi-4.0.2
+module unload gcc-9.2.0
+spack load gcc@7.4.0
+spack load tcl@8.5.19%gcc@7.4.0
+module load NAMD/2.13-openmpi-gcc7.4
+
+cat $PBS_NODEFILE
+
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+cd $PBS_O_WORKDIR
+cp ${INPUTDIR}/* .
+
+#mpirun -x LD_LIBRARY_PATH -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa `which namd2` +isomalloc_sync *.namd
+mpirun -x LD_LIBRARY_PATH -n $NPROCS --hostfile $PBS_NODEFILE `which namd2` +isomalloc_sync *.namd
