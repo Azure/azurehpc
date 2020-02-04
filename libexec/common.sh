@@ -81,7 +81,7 @@ function process_value {
             az storage container generate-sas \
             --account-name $sasurl_storage_account \
             --name $sasurl_storage_container \
-            --permissions r \
+            --permissions rw \
             --start $(date --utc -d "-2 hours" +%Y-%m-%dT%H:%M:%SZ) \
             --expiry $(date --utc -d "+1 hour" +%Y-%m-%dT%H:%M:%SZ) \
             --output tsv
