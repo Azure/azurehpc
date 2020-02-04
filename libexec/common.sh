@@ -71,6 +71,13 @@ function process_value {
         local sasurl_storage_account=${sasurl_storage_str%%.*}
         local sasurl_storage_fullpath=${sasurl_storage_str#*.}
         local sasurl_storage_container=${sasurl_storage_fullpath%%/*}
+        # read permission this will be added after a comma at the end of the value
+        local sasurl_permission=${sasurl_storage_str#*,}
+        # if permission is not set, default it to read
+        if [ "$sasurl_permission" = "$sasurl_storage_str" ]; then 
+            sasurl_permission="r"
+        fi
+
         local sasurl_storage_url="$( \
             az storage account show \
                 --name $sasurl_storage_account \
@@ -81,7 +88,7 @@ function process_value {
             az storage container generate-sas \
             --account-name $sasurl_storage_account \
             --name $sasurl_storage_container \
-            --permissions rw \
+            --permissions $sasurl_permission \
             --start $(date --utc -d "-2 hours" +%Y-%m-%dT%H:%M:%SZ) \
             --expiry $(date --utc -d "+1 hour" +%Y-%m-%dT%H:%M:%SZ) \
             --output tsv
