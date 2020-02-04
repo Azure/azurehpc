@@ -15,6 +15,8 @@
       "fqdn1":"fqdn.{{variables.resource}}",
       "fqdn2":"fqdn.vm2",
       "sasurl1":"sasurl.account.container/path.foo/blob.data.ext",
-      "sasurl2":"sasurl.{{variables.projectstore}}.{{variables.container}}/path.foo/blob.data.ext"
+      "sasurl2":"sasurl.{{variables.projectstore}}.{{variables.container}}/path.foo/blob.data.ext",
+      "sasurl3":"sasurl.account.container/path.foo/blob.data.ext,rw",
+      "sasurl4":"sasurl.{{variables.projectstore}}.{{variables.container}}/path.foo/blob.data.ext,rw"
       }
   }
