@@ -11,8 +11,18 @@ class ArmTemplate:
     def _read_network(self, cfg):
         location = cfg["location"]
         vnet_name = cfg["vnet"]["name"]
-        address_prefix = cfg["vnet"]["address_prefix"]
-        
+        address_prefix = cfg["vnet"]["address_prefix"]      
+        subnet_names = cfg["vnet"]["subnets"]
+        subnets = []
+        for subnet_name in subnet_names:
+            subnet_address_prefix = cfg["vnet"]["subnets"][subnet_name]
+            subnets.append({
+                "name": subnet_name,
+                "properties": {
+                    "addressPrefix": subnet_address_prefix
+                }
+            })
+
         res = {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Network/virtualNetworks",
@@ -23,26 +33,11 @@ class ArmTemplate:
                     "addressPrefixes": [
                         address_prefix
                     ]
-                }
+                },
+                "subnets": subnets
             },
             "resources": []
         }
-
-        subnets = cfg["vnet"]["subnets"]
-        for subnet_name in subnets:
-            subnet_address_prefix = cfg["vnet"]["subnets"][subnet_name]
-            res["resources"].append({
-                "apiVersion": "2018-10-01",
-                "type": "subnets",
-                "location": location,
-                "name": subnet_name,
-                "dependsOn": [
-                    vnet_name
-                ],
-                "properties": {
-                    "addressPrefix": subnet_address_prefix
-                }
-            })
 
         self.resources.append(res)
 
@@ -64,12 +59,18 @@ class ArmTemplate:
         rrg = cfg["resource_group"]
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
-        rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnetname, rsubnet)
+        if vnetrg == rrg:
+            rsubnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetname, rsubnet)
+        else:
+            rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnetname, rsubnet)
         rpassword = res.get("password", "<no-password>")
         with open(adminuser+"_id_rsa.pub") as f:
             sshkey = f.read().strip()
         
         nicdeps = []
+
+        if vnetrg == rrg:
+            nicdeps.append("Microsoft.Network/virtualNetworks/"+vnetname)
 
         if rpip:
             pipname = r+"PIP"
@@ -121,6 +122,29 @@ class ArmTemplate:
 
         nicname = r+"NIC"
         ipconfigname = r+"IPCONFIG"
+        nicprops = {
+            "ipConfigurations": [
+                {
+                    "name": ipconfigname,
+                    "properties": {
+                        "privateIPAllocationMethod": "Dynamic",
+                        "subnet": {
+                            "id": rsubnetid
+                        }
+                    }
+                }
+            ],
+            "enableAcceleratedNetworking": ran
+        }
+
+        if rpip:
+            nicprops["ipConfigurations"][0]["properties"]["publicIPAddress"] = {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', '{}')]".format(pipname)
+            }
+            nicprops["networkSecurityGroup"] = {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', '{}')]".format(nsgname)
+            }
+
         self.resources.append({
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2016-09-01",
@@ -128,33 +152,14 @@ class ArmTemplate:
             "location": loc,
             "dependsOn": nicdeps,
             "tags": {},
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": ipconfigname,
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": rsubnetid
-                            },
-                            "publicIPAddress": {
-                                "id": "[resourceId('{}', 'Microsoft.Network/publicIPAddresses', '{}')]".format(rrg, pipname)
-                            }
-                        }
-                    }
-                ],
-                "networkSecurityGroup": {
-                    "id": "[resourceId('{}', 'Microsoft.Network/networkSecurityGroups', '{}')]".format(rrg, nsgname)
-                },
-                "enableAcceleratedNetworking": ran
-            }
+            "properties": nicprops
         })
 
         osprofile = {
             "computerName": r,
             "adminUsername": adminuser
         }
-        if rpassword != "<no-password":
+        if rpassword != "<no-password>":
             osprofile["adminPassword"] = rpassword
         else:
             osprofile["linuxConfiguration"] = {
@@ -185,7 +190,7 @@ class ArmTemplate:
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('{}', 'Microsoft.Network/networkInterfaces', '{}')]".format(rrg, nicname)
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', '{}')]".format(nicname)
                         }
                     ]
                 },
