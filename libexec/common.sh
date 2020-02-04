@@ -94,7 +94,7 @@ function process_value {
             --output tsv
         )
         local sasurl_storage_full="$sasurl_storage_url$sasurl_storage_fullpath?$sasurl_storage_saskey"
-        debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full, permission=$permission"
+        debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full, permission=$sasurl_permission"
         read $1 <<< "$sasurl_storage_full"
     elif [ "$prefix" = "fqdn" ]; then
         local fqdn_str=${!1#*.}
