@@ -41,8 +41,62 @@ class ArmTemplate:
 
         self.resources.append(res)
 
+    def __helper_arm_create_osprofile(self, rname, rtype, adminuser, adminpass, sshkey):
+        if rtype == "vm":
+            name = "computerName"
+        else:
+            name = "computerNamePrefix"
+        
+        osprofile = {
+            name: rname,
+            "adminUsername": adminuser
+        }
+        if adminpass != "<no-password>":
+            osprofile["adminPassword"] = adminpass
+        else:
+            osprofile["linuxConfiguration"] = {
+                "disablePasswordAuthentication": True,
+                "ssh": {
+                    "publicKeys": [
+                        {
+                            "keyData": sshkey,
+                            "path": "/home/{}/.ssh/authorized_keys".format(adminuser)
+                        }
+                    ]
+                }
+            }
+
+        return osprofile
+
+    def __helper_arm_create_datadisks(self, sizes, sku):
+        datadisks = []
+        for i, d in enumerate(sizes):
+            if d < 4096:
+                cacheoption = "ReadWrite"
+            else:
+                cacheoption = "None"
+            datadisks.append({
+                "caching": cacheoption,
+                "managedDisk": {
+                    "storageAccountType": sku
+                },
+                "createOption": "Empty",
+                "lun": i,
+                "diskSizeGB": d
+            })
+        return datadisks
+
+    def __helper_arm_create_image_reference(self, refstr):
+        return {
+            "publisher": refstr.split(":")[0],
+            "offer": refstr.split(":")[1],
+            "sku": refstr.split(":")[2],
+            "version": refstr.split(":")[3]
+        }
+
     def _read_vm(self, cfg, r):
         res = cfg["resources"][r]
+        rtype = res["type"]
         rsize = res["vm_type"]
         rimage = res["image"]
         rinstances = res.get("instances", 1)
@@ -68,15 +122,14 @@ class ArmTemplate:
         with open(adminuser+"_id_rsa.pub") as f:
             sshkey = f.read().strip()
         
-        nicdeps = []
-
-        if vnetrg == rrg:
-            nicdeps.append("Microsoft.Network/virtualNetworks/"+vnetname)
-
         rorig = r
         for instance in range(1, rinstances+1):    
             if rinstances > 1:
                 r = "{}{:04}".format(rorig, instance)
+
+            nicdeps = []
+            if vnetrg == rrg:
+                nicdeps.append("Microsoft.Network/virtualNetworks/"+vnetname)
 
             if rpip:
                 pipname = r+"PIP"
@@ -161,40 +214,9 @@ class ArmTemplate:
                 "properties": nicprops
             })
 
-            osprofile = {
-                "computerName": r,
-                "adminUsername": adminuser
-            }
-            if rpassword != "<no-password>":
-                osprofile["adminPassword"] = rpassword
-            else:
-                osprofile["linuxConfiguration"] = {
-                    "disablePasswordAuthentication": True,
-                    "ssh": {
-                        "publicKeys": [
-                            {
-                                "keyData": sshkey,
-                                "path": "/home/{}/.ssh/authorized_keys".format(adminuser)
-                            }
-                        ]
-                    }
-                }
-
-            datadisks = []
-            for i, d in enumerate(rdatadisks):
-                if d < 4096:
-                    cacheoption = "ReadWrite"
-                else:
-                    cacheoption = "None"
-                datadisks.append({
-                    "caching": cacheoption,
-                    "managedDisk": {
-                        "storageAccountType": rstoragesku
-                    },
-                    "createOption": "Empty",
-                    "lun": i,
-                    "diskSizeGB": d
-                })
+            osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
+            datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku)
+            imageref = self.__helper_arm_create_image_reference(rimage)
 
             self.resources.append({
                 "type": "Microsoft.Compute/virtualMachines",
@@ -225,20 +247,108 @@ class ArmTemplate:
                             },
                             "diskSizeGb": rosdisksize
                         },
-                        "imageReference": {
-                            "publisher": rimage.split(":")[0],
-                            "offer": rimage.split(":")[1],
-                            "sku": rimage.split(":")[2],
-                            "version": rimage.split(":")[3]
-                        },
+                        "imageReference": imageref,
                         "dataDisks": datadisks
                     },
                     "osProfile": osprofile
                 }
             })
 
-    def _read_vmss(cfg, r):
-        pass
+    def _read_vmss(self, cfg, r):
+        res = cfg["resources"][r]
+        rtype = res["type"]
+        rsize = res["vm_type"]
+        rimage = res["image"]
+        rinstances = res.get("instances")
+        rpip = res.get("public_ip", False)
+        rppg = res.get("proximity_placement_group", False)
+        rsubnet = res["subnet"]
+        ran = res.get("accelerated_networking", False)
+        rlowpri = res.get("low_priority", False)
+        rosdisksize = res.get("os_disk_size", 32)
+        rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
+        rdatadisks = res.get("data_disks", [])
+        rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
+        loc = cfg["location"]
+        adminuser = cfg["admin_user"]
+        rrg = cfg["resource_group"]
+        vnetname = cfg["vnet"]["name"]
+        vnetrg = cfg["vnet"].get("resource_group", rrg)
+        if vnetrg == rrg:
+            rsubnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetname, rsubnet)
+        else:
+            rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnetname, rsubnet)
+        rpassword = res.get("password", "<no-password>")
+        with open(adminuser+"_id_rsa.pub") as f:
+            sshkey = f.read().strip()
+
+        deps = []
+        if vnetrg == rrg:
+            deps.append("Microsoft.Network/virtualNetworks/"+vnetname)
+        
+        osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
+        datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku)
+        imageref = self.__helper_arm_create_image_reference(rimage)
+
+        nicname = r+"NIC"
+        ipconfigname = r+"IPCONFIG"
+        self.resources.append({
+            "type": "Microsoft.Compute/virtualMachineScaleSets",
+            "apiVersion": "2019-07-01",
+            "name": r,
+            "location": loc,
+            "dependsOn": deps,
+            "tags": {},
+            "sku": {
+                "name": rsize,
+                "capacity": rinstances
+            },
+            "properties": {
+                "overprovision": True,
+                "upgradePolicy": {
+                    "mode": "manual"
+                },
+                "virtualMachineProfile": {
+                    "storageProfile": {
+                        "osDisk": {
+                            "createOption": "FromImage",
+                            "caching": "ReadWrite",
+                            "managedDisk": {
+                                "storageAccountType": rosstoragesku
+                            },
+                            "diskSizeGb": rosdisksize,
+                        },
+                        "dataDisks": datadisks,
+                        "imageReference": imageref
+                    },
+                    "osProfile": osprofile,
+                    "networkProfile": {
+                        "networkInterfaceConfigurations": [
+                            {
+                                "name": nicname,
+                                "properties": {
+                                    "primary": "true",
+                                    "ipConfigurations": [
+                                        {
+                                            "name": ipconfigname,
+                                            "properties": {
+                                                "subnet": {
+                                                    "id": rsubnetid
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "enableAcceleratedNetworking": ran
+                                }
+                            }
+                        ]
+                    }
+                },
+                "singlePlacementGroup": True,
+                "platformFaultDomainCount": 5
+            }
+        })
+
 
     def read(self, cfg):
         self._read_network(cfg)
@@ -248,6 +358,8 @@ class ArmTemplate:
             rtype = cfg["resources"][r]["type"]
             if rtype == "vm":
                 self._read_vm(cfg, r)
+            elif rtype == "vmss":
+                self._read_vmss(cfg, r)
 
     def to_json(self):
         return json.dumps({
