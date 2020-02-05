@@ -29,4 +29,4 @@ grep "^         1024 " *_ringpingpong.$PBS_JOBID.log \
     | tr -s ' ' | cut -d ' ' -f 1,4 \
     | sed 's/_to_/ /g;s/_ringpingpong[^:]*://g' \
     | sort -nk 3 \
-    | xargs printf "%-20s %-20s %10s\n"
+    | xargs printf "%-20s %-20s %10s\n" | tee output.log
