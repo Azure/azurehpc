@@ -14,9 +14,9 @@ export I_MPI_FALLBACK_DEVICE=0
 export I_MPI_DEBUG=4
 
 src=$(tail -n 1 $hostlist)
-# -msglog 10:10 is for 1024 bytes message size only
+# -msglog 10:10 is for 512 and 1024 bytes message size only
 for dst in $(<$hostlist); do
-    mpirun -np 2 -ppn 1 -hosts $src,$dst IMB-MPI1 PingPong -msglog 10:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log 2>&1
+    mpirun -np 2 -ppn 1 -hosts $src,$dst IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log 2>&1
     src=$dst
 done
 
