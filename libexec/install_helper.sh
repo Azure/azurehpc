@@ -107,7 +107,13 @@ OUTER_EOF
     fi
 
     # can run in parallel with pssh
-    echo "pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/\$tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> $log_file 2>&1" >>$install_sh
+    cat <<EOF >$install_sh
+pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/\$tag "cd $tmp_dir; $sudo_prefix scripts/$install_command_line" >> $log_file 2>&1
+if [ "\$?" == "5" ]; then
+    echo "one of the pssh scripts failed, exiting"
+    exit 1
+fi
+EOF
 
     if [ "$install_reboot" = "true" ]; then
         cat <<EOF >> $install_sh
