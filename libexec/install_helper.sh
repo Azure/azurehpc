@@ -74,7 +74,6 @@ function create_jumpbox_script()
 
 cat <<OUTER_EOF > $install_sh
 #!/bin/bash
-set -e
 # expecting to be in $tmp_dir
 cd "\$( dirname "\${BASH_SOURCE[0]}" )/.."
 
@@ -144,7 +143,6 @@ function create_local_script()
 
     cat <<OUTER_EOF > $install_sh
 #!/bin/bash
-set -e
 # expecting to be in $tmp_dir
 cd "\$( dirname "\${BASH_SOURCE[0]}" )/.."
 
