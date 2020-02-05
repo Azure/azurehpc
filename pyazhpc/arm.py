@@ -45,15 +45,16 @@ class ArmTemplate:
         res = cfg["resources"][r]
         rsize = res["vm_type"]
         rimage = res["image"]
+        rinstances = res.get("instances", 1)
         rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
-        rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
         rlowpri = res.get("low_priority", False)
         rosdisksize = res.get("os_disk_size", 32)
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
-        rdiskcount = len(res.get("data_disks", []))
+        rdatadisks = res.get("data_disks", [])
+        rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
@@ -72,147 +73,172 @@ class ArmTemplate:
         if vnetrg == rrg:
             nicdeps.append("Microsoft.Network/virtualNetworks/"+vnetname)
 
-        if rpip:
-            pipname = r+"PIP"
-            dnsname = r+str(uuid.uuid4())[:6]
-            nsgname = r+"NSG"
+        rorig = r
+        for instance in range(1, rinstances+1):    
+            if rinstances > 1:
+                r = "{}{:04}".format(rorig, instance)
 
-            nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)
-            nicdeps.append("Microsoft.Network/networkSecurityGroups/"+nsgname)
+            if rpip:
+                pipname = r+"PIP"
+                dnsname = r+str(uuid.uuid4())[:6]
+                nsgname = r+"NSG"
 
-            self.resources.append({
-                "type": "Microsoft.Network/publicIPAddresses",
-                "apiVersion": "2018-01-01",
-                "name": pipname,
-                "location": loc,
-                "dependsOn": [],
-                "tags": {},
-                "properties": {
-                    "dnsSettings": {
-                        "domainNameLabel": dnsname
+                nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)
+                nicdeps.append("Microsoft.Network/networkSecurityGroups/"+nsgname)
+
+                self.resources.append({
+                    "type": "Microsoft.Network/publicIPAddresses",
+                    "apiVersion": "2018-01-01",
+                    "name": pipname,
+                    "location": loc,
+                    "dependsOn": [],
+                    "tags": {},
+                    "properties": {
+                        "dnsSettings": {
+                            "domainNameLabel": dnsname
+                        }
                     }
-                }
-            })
+                })
 
-            self.resources.append({
-                "type": "Microsoft.Network/networkSecurityGroups",
-                "apiVersion": "2015-06-15",
-                "name": nsgname,
-                "location": loc,
-                "dependsOn": [],
-                "tags": {},
-                "properties": {
-                    "securityRules": [
-                        {
-                            "name": "default-allow-ssh",
-                            "properties": {
-                                "protocol": "Tcp",
-                                "sourcePortRange": "*",
-                                "destinationPortRange": "22",
-                                "sourceAddressPrefix": "*",
-                                "destinationAddressPrefix": "*",
-                                "access": "Allow",
-                                "priority": 1000,
-                                "direction": "Inbound"
+                self.resources.append({
+                    "type": "Microsoft.Network/networkSecurityGroups",
+                    "apiVersion": "2015-06-15",
+                    "name": nsgname,
+                    "location": loc,
+                    "dependsOn": [],
+                    "tags": {},
+                    "properties": {
+                        "securityRules": [
+                            {
+                                "name": "default-allow-ssh",
+                                "properties": {
+                                    "protocol": "Tcp",
+                                    "sourcePortRange": "*",
+                                    "destinationPortRange": "22",
+                                    "sourceAddressPrefix": "*",
+                                    "destinationAddressPrefix": "*",
+                                    "access": "Allow",
+                                    "priority": 1000,
+                                    "direction": "Inbound"
+                                }
+                            }
+                        ]
+                    }
+                })
+
+            nicname = r+"NIC"
+            ipconfigname = r+"IPCONFIG"
+            nicprops = {
+                "ipConfigurations": [
+                    {
+                        "name": ipconfigname,
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": rsubnetid
                             }
                         }
-                    ]
+                    }
+                ],
+                "enableAcceleratedNetworking": ran
+            }
+
+            if rpip:
+                nicprops["ipConfigurations"][0]["properties"]["publicIPAddress"] = {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses', '{}')]".format(pipname)
+                }
+                nicprops["networkSecurityGroup"] = {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', '{}')]".format(nsgname)
+                }
+
+            self.resources.append({
+                "type": "Microsoft.Network/networkInterfaces",
+                "apiVersion": "2016-09-01",
+                "name": nicname,
+                "location": loc,
+                "dependsOn": nicdeps,
+                "tags": {},
+                "properties": nicprops
+            })
+
+            osprofile = {
+                "computerName": r,
+                "adminUsername": adminuser
+            }
+            if rpassword != "<no-password>":
+                osprofile["adminPassword"] = rpassword
+            else:
+                osprofile["linuxConfiguration"] = {
+                    "disablePasswordAuthentication": True,
+                    "ssh": {
+                        "publicKeys": [
+                            {
+                                "keyData": sshkey,
+                                "path": "/home/{}/.ssh/authorized_keys".format(adminuser)
+                            }
+                        ]
+                    }
+                }
+
+            datadisks = []
+            for i, d in enumerate(rdatadisks):
+                if d < 4096:
+                    cacheoption = "ReadWrite"
+                else:
+                    cacheoption = "None"
+                datadisks.append({
+                    "caching": cacheoption,
+                    "managedDisk": {
+                        "storageAccountType": rstoragesku
+                    },
+                    "createOption": "Empty",
+                    "lun": i,
+                    "diskSizeGB": d
+                })
+
+            self.resources.append({
+                "type": "Microsoft.Compute/virtualMachines",
+                "apiVersion": "2019-07-01",
+                "name": r,
+                "location": loc,
+                "dependsOn": [
+                    "Microsoft.Network/networkInterfaces/"+nicname
+                ],
+                "tags": {},
+                "properties": {
+                    "hardwareProfile": {
+                        "vmSize": rsize
+                    },
+                    "networkProfile": {
+                        "networkInterfaces": [
+                            {
+                                "id": "[resourceId('Microsoft.Network/networkInterfaces', '{}')]".format(nicname)
+                            }
+                        ]
+                    },
+                    "storageProfile": {
+                        "osDisk": {
+                            "createOption": "fromImage",
+                            "caching": "ReadWrite",
+                            "managedDisk": {
+                                "storageAccountType": rosstoragesku
+                            },
+                            "diskSizeGb": rosdisksize
+                        },
+                        "imageReference": {
+                            "publisher": rimage.split(":")[0],
+                            "offer": rimage.split(":")[1],
+                            "sku": rimage.split(":")[2],
+                            "version": rimage.split(":")[3]
+                        },
+                        "dataDisks": datadisks
+                    },
+                    "osProfile": osprofile
                 }
             })
 
-        nicname = r+"NIC"
-        ipconfigname = r+"IPCONFIG"
-        nicprops = {
-            "ipConfigurations": [
-                {
-                    "name": ipconfigname,
-                    "properties": {
-                        "privateIPAllocationMethod": "Dynamic",
-                        "subnet": {
-                            "id": rsubnetid
-                        }
-                    }
-                }
-            ],
-            "enableAcceleratedNetworking": ran
-        }
-
-        if rpip:
-            nicprops["ipConfigurations"][0]["properties"]["publicIPAddress"] = {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', '{}')]".format(pipname)
-            }
-            nicprops["networkSecurityGroup"] = {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', '{}')]".format(nsgname)
-            }
-
-        self.resources.append({
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2016-09-01",
-            "name": nicname,
-            "location": loc,
-            "dependsOn": nicdeps,
-            "tags": {},
-            "properties": nicprops
-        })
-
-        osprofile = {
-            "computerName": r,
-            "adminUsername": adminuser
-        }
-        if rpassword != "<no-password>":
-            osprofile["adminPassword"] = rpassword
-        else:
-            osprofile["linuxConfiguration"] = {
-                "disablePasswordAuthentication": True,
-                "ssh": {
-                    "publicKeys": [
-                        {
-                            "keyData": sshkey,
-                            "path": "/home/{}/.ssh/authorized_keys".format(adminuser)
-                        }
-                    ]
-                }
-            }
-
-        self.resources.append({
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-07-01",
-            "name": r,
-            "location": loc,
-            "dependsOn": [
-                "Microsoft.Network/networkInterfaces/"+nicname
-            ],
-            "tags": {},
-            "properties": {
-                "hardwareProfile": {
-                    "vmSize": rsize
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', '{}')]".format(nicname)
-                        }
-                    ]
-                },
-                "storageProfile": {
-                    "osDisk": {
-                        "createOption": "fromImage",
-                        "caching": "ReadWrite",
-                        "managedDisk": {
-                            "storageAccountType": rosstoragesku
-                        },
-                        "diskSizeGb": rosdisksize
-                    },
-                    "imageReference": {
-                        "publisher": rimage.split(":")[0],
-                        "offer": rimage.split(":")[1],
-                        "sku": rimage.split(":")[2],
-                        "version": rimage.split(":")[3]
-                    }
-                },
-                "osProfile": osprofile
-            }
-        })
+    def _read_vmss(cfg, r):
+        pass
 
     def read(self, cfg):
         self._read_network(cfg)

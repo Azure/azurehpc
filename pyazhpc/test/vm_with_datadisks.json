@@ -1,0 +1,30 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "image": "OpenLogic:CentOS:7.6:latest",
+        "location": "westeurope",
+        "resource_group": "pyazhpc-test-vm-with-datadisks",
+        "vm_type": "Standard_D2s_v3"
+    },
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "data_disks": [ 1024, 4096 ],
+            "image": "variables.image",
+            "subnet": "compute"
+        }
+    },
+    "install": []
+}
