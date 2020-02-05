@@ -19,3 +19,5 @@ read_value key ".variables.fqdn2"
 
 read_value key ".variables.sasurl1"
 read_value key ".variables.sasurl2"
+read_value key ".variables.sasurl3"
+read_value key ".variables.sasurl4"

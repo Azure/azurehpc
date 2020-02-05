@@ -9,6 +9,7 @@
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_HB60rs",
+        "compute_instances": 2,
         "vnet_resource_group": "variables.resource_group",
         "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
         "win_password": "<NOT-SET>",
@@ -44,7 +45,7 @@
         "compute": {
             "type": "vmss",
             "vm_type": "variables.vm_type",
-            "instances": 2,
+            "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [

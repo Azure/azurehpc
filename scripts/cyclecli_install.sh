@@ -5,12 +5,13 @@ password=$3
 resource_group=$4
 cyclecloud_storage_key=$5
 
-downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
-release="latest"
+#downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
+#release="latest"
 
 # Installing CycleCloud CLI
 echo "Getting CLI binaries..."
-wget -q "$downloadURL/$release/cyclecloud-cli.zip"
+#wget -q "$downloadURL/$release/cyclecloud-cli.zip"
+wget --no-check-certificate https://$fqdn/download/tools/cyclecloud-cli.zip 
 
 unzip -o cyclecloud-cli.zip
 pushd cyclecloud-cli-installer/

@@ -1,8 +1,8 @@
 # Please update these values
-LICENSE_PORT_IP="port@IP"
-APP_VERSION="xxx"
-INSTALL_TAR="LBsolver_xxx.tgz"
-TAR_SAS_URL="<SAL URL FROM WHERE TO DOWNLOAD LBSOLVER>"
+LICENSE_PORT_IP=$1
+APP_VERSION=$2
+INSTALL_TAR=$3
+TAR_SAS_URL="$4"
 DOWNLOAD_DIR=/mnt/resource
 APP_NAME=prolb
 SHARED_APP=/apps
@@ -27,7 +27,7 @@ EOF
 pushd ${DOWNLOAD_DIR}
 if [ ! -f ${INSTALL_DIR} ]; then
 mkdir -p ${INSTALL_DIR}
-wget "$TAR_SAS_URL" -O ${INSTALL_TAR}
+wget -q "$TAR_SAS_URL" -O ${INSTALL_TAR}
 tar xvzf ${INSTALL_TAR} -C ${INSTALL_DIR}
 fi
 popd

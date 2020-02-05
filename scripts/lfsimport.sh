@@ -3,25 +3,23 @@
 # arg: $1 = storage account
 # arg: $2 = storage key
 # arg: $3 = storage container
+# arg: $3 = lfs mount
+# arg: $4 = lustre mount (default=/lustre)
+# arg: $5 = lustre version (default=2.10)
 storage_account=$1
 storage_key=$2
 storage_container=$3
+lfs_mount=${4:-/lustre}
+lustre_version=${5-2.10}
 
-yum install -y \
-    https://github.com/whamcloud/lemur/releases/download/0.5.2/lhsm-0.5.2-1.x86_64.rpm
+if ! rpm -q lemur-azure-hsm-agent lemur-azure-data-movers; then
+    yum -y install \
+        https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0-lustre_${lustre_version}.x86_64.rpm \
+        https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0-lustre_${lustre_version}.x86_64.rpm
+fi
 
-wget https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.12.1.linux-amd64.tar.gz
-export PATH=/usr/local/go/bin:$PATH
-
-yum install -y git gcc
-go get -u github.com/edwardsp/lemur/cmd/azure-import
-go build github.com/edwardsp/lemur/cmd/azure-import
-mkdir -p /usr/local/bin
-cp azure-import /usr/local/bin/.
-
-cd /lustre
+cd $lfs_mount
 export STORAGE_ACCOUNT=$storage_account
 export STORAGE_KEY=$storage_key
-/usr/local/bin/azure-import ${storage_container}
+/sbin/azure-import ${storage_container}
 

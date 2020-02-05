@@ -21,7 +21,9 @@
     "log_analytics_lfs_name": "<NOT-SET>",
     "log_analytics_workspace": "<NOT-SET>",
     "log_analytics_key": "<NOT-SET>",
-    "location": "<NOT-SET>"
+    "location": "<NOT-SET>",
+    "lustre_version": "2.10",
+    "lustre_mount": "/lustre"
   },
   "resources": {
     "headnode": {
@@ -170,6 +172,9 @@
     {
       "script": "lfsrepo.sh",
       "tag": "lfsrepo",
+      "args": [
+          "variables.lustre_version"
+      ],
       "sudo": true
     },
     {
@@ -200,7 +205,8 @@
         "$(<hostlists/tags/lfsmaster)",
         "variables.storage_account",
         "variables.storage_key",
-        "variables.storage_container"
+        "variables.storage_container",
+        "variables.lustre_version"
       ],
       "tag": "lfshsm",
       "sudo": true
@@ -213,7 +219,8 @@
     {
       "script": "lfsclient.sh",
       "args": [
-        "$(<hostlists/tags/lfsmaster)"
+        "$(<hostlists/tags/lfsmaster)",
+        "variables.lustre_mount"
       ],
       "tag": "lfsclient",
       "sudo": true
@@ -223,7 +230,9 @@
       "args": [
         "variables.storage_account",
         "variables.storage_key",
-        "variables.storage_container"
+        "variables.storage_container",
+        "variables.lustre_mount",
+        "variables.lustre_version"
       ],
       "tag": "lfsazimport",
       "sudo": true

@@ -1,17 +1,20 @@
 #!/bin/bash
 
-install_dir=/apps
+# parameters that can be overridden
+APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
+DATA_DIR=${DATA_DIR:-/data}
+MODEL=${MODEL:-sedan_4m}
+OMPI=${OMPI:-openmpi}
+FLUENT_VERSION=${FLUENT_VERSION:-v195}
+LIC_SRV=${LIC_SRV:-localhost}
 
-cd $PBS_O_WORKDIR
-
-export ANSYSLMD_LICENSE_FILE=1055@localhost
-export ANSYSLI_SERVERS=2325@localhost
+export ANSYSLMD_LICENSE_FILE=1055@${LIC_SRV}
+export ANSYSLI_SERVERS=2325@${LIC_SRV}
 export FLUENT_HOSTNAME=`hostname`
 export APPLICATION=fluent
-export VERSION=v193
-export MPI=hpcx
+export VERSION=$FLUENT_VERSION
 
-MODEL=f1_racecar_140m
+cd $PBS_O_WORKDIR
 
 CORES=`cat $PBS_NODEFILE | wc -l`
 NODES=`cat $PBS_NODEFILE | sort | uniq | wc -l`
@@ -27,12 +30,11 @@ source /etc/profile
 module use /opt/$HPCX_DIR/modulefiles
 module load hpcx
 
-export PATH=$install_dir/ansys_inc/v193/fluent/bin:$PATH
-export FLUENT_PATH=$install_dir/ansys_inc/v193/fluent
-
+export PATH=$APP_INSTALL_DIR/ansys_inc/${FLUENT_VERSION}/fluent/bin:$PATH
+export FLUENT_PATH=$APP_INSTALL_DIR/ansys_inc/${FLUENT_VERSION}/fluent
 export OPENMPI_ROOT=$HPCX_MPI_DIR
-RUNDIR=$PWD
 
+RUNDIR=$PWD
 rm -f $RUNDIR/lib*.so*
 ln -s $MPI_HOME/lib/libmpi.so $RUNDIR/libmpi.so.1
 ln -s $MPI_HOME/lib/libopen-pal.so $RUNDIR/libopen-pal.so.4
@@ -68,8 +70,8 @@ fluentbench.pl \
     $MODEL \
     -t$CORES \
     -pinfiniband \
-    -mpi=openmpi \
-    -mpiopt="-mca btl ^vader,tcp,openib --mca opal_warn_on_missing_libcuda 0 -mca plm_rsh_no_tree_spawn 1 -mca plm_rsh_num_concurrent 300 -mca plm_base_verbose 5 -mca routed_base_verbose 5 -bind-to core -map-by ppr:$ppr:numa -report-bindings -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_IB_PKEY=$PKEY -mca btl_openib_if_include mlx5_0:1 -x UCX_TLS=ud,sm,self" \
+    -mpi=$OMPI \
+    -mpiopt="--mca opal_warn_on_missing_libcuda 0 -mca plm_rsh_no_tree_spawn 1 -mca plm_rsh_num_concurrent 300 -bind-to core -map-by node -report-bindings " \
     -cnf=hosts \
     -affinity=$aff \
     -feature_parallel_preferred=$ans_lic_type
@@ -78,4 +80,3 @@ fluentbench.pl \
 unlink libopen-rte.so.4
 unlink libopen-pal.so.4
 unlink libmpi.so.1
-

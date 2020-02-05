@@ -13,6 +13,7 @@ mkfs.lustre \
     --ost \
     --mgsnode=$master \
     --index=$index \
+    --mountfsoptions="errors=remount-ro" \
     $device
 
 mkdir /mnt/oss

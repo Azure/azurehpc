@@ -1,12 +1,16 @@
 #!/bin/bash
+#
+#Set environmental variable DATA_TGZ_SAS_URL
+#DATA_TGZ_SAS_URL=/url_path/to/casedata.tgz
 
-DATA_TAR_SAS_URL=/path/to/casedata.tar
-DATA_TAR=BO_192_192_28.tgz
+if [[ $IX_DATA_TGZ_SAS_URL =~ .*\/(.+)\? ]]; then
+   IX_DATA_TGZ=${BASH_REMATCH[1]}
+fi
 
-SHARED_DATA=/data
+IX_DATA_INSTALL_DIR=${IX_DATA_INSTALL_DIR:-/data}
 
-pushd $SHARED_DATA
-if [ ! -f ${SHARED_DATA}/${DATA_TAR} ]; then
-wget -O ${DATA_TAR} "$DATA_TAR_SAS_URL"
+pushd $IX_DATA_INSTALL_DIR
+if [ ! -f ${IX_DATA_INSTALL_DIR}/${IX_DATA_TGZ} ]; then
+wget -O ${IX_DATA_TGZ} "$IX_DATA_TGZ_SAS_URL"
 fi
 popd

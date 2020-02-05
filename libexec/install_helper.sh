@@ -15,8 +15,8 @@ function create_jumpbox_setup_script()
     local ssh_public_key="$2"
     local ssh_private_key="$3"
 
-    install_sh=$tmp_dir/install/00_install_node_setup.sh
-    log_file=install/00_install_node_setup.log
+    local install_sh=$tmp_dir/install/00_install_node_setup.sh
+    local log_file=install/00_install_node_setup.log
 
     cat <<OUTER_EOF > $install_sh
 #!/bin/bash
@@ -63,12 +63,12 @@ function create_jumpbox_script()
     local tmp_dir=$2
     local step=$3
 
-    idx=$(($step - 1))
+    local idx=$(($step - 1))
     read_value install_script ".install[$idx].script"
 
-    install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
-    log_file=install/$(printf %02d $step)_${install_script%.sh}.log
-    install_logdir=install/$(printf %02d $step)_${install_script%.sh}
+    local install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
+    local log_file=install/$(printf %02d $step)_${install_script%.sh}.log
+
     read_value install_tag ".install[$idx].tag"
 
 
@@ -79,15 +79,14 @@ set -e
 cd "\$( dirname "\${BASH_SOURCE[0]}" )/.."
 
 tag=\${1:-$install_tag}
-mkdir -p $install_logdir
 OUTER_EOF
 
     read_value install_reboot ".install[$idx].reboot" false
     read_value install_sudo ".install[$idx].sudo" false
-    install_nfiles=$(jq -r ".install[$idx].copy | length" $config_file)
+    local install_nfiles=$(jq -r ".install[$idx].copy | length" $config_file)
 
-    install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
-    install_command_line=$install_script
+    local install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
+    local install_command_line=$install_script
     if [ "$install_script_arg_count" -ne "0" ]; then
         for n in $(seq 0 $((install_script_arg_count - 1))); do
             read_value arg ".install[$idx].args[$n]"
@@ -102,13 +101,13 @@ OUTER_EOF
         done
     fi
 
-    sudo_prefix=
+    local sudo_prefix=
     if [ "$install_sudo" = "true" ]; then
         sudo_prefix=sudo
     fi
 
     # can run in parallel with pssh
-    echo "pssh -p $pssh_parallelism -t 0 -o $install_logdir -e $install_logdir -h hostlists/tags/\$tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> $log_file" >>$install_sh
+    echo "pssh -p $pssh_parallelism -t 0 -i -h hostlists/tags/\$tag \"cd $tmp_dir; $sudo_prefix scripts/$install_command_line\" >> $log_file 2>&1" >>$install_sh
 
     if [ "$install_reboot" = "true" ]; then
         cat <<EOF >> $install_sh
@@ -131,11 +130,11 @@ function create_local_script()
     local tmp_dir=$2
     local step=$3
 
-    idx=$(($step - 1))
+    local idx=$(($step - 1))
     read_value install_script ".install[$idx].script"
 
-    install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
-    log_file=install/$(printf %02d $step)_${install_script%.sh}.log
+    local install_sh=$tmp_dir/install/$(printf %02d $step)_$install_script
+    local log_file=install/$(printf %02d $step)_${install_script%.sh}.log
 
     cat <<OUTER_EOF > $install_sh
 #!/bin/bash
@@ -145,8 +144,8 @@ cd "\$( dirname "\${BASH_SOURCE[0]}" )/.."
 
 OUTER_EOF
 
-    install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
-    install_command_line=$install_script
+    local install_script_arg_count=$(jq -r ".install[$idx].args | length" $config_file)
+    local install_command_line=$install_script
     if [ "$install_script_arg_count" -ne "0" ]; then
         for n in $(seq 0 $((install_script_arg_count - 1))); do
             read_value arg ".install[$idx].args[$n]"
@@ -210,6 +209,7 @@ function create_install_scripts()
     cp -r $local_script_dir/* $tmp_dir/scripts/. 2>/dev/null
     
     if [ "$is_jumpbox_required" = "1" ]; then
+        echo "rsync $tmp_dir to $fqdn"
         rsync -a -e "ssh $ssh_args -i $ssh_private_key" $tmp_dir $admin_user@$fqdn:.
     fi
 
@@ -242,11 +242,11 @@ function run_install_scripts()
         fi
     done
 
-    script_error=0
+    local script_error=0
     for step in $(seq 0 $nsteps); do
 
         # skip jumpbox setup if no jumpbox scripts are required
-        if [ "$is_jumpbox_required" = "0" ]; then
+        if [ "$is_jumpbox_required" = "0" -a "$step" = "0" ]; then
             continue
         fi
 
@@ -326,7 +326,7 @@ function run_install_scripts()
     done
 
     if [ "$is_jumpbox_required" = "1" ]; then
-        rsync -r -a -e "ssh $ssh_args -i $ssh_private_key" $admin_user@$fqdn:$tmp_dir/install/ $tmp_dir/install/.
+        rsync -a -e "ssh $ssh_args -i $ssh_private_key" $admin_user@$fqdn:$tmp_dir/install/*.log $tmp_dir/install/.
     fi
 
     if [ "$script_error" -ne "0" ]; then
@@ -364,13 +364,15 @@ function build_hostlists
         elif [ "$resource_type" = "vm" ]; then
             # only get ip for passwordless nodes
             read_value resource_password ".resources.$resource_name.password" "<no-password>"
+            read_value resource_instances ".resources.$resource_name.instances" "1"
             
-            az vm show \
-                --resource-group $resource_group \
-                --name $resource_name \
-                --query osProfile.computerName \
-                --output tsv \
-                > $tmp_dir/hostlists/$resource_name
+            if [ "$resource_instances" = "1" ]; then
+                echo $resource_name > $tmp_dir/hostlists/$resource_name
+            else
+                for i in $(seq -w $resource_instances); do
+                    echo ${resource_name}${i} 
+                done > $tmp_dir/hostlists/$resource_name
+            fi
 
             for tag in $(jq -r ".resources.$resource_name.tags | @tsv" $config_file); do
                 cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/tags/$tag

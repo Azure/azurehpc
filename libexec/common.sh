@@ -57,43 +57,50 @@ function make_uuid_str {
 }
 
 function process_value {
-    prefix=${!1%%.*}
+    local prefix=${!1%%.*}
     if [ "$prefix" = "variables" ]; then
         read_value $1 ".${!1}"
     elif [ "$prefix" = "secret" ]; then
-        keyvault_str=${!1#*.}
-        vault_name=${keyvault_str%.*}
-        key_name=${keyvault_str#*.}
+        local keyvault_str=${!1#*.}
+        local vault_name=${keyvault_str%.*}
+        local key_name=${keyvault_str#*.}
         debug "read_value reading from keyvault (keyvault=$vault_name, key=$key_name)"
         read $1 <<< $(az keyvault secret show --name $key_name --vault-name $vault_name -o json | jq -r '.value')
     elif [ "$prefix" = "sasurl" ]; then
-        sasurl_storage_str=${!1#*.}
-        sasurl_storage_account=${sasurl_storage_str%%.*}
-        sasurl_storage_fullpath=${sasurl_storage_str#*.}
-        sasurl_storage_container=${sasurl_storage_fullpath%%/*}
-        sasurl_storage_url="$( \
+        local sasurl_storage_str=${!1#*.}
+        local sasurl_storage_account=${sasurl_storage_str%%.*}
+        local sasurl_storage_fullpath=$(echo ${sasurl_storage_str#*.} | cut -d',' -f1) # remove permission option if any
+        local sasurl_storage_container=${sasurl_storage_fullpath%%/*}
+        # read permission this will be added after a comma at the end of the value
+        local sasurl_permission=${sasurl_storage_str#*,}
+        # if permission is not set, default it to read
+        if [ "$sasurl_permission" = "$sasurl_storage_str" ]; then 
+            sasurl_permission="r"
+        fi
+
+        local sasurl_storage_url="$( \
             az storage account show \
                 --name $sasurl_storage_account \
                 --query primaryEndpoints.blob \
                 --output tsv \
         )"
-        sasurl_storage_saskey=$( \
+        local sasurl_storage_saskey=$( \
             az storage container generate-sas \
             --account-name $sasurl_storage_account \
             --name $sasurl_storage_container \
-            --permissions r \
+            --permissions $sasurl_permission \
             --start $(date --utc -d "-2 hours" +%Y-%m-%dT%H:%M:%SZ) \
             --expiry $(date --utc -d "+1 hour" +%Y-%m-%dT%H:%M:%SZ) \
             --output tsv
         )
-        sasurl_storage_full="$sasurl_storage_url$sasurl_storage_fullpath?$sasurl_storage_saskey"
-        debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full"
+        local sasurl_storage_full="$sasurl_storage_url$sasurl_storage_fullpath?$sasurl_storage_saskey"
+        debug "read_value creating a sasurl (account=$sasurl_storage_account,  fullpath=$sasurl_storage_fullpath, container=$sasurl_storage_container, sasurl=$sasurl_storage_full, permission=$sasurl_permission"
         read $1 <<< "$sasurl_storage_full"
     elif [ "$prefix" = "fqdn" ]; then
-        fqdn_str=${!1#*.}
-        resource_name=${fqdn_str%.*}
+        local fqdn_str=${!1#*.}
+        local resource_name=${fqdn_str%.*}
         debug "getting FQDN for $resource_name in $resource_group"
-        fqdn=$(
+        local fqdn=$(
             az network public-ip show \
                 --resource-group $resource_group \
                 --name ${resource_name}pip --query dnsSettings.fqdn \
@@ -102,16 +109,38 @@ function process_value {
         )
         read $1 <<< "$fqdn"
     elif [ "$prefix" = "sakey" ]; then
-        sakey_str=${!1#*.}
-        storage_name=${sakey_str%.*}
-        debug "getting storage key for $storage_name in $resource_group"
-        storage_key=$(az storage account keys list -g $resource_group -n $storage_name --query "[0].value" | sed 's/\"//g')
+        local sakey_str=${!1#*.}
+        local storage_name=${sakey_str%.*}
+        debug "getting storage key for $storage_name"
+        local storage_key=$(az storage account keys list -n $storage_name --query "[0].value" | sed 's/\"//g')
         read $1 <<< "$storage_key"
+    elif [ "$prefix" = "laworkspace" ]; then
+        local la_str=${!1#*.}
+        local la_resource_group=${la_str%%.*}
+        local la_name=${la_str#*.}
+        local la_workspace="$( \
+            az monitor log-analytics workspace list \
+                --query "[?name=='$la_name'&&resourceGroup=='$la_resource_group'].customerId" \
+                --output tsv \
+        )"
+        read $1 <<< "$la_workspace"
+    elif [ "$prefix" = "lakey" ]; then
+        local la_str=${!1#*.}
+        local la_resource_group=${la_str%%.*}
+        local la_name=${la_str#*.}
+        local la_key="$( \
+            az monitor log-analytics workspace get-shared-keys \
+                --workspace-name $la_name \
+                --resource-group $la_resource_group \
+                --query "primarySharedKey" \
+                --output tsv \
+        )"
+        read $1 <<< "$la_key"
     elif [ "$prefix" = "acrkey" ]; then
-        acrkey_str=${!1#*.}
-        acr_name=${acrkey_str%.*}
+        local acrkey_str=${!1#*.}
+        local acr_name=${acrkey_str%.*}
         debug "getting acr key for $acr_name"
-        acr_key=$(az acr credential show -n $acr_name --query passwords[0].value --output tsv)
+        local acr_key=$(az acr credential show -n $acr_name --query passwords[0].value --output tsv)
         read $1 <<< "$acr_key"
     fi
 }
