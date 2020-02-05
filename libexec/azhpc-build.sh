@@ -399,8 +399,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
                     storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
                 done
-
-                read_value resource_storage_sku ".resources.$resource_name.storage_sku"
+		
                 data_cache="ReadWrite"
                 resource_disk_sizes=$(jq -r ".resources.$resource_name.data_disks | @sh" $config_file)
                 for size in $resource_disk_sizes; do
