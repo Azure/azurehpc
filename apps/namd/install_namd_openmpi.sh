@@ -10,7 +10,7 @@
 #
 APP_NAME=NAMD
 APP_VERSION=2.13
-SHARED_APP=/avere/apps
+SHARED_APP=/apps
 NAMD_ARCH=Linux-x86_64-g++
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 APP_TYPE=openmpi-gcc7.4
