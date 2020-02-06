@@ -16,6 +16,36 @@ def get_subscription():
         sys.exit(1)
     return res.stdout
 
+def get_fqdn(resource_group, public_ip):
+    cmd = [ 
+        "az", "network", "public-ip", "show", 
+            "--resource-group", resource_group,
+            "--name", public_ip,
+            "--query", "dnsSettings.fqdn",
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+    out = res.stdout.splitlines()
+    return out[0].decode("utf-8")
+
+def get_vmss_instances(resource_group, vmss_name):
+    cmd = [ 
+        "az", "vmss", "list-instances",
+            "--resource-group", resource_group,
+            "--name", vmss_name,
+            "--query", "[].osProfile.computerName",
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+    names = [ x.decode("utf-8") for x in res.stdout.splitlines() ]
+    return names
+
 def create_resource_group(resource_group, location):
     log.debug("creating resource group")
     cmd = [

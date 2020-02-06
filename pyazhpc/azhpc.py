@@ -1,6 +1,7 @@
 import argparse
 import json
 import logging
+import os
 import time
 
 import arm
@@ -10,13 +11,84 @@ import azutil
 log = logging.getLogger(__name__)
 
 def do_preprocess(args):
-    log.info("reading config file ({})".format(args.config_file))
+    log.debug("reading config file ({})".format(args.config_file))
     config = azconfig.ConfigFile()
     config.open(args.config_file)
     print(json.dumps(config.preprocess(), indent=4))
 
+def do_connect(args):
+    log.debug("reading config file ({})".format(args.config_file))
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    config = c.preprocess()
+
+    adminuser = config["admin_user"]
+    ssh_private_key="{}_id_rsa".format(adminuser)
+    # TODO: check ssh key exists
+    
+    if args.user == None:
+        sshuser = adminuser
+    else:
+        sshuser = args.user
+
+    jumpbox = config["install_from"]
+    fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"PIP")
+
+    if fqdn == "":
+        log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
+
+    target = args.resource
+    try:
+        rtype = config["resources"][args.resource]["type"]
+
+        if rtype == "vm":
+            instances = config["resources"][args.resource].get("instances", 1)
+
+            if instances > 1:
+                target = "{}{:04}".format(args.resource, 1)
+                log.info("Multiple instances of {}, connecting to {}")
+        
+        elif rtype == "vmss":
+            vmssnodes = azutil.get_vmss_instances(config["resource_group"], args.resource)
+            if len(vmssnodes) == 0:
+                log.error("There are no instances in the vmss")
+                sys.exit(1)
+            target = vmssnodes[0]
+
+    except KeyError:
+        log.info("Resource not in config, trying to access {} from {}".format(target, jumpbox))
+
+    ssh_exe = "ssh"
+    cmdline = []
+    if len(args.args) > 0:
+        cmdline.append(" ".join(args.args))
+
+    if args.resource == jumpbox:
+        log.info("logging directly into {}".format(fqdn))
+        ssh_args = [
+            "ssh", "-t", "-q", 
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-i", ssh_private_key,
+            "{}@{}".format(sshuser, fqdn)
+        ]
+        log.debug(" ".join(ssh_args + cmdline))
+        os.execvp(ssh_exe, ssh_args + cmdline)
+    else:
+        log.info("loggging in to {} (via {})".format(target, fqdn))
+        ssh_args = [
+            ssh_exe, "-t", "-q",
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-i", ssh_private_key,
+            "-o", "ProxyCommand=ssh -i {} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p {}@{}".format(ssh_private_key, sshuser, fqdn),
+            "{}@{}".format(sshuser, target)
+        ]
+        log.debug(" ".join(ssh_args + cmdline))
+        os.execvp(ssh_exe, ssh_args + cmdline)
+
 def do_deploy(args):
-    log.info("reading config file ({})".format(args.config_file))
+    log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
     c.open(args.config_file)
     config = c.preprocess()
@@ -54,22 +126,24 @@ def do_destroy(args):
     )
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
+    azhpc_parser = argparse.ArgumentParser(prog="azhpc")
+    
+    gopt_parser = argparse.ArgumentParser()
+    gopt_parser.add_argument(
         "--config-file", "-c", type=str, 
         default="config.json", help="config file"
     )
-    parser.add_argument(
+    gopt_parser.add_argument(
         "-v", "--verbose", 
         help="increase output verbosity",
         action="store_true"
     )
 
-    subparsers = parser.add_subparsers(help="actions")
+    subparsers = azhpc_parser.add_subparsers(help="actions")
 
     preprocess_parser = subparsers.add_parser(
         "preprocess", 
-        parents=[parser],
+        parents=[gopt_parser],
         add_help=False,
         description="preprocess the config file",
         help="expand all the config macros"
@@ -78,7 +152,7 @@ if __name__ == "__main__":
 
     deploy_parser = subparsers.add_parser(
         "deploy", 
-        parents=[parser],
+        parents=[gopt_parser],
         add_help=False,
         description="deploy the config",
         help="create an arm template and deploy"
@@ -94,7 +168,7 @@ if __name__ == "__main__":
 
     destroy_parser = subparsers.add_parser(
         "destroy", 
-        parents=[parser],
+        parents=[gopt_parser],
         add_help=False,
         description="delete the resource group",
         help="delete entire resource group"
@@ -106,7 +180,34 @@ if __name__ == "__main__":
         help="delete resource group immediately"
     )
     
-    args = parser.parse_args()
+    connect_parser = subparsers.add_parser(
+        "connect", 
+        parents=[gopt_parser],
+        add_help=False,
+        description="connect to a resource",
+        help="connect to a resource with 'ssh'"
+    )
+    connect_parser.set_defaults(func=do_connect)
+    connect_parser.add_argument(
+        "--user", 
+        "-u", 
+        type=str,
+        help="the user to connect as",
+    )
+    connect_parser.add_argument(
+        "resource", 
+        type=str,
+        help="the resource to connect to"
+    )
+    connect_parser.add_argument(
+        'args', 
+        nargs=argparse.REMAINDER,
+        help="additional arguments will be passed to the ssh command"
+    )
+
+    args = azhpc_parser.parse_args()
+
+    print(args)
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(filename)s:%(lineno)d:%(levelname)s:%(message)s')
