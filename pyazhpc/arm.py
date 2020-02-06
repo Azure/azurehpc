@@ -8,7 +8,7 @@ class ArmTemplate:
         self.resources = []
         self.outputs = {}
     
-    def _read_network(self, cfg):
+    def _add_network(self, cfg):
         location = cfg["location"]
         vnet_name = cfg["vnet"]["name"]
         address_prefix = cfg["vnet"]["address_prefix"]      
@@ -40,6 +40,17 @@ class ArmTemplate:
         }
 
         self.resources.append(res)
+
+    def _add_proximity_group(self, cfg):
+        ppg = cfg.get("proximity_placement_group_name", None)
+        if ppg:
+            loc = cfg["location"]
+            self.resources.append({
+                "apiVersion": "2018-04-01",
+                "type": "Microsoft.Compute/proximityPlacementGroups",
+                "name": ppg,
+                "location": loc
+            })
 
     def __helper_arm_create_osprofile(self, rname, rtype, adminuser, adminpass, sshkey):
         if rtype == "vm":
@@ -94,7 +105,7 @@ class ArmTemplate:
             "version": refstr.split(":")[3]
         }
 
-    def _read_vm(self, cfg, r):
+    def _add_vm(self, cfg, r):
         res = cfg["resources"][r]
         rtype = res["type"]
         rsize = res["vm_type"]
@@ -102,6 +113,7 @@ class ArmTemplate:
         rinstances = res.get("instances", 1)
         rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
+        rppgname = cfg.get("proximity_placement_group_name", None)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -218,14 +230,16 @@ class ArmTemplate:
             datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku)
             imageref = self.__helper_arm_create_image_reference(rimage)
 
-            self.resources.append({
+            deps = [ "Microsoft.Network/networkInterfaces/"+nicname ]
+            if rppg:
+                deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
+
+            vmres = {
                 "type": "Microsoft.Compute/virtualMachines",
                 "apiVersion": "2019-07-01",
                 "name": r,
                 "location": loc,
-                "dependsOn": [
-                    "Microsoft.Network/networkInterfaces/"+nicname
-                ],
+                "dependsOn": deps,
                 "tags": {},
                 "properties": {
                     "hardwareProfile": {
@@ -252,9 +266,16 @@ class ArmTemplate:
                     },
                     "osProfile": osprofile
                 }
-            })
+            }
 
-    def _read_vmss(self, cfg, r):
+            if rppg:
+                vmres["properties"]["proximityPlacementGroup"] = {
+                    "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups','{}')]".format(rppgname)
+                }
+            
+            self.resources.append(vmres)
+
+    def _add_vmss(self, cfg, r):
         res = cfg["resources"][r]
         rtype = res["type"]
         rsize = res["vm_type"]
@@ -262,6 +283,7 @@ class ArmTemplate:
         rinstances = res.get("instances")
         rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
+        rppgname = cfg.get("proximity_placement_group_name", None)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -285,14 +307,16 @@ class ArmTemplate:
         deps = []
         if vnetrg == rrg:
             deps.append("Microsoft.Network/virtualNetworks/"+vnetname)
-        
+        if rppg:
+            deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
+
         osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
         datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku)
         imageref = self.__helper_arm_create_image_reference(rimage)
 
         nicname = r+"NIC"
         ipconfigname = r+"IPCONFIG"
-        self.resources.append({
+        vmssres = {
             "type": "Microsoft.Compute/virtualMachineScaleSets",
             "apiVersion": "2019-07-01",
             "name": r,
@@ -347,19 +371,27 @@ class ArmTemplate:
                 "singlePlacementGroup": True,
                 "platformFaultDomainCount": 5
             }
-        })
+        }
+        
+        if rppg:
+            vmssres["properties"]["proximityPlacementGroup"] = {
+                "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups','{}')]".format(rppgname)
+            }
+
+        self.resources.append(vmssres)
 
 
     def read(self, cfg):
-        self._read_network(cfg)
+        self._add_network(cfg)
+        self._add_proximity_group(cfg)
 
         resources = cfg["resources"]
         for r in resources.keys():
             rtype = cfg["resources"][r]["type"]
             if rtype == "vm":
-                self._read_vm(cfg, r)
+                self._add_vm(cfg, r)
             elif rtype == "vmss":
-                self._read_vmss(cfg, r)
+                self._add_vmss(cfg, r)
 
     def to_json(self):
         return json.dumps({
