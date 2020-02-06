@@ -1,5 +1,9 @@
 import json
+import logging
+import sys
 import uuid
+
+log = logging.getLogger(__name__)
 
 class ArmTemplate:
     def __init__(self):
@@ -35,11 +39,114 @@ class ArmTemplate:
                     ]
                 },
                 "subnets": subnets
-            },
-            "resources": []
+            }
         }
 
         self.resources.append(res)
+
+    def _add_netapp(self, cfg, name):
+        account = cfg["storage"][name]
+        loc = cfg["location"]
+        vnet = cfg["vnet"]["name"]
+        subnet = account["subnet"]
+        nicdeps = []
+
+        rg = cfg["resource_group"]
+        vnetrg = cfg["vnet"].get("resource_group", rg)
+        if rg == vnetrg:
+            log.debug("adding delegation to subnet")
+            rvnet = next((x for x in self.resources if x["name"] == vnet), [])
+            rsubnet = next((x for x in rvnet["properties"]["subnets"] if x["name"] == subnet), None)
+            if not rsubnet:
+                log.error("subnet ({}) for netapp storage ({}) does not exist".format(subnet, name))
+                sys.exit(1)
+            if "delegations" not in rsubnet["properties"]:
+                rsubnet["properties"]["delegations"] = []
+            rsubnet["properties"]["delegations"].append({
+                "properties": {
+                    "serviceName": "Microsoft.Netapp/volumes"
+                },
+                "name": "netappdelegation"
+            })
+
+            nicdeps.append("Microsoft.Network/virtualNetworks/"+vnet)
+            subnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnet, subnet)
+        else:
+            subnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnet, subnet)
+            
+        addomain = account.get("joindomain", None)
+        props = {}
+        if addomain:
+            adserver = account["ad_server"]
+            adpassword = account["ad_password"]
+            adusername = account["ad_username"]
+            # TODO: previously we used ip address for the dns here
+            props["activeDirectories"] = [
+                {
+                    "activeDirectoryId": "string",
+                    "username": adusername,
+                    "password": adpassword,
+                    "domain": addomain,
+                    "dns": adserver,
+                    "smbServerName": "anf"
+                }
+            ]
+
+        self.resources.append({
+            "name": name,
+            "type": "Microsoft.NetApp/netAppAccounts",
+            "apiVersion": "2019-07-01",
+            "location": loc,
+            "tags": {},
+            "properties": props,
+            "dependsOn": nicdeps
+        })
+
+        for poolname in account.get("pools", {}).keys():
+            pool = account["pools"][poolname]
+            poolsize = pool["size"]
+            servicelevel = pool["service_level"]
+            self.resources.append({
+                "name": name+"/"+poolname,
+                "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
+                "apiVersion": "2019-07-01",
+                "location": loc,
+                "tags": {},
+                "properties": {
+                    "size": poolsize * 2**40,
+                    "serviceLevel": servicelevel
+                },
+                "dependsOn": [
+                    "[resourceId('Microsoft.NetApp/netAppAccounts', '{}')]".format(name)
+                ],
+            })
+
+            for volname in pool.get("volumes", {}).keys():
+                vol = pool["volumes"][volname]
+                volsize = vol["size"]
+                voltype = vol.get("type", "nfs")
+                volmount = vol["mount"]
+                netapp_volume = {
+                    "name": name+"/"+poolname+"/"+volname,
+                    "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
+                    "apiVersion": "2019-07-01",
+                    "location": loc,
+                    "tags": {},
+                    "properties": {
+                        "creationToken": volname,
+                        "serviceLevel": servicelevel,
+                        "usageThreshold": volsize * 2**40,
+                        "subnetId": subnetid
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', '{}', '{}')]".format(name, poolname)
+                    ]
+                }
+                if voltype == "cifs":
+                    netapp_volume["properties"]["protocolTypes"] = [ 
+                        "cifs"
+                    ]
+                self.resources.append(netapp_volume)
 
     def _add_proximity_group(self, cfg):
         ppg = cfg.get("proximity_placement_group_name", None)
@@ -385,13 +492,23 @@ class ArmTemplate:
         self._add_network(cfg)
         self._add_proximity_group(cfg)
 
-        resources = cfg["resources"]
+        resources = cfg.get("resources", {})
         for r in resources.keys():
             rtype = cfg["resources"][r]["type"]
             if rtype == "vm":
                 self._add_vm(cfg, r)
             elif rtype == "vmss":
                 self._add_vmss(cfg, r)
+            else:
+                log.error("unrecognised resource type ({}) for {}".format(rtype, r))
+
+        storage = cfg.get("storage", {})
+        for s in storage.keys():
+            stype = cfg["storage"][s]["type"]
+            if stype == "anf":
+                self._add_netapp(cfg, s)
+            else:
+                log.error("unrecognised storage type ({}) for {}".format(stype, s))
 
     def to_json(self):
         return json.dumps({

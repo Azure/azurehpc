@@ -1,0 +1,43 @@
+{
+  "location": "westeurope",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "resource_group": "pyazhpc-test-anf"
+  },
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "admin": "10.2.0.0/24",
+      "netapp": "10.2.1.0/24"
+    }
+  },
+  "storage": {
+    "hpcnetapp": {
+      "type": "anf",
+      "subnet": "netapp",
+      "pools": {
+        "anfpool": {
+          "size": 10,
+          "service_level": "Premium",
+          "volumes": {
+            "anfvol1": {
+              "size": 4,
+              "mount": "/data"
+            },
+            "anfvol2": {
+              "size": 2,
+              "mount": "/apps"
+            },
+            "anfvol3": {
+              "size": 4,
+              "mount": "/scratch"
+            }
+          }
+        }
+      }
+    }
+  }
+}
