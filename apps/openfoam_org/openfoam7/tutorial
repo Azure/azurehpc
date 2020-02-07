@@ -13,4 +13,4 @@ Modify generate_mesh.sh to have the correct X,Y,Z values (X*Y*Z=Num of cores on 
 Running the job : 
 1) mpirun -np 60 potentialFoam -parallel 2>&1 | tee log.potentialFoam-$timestamp
 2) mpirun -np 60 simpleFoam -parallel 2>&1 | tee log.simpleFoam-$timestamp
-
+(for multinode jobs, PBS is recommended as the run environment between nodes must be the same)
