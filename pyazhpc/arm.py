@@ -3,6 +3,8 @@ import logging
 import sys
 import uuid
 
+import azutil
+
 log = logging.getLogger(__name__)
 
 class ArmTemplate:
@@ -77,17 +79,16 @@ class ArmTemplate:
         addomain = account.get("joindomain", None)
         props = {}
         if addomain:
-            adserver = account["ad_server"]
+            adip = azutil.get_vm_private_ip(rg, account["ad_server"])
             adpassword = account["ad_password"]
             adusername = account["ad_username"]
             # TODO: previously we used ip address for the dns here
             props["activeDirectories"] = [
                 {
-                    "activeDirectoryId": "string",
                     "username": adusername,
                     "password": adpassword,
                     "domain": addomain,
-                    "dns": adserver,
+                    "dns": adip,
                     "smbServerName": "anf"
                 }
             ]
@@ -144,7 +145,7 @@ class ArmTemplate:
                 }
                 if voltype == "cifs":
                     netapp_volume["properties"]["protocolTypes"] = [ 
-                        "cifs"
+                        "CIFS"
                     ]
                 self.resources.append(netapp_volume)
 
