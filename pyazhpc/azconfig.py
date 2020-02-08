@@ -1,7 +1,9 @@
+import json
 import logging
 import re
 import sys
-import yaml
+
+import azutil
 
 log = logging.getLogger(__name__)
 
@@ -13,7 +15,7 @@ class ConfigFile:
     def open(self, fname):
         log.debug("opening "+fname)
         with open(fname) as f:
-            self.data = yaml.safe_load(f.read())
+            self.data = json.load(f)
     
     def __evaluate_dict(self, x):
         ret = {}
@@ -93,6 +95,26 @@ class ConfigFile:
 
         if prefix == "variables":
             res = self.read_value(v)
+        elif prefix == "secret":
+            res = azutil.get_keyvault_secret(parts[1], parts[2])
+        elif prefix == "sasurl":
+            url = azutil.get_storage_url(parts[1])
+            saskey = azutil.get_storage_saskey(parts[1], parts[2])
+            path = ".".join(parts[3:])
+            res = f"{url}{path}?{saskey}"
+        elif prefix == "fqdn":
+            pass
+            #azutil.get_fqdn(self.data["resource_group"], parts[1]+"PIP")
+        elif prefix == "sakey":
+            res = azutil.get_storage_key(parts[1])
+        elif prefix == "saskey":
+            res = azutil.get_storage_saskey(parts[1], parts[2])
+        elif prefix == "laworkspace":
+            res = azutil.get_log_analytics_workspace(parts[1], parts[2])
+        elif prefix == "lakey":
+            res = azutil.get_log_analytics_key(parts[1], parts[2])
+        elif prefix == "acrkey":
+            res = azutil.get_acr_key(parts[1])
         else:
             res = v
         

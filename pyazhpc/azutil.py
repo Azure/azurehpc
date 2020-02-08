@@ -1,3 +1,4 @@
+import datetime
 import logging
 import shlex
 import subprocess
@@ -100,10 +101,10 @@ def deploy(resource_group, arm_template):
 def get_keyvault_secret(vault, key):
     cmd = [
         "az", "keyvault", "secret", "show",
-            "--name", key, "--vault-name", "vault",
+            "--name", key, "--vault-name", vault,
             "--query", "value", "--output", "tsv"
     ]
-    res = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
     out = res.stdout.splitlines()
@@ -113,13 +114,13 @@ def get_keyvault_secret(vault, key):
     return secret
 
 def get_storage_url(account):
-    cmd = """
-        az storage account show \
-            --name {} \
-            --query primaryEndpoints.blob \
-            --output tsv \
-    """.format(account)
-    res = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd = [
+        "az", "storage", "account", "show",
+            "--name", account,
+            "--query", "primaryEndpoints.blob",
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
     out = res.stdout.splitlines()
@@ -129,11 +130,13 @@ def get_storage_url(account):
     return url
 
 def get_storage_key(account):
-    cmd = """
-        az storage account keys list 
-            --account-name {} --query "[0].value" --output tsv
-    """.format(account)
-    res = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd = [
+        "az", "storage", "account", "keys", "list",
+            "--account-name", account,
+            "--query", "[0].value", 
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
     out = res.stdout.splitlines()
@@ -143,20 +146,18 @@ def get_storage_key(account):
     return key
 
 def get_storage_saskey(account, container):
-    cmd = """
-        az storage container generate-sas \
-            --account-name {} \
-            --name {} \
-            --permissions r \
-            --start {} \
-            --expiry {} \
-            --output tsv \
-    """.format(
-        account, container
-        (datetime.datetime.utcnow() - datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        (datetime.datetime.utcnow() + datetime.timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    )
-    res = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    start = (datetime.datetime.utcnow() - datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    expiry = (datetime.datetime.utcnow() + datetime.timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    cmd = [
+        "az", "storage", "container", "generate-sas",
+            "--account-name", account,
+            "--name", container,
+            "--permissions", "r",
+            "--start", start,
+            "--expiry", expiry,
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
     out = res.stdout.splitlines()
@@ -164,4 +165,53 @@ def get_storage_saskey(account, container):
         logging.error("unexpected output"+_make_subprocess_error_string(res))
     saskey = out[0].decode('utf-8')
     return saskey
+
+def get_log_analytics_workspace(resource_group, name):
+    cmd = [
+        "az", "monitor", "log-analytics", "workspace", "list",
+            "--query", f"[?name=='{name}'&&resourceGroup=='{resource_group}'].customerId",
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+    out = res.stdout.splitlines()
+    if len(out) != 1:
+        logging.error("unexpected output"+_make_subprocess_error_string(res))
+    saskey = out[0].decode('utf-8')
+    return saskey
+
+def get_log_analytics_key(resource_group, name):
+    cmd = [
+        "az", "monitor", "log-analytics", "workspace", "get-shared-keys",
+            "--workspace-name", name,
+            "--resource-group", resource_group,
+            "--query", "primarySharedKey",
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+    out = res.stdout.splitlines()
+    if len(out) != 1:
+        logging.error("unexpected output"+_make_subprocess_error_string(res))
+    saskey = out[0].decode('utf-8')
+    return saskey
+
+def get_acr_key(name):
+    cmd = [
+        "az", "acr", "credential", "show",
+            "--name", name,
+            "--query", "passwords[0].value",
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+    out = res.stdout.splitlines()
+    if len(out) != 1:
+        logging.error("unexpected output"+_make_subprocess_error_string(res))
+    saskey = out[0].decode('utf-8')
+    return saskey
+
 

@@ -22,6 +22,12 @@ def do_preprocess(args):
     config.open(args.config_file)
     print(json.dumps(config.preprocess(), indent=4))
 
+def do_get(args):
+    config = azconfig.ConfigFile()
+    config.open(args.config_file)
+    val = config.read_value(args.path)
+    print(f"{args.path} = {val}")
+
 def do_connect(args):
     log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
@@ -93,7 +99,7 @@ def do_connect(args):
         log.debug(" ".join(ssh_args + cmdline))
         os.execvp(ssh_exe, ssh_args + cmdline)
 
-def do_deploy(args):
+def do_build(args):
     log.debug(f"reading config file ({args.config_file})")
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
     log.debug(f"tmpdir = {tmpdir}")
@@ -190,6 +196,8 @@ if __name__ == "__main__":
 
     subparsers = azhpc_parser.add_subparsers(help="actions")
 
+
+
     preprocess_parser = subparsers.add_parser(
         "preprocess", 
         parents=[gopt_parser],
@@ -199,15 +207,29 @@ if __name__ == "__main__":
     )
     preprocess_parser.set_defaults(func=do_preprocess)
 
-    deploy_parser = subparsers.add_parser(
-        "deploy", 
+    get_parser = subparsers.add_parser(
+        "get",
+        parents=[gopt_parser],
+        add_help=False,
+        description="get a config value",
+        help="evaluate the value at the json path specified"
+    )
+    get_parser.set_defaults(func=do_get)
+    get_parser.add_argument(
+        "path", 
+        type=str,
+        help="the json path to evaluate"
+    )
+
+    build_parser = subparsers.add_parser(
+        "build", 
         parents=[gopt_parser],
         add_help=False,
         description="deploy the config",
         help="create an arm template and deploy"
     )
-    deploy_parser.set_defaults(func=do_deploy)
-    deploy_parser.add_argument(
+    build_parser.set_defaults(func=do_build)
+    build_parser.add_argument(
         "--output-template", 
         "-o", 
         type=str, 
@@ -256,8 +278,6 @@ if __name__ == "__main__":
 
     args = azhpc_parser.parse_args()
 
-    print(args)
-
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(filename)s:%(lineno)d:%(levelname)s:%(message)s')
     else:
@@ -266,6 +286,4 @@ if __name__ == "__main__":
     log.debug(args)
 
     args.func(args)
-
-    log.info("exiting")
 
