@@ -1,7 +1,11 @@
 import logging
 import os
 import shutil
+import subprocess
 import sys
+import time
+
+import azutil
 
 log = logging.getLogger(__name__)
 
@@ -41,18 +45,18 @@ EOF
 
 fi
 
-prsync -p {pssh_threads} -a -h hostlists/$tag ~/$tmp_dir ~ >> $log_file 2>&1
-prsync -p {pssh_threads} -a -h hostlists/$tag ~/.ssh ~ >> $log_file 2>&1
+prsync -p {pssh_threads} -a -h hostlists/$tag ~/$tmp_dir ~ >> {logfile} 2>&1
+prsync -p {pssh_threads} -a -h hostlists/$tag ~/.ssh ~ >> {logfile} 2>&1
 
 pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> {logfile} 2>&1
-pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'sudo systemctl restart sshd' >> $log_file 2>&1
-pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> {logfile} 2>&1
+pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'sudo systemctl restart sshd' >> {logfile} 2>&1
+pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag "echo 'Defaults env_keep += \\"PSSH_NODENUM PSSH_HOST\\"' | sudo tee -a /etc/sudoers" >> {logfile} 2>&1
 """)
 
 def create_jumpbox_script(inst, tmpdir, step):
     targetscript = inst["script"]
     scriptfile = f"{tmpdir}/install/{step:02}_{targetscript}"
-    logfile = f"install_{step:02}_{targetscript[:targetscript.rfind('.')]}.log"
+    logfile = f"install/{step:02}_{targetscript[:targetscript.rfind('.')]}.log"
     tag = inst["tag"]
     content = f"""#!/bin/bash
 
@@ -113,18 +117,39 @@ cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 """)
 
+def generate_hostlists(cfg, tmpdir):
+    os.makedirs(tmpdir+"/hostlists/tags")
+    hosts = {}
+    tags = {}
+    for rname in cfg.get("resources", {}).keys():
+        rtype = cfg["resources"][rname]["type"]
+        if rtype == "vm":
+            instances = cfg["resources"][rname].get("instances", 1)
+            if instances == 1:
+                hosts[rname] = [ rname ]
+            else:
+                hosts[rname] = [ f"{rname}{n:04}" for n in range(1, instances+1) ]            
+        elif rtype == "vmss":
+            hosts[rname] = azutil.get_vmss_instances(cfg["resource_group"], rname)
 
-def generate(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
+        for tname in cfg["resources"][rname].get("tags", []):
+            tags.setdefault(tname, []).extend(hosts.get(rname, []))
+
+        if not cfg["resources"][rname].get("password", None):
+            hosts.setdefault("linux", []).extend(hosts.get(rname, []))
+
+    for n in hosts.keys():
+        with open(f"{tmpdir}/hostlists/{n}", "w") as f:
+            f.writelines(f"{h}\n" for h in hosts[n])
+    
+    for n in tags.keys():
+        with open(f"{tmpdir}/hostlists/tags/{n}", "w") as f:
+            f.writelines(f"{h}\n" for h in tags[n])
+
+def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     jb = cfg.get("install_from", None)
-
-    try:
-        os.makedirs(tmpdir+"/install")
-    except FileExistsError:
-        log.debug(f"{tmpdir}/install already exists")
-    try:
-        os.makedirs(tmpdir+"/scripts")
-    except FileExistsError:
-        log.debug(f"{tmpdir}/scripts already exists")
+    os.makedirs(tmpdir+"/install")
+    os.makedirs(tmpdir+"/scripts")
     shutil.copy(sshpubkey, tmpdir)
     shutil.copy(sshprivkey, tmpdir)
 
@@ -153,7 +178,64 @@ def generate(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
                 log.error(f"cannot find script ({script})")
                 sys.exit(1)
 
+def _make_subprocess_error_string(res):
+    return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout.decode("utf-8"), res.stderr.decode("utf-8"))
 
+def __rsync(sshkey, src, dst):
+    cmd = [
+        "rsync", "-a", "-e",
+            f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey}",
+            src, dst
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
 
-def run():
-    pass
+def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
+    jb = cfg.get("install_from", None)
+    if jb and jb in cfg.get("resources", {}):
+        install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
+        
+        log.debug("rsyncing install files")
+        __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
+
+        for idx, step in enumerate(install_steps):
+            script = step["script"]
+            scripttype = step.get("type", "jumpbox_script")
+            instcmd = [ f"{tmpdir}/install/{idx:02}_{script}" ]
+            log.info(f"Step {idx:02} : {script} ({scripttype})")
+            starttime = time.time()
+
+            if scripttype == "jumpbox_script":
+                tag = step.get("tag", None)
+                if tag:
+                    instcmd.append(tag)
+
+                cmd = [
+                    "ssh", 
+                        "-o", "StrictHostKeyChecking=no",
+                        "-o", "UserKnownHostsFile=/dev/null",
+                        "-i", sshprivkey,
+                        f"{adminuser}@{fqdn}"
+                ] + instcmd
+                res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if res.returncode != 0:
+                    logging.error("invalid returncode"+_make_subprocess_error_string(res))
+                    sys.exit(1)
+
+            elif scripttype == "local_script":
+                res = subprocess.run(instcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if res.returncode != 0:
+                    logging.error("invalid returncode"+_make_subprocess_error_string(res))
+                    sys.exit(1)
+            
+            else:
+                log.error(f"unrecognised script type {scripttype}")
+
+            duration = time.time() - starttime
+            log.info(f"    duration: {duration}")
+
+        log.debug("rsyncing log files back")
+        __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
+        

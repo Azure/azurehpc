@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import shutil
 import time
 
 import arm
@@ -93,8 +94,13 @@ def do_connect(args):
         os.execvp(ssh_exe, ssh_args + cmdline)
 
 def do_deploy(args):
-    log.debug("reading config file ({})".format(args.config_file))
-    tmpdir = "azhpc_install_" + args.config_file.strip(".json")
+    log.debug(f"reading config file ({args.config_file})")
+    tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
+    log.debug(f"tmpdir = {tmpdir}")
+    if os.path.isdir(tmpdir):
+        log.debug("removing existing tmp directory")
+        shutil.rmtree(tmpdir)
+
     c = azconfig.ConfigFile()
     c.open(args.config_file)
     config = c.preprocess()
@@ -141,10 +147,17 @@ def do_deploy(args):
         config["resource_group"],
         args.output_template
     )
+    log.info("building host lists")
+    azinstall.generate_hostlists(config, tmpdir)
     log.info("building install scripts")
-    azinstall.generate(config, tmpdir, adminuser, private_key_file, public_key_file)
+    azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
+    
+    jumpbox = config.get("install_from", None)
+    fqdn = None
+    if jumpbox:
+        fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"PIP")
     log.info("running install scripts")
-    azinstall.run()
+    azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))
