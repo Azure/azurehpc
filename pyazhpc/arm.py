@@ -252,9 +252,9 @@ class ArmTemplate:
                 nicdeps.append("Microsoft.Network/virtualNetworks/"+vnetname)
 
             if rpip:
-                pipname = r+"PIP"
+                pipname = r+"pip"
                 dnsname = r+str(uuid.uuid4())[:6]
-                nsgname = r+"NSG"
+                nsgname = r+"nsg"
 
                 nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)
                 nicdeps.append("Microsoft.Network/networkSecurityGroups/"+nsgname)
@@ -299,8 +299,8 @@ class ArmTemplate:
                     }
                 })
 
-            nicname = r+"NIC"
-            ipconfigname = r+"IPCONFIG"
+            nicname = r+"nic"
+            ipconfigname = r+"ipconfig"
             nicprops = {
                 "ipConfigurations": [
                     {
@@ -422,8 +422,8 @@ class ArmTemplate:
         datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku)
         imageref = self.__helper_arm_create_image_reference(rimage)
 
-        nicname = r+"NIC"
-        ipconfigname = r+"IPCONFIG"
+        nicname = r+"nic"
+        ipconfigname = r+"ipconfig"
         vmssres = {
             "type": "Microsoft.Compute/virtualMachineScaleSets",
             "apiVersion": "2019-07-01",

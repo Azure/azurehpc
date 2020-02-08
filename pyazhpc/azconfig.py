@@ -72,12 +72,6 @@ class ConfigFile:
                 log.error("read_value : "+v+" not in config")
                 sys.exit(1)
         
-        def repl(match):
-            return str(self.__process_value(match.group()[2:-2]))
-    
-        if type(it) == str:
-            it = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2])), it)
-        
         if type(it) is str:
             res = self.__process_value(it)
         else:
@@ -89,6 +83,11 @@ class ConfigFile:
 
     def __process_value(self, v):
         log.debug("process_value (enter): "+str(v))
+
+        def repl(match):
+            return str(self.__process_value(match.group()[2:-2]))
+    
+        v = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2])), v)
         
         parts = v.split('.')
         prefix = parts[0]
@@ -104,7 +103,7 @@ class ConfigFile:
             res = f"{url}{path}?{saskey}"
         elif prefix == "fqdn":
             pass
-            #azutil.get_fqdn(self.data["resource_group"], parts[1]+"PIP")
+            #azutil.get_fqdn(self.data["resource_group"], parts[1]+"pip")
         elif prefix == "sakey":
             res = azutil.get_storage_key(parts[1])
         elif prefix == "saskey":

@@ -44,7 +44,7 @@ def do_connect(args):
         sshuser = args.user
 
     jumpbox = config["install_from"]
-    fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"PIP")
+    fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
 
     if fqdn == "":
         log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
@@ -161,7 +161,7 @@ def do_build(args):
     jumpbox = config.get("install_from", None)
     fqdn = None
     if jumpbox:
-        fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"PIP")
+        fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
     log.info("running install scripts")
     azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
