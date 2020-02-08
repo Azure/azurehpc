@@ -134,7 +134,7 @@ def do_build(args):
             f.write(private_key)
         with open(public_key_file, "wb") as f:
             os.chmod(public_key_file, 0o644)
-            f.write(public_key)
+            f.write(public_key+b'\n')
 
     tpl = arm.ArmTemplate()
     tpl.read(config)
