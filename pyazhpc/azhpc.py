@@ -6,6 +6,7 @@ import time
 
 import arm
 import azconfig
+import azinstall
 import azutil
 
 from cryptography.hazmat.primitives import serialization as crypto_serialization
@@ -93,6 +94,7 @@ def do_connect(args):
 
 def do_deploy(args):
     log.debug("reading config file ({})".format(args.config_file))
+    tmpdir = "azhpc_install_" + args.config_file.strip(".json")
     c = azconfig.ConfigFile()
     c.open(args.config_file)
     config = c.preprocess()
@@ -139,10 +141,14 @@ def do_deploy(args):
         config["resource_group"],
         args.output_template
     )
+    log.info("building install scripts")
+    azinstall.generate(config, tmpdir, adminuser, private_key_file, public_key_file)
+    log.info("running install scripts")
+    azinstall.run()
 
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))
-    config = azconfig.ConfigFile()
+    config = azconfig.ConfigFile()  
     config.open(args.config_file)
 
     log.warning("deleting entire resource group ({})".format(config.read_value("resource_group")))
