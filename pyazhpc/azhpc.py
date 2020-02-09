@@ -28,13 +28,37 @@ def do_get(args):
     val = config.read_value(args.path)
     print(f"{args.path} = {val}")
 
+
+def do_scp(args):
+    log.debug("reading config file ({})".format(args.config_file))
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    
+    adminuser = c.read_value("admin_user")
+    sshkey="{}_id_rsa".format(adminuser)
+    # TODO: check ssh key exists
+
+    jumpbox = c.read_value("install_from")
+    rg = c.read_value("resource_group")
+    fqdn = azutil.get_fqdn(rg, jumpbox+"pip")
+
+    scp_exe = "scp"
+    scp_cmd = [
+            scp_exe,
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null",
+            "-i", sshkey,
+            "-o", f"ProxyCommand=ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey} -W %h:%p {adminuser}@{fqdn}"
+        ] + args.args
+    log.debug(" ".join([ f"'{a}'" for a in scp_cmd ]))
+    os.execvp(scp_exe, scp_cmd)
+
 def do_connect(args):
     log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    config = c.preprocess()
-
-    adminuser = config["admin_user"]
+    
+    adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
     
@@ -43,32 +67,31 @@ def do_connect(args):
     else:
         sshuser = args.user
 
-    jumpbox = config["install_from"]
-    fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
+    jumpbox = c.read_value("install_from")
+    resource_group = c.read_value("resource_group")
+    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
 
     if fqdn == "":
         log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
 
     target = args.resource
-    try:
-        rtype = config["resources"][args.resource]["type"]
+    
+    rtype = c.read_value(f"resources.{args.resource}.type")
 
-        if rtype == "vm":
-            instances = config["resources"][args.resource].get("instances", 1)
+    if rtype == "vm":
+        instances = c.read_value(f"resources.{args.resource}.instances", 1)
+        print(instances)
 
-            if instances > 1:
-                target = "{}{:04}".format(args.resource, 1)
-                log.info("Multiple instances of {}, connecting to {}")
-        
-        elif rtype == "vmss":
-            vmssnodes = azutil.get_vmss_instances(config["resource_group"], args.resource)
-            if len(vmssnodes) == 0:
-                log.error("There are no instances in the vmss")
-                sys.exit(1)
-            target = vmssnodes[0]
-
-    except KeyError:
-        log.info("Resource not in config, trying to access {} from {}".format(target, jumpbox))
+        if instances > 1:
+            target = "{}{:04}".format(args.resource, 1)
+            log.info("Multiple instances of {}, connecting to {}")
+    
+    elif rtype == "vmss":
+        vmssnodes = azutil.get_vmss_instances(resource_group, args.resource)
+        if len(vmssnodes) == 0:
+            log.error("There are no instances in the vmss")
+            sys.exit(1)
+        target = vmssnodes[0]
 
     ssh_exe = "ssh"
     cmdline = []
@@ -82,7 +105,7 @@ def do_connect(args):
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-i", ssh_private_key,
-            "{}@{}".format(sshuser, fqdn)
+            f"{sshuser}@{fqdn}"
         ]
         log.debug(" ".join(ssh_args + cmdline))
         os.execvp(ssh_exe, ssh_args + cmdline)
@@ -93,8 +116,8 @@ def do_connect(args):
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-i", ssh_private_key,
-            "-o", "ProxyCommand=ssh -i {} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p {}@{}".format(ssh_private_key, sshuser, fqdn),
-            "{}@{}".format(sshuser, target)
+            "-o", f"ProxyCommand=ssh -i {ssh_private_key} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p {sshuser}@{fqdn}",
+            f"{sshuser}@{target}"
         ]
         log.debug(" ".join(ssh_args + cmdline))
         os.execvp(ssh_exe, ssh_args + cmdline)
@@ -196,8 +219,6 @@ if __name__ == "__main__":
 
     subparsers = azhpc_parser.add_subparsers(help="actions")
 
-
-
     preprocess_parser = subparsers.add_parser(
         "preprocess", 
         parents=[gopt_parser],
@@ -274,6 +295,20 @@ if __name__ == "__main__":
         'args', 
         nargs=argparse.REMAINDER,
         help="additional arguments will be passed to the ssh command"
+    )
+
+    scp_parser = subparsers.add_parser(
+        "scp", 
+        parents=[gopt_parser],
+        add_help=False,
+        description="secure copy",
+        help="copy files to a resource with 'scp'"
+    )
+    scp_parser.set_defaults(func=do_scp)
+    scp_parser.add_argument(
+        'args', 
+        nargs=argparse.REMAINDER,
+        help="the arguments passed to scp"
     )
 
     args = azhpc_parser.parse_args()

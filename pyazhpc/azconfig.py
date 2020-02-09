@@ -65,17 +65,18 @@ class ConfigFile:
             it = self.data
             for x in v.split('.'):
                 it = it[x]
+            
+            if type(it) is str:
+                res = self.__process_value(it)
+            else:
+                res = it
         except KeyError:
             if default is not None:
+                log.debug(f"using default value ({default})")
                 res = default
             else:
                 log.error("read_value : "+v+" not in config")
                 sys.exit(1)
-        
-        if type(it) is str:
-            res = self.__process_value(it)
-        else:
-            res = it
 
         log.debug("read_value (exit): "+v+"="+str(res))
 
