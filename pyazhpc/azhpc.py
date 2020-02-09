@@ -194,13 +194,13 @@ def do_destroy(args):
     config.open(args.config_file)
 
     log.warning("deleting entire resource group ({})".format(config.read_value("resource_group")))
-    if not args.no_wait:
+    if not args.force:
         log.info("you have 10s to change your mind and ctrl-c!")
         time.sleep(10)
         log.info("too late!")
 
     azutil.delete_resource_group(
-        config.read_value("resource_group")
+        config.read_value("resource_group"), args.no_wait
     )
 
 if __name__ == "__main__":
@@ -267,9 +267,16 @@ if __name__ == "__main__":
     )
     destroy_parser.set_defaults(func=do_destroy)
     destroy_parser.add_argument(
-        "--no-wait", 
-        action="store_true", 
+        "--force", 
+        action="store_true",
+        default=False,
         help="delete resource group immediately"
+    )
+    destroy_parser.add_argument(
+        "--no-wait", 
+        action="store_true",
+        default=False,
+        help="do not wait for resources to be deleted"
     )
     
     connect_parser = subparsers.add_parser(

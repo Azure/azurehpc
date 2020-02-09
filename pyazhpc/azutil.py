@@ -74,12 +74,15 @@ def create_resource_group(resource_group, location):
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
 
-def delete_resource_group(resource_group):
+def delete_resource_group(resource_group, nowait):
     log.debug("deleting resource group")
     cmd = [
         "az", "group", "delete",
             "--name", resource_group, "--yes"
     ]
+    if nowait == True:
+        cmd.append("--no-wait")
+    log.debug(" ".join(cmd))
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
