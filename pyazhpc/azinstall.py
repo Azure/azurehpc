@@ -101,7 +101,7 @@ sleep 10
         os.chmod(scriptfile, 0o755)
         f.write(content)
 
-def create_local_script():
+def create_local_script(inst, tmpdir, step):
     targetscript = inst["script"]
     scriptfile = f"{tmpdir}/install/{step:02}_{targetscript}"
     logfile = f"install_{step:02}_{targetscript[:targetscript.rfind('.')]}.log"
