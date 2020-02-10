@@ -28,7 +28,6 @@ def do_get(args):
     val = config.read_value(args.path)
     print(f"{args.path} = {val}")
 
-
 def do_scp(args):
     log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
@@ -121,6 +120,82 @@ def do_connect(args):
         ]
         log.debug(" ".join(ssh_args + cmdline))
         os.execvp(ssh_exe, ssh_args + cmdline)
+
+def _exec_command(fqdn, sshuser, sshkey, cmdline):
+    ssh_exe = "ssh"
+    ssh_args = [
+        ssh_exe, "-q", 
+        "-o", "StrictHostKeyChecking=no",
+        "-o", "UserKnownHostsFile=/dev/null",
+        "-i", sshkey,
+        f"{sshuser}@{fqdn}"
+    ]
+    log.debug(" ".join(ssh_args + [ cmdline ]))
+    os.execvp(ssh_exe, ssh_args + [ cmdline ])
+
+def do_status(args):
+    log.debug("reading config file ({})".format(args.config_file))
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    
+    adminuser = c.read_value("admin_user")
+    ssh_private_key="{}_id_rsa".format(adminuser)
+
+    jumpbox = c.read_value("install_from")
+    resource_group = c.read_value("resource_group")
+    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
+
+    if fqdn == "":
+        log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
+
+    tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
+    _exec_command(fqdn, adminuser, ssh_private_key, f"pssh -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
+
+
+def do_run(args):
+    log.debug("reading config file ({})".format(args.config_file))
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    
+    adminuser = c.read_value("admin_user")
+    ssh_private_key="{}_id_rsa".format(adminuser)
+    # TODO: check ssh key exists
+    
+    if args.user == None:
+        sshuser = adminuser
+    else:
+        sshuser = args.user
+
+    jumpbox = c.read_value("install_from")
+    resource_group = c.read_value("resource_group")
+    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
+
+    if fqdn == "":
+        log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
+
+    hosts = []
+    for r in args.nodes.split(" "):
+        rtype = c.read_value(f"resources.{r}.type", None)
+        if not rtype:
+            log.error(f"resource {r} does not exist in config")
+            sys.exit(1)
+        if rtype == "vm":
+            instances = c.read_value(f"resources.{r}.instances", 1)
+            if instances == 1:
+                hosts.append(r)
+            else:
+                hosts += [ f"{r}{n:04}" for n in range(1, instances+1) ]            
+        elif rtype == "vmss":
+            hosts += azutil.get_vmss_instances(c.read_value("resource_group"), r)
+    
+    hostlist = " ".join(hosts)
+    cmd = " ".join(args.args)
+    _exec_command(fqdn, sshuser, ssh_private_key, f"pssh -H '{hostlist}' -i -t 0 '{cmd}'")
+    
+
+def do_init(args):
+    # TODO: implement
+    pass
 
 def do_build(args):
     log.debug(f"reading config file ({args.config_file})")
@@ -304,6 +379,32 @@ if __name__ == "__main__":
     )
     preprocess_parser.set_defaults(func=do_preprocess)
 
+    run_parser = subparsers.add_parser(
+        "run", 
+        parents=[gopt_parser],
+        add_help=False,
+        description="run a command on the specified resources",
+        help="run command on resources"
+    )
+    run_parser.set_defaults(func=do_run)
+    run_parser.add_argument(
+        "--user", 
+        "-u", 
+        type=str,
+        help="the user to run as"
+    )
+    run_parser.add_argument(
+        "--nodes", 
+        "-n", 
+        type=str,
+        help="the resources to run on (space separated for multiple)"
+    )
+    run_parser.add_argument(
+        'args', 
+        nargs=argparse.REMAINDER,
+        help="the command to run"
+    )
+
     scp_parser = subparsers.add_parser(
         "scp", 
         parents=[gopt_parser],
@@ -317,6 +418,15 @@ if __name__ == "__main__":
         nargs=argparse.REMAINDER,
         help="the arguments passed to scp"
     )
+
+    status_parser = subparsers.add_parser(
+        "status", 
+        parents=[gopt_parser],
+        add_help=False,
+        description="show status of all the resources",
+        help="displays the resource uptime"
+    )
+    status_parser.set_defaults(func=do_status)
 
     args = azhpc_parser.parse_args()
 
