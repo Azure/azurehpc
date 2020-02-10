@@ -219,29 +219,6 @@ if __name__ == "__main__":
 
     subparsers = azhpc_parser.add_subparsers(help="actions")
 
-    preprocess_parser = subparsers.add_parser(
-        "preprocess", 
-        parents=[gopt_parser],
-        add_help=False,
-        description="preprocess the config file",
-        help="expand all the config macros"
-    )
-    preprocess_parser.set_defaults(func=do_preprocess)
-
-    get_parser = subparsers.add_parser(
-        "get",
-        parents=[gopt_parser],
-        add_help=False,
-        description="get a config value",
-        help="evaluate the value at the json path specified"
-    )
-    get_parser.set_defaults(func=do_get)
-    get_parser.add_argument(
-        "path", 
-        type=str,
-        help="the json path to evaluate"
-    )
-
     build_parser = subparsers.add_parser(
         "build", 
         parents=[gopt_parser],
@@ -258,27 +235,6 @@ if __name__ == "__main__":
         help="filename for the arm template",
     )
 
-    destroy_parser = subparsers.add_parser(
-        "destroy", 
-        parents=[gopt_parser],
-        add_help=False,
-        description="delete the resource group",
-        help="delete entire resource group"
-    )
-    destroy_parser.set_defaults(func=do_destroy)
-    destroy_parser.add_argument(
-        "--force", 
-        action="store_true",
-        default=False,
-        help="delete resource group immediately"
-    )
-    destroy_parser.add_argument(
-        "--no-wait", 
-        action="store_true",
-        default=False,
-        help="do not wait for resources to be deleted"
-    )
-    
     connect_parser = subparsers.add_parser(
         "connect", 
         parents=[gopt_parser],
@@ -303,6 +259,50 @@ if __name__ == "__main__":
         nargs=argparse.REMAINDER,
         help="additional arguments will be passed to the ssh command"
     )
+
+    destroy_parser = subparsers.add_parser(
+        "destroy", 
+        parents=[gopt_parser],
+        add_help=False,
+        description="delete the resource group",
+        help="delete entire resource group"
+    )
+    destroy_parser.set_defaults(func=do_destroy)
+    destroy_parser.add_argument(
+        "--force", 
+        action="store_true",
+        default=False,
+        help="delete resource group immediately"
+    )
+    destroy_parser.add_argument(
+        "--no-wait", 
+        action="store_true",
+        default=False,
+        help="do not wait for resources to be deleted"
+    )
+    
+    get_parser = subparsers.add_parser(
+        "get",
+        parents=[gopt_parser],
+        add_help=False,
+        description="get a config value",
+        help="evaluate the value at the json path specified"
+    )
+    get_parser.set_defaults(func=do_get)
+    get_parser.add_argument(
+        "path", 
+        type=str,
+        help="the json path to evaluate"
+    )
+
+    preprocess_parser = subparsers.add_parser(
+        "preprocess", 
+        parents=[gopt_parser],
+        add_help=False,
+        description="preprocess the config file",
+        help="expand all the config macros"
+    )
+    preprocess_parser.set_defaults(func=do_preprocess)
 
     scp_parser = subparsers.add_parser(
         "scp", 
