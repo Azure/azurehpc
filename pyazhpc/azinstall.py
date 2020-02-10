@@ -66,6 +66,10 @@ cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 tag=${{1:-{tag}}}
 
+if [ ! -f "hostlists/tags/$tag" ]; then
+    echo "    Tag is not assigned to any resource (not running)"
+fi
+
 """
     reboot = inst.get("reboot", False)
     sudo = inst.get("sudo", False)
