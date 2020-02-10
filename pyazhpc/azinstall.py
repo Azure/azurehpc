@@ -104,7 +104,7 @@ sleep 10
 def create_local_script(inst, tmpdir, step):
     targetscript = inst["script"]
     scriptfile = f"{tmpdir}/install/{step:02}_{targetscript}"
-    logfile = f"install_{step:02}_{targetscript[:targetscript.rfind('.')]}.log"
+    logfile = f"install/{step:02}_{targetscript[:targetscript.rfind('.')]}.log"
     
     args = inst.get("args", [])
 
