@@ -104,8 +104,6 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
     --applicationId $appId \
     --tenantId $tenantId \
     --azureSovereignCloud public \
-    --downloadURL $downloadURL \
-    --cyclecloudVersion $release \
     --username $admin_user \
     --hostname $fqdn \
     --acceptTerms  \
