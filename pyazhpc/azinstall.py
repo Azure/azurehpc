@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -133,7 +134,25 @@ def generate_hostlists(cfg, tmpdir):
             hosts[rname] = azutil.get_vmss_instances(cfg["resource_group"], rname)
 
         for tname in cfg["resources"][rname].get("tags", []):
-            tags.setdefault(tname, []).extend(hosts.get(rname, []))
+            # handle partial VMSS for a tag with python [] notation
+            p = re.compile("([\w-]+)\[(\d*)([:]?)([-]?[\d]*)\]")
+            matches = p.findall(tname)
+            if matches:
+                m = matches[0]
+                lower = 0
+                upper = None
+                if m[1] != "":
+                    lower = int(m[1])
+                if m[2] != ":":
+                    # single item
+                    upper = lower + 1
+                else:
+                    if m[3] != "":
+                        upper = int(m[3])
+                log.debug(f"using partial VMSS: name={m[0]}, lower={lower}, upper={upper} (original={tname})")
+                tags.setdefault(m[0], []).extend(hosts.get(rname, [])[lower:upper])
+            else:
+                tags.setdefault(tname, []).extend(hosts.get(rname, []))
 
         if not cfg["resources"][rname].get("password", None):
             hosts.setdefault("linux", []).extend(hosts.get(rname, []))
