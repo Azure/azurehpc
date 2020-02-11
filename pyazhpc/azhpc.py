@@ -119,7 +119,7 @@ def do_scp(args):
 
     scp_exe = "scp"
     scp_cmd = [
-            scp_exe,
+            scp_exe, "-q",
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-i", sshkey,
