@@ -245,20 +245,21 @@ def do_run(args):
         log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
 
     hosts = []
-    for r in args.nodes.split(" "):
-        rtype = c.read_value(f"resources.{r}.type", None)
-        if not rtype:
-            log.error(f"resource {r} does not exist in config")
-            sys.exit(1)
-        if rtype == "vm":
-            instances = c.read_value(f"resources.{r}.instances", 1)
-            if instances == 1:
-                hosts.append(r)
-            else:
-                hosts += [ f"{r}{n:04}" for n in range(1, instances+1) ]            
-        elif rtype == "vmss":
-            hosts += azutil.get_vmss_instances(c.read_value("resource_group"), r)
-    
+    if args.nodes:
+        for r in args.nodes.split(" "):
+            rtype = c.read_value(f"resources.{r}.type", None)
+            if not rtype:
+                log.error(f"resource {r} does not exist in config")
+                sys.exit(1)
+            if rtype == "vm":
+                instances = c.read_value(f"resources.{r}.instances", 1)
+                if instances == 1:
+                    hosts.append(r)
+                else:
+                    hosts += [ f"{r}{n:04}" for n in range(1, instances+1) ]            
+            elif rtype == "vmss":
+                hosts += azutil.get_vmss_instances(c.read_value("resource_group"), r)
+        
     if not hosts:
         hosts.append(jumpbox)
 
