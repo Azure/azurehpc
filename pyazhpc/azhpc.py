@@ -112,6 +112,11 @@ def do_scp(args):
     rg = c.read_value("resource_group")
     fqdn = azutil.get_fqdn(rg, jumpbox+"pip")
 
+    if args.args and args.args[0] == "--":
+        scp_args = args.args[1:]
+    else:
+        scp_args = args.args
+
     scp_exe = "scp"
     scp_cmd = [
             scp_exe,
@@ -119,7 +124,7 @@ def do_scp(args):
             "-o", "UserKnownHostsFile=/dev/null",
             "-i", sshkey,
             "-o", f"ProxyCommand=ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey} -W %h:%p {adminuser}@{fqdn}"
-        ] + args.args
+        ] + scp_args
     log.debug(" ".join([ f"'{a}'" for a in scp_cmd ]))
     os.execvp(scp_exe, scp_cmd)
 
@@ -514,7 +519,7 @@ if __name__ == "__main__":
     scp_parser.add_argument(
         'args', 
         nargs=argparse.REMAINDER,
-        help="the arguments passed to scp"
+        help="the arguments passed to scp (use '--' to separate scp arguments)"
     )
 
     status_parser = subparsers.add_parser(
@@ -527,13 +532,12 @@ if __name__ == "__main__":
     status_parser.set_defaults(func=do_status)
 
     args = azhpc_parser.parse_args()
-
+    log.debug(args)
+    
     if args.debug:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(filename)s:%(lineno)d:%(levelname)s:%(message)s')
     else:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
-
-    log.debug(args)
 
     args.func(args)
 
