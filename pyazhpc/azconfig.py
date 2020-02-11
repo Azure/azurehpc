@@ -17,6 +17,23 @@ class ConfigFile:
         with open(fname) as f:
             self.data = json.load(f)
     
+    def save(self, fname):
+        with open(fname, "w") as f:
+            json.dump(self.data, f, indent=4)
+
+    def get_unset_vars(self):
+        return [ 
+            x 
+            for x in self.data.get("variables", {}).keys() 
+            if self.data["variables"][x] == "<NOT-SET>"
+        ]
+
+    def replace_vars(self, vdict):
+        if "variables" in self.data:
+            for v in vdict.keys():
+                if v in self.data["variables"]:
+                    self.data["variables"][v] = vdict[v]
+
     def __evaluate_dict(self, x):
         ret = {}
         for k in x.keys():

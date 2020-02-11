@@ -28,6 +28,77 @@ def do_get(args):
     val = config.read_value(args.path)
     print(f"{args.path} = {val}")
 
+def __add_unset_vars(vset, config_file):
+    log.debug(f"looking for vars in {config_file}")
+    config = azconfig.ConfigFile()
+    config.open(config_file)
+    vset.update(config.get_unset_vars())
+
+def do_init(args):
+    if not os.path.exists(args.config_file):
+        log.error("config file/dir does not exist")
+        sys.exit(1)
+
+    if args.show:
+        vlist = set()
+
+        if os.path.isfile(args.config_file):
+            __add_unset_vars(vlist, args.config_file)
+        else:
+            for root, dirs, files in os.walk(args.config_file):
+                for name in files:
+                    if os.path.splitext(name)[1] == ".json":
+                        __add_unset_vars(vlist, os.path.join(root, name))
+
+        print("Variables to set: " + ",".join(vlist))
+        print()
+        print("Example string for '--vars' argument (add values):")
+        print("    --vars " + ",".join([ x+"=" for x in vlist ]))
+    else:
+        log.debug("creating directory")
+        os.makedirs(args.dir, exist_ok=True)
+
+        if os.path.isfile(args.config_file):
+            shutil.copy(args.config_file, args.dir)
+        elif os.path.isdir(args.config_file):
+            for root, dirs, files in os.walk(args.config_file):
+                for d in dirs:
+                    newdir = os.path.join(
+                        args.dir,
+                        os.path.relpath(
+                            os.path.join(root, d),
+                            args.config_file
+                        )
+                    )
+                    log.debug("creating directory: " + newdir)
+                    os.makedirs(newdir, exist_ok=True)
+                for f in files:
+                    oldfile = os.path.join(root, f)
+                    newfile = os.path.join(
+                        args.dir,
+                        os.path.relpath(
+                            os.path.join(root, f),
+                            args.config_file
+                        )
+                    )
+                    log.debug(f"copying file: {oldfile} -> {newfile}")
+                    shutil.copy(oldfile, newfile)
+
+        # get vars
+        vset = {}
+        if args.vars:
+            for vp in args.vars.split(","):
+                vk, vv = vp.split("=")
+                vset[vk] = vv
+            
+            for root, dirs, files in os.walk(args.dir):
+                for name in files:
+                    if os.path.splitext(name)[1] == ".json":
+                        config = azconfig.ConfigFile()
+                        config.open(os.path.join(root, name))
+                        config.replace_vars(vset)
+                        config.save(os.path.join(root, name))
+
 def do_scp(args):
     log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
@@ -188,14 +259,12 @@ def do_run(args):
         elif rtype == "vmss":
             hosts += azutil.get_vmss_instances(c.read_value("resource_group"), r)
     
+    if not hosts:
+        hosts.append(jumpbox)
+
     hostlist = " ".join(hosts)
     cmd = " ".join(args.args)
     _exec_command(fqdn, sshuser, ssh_private_key, f"pssh -H '{hostlist}' -i -t 0 '{cmd}'")
-    
-
-def do_init(args):
-    # TODO: implement
-    pass
 
 def do_build(args):
     log.debug(f"reading config file ({args.config_file})")
@@ -287,7 +356,7 @@ if __name__ == "__main__":
         default="config.json", help="config file"
     )
     gopt_parser.add_argument(
-        "-v", "--verbose", 
+        "--debug", 
         help="increase output verbosity",
         action="store_true"
     )
@@ -370,6 +439,34 @@ if __name__ == "__main__":
         help="the json path to evaluate"
     )
 
+    init_parser = subparsers.add_parser(
+        "init",
+        parents=[gopt_parser],
+        add_help=False,
+        description="initialise a project",
+        help="copy a file or directory with config files"
+    )
+    init_parser.set_defaults(func=do_init)
+    init_parser.add_argument(
+        "--show", 
+        "-s", 
+        action="store_true",
+        default=False,
+        help="display all vars that are <NOT-SET>"
+    )
+    init_parser.add_argument(
+        "--dir", 
+        "-d", 
+        type=str,
+        help="output directory",
+    )
+    init_parser.add_argument(
+        "--vars", 
+        "-v", 
+        type=str,
+        help="variables to replace in format VAR=VAL(,VAR=VAL)*",
+    )
+
     preprocess_parser = subparsers.add_parser(
         "preprocess", 
         parents=[gopt_parser],
@@ -430,7 +527,7 @@ if __name__ == "__main__":
 
     args = azhpc_parser.parse_args()
 
-    if args.verbose:
+    if args.debug:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(filename)s:%(lineno)d:%(levelname)s:%(message)s')
     else:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
