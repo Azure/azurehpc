@@ -254,6 +254,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_image ".resources.$resource_name.image"
             read_value resource_pip ".resources.$resource_name.public_ip" false
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
+            read_value resource_disk_perfoptlevel ".resources.$resource_name.disk_perfoptlevel" false
             read_value resource_subnet ".resources.$resource_name.subnet"
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
@@ -300,6 +301,11 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 fi
                 data_disks_options=
                 if [ "$resource_disk_count" -gt 0 ]; then
+                    disk_perfoptlevel_option=
+                    if [ "$resource_disk_perfoptlevel" = "true" ]; then
+                        status "Enable disk performance optimization"
+                        disk_perfoptlevel_option="--tag '\$perfOptimizationLevel=1'" 
+                    fi
 
                     for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
                         storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
@@ -351,6 +357,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                     $lowpri_option \
                     $ppg_option \
                     $zone_option \
+                    $disk_perfoptlevel_option \
                     --no-wait || exit 1
 
                 if [ "$?" -ne "0" ]; then
@@ -380,6 +387,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_ppg ".resources.$resource_name.proximity_placement_group" false
+            read_value resource_disk_perfoptlevel ".resources.$resource_name.disk_perfoptlevel" false
             read_value resource_instances ".resources.$resource_name.instances"
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
@@ -395,7 +403,11 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
 
             data_disks_options=
             if [ "$resource_disk_count" -gt 0 ]; then
-
+                    disk_perfoptlevel_option=
+                    if [ "$resource_disk_perfoptlevel" = "true" ]; then
+                        status "Enable disk performance optimization"
+                        disk_perfoptlevel_option="--tag '\$perfOptimizationLevel=1'" 
+                    fi
                 for lun_id in $(seq 0 $(($resource_disk_count - 1))); do
                     storage_sku_str="$storage_sku_str ${lun_id}=${resource_storage_sku}"
                 done
@@ -448,6 +460,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 $data_disks_options \
                 $lowpri_option \
                 $ppg_option \
+                $disk_perfoptlevel_option \
                 --no-wait || exit 1
 
             if [ "$?" -ne "0" ]; then
