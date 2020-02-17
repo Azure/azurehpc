@@ -37,7 +37,7 @@ src=$(tail -n 1 $hostlist)
 for dst in $(<$hostlist); do
     $MPI_HOME/bin/mpirun -host $src,$dst \
         $mpi_options $numactl_options \
-        $HPCX_OSU_DIR/${BENCH} > ${src}_to_${dst}_${BENCH}.log 2>&1
+        $HPCX_OSU_DIR/${BENCH} > ${src}_to_${dst}_osu.$PBS_JOBID.log 2>&1
     src=$dst
 done
 
@@ -46,9 +46,9 @@ rm $hostlist
 
 echo "Ring Bandwidth Results (4194304 bytes)"
 printf "%-20s %-20s %10s\n" "Source" "Destination" "Bandwidth [MB/s]"
-grep "^4194304" *_osu_bw.$PBS_JOBID.log \
+grep "^4194304" *_osu.$PBS_JOBID.log \
     | tr -s ' ' | cut -d ' ' -f 1,2 \
-    | sed 's/_to_/ /g;s/_osu_bw.[^*]*:4194304//g' \
+    | sed 's/_to_/ /g;s/_osu.[^*]*:4194304//g' \
     | sort -nk 3 \
     | xargs printf "%-20s %-20s %10s\n" | tee output.log
 
