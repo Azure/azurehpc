@@ -6,8 +6,9 @@ module load mpi/impi
 source $MPI_BIN/mpivars.sh
 
 hostlist=$(pwd)/hosts.$PBS_JOBID
-
 sort -u $PBS_NODEFILE > $hostlist
+# remove .internal.cloudapp.net from node names
+sed -i 's/.internal.cloudapp.net//g' $hostlist
 
 export I_MPI_FABRICS="shm:ofa"
 export I_MPI_FALLBACK_DEVICE=0

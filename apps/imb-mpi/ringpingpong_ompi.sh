@@ -30,6 +30,8 @@ numactl_options=" numactl --cpunodebind 0"
 hostlist=$(pwd)/hosts.$PBS_JOBID
 
 sort -u $PBS_NODEFILE > $hostlist
+# remove .internal.cloudapp.net from node names
+sed -i 's/.internal.cloudapp.net//g' $hostlist
 
 src=$(tail -n 1 $hostlist)
 # -msglog 9:10 is for 512 and 1024 bytes message size only

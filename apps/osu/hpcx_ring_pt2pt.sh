@@ -1,10 +1,10 @@
+#!/bin/bash
 # osu_latency osu_bw osu_bibw
+BENCH=$1
 set -o pipefail
 source /etc/profile
 module use /usr/share/Modules/modulefiles
 module load mpi/hpcx
-
-AZHPC_MPI_HOSTFILE=$PBS_NODEFILE
 
 PKEY=`cat /sys/class/infiniband/mlx5_0/ports/1/pkeys/* | grep -v 0000 | grep -v 0x7fff`
 PKEY=`echo "${PKEY/0x8/0x0}"`
@@ -28,14 +28,27 @@ mpi_options+=" --report-bindings --display-allocation -v"
 # affinity
 numactl_options=" numactl --cpunodebind 0"
 
-for BENCH in osu_latency osu_bw osu_bibw; do
-    src=$(tail -n1 $AZHPC_MPI_HOSTFILE)
-    for line in $(<$AZHPC_MPI_HOSTFILE); do
-        dst=$line
-        $MPI_HOME/bin/mpirun -host $src,$dst \
-            $mpi_options $numactl_options \
-            $HPCX_OSU_DIR/${BENCH} | tee ${src}_to_${dst}_${BENCH}.log
-        src=$dst
-    done
+hostlist=$(pwd)/hosts.$PBS_JOBID
+sort -u $PBS_NODEFILE > $hostlist
+# remove .internal.cloudapp.net from node names
+sed -i 's/.internal.cloudapp.net//g' $hostlist
+
+src=$(tail -n 1 $hostlist)
+for dst in $(<$hostlist); do
+    $MPI_HOME/bin/mpirun -host $src,$dst \
+        $mpi_options $numactl_options \
+        $HPCX_OSU_DIR/${BENCH} > ${src}_to_${dst}_osu.$PBS_JOBID.log 2>&1
+    src=$dst
 done
+
+# clean up
+rm $hostlist
+
+echo "Ring Bandwidth Results (4194304 bytes)"
+printf "%-20s %-20s %10s\n" "Source" "Destination" "Bandwidth [MB/s]"
+grep "^4194304" *_osu.$PBS_JOBID.log \
+    | tr -s ' ' | cut -d ' ' -f 1,2 \
+    | sed 's/_to_/ /g;s/_osu.[^*]*:4194304//g' \
+    | sort -nk 3 \
+    | xargs printf "%-20s %-20s %10s\n" | tee output.log
 
