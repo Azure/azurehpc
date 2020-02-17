@@ -5,7 +5,7 @@ module load mpi/hpcx
 
 file=output.log
 cat $file | tr -s ' ' | \
-    jq --slurp --raw-input --raw-output 'split("\n") | .[2:-1] | map(split(" ")) | map({"from": .[0], "to": .[1], "bw": .[2]|tonumber})'
+    jq --slurp --raw-input --raw-output 'split("\n") | .[2:-1] | map(split(" ")) | map({"from": .[0], "to": .[1], "bw": .[2]|tonumber})' > metrics.json
 
 mpi_version=$(mpirun --version | head -n1)
 
