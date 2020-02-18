@@ -13,6 +13,7 @@ case $MPI in
         export I_MPI_DEBUG=4
         mpi_options="-np 2 -ppn 1"
         host_option="-hosts"
+        IMB_ROOT=$MPI_BIN
     ;;
     impi2019)
         module load mpi/impi-2019
@@ -22,6 +23,7 @@ case $MPI in
         export I_MPI_DEBUG=4
         mpi_options="-np 2 -ppn 1"
         host_option="-hosts"
+        IMB_ROOT=$MPI_BIN
     ;;
     ompi)
         module load mpi/hpcx
