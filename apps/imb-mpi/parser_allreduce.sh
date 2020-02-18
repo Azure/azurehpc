@@ -1,7 +1,18 @@
 #!/bin/bash
+MPI=$1
 source /etc/profile
 module use /usr/share/Modules/modulefiles
-module load mpi/hpcx
+case $MPI in
+    impi2018)
+        module load mpi/impi
+    ;;
+    impi2019)
+        module load mpi/impi-2019
+    ;;
+    ompi)
+        module load mpi/hpcx
+    ;;
+esac
 
 file=output.log
 grep -A3 "t_min" ${file} | tr -s ' ' | \
@@ -13,7 +24,7 @@ cat <<EOF >app.json
 {
     "app": "imb-mpi",
     "benchmark": "allreduce",
-    "mpi": "ompi",
+    "mpi": "$MPI",
     "mpi_version": "$mpi_version"
 }
 EOF
