@@ -48,11 +48,11 @@ case $MPI in
         mpi_options+=" -npernode 1 -np 2"
         host_option="-host"
 
-        # affinity
-        numactl_options=" numactl --cpunodebind 0"
         IMB_ROOT=$HPCX_MPI_TESTS_DIR/imb
     ;;
 esac
+# affinity
+numactl_options=" numactl --cpunodebind 0"
 
 hostlist=$(pwd)/hosts.$PBS_JOBID
 

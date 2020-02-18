@@ -47,12 +47,11 @@ case $MPI in
         mpi_options+=" -x HCOLL_ENABLE_MCAST_ALL=1 -x HCOLL_MCAST_NP=0 -x HCOLL_CONTEXT_CACHE_ENABLE=1"
 
         mpi_options+=" -hostfile $PBS_NODEFILE -np $num_ranks"
-        # affinity
-        numactl_options=" numactl --cpunodebind 0"
         IMB_ROOT=$HPCX_MPI_TESTS_DIR/imb
     ;;
 esac
 
+echo $mpi_options
 mpirun $mpi_options \
     $IMB_ROOT/IMB-MPI1 Allreduce -npmin $num_ranks \
     -iter 10000 \
