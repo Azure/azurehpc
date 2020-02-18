@@ -32,6 +32,7 @@ hostlist=$(pwd)/hosts.$PBS_JOBID
 sort -u $PBS_NODEFILE > $hostlist
 # remove .internal.cloudapp.net from node names
 sed -i 's/.internal.cloudapp.net//g' $hostlist
+BENCH=osu_bw
 
 case $MODE in
     ring) # one to neighbour
@@ -46,9 +47,9 @@ case $MODE in
     half) # one to each one way
         cp $hostlist desthosts.$PBS_JOBID
         for src in $(<$hostlist); do
-            SED_STR="s/$src//g"
-            sed -i $SED_STR desthosts.$PBS_JOBID
-            for dest in $(<desthosts.$PBS_JOBID); do
+            # delete the first line
+            sed -i '1d' desthosts.$PBS_JOBID
+            for dst in $(<desthosts.$PBS_JOBID); do
                 $MPI_HOME/bin/mpirun -host $src,$dst \
                     $mpi_options $numactl_options \
                     $HPCX_OSU_DIR/${BENCH} > ${src}_to_${dst}_osu.$PBS_JOBID.log 2>&1
