@@ -12,19 +12,19 @@ APP_NAME=NAMD
 APP_VERSION=2.13
 SHARED_APP=/apps
 NAMD_ARCH=Linux-x86_64-g++
+SKU_TYPE=${SKU_TYPE:-hbv2}
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 APP_TYPE=openmpi-gcc7.4
 MODULE_NAME=${APP_VERSION}-${APP_TYPE}
 APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-${APP_TYPE}
 NAMD_SOURCE_NAME=${APP_NAME}_${APP_VERSION}_Source
 
-SKU_TYPE=${SKU_TYPE:-hbv2}
 NAMD_SOURCE_TAR_GZ_LOC=${NAMD_SOURCE_TAR_GZ_LOC:-~hpcuser}
 
 if [ -n "$NAMD_SMP" ]; then
-CHARM_ARCH=mpi-linux-x86_64-gfortran-gcc
-else
 CHARM_ARCH=mpi-linux-x86_64-gfortran-smp-gcc
+else
+CHARM_ARCH=mpi-linux-x86_64-gfortran-gcc
 fi
 
 function create_modulefile {
