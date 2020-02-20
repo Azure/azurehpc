@@ -7,8 +7,13 @@ fi
 pushd $DIR/bin >/dev/null
 for fullpath in $DIR/libexec/azhpc-*.sh; do
     fname=${fullpath##*/}
+    pyname=$(dirname $fullpath)/py$fname
     if [ ! -L "${fname%%.sh}" ]; then
-        ln -s $fullpath ${fname%%.sh}
+        if [ -e $pyname ]; then
+            ln -s $pyname ${fname%%.sh}
+        else
+            ln -s $fullpath ${fname%%.sh}
+        fi
     fi
 done
 popd >/dev/null
