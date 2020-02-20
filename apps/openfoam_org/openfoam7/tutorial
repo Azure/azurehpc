@@ -1,0 +1,24 @@
+From your apps directory, run : ./install_openfoam_7_centos77_hpcx.sh
+
+After OpenFoam installation, the following procedure can be used to run a demo :
+cd ~/OpenFOAM
+source setenv.sh
+cd OpenFOAM-7/tutorials/incompressible/simpleFoam/motorBike
+./Allrun  (This will run motorbike on single node using 6 cores)
+The same procedure can be used for all the other sample benchmarks - The log files provide the ouput metrics
+
+To run motorBike across a varying number of cores:
+Ensure sufficient disk space before attempting
+cd ~/OpenFOAM
+source setenv.sh
+cd ~/apps/openls
+Modify generate_mesh.sh to have the correct X,Y,Z values (X*Y*Z=Num of cores on machine)
+cd ~/apps/openfoam_org/openfoam7/
+./generate_mesh.sh motorbike20m "100 40 40" - You may modify the 100 40 40 values to reflect the size of run desired
+./decompose.sh motorbike20m 1 60 - for decomposition for 1 node, 60 processes per node. Again this may be modified.
+Running the job : 
+(PBS recommended for >1 node for environment consistency)
+cd ~/OpenFOAM/motorbike20m-1x60 (or your directory)
+1) mpirun -np 60 potentialFoam -parallel 2>&1 | tee log.potentialFoam-$timestamp
+2) mpirun -np 60 simpleFoam -parallel 2>&1 | tee log.simpleFoam-$timestamp
+

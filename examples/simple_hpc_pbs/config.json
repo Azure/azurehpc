@@ -9,6 +9,7 @@
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_HB60rs",
         "compute_instances": 2,
+        "low_priority": false,
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
@@ -39,6 +40,7 @@
             "type": "vmss",
             "vm_type": "variables.vm_type",
             "instances": "variables.compute_instances",
+            "low_priority": "variables.low_priority",
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [

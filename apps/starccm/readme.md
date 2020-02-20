@@ -34,7 +34,7 @@ The following environment variables can be used:
 |------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | APP_INSTALL_DIR        | /apps                                                              | The place to install (a starccm directory will be created here                      |
 | TMP_DIR                | /mnt/resource | A temporary directory for installation files                                                                                                 |
-| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip| The full path to the `STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip` installer |
+| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.06.012_01_linux-x86_64-2.12_gnu7.1.zip| The full path to the app zip file |
 
 This will run with the default values:
 
@@ -44,7 +44,7 @@ azhpc-run -u hpcuser apps/starccm/install_starccm.sh
 
 Example running with non default values
 ```
-azhpc-run -u hpcuser STARCCM_INSTALLER_FILE=/apps/tmp/STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip APP_INSTALL_DIR=/apps/CFD apps/starccm/install_starccm.sh
+azhpc-run -u hpcuser STARCCM_INSTALLER_FILE=/apps/tmp/STAR-CCM+14.06.012_01_linux-x86_64-2.12_gnu7.1.zip APP_INSTALL_DIR=/apps/CFD apps/starccm/install_starccm.sh
 ```
 
 # Copy over the benchmark files
@@ -63,7 +63,7 @@ azhpc-connect -u hpcuser headnode
 
 ## Running Starccm+
 
-The `run_case.pbs` script is ready to use.  Below are all the parameters although the only one that is required if you have followed the previous steps is the PoD key for StarCCM licensing:
+The `run_case_hpcx.pbs` script is ready to use.  Below are all the parameters although the only one that is required if you have followed the previous steps is the PoD key for StarCCM licensing:
 
 | Environment Variable | Default Value | Description                                                                             |
 |----------------------|---------------|-----------------------------------------------------------------------------------------|
@@ -71,6 +71,8 @@ The `run_case.pbs` script is ready to use.  Below are all the parameters althoug
 | DATA_DIR             | /data         | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
 | CASE                 | civil         | The case to run (excluding path and `.sim` extension)                                   |
 | PODKEY               |               | This is required for the licensing                                                      |
+| OMPI                 | openmpi4      | Options: openmpi, openmpi4, platform                                                    |
+| STARCCM_VERSION      | 14.06.012     | Required if not using the default value                                                 |
 
 Environment variables can be passed to the PBS job with the `-v` flag.
 
@@ -78,7 +80,7 @@ Submit a job as follows (remembering to substitute your PoD key value):
 
     qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl \
         -v PODKEY=#INSERT_POD_KEY# \
-        apps/starccm/run_case.pbs
+        apps/starccm/run_case_hpcx.pbs
 
 > Note: multiple environment variables can be set if they are separated by commas, e.g. `-v VAR1=x,VAR2=y`.
 
@@ -114,7 +116,7 @@ The following environment variables can be used:
 |------------------------|---------------|-----------------------------------------------------------------------------------|
 | APP_INSTALL_DIR        | /scratch      | The place to install (a starccm directory will be created here                    |
 | TMP_DIR                | /mnt/resource | A temporary directory for installation files                                      |
-| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip| The full path to the `STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip` installer |
+| STARCCM_INSTALLER_FILE | /mnt/resource/STAR-CCM+14.06.012_01_linux-x86_64-2.12_gnu7.1.zip| The full path to the STAR-CCM+  installer |
 
 This will run with the default values:
 
@@ -137,6 +139,8 @@ The `run_case.pbs` script is ready to use.  Below are all the parameters althoug
 | DATA_DIR             | /scratch      | The directory where the sim file is located (relative paths are based on PBS_O_WORKDIR) |
 | CASE                 | civil         | The case to run (excluding path and `.sim` extension)                                   |
 | PODKEY               |               | This is required for the licensing                                                      |
+| OMPI                 | openmpi4      | Options: openmpi, openmpi4, platform                                                    |
+| STARCCM_VERSION      | 14.06.012     | Required if not using the default value                                                 |
 
 Environment variables can be passed to the PBS job with the `-v` flag.
 
