@@ -110,13 +110,12 @@ echo "Get cyclecloud_install.py"
 downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
 release="latest"
 echo wget "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
-wget -v "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
+wget -q "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
 
 echo "Run cyclecloud_install.py on $fqdn"
-
-scp -vvv $SSH_ARGS -i $ssh_private_key cyclecloud_install.py $admin_user@$source_vm:.
-ssh -vvv $SSH_ARGS -i $ssh_private_key $admin_user@$source_vm "scp $SSH_ARGS cyclecloud_install.py $admin_user@$fqdn:."
-ssh -vvv $SSH_ARGS -i $ssh_private_key $admin_user@$source_vm "ssh -vvv $SSH_ARGS $admin_user@$fqdn 'sudo python cyclecloud_install.py \
+scp -q $SSH_ARGS -i $ssh_private_key cyclecloud_install.py $admin_user@$source_vm:.
+ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$source_vm "scp $SSH_ARGS cyclecloud_install.py $admin_user@$fqdn:."
+ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$source_vm "ssh -vvv $SSH_ARGS $admin_user@$fqdn 'sudo python cyclecloud_install.py \
     --applicationSecret ${secret} \
     --applicationId $appId \
     --tenantId $tenantId \
