@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SSH_ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q"
 
@@ -8,6 +9,8 @@ key_vault=$3
 spn_appname=$4
 projectstore=$5
 appId=$6
+source_vm=$7
+dns_domain=$8
 
 admin_user=hpcadmin
 ssh_private_key=${admin_user}_id_rsa
@@ -56,16 +59,28 @@ fqdn=$(
         --output tsv \
         2>/dev/null \
 )
-
+if [ "$fqdn" != "" ]; then
 # Add the NSG rule for port 443 (https) for the Cycle VM
-az network nsg rule create \
-    -g ${resource_group} \
-    --nsg-name ${vmname}NSG \
-    --name cyclehttps \
-    --priority 2000 \
-    --protocol Tcp \
-    --destination-port-ranges 443 \
-    --output table
+    az network nsg rule create \
+        -g ${resource_group} \
+        --nsg-name ${vmname}NSG \
+        --name cyclehttps \
+        --priority 2000 \
+        --protocol Tcp \
+        --destination-port-ranges 443 \
+        --output table
+    source_vm=$fqdn
+else
+  fqdn=$(az network private-dns record-set list -g ${resource_group} -z ${dns_domain} --query "[?name=='${vmname}']" -o yaml | grep fqdn | awk -F " " '{print $2}')
+  #fqdn=${fqdn::-1}
+  source_vm=$(
+    az network public-ip show \
+    --resource-group $resource_group \
+    --name ${source_vm}pip --query dnsSettings.fqdn \
+    --output tsv \
+    2>/dev/null \
+)
+fi
 
 echo "Creating storage account $projectstore for projects"
 az storage account create \
@@ -95,11 +110,15 @@ fi
 echo "Get cyclecloud_install.py"
 downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
 release="latest"
-wget -q "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
+echo wget "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
+wget -v "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
 
 echo "Run cyclecloud_install.py on $fqdn"
-scp $SSH_ARGS -q -i $ssh_private_key cyclecloud_install.py $admin_user@$fqdn:.
-ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_install.py \
+
+scp -vvv $SSH_ARGS -i $ssh_private_key cyclecloud_install.py $admin_user@$source_vm:.
+echo ssh -vvv $SSH_ARGS -i $ssh_private_key $admin_user@$source_vm "scp $SSH_ARGS cyclecloud_install.py $admin_user@$fqdn:."
+ssh -vvv $SSH_ARGS -i $ssh_private_key $admin_user@$source_vm "scp $SSH_ARGS cyclecloud_install.py $admin_user@$fqdn:."
+ssh -vvv $SSH_ARGS -i $ssh_private_key $admin_user@$source_vm "ssh -vvv $SSH_ARGS $admin_user@$fqdn 'sudo python cyclecloud_install.py \
     --applicationSecret ${secret} \
     --applicationId $appId \
     --tenantId $tenantId \
@@ -108,7 +127,7 @@ ssh $SSH_ARGS -q -i $ssh_private_key $admin_user@$fqdn "sudo python cyclecloud_i
     --hostname $fqdn \
     --acceptTerms  \
     --password ${password} \
-    --storageAccount $projectstore"
+    --storageAccount $projectstore'"
 if [ "$?" -ne "0" ]; then
     echo "Error : Error installing Cycle Cloud"
     exit 1
