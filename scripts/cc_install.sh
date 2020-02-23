@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SSH_ARGS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q"
 
@@ -116,7 +115,6 @@ wget -v "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
 echo "Run cyclecloud_install.py on $fqdn"
 
 scp -vvv $SSH_ARGS -i $ssh_private_key cyclecloud_install.py $admin_user@$source_vm:.
-echo ssh -vvv $SSH_ARGS -i $ssh_private_key $admin_user@$source_vm "scp $SSH_ARGS cyclecloud_install.py $admin_user@$fqdn:."
 ssh -vvv $SSH_ARGS -i $ssh_private_key $admin_user@$source_vm "scp $SSH_ARGS cyclecloud_install.py $admin_user@$fqdn:."
 ssh -vvv $SSH_ARGS -i $ssh_private_key $admin_user@$source_vm "ssh -vvv $SSH_ARGS $admin_user@$fqdn 'sudo python cyclecloud_install.py \
     --applicationSecret ${secret} \
