@@ -16,11 +16,11 @@
         "image": "OpenLogic:CentOS:7.6:latest",
         "hpcimage": "OpenLogic:CentOS-HPC:7.6:latest",
         "storage_account": "<NOT-SET>",
-        "storage_key": "<NOT-SET>",
+        "storage_key": "sakey.{{variables.storage_account}}",
         "storage_container": "<NOT-SET>",
         "log_analytics_lfs_name": "<NOT-SET>",
         "log_analytics_workspace": "<NOT-SET>",
-        "log_analytics_key": "<NOT-SET>",
+        "log_analytics_key": "sakey.{{variables.storage_account}}",
         "lustre_version": "2.10",
         "lustre_mount": "/lustre"
     },
