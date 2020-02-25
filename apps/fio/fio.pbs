@@ -1,9 +1,15 @@
 #!/bin/bash
 
 SHARED_APPS=/apps
-FILESYSTEM=/beegfs
 DIRECTORY=${FILESYSTEM}/testing
 RUNTIME=600
+
+if [ -z "$FILESYSTEM" ]
+then
+  FILESYSTEM=/beegfs
+else 
+  FILESYSTEM=$1
+fi
 
 export MODULEPATH=${SHARED_APPS}/modulefiles:$MODULEPATH
 module load fio
