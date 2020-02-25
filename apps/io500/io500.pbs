@@ -151,7 +151,7 @@ function extra_description {
 
 export MODULEPATH=/apps/modulefiles:$MODULEPATH
 module load io-500-dev
-module load gcc-8.2.0
-module load mpi/mpich-3.3
+module load gcc-9.2.0
+module load mpi/mvapich2-2.3.2
 cd $PBS_O_WORKDIR
 main
