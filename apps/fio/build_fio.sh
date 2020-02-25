@@ -17,7 +17,7 @@ prepend-path MAN_PATH ${INSTALL_DIR}/man;
 EOF
 }
 
-yum install -y zlib-devel
+yum install -y zlib-devel git
 cd $SHARED_APP
 git clone git@github.com:axboe/fio.git
 
