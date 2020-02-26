@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o pipefail
+
 SHARED_APPS=/apps
 DIRECTORY=${FILESYSTEM}/testing
 RUNTIME=600
@@ -20,9 +22,12 @@ else
 fi
 for RW in write read
 do
-fio --name=${RW}_${SIZE} --directory=$DIRECTORY --direct=1 --size=$SIZE --bs=$BS --rw=${RW} --numjobs=$NUMJOBS --group_reporting --runtime=${RUNTIME} --output=fio_direct_${RW}_${SIZE}_${BS}_${PBS_JOBID}.out
+#fio --name=${RW}_${SIZE} --directory=$DIRECTORY --direct=1 --size=$SIZE --bs=$BS --rw=${RW} --numjobs=$NUMJOBS --group_reporting --runtime=${RUNTIME} --output=fio_direct_${RW}_${SIZE}_${BS}_${PBS_JOBID}.out
+fio --name=${RW}_${SIZE} --directory=$DIRECTORY --direct=1 --size=$SIZE --bs=$BS --rw=${RW} --numjobs=$NUMJOBS --group_reporting --runtime=${RUNTIME} | tee output.log 
 rm ${DIRECTORY}/*
 sleep 2
 #
 done
 done
+
+cat output.log
