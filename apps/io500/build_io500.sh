@@ -6,8 +6,10 @@ MODULE_DIR=${SHARED_APP}/modulefiles
 MODULE_NAME=${APP_NAME}
 INSTALL_DIR=${SHARED_APP}/${APP_NAME}
 
+source /etc/profile.d/modules.sh
+
 module load gcc-9.2.0
-module load mpi/mvapich2-2.3.2
+module load mpi/openmpi-4.0.2
 
 function create_modulefile {
 mkdir -p ${MODULE_DIR}
