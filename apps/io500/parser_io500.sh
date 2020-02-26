@@ -2,7 +2,7 @@
 
 insert module load of mpi
 
-logfile=<hardcode-here>
+logfile=./io500.out
 
 # RESULT
 sed -n -e '/Summary/,$p' $logfile |grep RESULT | sed 's/\[RESULT\]/result true/g;s/\[RESULT-invalid\]/result false/g;s/  */ /g' | jq --slurp --raw-input --raw-output 'split("\n") | map(split(" ")) | .[:-1] | map({"name": .[5], "type": .[2], "valid": .[1]|test("true"), "result": .[6]|tonumber, "metric": .[7], "time": .[10]|tonumber})' >result.json
