@@ -1,8 +1,11 @@
 import datetime
+import json
 import logging
+import os
 import shlex
 import subprocess
 import sys
+import time
 
 log = logging.getLogger(__name__)
 
@@ -91,15 +94,56 @@ def delete_resource_group(resource_group, nowait):
 
 def deploy(resource_group, arm_template):
     log.debug("deploying template")
+    deployname = os.path.splitext(
+        os.path.basename(arm_template)
+    )[0] + time.strftime("%Y%m%d-%H%M%S")
     cmd = [
         "az", "group", "deployment", "create",
             "--resource-group", resource_group,
-            "--template-file", arm_template
+            "--template-file", arm_template,
+            "--name", deployname,
+            "--no-wait"
     ]
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
+    
+    building = True
+    del_lines = 1
+    while building:
+        time.sleep(5)
+
+        cmd = [
+            "az", "group", "deployment", "operation", "list",
+                "--resource-group", resource_group,
+                "--name", deployname
+        ]
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if res.returncode != 0:
+            logging.error("invalid returncode"+_make_subprocess_error_string(res))
+            sys.exit(1)
+        
+        print("\033[F"*del_lines)
+        del_lines = 1
+
+        resp = json.loads(res.stdout)
+        for i in resp:
+            props = i["properties"]
+            status_code = props["statusCode"]
+            if props.get("targetResource", None):
+                resource_name = props["targetResource"]["resourceName"]
+                resource_type = props["targetResource"]["resourceType"]
+                del_lines += 1
+                print(f"{resource_name:15} {resource_type:47} {status_code:15}")
+            else:
+                provisioning_state = props["provisioningState"]
+                del_lines += 1
+                print(f"Provisioning state: {provisioning_state}")
+                building = False
+                if provisioning_state != "Succeeded":
+                    logging.error("Provisioning failed")
+                    sys.exit(1)
 
 def get_keyvault_secret(vault, key):
     cmd = [
