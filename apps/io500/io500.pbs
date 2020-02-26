@@ -1,4 +1,4 @@
-INSTRUCTIONS:
+#INSTRUCTIONS:
 # Edit this file as needed for your machine.
 # It is a simplified version of the site-configs/sandia/startup.sh which include SLURM directives.
 # Most of the variables set in here are needed for io500_fixed.sh which gets sourced at the end of this.
