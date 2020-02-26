@@ -19,16 +19,16 @@ io500_ior_hard_writes_per_proc=30000
 # These are listed in the order that they run.
 io500_run_ior_easy="True" # does the write phase and enables the subsequent read
 io500_run_md_easy="True"  # does the creat phase and enables the subsequent stat
-io500_run_ior_hard="True" # does the write phase and enables the subsequent read
-io500_run_md_hard="True"  # does the creat phase and enables the subsequent read
+io500_run_ior_hard="False" # does the write phase and enables the subsequent read
+io500_run_md_hard="False"  # does the creat phase and enables the subsequent read
 io500_run_find="True"
 io500_run_ior_easy_read="True"
 io500_run_md_easy_stat="True"
-io500_run_ior_hard_read="True"
-io500_run_md_hard_stat="True"
-io500_run_md_hard_read="True"
+io500_run_ior_hard_read="False"
+io500_run_md_hard_stat="False"
+io500_run_md_hard_read="False"
 io500_run_md_easy_delete="True" # turn this off if you want to just run find by itself
-io500_run_md_hard_delete="True" # turn this off if you want to just run find by itself
+io500_run_md_hard_delete="False" # turn this off if you want to just run find by itself
 io500_run_mdreal="False"  # this one is optional
 io500_cleanup_workdir="False"  # this flag is currently ignored. You'll need to clean up your data files manually if you want to.
 io500_clean_cache="False" # attempt to clean the cache after every benchmark, useful for validating the performance results and for testing with a local node; it uses the io500_clean_cache_cmd (can be overwritten); make sure the user can write to /proc/sys/vm/drop_caches
@@ -157,4 +157,4 @@ module load gcc-9.2.0
 module load mpi/openmpi-4.0.2
 cd $PBS_O_WORKDIR
 main
-cp results/*/io-500-summary*.txt ~/io500.out
+cp results/${timestamp}/result_summary.txt ~/io500.out
