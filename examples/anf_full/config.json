@@ -4,14 +4,11 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables" : {
-        "image" : "OpenLogic:CentOS:7.6:latest",
-        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "image" : "OpenLogic:CentOS-HPC:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
-        "vnet_resource_group": "variables.resource_group",
-        "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
-        "win_password": "<NOT-SET>",
-        "apps_storage_account": "<NOT-SET>"
+        "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -25,7 +22,7 @@
         }
     },
     "storage": {
-        "hpcnetapp": {
+        "hpcnetappfull": {
             "type": "anf",
             "subnet": "storage",
             "pools": {
@@ -72,16 +69,6 @@
                 "mount-anf",
                 "replace_nfs_with_anf",
                 "localuser"
-            ]
-        },
-        "nvnode": {
-            "type": "vm",
-            "public_ip": "true",
-            "password": "variables.win_password",
-            "vm_type": "Standard_NV6",
-            "image": "variables.nv_image",
-            "subnet": "viz",
-            "tags": [
             ]
         }
     },
@@ -143,12 +130,5 @@
         }
     ],
     "post_install": {
-        "script": "setup_win_rgs.sh",
-        "args": [
-            "variables.resource_group",
-            "nvnode",
-            "headnode",
-            "variables.apps_storage_account"
-        ]
     }
 }
