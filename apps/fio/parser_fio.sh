@@ -9,8 +9,6 @@ file=output.log
 
 grep 'READ\|WRITE' output.log | sed 's/(/( /g;s/)/ )/g;s/M/ M/g;s/:/ :/g' | tr -s ' ' | jq --slurp --raw-input --raw-output 'split("\n")  | .[:-1] | map(split(" ")) |  map({"bytes": .[1], "bandwidth": .[6]|tonumber})' > metrics.json
 
-mpi_version=$(mpirun --version | head -n1)
-
 cat <<EOF >app.json
 {
     "app": "fio",
