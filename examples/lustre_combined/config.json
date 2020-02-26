@@ -14,6 +14,8 @@
     "variables": {
         "resource_group": "<NOT-SET>",
         "image": "OpenLogic:CentOS:7.7:latest",
+        "lustreimage": "OpenLogic:CentOS:7.7:latest",
+        "hpcimage": "OpenLogic:CentOS-HPC:7.7:latest",
         "compute_instances": 2,
         "low_priority": false,
         "storage_account": "<NOT-SET>",
@@ -53,7 +55,7 @@
             "accelerated_networking": true,
             "instances": "variables.compute_instances",
             "low_priority": "variables.low_priority",
-            "image": "variables.image",
+            "image": "variables.hpcimage",
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
@@ -70,7 +72,7 @@
             "vm_type": "Standard_L32s_v2",
             "instances": 4,
             "accelerated_networking": true,
-            "image": "variables.image",
+            "image": "variables.lustreimage",
             "subnet": "storage",
             "tags": [
                 "lustre",
