@@ -27,7 +27,6 @@ case "$AZHPC_VMSIZE" in
         ;;
 esac
 
-echo "MPI Options: $mpi_options"
 CORES=$(cat $PBS_NODEFILE | wc -l)
 NODES=$(cat $PBS_NODEFILE | sort -u)
 
