@@ -1,4 +1,4 @@
-INSTRUCTIONS:
+#INSTRUCTIONS:
 # Edit this file as needed for your machine.
 # It is a simplified version of the site-configs/sandia/startup.sh which include SLURM directives.
 # Most of the variables set in here are needed for io500_fixed.sh which gets sourced at the end of this.
@@ -7,6 +7,8 @@ INSTRUCTIONS:
 FILESYSTEM=$FILESYSTEM
 
 set -euo pipefail  # better error handling
+
+export NCORES=`cat $PBS_NODEFILE | wc -l`
 
 io500_ior_easy_size=4000
 io500_ior_hard_writes_per_proc=30000
@@ -68,11 +70,11 @@ function setup_paths {
   io500_mdtest_cmd=mdtest
   io500_mdreal_cmd=md-real-io
   io500_mpirun="mpirun"
-  io500_mpiargs="-bind-to hwthread  -env UCX_IB_PKEY=$PKEY"
+  io500_mpiargs="-n \$NCORES --hostfile \$PBS_NODEFILE --bind-to numa"
 }
 
 function setup_ior_easy {
-  #io500_ior_easy_params="-t 2048k -b \${io500_ior_easy_size}m -F"
+  io500_ior_easy_params="-t 2048k"
   echo -n ""
 }
 
@@ -151,7 +153,7 @@ function extra_description {
 
 export MODULEPATH=/apps/modulefiles:$MODULEPATH
 module load io-500-dev
-module load gcc-8.2.0
-module load mpi/mpich-3.3
+module load gcc-9.2.0
+module load mpi/openmpi-4.0.2
 cd $PBS_O_WORKDIR
 main

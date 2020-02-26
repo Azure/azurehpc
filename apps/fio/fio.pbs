@@ -3,13 +3,7 @@
 SHARED_APPS=/apps
 DIRECTORY=${FILESYSTEM}/testing
 RUNTIME=600
-
-if [ -z "$FILESYSTEM" ]
-then
-  FILESYSTEM=/beegfs
-else 
-  FILESYSTEM=$1
-fi
+echo $FILESYSTEM
 
 export MODULEPATH=${SHARED_APPS}/modulefiles:$MODULEPATH
 module load fio
