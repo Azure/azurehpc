@@ -1,6 +1,6 @@
 #!/bin/bash
 APP_NAME=ior
-SHARED_APP=${1:-/apps}
+SHARED_APP=${SHARED_APP:-/apps}
 MODULE_DIR=${SHARED_APP}/modulefiles
 MODULE_NAME=${APP_NAME}
 INSTALL_DIR=${SHARED_APP}/${APP_NAME}
@@ -11,7 +11,7 @@ sudo yum install -y jq
 
 source /etc/profile.d/modules.sh # so we can load modules
 # GCC 8 is no longer provided with CentOS-HPC 7.7 image, it is now 9.2, but is this really needed ?
-#module load gcc-8.2.0
+module load gcc-9.2.0
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
@@ -22,8 +22,8 @@ if [ "$AZHPC_VMSIZE" = "" ]; then
 fi
 
 case "$AZHPC_VMSIZE" in
-    standard_hb60rs | standard_hc44rs)
-        module load mpi/mpich-3.3
+    standard_hb60rs | standard_hc44rs | standard_hb120rs_v2 )
+        module load mpi/hpcx
         ;;
     *)
         sudo yum install -y mpich-3.2-devel
