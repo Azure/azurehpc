@@ -4,7 +4,7 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables" : {
-        "image" : "OpenLogic:CentOS:7.7:latest",
+        "image" : "OpenLogic:CentOS-HPC:7.7:latest",
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
