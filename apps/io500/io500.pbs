@@ -8,6 +8,8 @@ FILESYSTEM=$FILESYSTEM
 
 set -euo pipefail  # better error handling
 
+export NCORES=`cat $PBS_NODEFILE | wc -l`
+
 io500_ior_easy_size=4000
 io500_ior_hard_writes_per_proc=30000
 
