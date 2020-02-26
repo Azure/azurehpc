@@ -5,8 +5,6 @@ SHARED_APP=${SHARED_APP:-/apps}
 source /etc/profile # so we can load modules
 
 export MODULEPATH=${SHARED_APP}/modulefiles:$MODULEPATH
-# GCC 8 is no longer provided with CentOS-HPC 7.7 image, it is now 9.2, but is this really needed ?
-#module load gcc-8.2.0
 module use /apps/modulefiles
 module load ior
 
