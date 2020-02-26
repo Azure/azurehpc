@@ -66,7 +66,7 @@ function setup_directories {
 
 function setup_paths {
   # Set the paths to the binaries.  If you ran ./utilities/prepare.sh successfully, then binaries are in ./bin/
-  io500_ior_cmd=ior
+  io500_ior_cmd=/apps/io-500-dev/bin/ior
   io500_mdtest_cmd=mdtest
   io500_mdreal_cmd=md-real-io
   io500_mpirun="mpirun"
