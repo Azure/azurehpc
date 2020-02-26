@@ -121,7 +121,7 @@ function setup_find {
   #   script for this which sets up MPI as you would like.  Then change
   #   io500_find_cmd to point to your wrapper script.
   io500_find_mpi="True"
-  io500_find_cmd="pfind"
+  io500_find_cmd="/apps/io-500-dev/bin/pfind"
   # uses stonewalling, run pfind
   io500_find_cmd_args=""
 
@@ -157,4 +157,4 @@ module load gcc-9.2.0
 module load mpi/openmpi-4.0.2
 cd $PBS_O_WORKDIR
 main
-cp results/*/io-500-summary*.txt io500.out
+cp results/*/io-500-summary*.txt ~/io500.out
