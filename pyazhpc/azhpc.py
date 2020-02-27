@@ -349,17 +349,6 @@ def do_build(args):
                 resource_type = props["targetResource"]["resourceType"]
                 del_lines += 1
                 print(f"{resource_name:15} {resource_type:47} {status_code:15}")
-                if props.get("statusMessage", None):
-                    if "error" in props["statusMessage"]:
-                        error_code = props["statusMessage"]["error"]["code"]
-                        error_message = textwrap.TextWrapper(width=60).wrap(text=props["statusMessage"]["error"]["message"])
-                        error_target = props["statusMessage"]["error"]["target"]
-                        print(f"  Error:   {error_code} ({error_target})")
-                        del_lines += 1
-                        print(f"  Message: {error_message[0]}")
-                        for line in error_message[1:]:
-                            print(f"             {line}")
-                            del_lines += 1
             else:
                 provisioning_state = props["provisioningState"]
                 del_lines += 1
