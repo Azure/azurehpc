@@ -3,6 +3,8 @@ import json
 import logging
 import os
 import shutil
+import sys
+import textwrap
 import time
 
 import arm
@@ -322,10 +324,69 @@ def do_build(args):
         config["location"]
     )
     log.info("deploying arm template")
-    azutil.deploy(
+    deployname = azutil.deploy(
         config["resource_group"],
         args.output_template
     )
+    log.debug(f"deployment name: {deployname}")
+
+    building = True
+    success = True
+    del_lines = 1
+    while building:
+        time.sleep(5)
+        res = azutil.get_deployment_status(config["resource_group"], deployname)
+        log.debug(res)
+        
+        print("\033[F"*del_lines)
+        del_lines = 1
+
+        for i in res:
+            props = i["properties"]
+            status_code = props["statusCode"]
+            if props.get("targetResource", None):
+                resource_name = props["targetResource"]["resourceName"]
+                resource_type = props["targetResource"]["resourceType"]
+                del_lines += 1
+                print(f"{resource_name:15} {resource_type:47} {status_code:15}")
+                if props.get("statusMessage", None):
+                    if "error" in props["statusMessage"]:
+                        error_code = props["statusMessage"]["error"]["code"]
+                        error_message = textwrap.TextWrapper(width=60).wrap(text=props["statusMessage"]["error"]["message"])
+                        error_target = props["statusMessage"]["error"]["target"]
+                        print(f"  Error:   {error_code} ({error_target})")
+                        del_lines += 1
+                        print(f"  Message: {error_message[0]}")
+                        for line in error_message[1:]:
+                            print(f"             {line}")
+                            del_lines += 1
+            else:
+                provisioning_state = props["provisioningState"]
+                del_lines += 1
+                building = False
+                if provisioning_state != "Succeeded":
+                    success = False
+
+    if success:
+        log.info("Provising succeeded")
+    else:
+        logging.error("Provisioning failed")
+        for i in res:
+            props = i["properties"]
+            status_code = props["statusCode"]
+            if props.get("targetResource", None):
+                resource_name = props["targetResource"]["resourceName"]
+                if props.get("statusMessage", None):
+                    if "error" in props["statusMessage"]:
+                        error_code = props["statusMessage"]["error"]["code"]
+                        error_message = textwrap.TextWrapper(width=60).wrap(text=props["statusMessage"]["error"]["message"])
+                        error_target = props["statusMessage"]["error"]["target"]
+                        print(f"  Resource : {resource_name} - {error_code} ({error_target})")
+                        print(f"  Message  : {error_message[0]}")
+                        for line in error_message[1:]:
+                            print(f"             {line}")
+        sys.exit(1)
+    
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
     log.info("building install scripts")

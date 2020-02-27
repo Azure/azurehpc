@@ -108,43 +108,22 @@ def deploy(resource_group, arm_template):
     if res.returncode != 0:
         logging.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
+
+    return deployname
+
+def get_deployment_status(resource_group, deployname):
+    cmd = [
+        "az", "group", "deployment", "operation", "list",
+            "--resource-group", resource_group,
+            "--name", deployname
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        logging.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
     
-    building = True
-    del_lines = 1
-    while building:
-        time.sleep(5)
-
-        cmd = [
-            "az", "group", "deployment", "operation", "list",
-                "--resource-group", resource_group,
-                "--name", deployname
-        ]
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if res.returncode != 0:
-            logging.error("invalid returncode"+_make_subprocess_error_string(res))
-            sys.exit(1)
+    return json.loads(res.stdout)
         
-        print("\033[F"*del_lines)
-        del_lines = 1
-
-        resp = json.loads(res.stdout)
-        for i in resp:
-            props = i["properties"]
-            status_code = props["statusCode"]
-            if props.get("targetResource", None):
-                resource_name = props["targetResource"]["resourceName"]
-                resource_type = props["targetResource"]["resourceType"]
-                del_lines += 1
-                print(f"{resource_name:15} {resource_type:47} {status_code:15}")
-            else:
-                provisioning_state = props["provisioningState"]
-                del_lines += 1
-                print(f"Provisioning state: {provisioning_state}")
-                building = False
-                if provisioning_state != "Succeeded":
-                    logging.error("Provisioning failed")
-                    sys.exit(1)
-
 def get_keyvault_secret(vault, key):
     cmd = [
         "az", "keyvault", "secret", "show",
