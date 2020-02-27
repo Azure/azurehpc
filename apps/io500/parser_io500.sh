@@ -7,10 +7,10 @@ logfile=io500.out
 
 
 # RESULT
-sed -n -e '/Summary/,$p' $logfile |grep RESULT | sed 's/\[RESULT\]/result true/g;s/\[RESULT-invalid\]/result false/g;s/  */ /g' | jq --slurp --raw-input --raw-output 'split("\n") | map(split(" ")) | .[:-1] | map({"name": .[5], "type": .[2], "valid": .[1]|test("true"), "result": .[6]|tonumber, "metric": .[7], "time": .[10]|tonumber})' >result.json
+cat $logfile |grep RESULT | sed 's/\[RESULT\]/result true/g;s/\[RESULT-invalid\]/result false/g;s/  */ /g' | jq --slurp --raw-input --raw-output 'split("\n") | map(split(" ")) | .[:-1] | map({"name": .[5], "type": .[2], "valid": .[1]|test("true"), "result": .[6]|tonumber, "metric": .[7], "time": .[10]|tonumber})' >result.json
 
 # SCORE
-sed -n -e '/Summary/,$p' $logfile |grep SCORE | sed 's/\[SCORE\]/score true/g;s/\[SCORE-invalid\]/score false/g;s/  */ /g' | jq --slurp --raw-input --raw-output 'split("\n") | map(split(" ")) | .[:-1] | map([{"name": "bandwidth", "type": "SCORE", "valid": .[1]|test("true"), "result": .[3]|tonumber, "metric": .[4]}, {"name": "iops", "type": "SCORE", "valid": .[1]|test("true"), "result": .[7]|tonumber, "metric": .[8]},{"name": "total", "type": "SCORE", "valid": .[1]|test("true"), "result": .[11]|tonumber, "metric": "io500"}]) |.[0]' >score.json
+cat $logfile |grep SCORE | sed 's/\[SCORE\]/score true/g;s/\[SCORE-invalid\]/score false/g;s/  */ /g' | jq --slurp --raw-input --raw-output 'split("\n") | map(split(" ")) | .[:-1] | map([{"name": "bandwidth", "type": "SCORE", "valid": .[1]|test("true"), "result": .[3]|tonumber, "metric": .[4]}, {"name": "iops", "type": "SCORE", "valid": .[1]|test("true"), "result": .[7]|tonumber, "metric": .[8]},{"name": "total", "type": "SCORE", "valid": .[1]|test("true"), "result": .[11]|tonumber, "metric": "io500"}]) |.[0]' >score.json
 
 # COMBINE
 jq '. += $score' --argjson score "$(<score.json)" result.json > metrics.json
