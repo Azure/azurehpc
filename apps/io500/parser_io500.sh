@@ -3,7 +3,7 @@
 source /etc/profile
 module load mpi/openmpi-4.0.2
 
-logfile=io500.out
+logfile=~/io500.out
 
 
 # RESULT
