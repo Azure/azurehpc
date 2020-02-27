@@ -1,12 +1,14 @@
-INSTRUCTIONS:
+#INSTRUCTIONS:
 # Edit this file as needed for your machine.
 # It is a simplified version of the site-configs/sandia/startup.sh which include SLURM directives.
 # Most of the variables set in here are needed for io500_fixed.sh which gets sourced at the end of this.
 # Please also edit 'extra_description' function.
 
 FILESYSTEM=$FILESYSTEM
-
+source /etc/profile
 set -euo pipefail  # better error handling
+
+export NCORES=`cat $PBS_NODEFILE | wc -l`
 
 io500_ior_easy_size=4000
 io500_ior_hard_writes_per_proc=30000
@@ -17,16 +19,16 @@ io500_ior_hard_writes_per_proc=30000
 # These are listed in the order that they run.
 io500_run_ior_easy="True" # does the write phase and enables the subsequent read
 io500_run_md_easy="True"  # does the creat phase and enables the subsequent stat
-io500_run_ior_hard="True" # does the write phase and enables the subsequent read
-io500_run_md_hard="True"  # does the creat phase and enables the subsequent read
+io500_run_ior_hard="False" # does the write phase and enables the subsequent read
+io500_run_md_hard="False"  # does the creat phase and enables the subsequent read
 io500_run_find="True"
 io500_run_ior_easy_read="True"
 io500_run_md_easy_stat="True"
-io500_run_ior_hard_read="True"
-io500_run_md_hard_stat="True"
-io500_run_md_hard_read="True"
+io500_run_ior_hard_read="False"
+io500_run_md_hard_stat="False"
+io500_run_md_hard_read="False"
 io500_run_md_easy_delete="True" # turn this off if you want to just run find by itself
-io500_run_md_hard_delete="True" # turn this off if you want to just run find by itself
+io500_run_md_hard_delete="False" # turn this off if you want to just run find by itself
 io500_run_mdreal="False"  # this one is optional
 io500_cleanup_workdir="False"  # this flag is currently ignored. You'll need to clean up your data files manually if you want to.
 io500_clean_cache="False" # attempt to clean the cache after every benchmark, useful for validating the performance results and for testing with a local node; it uses the io500_clean_cache_cmd (can be overwritten); make sure the user can write to /proc/sys/vm/drop_caches
@@ -64,15 +66,15 @@ function setup_directories {
 
 function setup_paths {
   # Set the paths to the binaries.  If you ran ./utilities/prepare.sh successfully, then binaries are in ./bin/
-  io500_ior_cmd=ior
-  io500_mdtest_cmd=mdtest
+  io500_ior_cmd=/apps/io-500-dev/bin/ior
+  io500_mdtest_cmd=/apps/io-500-dev/bin/mdtest
   io500_mdreal_cmd=md-real-io
   io500_mpirun="mpirun"
-  io500_mpiargs="-bind-to hwthread  -env UCX_IB_PKEY=$PKEY"
+  io500_mpiargs="-n $NCORES --hostfile $PBS_NODEFILE --bind-to numa"
 }
 
 function setup_ior_easy {
-  #io500_ior_easy_params="-t 2048k -b \${io500_ior_easy_size}m -F"
+  io500_ior_easy_params="-t 2048k"
   echo -n ""
 }
 
@@ -119,7 +121,7 @@ function setup_find {
   #   script for this which sets up MPI as you would like.  Then change
   #   io500_find_cmd to point to your wrapper script.
   io500_find_mpi="True"
-  io500_find_cmd="pfind"
+  io500_find_cmd="/apps/io-500-dev/bin/pfind"
   # uses stonewalling, run pfind
   io500_find_cmd_args=""
 
@@ -151,7 +153,8 @@ function extra_description {
 
 export MODULEPATH=/apps/modulefiles:$MODULEPATH
 module load io-500-dev
-module load gcc-8.2.0
-module load mpi/mpich-3.3
+module load gcc-9.2.0
+module load mpi/openmpi-4.0.2
 cd $PBS_O_WORKDIR
 main
+cp results/${timestamp}/result_summary.txt io500.out
