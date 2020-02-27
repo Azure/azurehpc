@@ -5,7 +5,7 @@
 # Please also edit 'extra_description' function.
 
 FILESYSTEM=$FILESYSTEM
-
+source /etc/profile
 set -euo pipefail  # better error handling
 
 export NCORES=`cat $PBS_NODEFILE | wc -l`
@@ -157,4 +157,4 @@ module load gcc-9.2.0
 module load mpi/openmpi-4.0.2
 cd $PBS_O_WORKDIR
 main
-cp results/${timestamp}/result_summary.txt ~/io500.out
+cp results/${timestamp}/result_summary.txt io500.out
