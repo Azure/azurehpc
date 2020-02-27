@@ -384,4 +384,9 @@ function build_hostlists
         fi
 
     done
+
+    read_value dns_prefix ".vnet.dns_domain" NOT-SET
+    if [ "$dns_prefix" != "NOT-SET" ]; then
+        find $tmp_dir/hostlists -type f | xargs sed -i "s/\$/.$dns_prefix/g"
+    fi
 }
