@@ -22,5 +22,5 @@ ln -s ${WRFROOT}/run/* .
 cp ${INPUTDIR}/*_d01 .
 cp ${INPUTDIR}/namelist.input .
 
-#mpirun -x LD_LIBRARY_PATH -n $NPROCS --hostfile $PBS_NODEFILE --bind-to l3cache wrf.exe
-mpirun -x LD_LIBRARY_PATH -n $NPROCS --hostfile $PBS_NODEFILE wrf.exe
+mpirun -x LD_LIBRARY_PATH -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa wrf.exe
+#mpirun -x LD_LIBRARY_PATH -n $NPROCS --hostfile $PBS_NODEFILE wrf.exe
