@@ -149,19 +149,19 @@ def do_connect(args):
     fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
 
     if fqdn == "":
-        log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
+        log.warning(f"The install node does not have a public IP - trying hostname ({jumpbox})")
+ 
+    log.debug("Getting resource name")
 
-    target = args.resource
-    
-    rtype = c.read_value(f"resources.{args.resource}.type")
+    rtype = c.read_value(f"resources.{args.resource}.type", "hostname")
 
     if rtype == "vm":
         instances = c.read_value(f"resources.{args.resource}.instances", 1)
         print(instances)
 
         if instances > 1:
-            target = "{}{:04}".format(args.resource, 1)
-            log.info("Multiple instances of {}, connecting to {}")
+            target = f"{args.resource}{1:04}"
+            log.info(f"Multiple instances of {args.resource}, connecting to {target}")
     
     elif rtype == "vmss":
         vmssnodes = azutil.get_vmss_instances(resource_group, args.resource)
@@ -169,6 +169,13 @@ def do_connect(args):
             log.error("There are no instances in the vmss")
             sys.exit(1)
         target = vmssnodes[0]
+
+    elif rtype == "hostname":
+        target = args.resource
+
+    else:
+        log.debug(f"Unknown resource type - {rtype}")
+        sys.exit(1)
 
     ssh_exe = "ssh"
     cmdline = []

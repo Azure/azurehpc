@@ -187,11 +187,11 @@ class ArmTemplate:
 
         return osprofile
 
-    def __helper_arm_create_datadisks(self, sizes, sku):
+    def __helper_arm_create_datadisks(self, sizes, sku, cache):
         datadisks = []
         for i, d in enumerate(sizes):
             if d < 4096:
-                cacheoption = "ReadWrite"
+                cacheoption = cache
             else:
                 cacheoption = "None"
             datadisks.append({
@@ -229,6 +229,7 @@ class ArmTemplate:
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
+        rstoragecache = res.get("storage_cache", "ReadWrite")
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
@@ -335,7 +336,7 @@ class ArmTemplate:
             })
 
             osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
-            datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku)
+            datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
             imageref = self.__helper_arm_create_image_reference(rimage)
 
             deps = [ "Microsoft.Network/networkInterfaces/"+nicname ]
@@ -399,6 +400,7 @@ class ArmTemplate:
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
+        rstoragecache = res.get("storage_cache", "ReadWrite")
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
@@ -419,7 +421,7 @@ class ArmTemplate:
             deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
 
         osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
-        datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku)
+        datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
         imageref = self.__helper_arm_create_image_reference(rimage)
 
         nicname = r+"nic"

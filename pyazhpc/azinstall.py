@@ -244,12 +244,14 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
                 res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 if res.returncode != 0:
                     logging.error("invalid returncode"+_make_subprocess_error_string(res))
+                    __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
                     sys.exit(1)
 
             elif scripttype == "local_script":
                 res = subprocess.run(instcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 if res.returncode != 0:
                     logging.error("invalid returncode"+_make_subprocess_error_string(res))
+                    __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
                     sys.exit(1)
             
             else:
