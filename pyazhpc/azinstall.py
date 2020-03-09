@@ -189,16 +189,16 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
                 error(f"unrecognised script type ({stype})")
                 sys.exit(1)
             
-            script = step["script"]
-            if os.path.exists(f"scripts/{script}"):
-                log.debug(f"using script from this project ({script})")
-                shutil.copy(f"scripts/{script}", tmpdir+"/scripts")
-            elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
-                log.debug(f"using azhpc script ({script})")
-                shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{script}", tmpdir+"/scripts")
-            else:
-                log.error(f"cannot find script ({script})")
-                sys.exit(1)
+            for script in [ step["script"] ] + step.get("deps", [])
+                if os.path.exists(f"scripts/{script}"):
+                    log.debug(f"using script from this project ({script})")
+                    shutil.copy(f"scripts/{script}", tmpdir+"/scripts")
+                elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
+                    log.debug(f"using azhpc script ({script})")
+                    shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{script}", tmpdir+"/scripts")
+                else:
+                    log.error(f"cannot find script ({script})")
+                    sys.exit(1)
 
 def _make_subprocess_error_string(res):
     return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout.decode("utf-8"), res.stderr.decode("utf-8"))
