@@ -377,6 +377,10 @@ class ArmTemplate:
                 }
             }
 
+            if rlowpri:
+                vmres["properties"]["priority"] = "Spot"
+                vmres["properties"]["evictionPolicy"] = "Deallocate"
+
             if rppg:
                 vmres["properties"]["proximityPlacementGroup"] = {
                     "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups','{}')]".format(rppgname)
@@ -393,6 +397,7 @@ class ArmTemplate:
         rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
+        rfaultdomaincount = cfg.get("fault_domain_count", None)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -478,15 +483,21 @@ class ArmTemplate:
                         ]
                     }
                 },
-                "singlePlacementGroup": True,
-                "platformFaultDomainCount": 5
+                "singlePlacementGroup": True
             }
         }
         
+        if rfaultdomaincount:
+            vmssres["properties"]["virtualMachineProfile"]["platformFaultDomainCount"] = rfaultdomaincount
+
         if rppg:
             vmssres["properties"]["proximityPlacementGroup"] = {
                 "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups','{}')]".format(rppgname)
             }
+
+        if rlowpri:
+            vmssres["properties"]["virtualMachineProfile"]["priority"] = "Spot"
+            vmssres["properties"]["virtualMachineProfile"]["evictionPolicy"] = "Delete"
 
         self.resources.append(vmssres)
 
