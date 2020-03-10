@@ -40,6 +40,7 @@
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
+                "cndefault",
                 "lfsrepo",
                 "lfsclient",
                 "lfsazimport",
@@ -59,6 +60,7 @@
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
+                "cndefault",
                 "lfsrepo",
                 "lfsclient",
                 "localuser",
@@ -85,6 +87,11 @@
         {
             "script": "disable-selinux.sh",
             "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
             "sudo": true
         },
         {
