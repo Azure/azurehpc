@@ -17,6 +17,7 @@
         "lustreimage": "OpenLogic:CentOS:7.6:latest",
         "hpcimage": "OpenLogic:CentOS-HPC:7.6:latest",
         "compute_instances": 2,
+        "lustre_instances": 4,
         "low_priority": false,
         "storage_account": "<NOT-SET>",
         "storage_key": "sakey.{{variables.storage_account}}",
@@ -68,7 +69,7 @@
         "lustre": {
             "type": "vmss",
             "vm_type": "Standard_L32s_v2",
-            "instances": 4,
+            "instances": "variables.lustre_instances",
             "accelerated_networking": true,
             "image": "variables.lustreimage",
             "subnet": "storage",
