@@ -115,8 +115,16 @@ class ConfigFile:
         elif prefix == "secret":
             res = azutil.get_keyvault_secret(parts[1], parts[2])
         elif prefix == "sasurl":
+            log.debug(parts)
             url = azutil.get_storage_url(parts[1])
-            saskey = azutil.get_storage_saskey(parts[1], parts[2])
+            x = parts[-1].split(",")
+            if len(x) == 1:
+                perm = "r"
+            else:
+                perm = x[1]
+                parts[-1] = x[0]
+            saskey = azutil.get_storage_saskey(parts[1], parts[2], perm)
+            log.debug(parts)
             path = ".".join(parts[3:])
             res = f"{url}{path}?{saskey}"
         elif prefix == "fqdn":
@@ -125,10 +133,10 @@ class ConfigFile:
         elif prefix == "sakey":
             res = azutil.get_storage_key(parts[1])
         elif prefix == "saskey":
-            v = parts[2].split(",")
-            if len(v) == 1:
-                v.append("r")
-            res = azutil.get_storage_saskey(parts[1], v[0], v[1])
+            x = parts[2].split(",")
+            if len(x) == 1:
+                x.append("r")
+            res = azutil.get_storage_saskey(parts[1], x[0], x[1])
         elif prefix == "laworkspace":
             res = azutil.get_log_analytics_workspace(parts[1], parts[2])
         elif prefix == "lakey":
