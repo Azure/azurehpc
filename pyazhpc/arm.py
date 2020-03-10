@@ -43,8 +43,67 @@ class ArmTemplate:
                 "subnets": subnets
             }
         }
-
         self.resources.append(res)
+
+        # add route tables first (and keep track of mapping to subnet)
+        route_table_map = {}
+        for route_name in cfg["vnet"].get("routes", {}).keys():
+            route_address_prefix = cfg["vnet"]["routes"][route_name]["address_prefix"]
+            route_next_hop = cfg["vnet"]["routes"][route_name]["next_hop"]
+            route_subnet = cfg["vnet"]["routes"][route_name]["subnet"]
+
+            route_table_map[route_subnet] = route_name
+
+            self.resources.append({
+                "type": "Microsoft.Network/routeTables",
+                "apiVersion": "2019-11-01",
+                "name": route_name,
+                "location": location,
+                "properties": {
+                    "disableBgpRoutePropagation": False,
+                    "routes": [
+                        {
+                            "name": route_name,
+                            "properties": {
+                                "addressPrefix": "1.2.3.4/32",
+                                "nextHopType": "VirtualAppliance",
+                                "nextHopIpAddress": f"[reference('{route_next_hop}nic').ipConfigurations[0].properties.privateIPAddress]"
+                            }
+                        }
+                    ]
+                },
+                "dependsOn": [
+                    f"Microsoft.Network/networkInterfaces/{route_next_hop}nic"
+                ]
+            })
+            self.resources.append({
+                "type": "Microsoft.Network/routeTables/routes",
+                "apiVersion": "2019-11-01",
+                "name": f"{route_name}/{route_name}",
+                "dependsOn": [
+                    f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
+                ],
+                "properties": {
+                    "addressPrefix": "1.2.3.4/32",
+                    "nextHopType": "VirtualAppliance",
+                    "nextHopIpAddress": f"[reference('{route_next_hop}nic').ipConfigurations[0].properties.privateIPAddress]"
+                }
+            })
+            subnet_address_prefix = cfg["vnet"]["subnets"][route_subnet]
+            self.resources.append({
+                "type": "Microsoft.Network/virtualNetworks/subnets",
+                "apiVersion": "2019-11-01",
+                "name": f"{vnet_name}/{route_subnet}",
+                "dependsOn": [
+                    f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
+                ],
+                "properties": {
+                    "addressPrefix": subnet_address_prefix,
+                    "routeTable": {
+                       "id": f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
+                    }
+                }
+            })
 
     def _add_netapp(self, cfg, name):
         account = cfg["storage"][name]
@@ -523,7 +582,7 @@ class ArmTemplate:
                 self._add_netapp(cfg, s)
             else:
                 log.error("unrecognised storage type ({}) for {}".format(stype, s))
-
+        
     def to_json(self):
         return json.dumps({
             "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
