@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import json
 import logging
 import os
@@ -326,9 +327,20 @@ def do_build(args):
         f.write(tpl.to_json())
 
     log.info("creating resource group " + config["resource_group"])
+    #'CreatedBy='$USER'' 'CreatedOn='$(date +%Y%m%d-%H%M%S)'' \
     azutil.create_resource_group(
         config["resource_group"],
-        config["location"]
+        config["location"],
+        [
+            {
+                "key": "CreatedBy",
+                "value": os.getenv("USER")
+            },
+            {
+                "key": "CreatedOn",
+                "value": datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            }
+        ]
     )
     log.info("deploying arm template")
     deployname = azutil.deploy(

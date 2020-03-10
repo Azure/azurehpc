@@ -65,13 +65,17 @@ def get_vmss_instances(resource_group, vmss_name):
     names = [ x.decode("utf-8") for x in res.stdout.splitlines() ]
     return names
 
-def create_resource_group(resource_group, location):
+def create_resource_group(resource_group, location, tags=None):
     log.debug("creating resource group")
+    if tags is None:
+        tag_args = []
+    else:
+        tag_args = [ "--tags" ] + [ f"{t['key']}={t['value']}" for t in tags ]
     cmd = [
         "az", "group", "create",
             "--name", resource_group,
             "--location", location
-    ]
+    ] + tag_args
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
