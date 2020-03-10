@@ -125,7 +125,10 @@ class ConfigFile:
         elif prefix == "sakey":
             res = azutil.get_storage_key(parts[1])
         elif prefix == "saskey":
-            res = azutil.get_storage_saskey(parts[1], parts[2])
+            v = parts[2].split(",")
+            if len(v) == 1:
+                v.append("r")
+            res = azutil.get_storage_saskey(parts[1], v[0], v[1])
         elif prefix == "laworkspace":
             res = azutil.get_log_analytics_workspace(parts[1], parts[2])
         elif prefix == "lakey":

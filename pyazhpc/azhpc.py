@@ -366,7 +366,7 @@ def do_build(args):
     if success:
         log.info("Provising succeeded")
     else:
-        logging.error("Provisioning failed")
+        log.error("Provisioning failed")
         for i in res:
             props = i["properties"]
             status_code = props["statusCode"]
