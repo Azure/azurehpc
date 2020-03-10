@@ -22,6 +22,7 @@ Build/install spack using the build script.  This will install spack into /apps/
     build_spack.sh <SKU_TYPE> <EMAIL_ADDRESS> <STORAGE_ENDPOINT>
 ```
 Where <SKU_TYPE> is hb, hbv2 or hc (used as sku identifier to indicate which SKU the software was built on), <EMAIL_ADDRESS> will be associated with the GPG key that is generated (used when accessing/downloading pre-built binaries from a build cache) and <STORAGE_ENDPOINT> is the storage account used to store the buildcache.
+>note If the SKU_TYPE command line argument is the only arg given then spack will be installed and set-up without buildcache support.
 
 Example, building and installing osu-micro-benchmarks using different MPI libraries (from CentOS-HPC 7.7 image)
 

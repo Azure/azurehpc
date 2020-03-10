@@ -37,6 +37,8 @@ cp ${APPS_SPACK_DIR}/packages.yaml ~/.spack
 cp ${APPS_SPACK_DIR}/compilers.yaml ~/.spack
 mkdir -p /apps/spack/${sku_type}
 
+if [ ! -z $email_address ] && [ ! -z $STORAGE_ENDPOINT ]; then
 spack gpg init
 spack gpg create ${sku_type}_gpg $email_address
-#spack mirror add ${sku_type}_buildcache ${STORAGE_ENDPOINT}/buildcache/${sku_type}
+spack mirror add ${sku_type}_buildcache ${STORAGE_ENDPOINT}/buildcache/${sku_type}
+fi

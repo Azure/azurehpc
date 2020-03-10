@@ -30,7 +30,7 @@ azhpc-connect -u hpcuser headnode
 ```
 apps/wrf/install_wrf_openmpi.sh 
 ```
-> Note: Set SKU_TYPE to the type of sku you are using (e.h hb, hbv2 or hc).
+> Note: Set SKU_TYPE to the type of sku you are using (e.h hb, hbv2 or hc). To install the hybrid parallel version use the install_wrf_omp_openmpi.sh script instead.
 
 Run the WPS installation script if you need to install WPS (WRF needs to be installed first)
 ```
