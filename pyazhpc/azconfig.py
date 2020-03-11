@@ -125,7 +125,7 @@ class ConfigFile:
                 parts[-1] = x[0]
             saskey = azutil.get_storage_saskey(parts[1], parts[2], perm)
             log.debug(parts)
-            path = ".".join(parts[3:])
+            path = ".".join(parts[2:])
             res = f"{url}{path}?{saskey}"
         elif prefix == "fqdn":
             pass
