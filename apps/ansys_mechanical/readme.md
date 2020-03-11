@@ -22,7 +22,7 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 
 ### Install Prerequisite Software
 ```
-azhpc-run -u hpcuser -n "headnode compute" ~/apps/ansys_mechanical/scripts/add_reqs.sh
+azhpc-run -u hpcuser -n "headnode compute" ~/apps/ansys_mechanical/scripts/add_pkgs.sh
 ```
 
 ### Install Ansys Mechanical
