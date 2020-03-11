@@ -29,7 +29,7 @@ if [ "$1" != "" ]; then
     tag=tags/$1
 else
     sudo yum install -y epel-release > {logfile} 2>&1
-    sudo yum install -y pssh nc >> {logfile} 2>&1
+    sudo yum install -y pssh nc jq >> {logfile} 2>&1
 
     # setting up keys
     cat <<EOF > ~/.ssh/config

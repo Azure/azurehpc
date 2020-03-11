@@ -1,10 +1,10 @@
 # -------------------------------------------------------------------------
 packages:
-  openmpi@4.0.2:
+  openmpi:
     modules:
        openmpi@4.0.2%gcc@9.2.0: mpi/openmpi-4.0.2
     buildable: False
-  mvapich2@2.3.2:
+  mvapich2:
     modules:
        mvapich2@2.3.2%gcc@9.2.0: mpi/mvapich2-2.3.2
     buildable: False
@@ -16,7 +16,7 @@ packages:
     paths:
        intel-mpi@2019.5.281: /opt/intel/compilers_and_libraries_2019.5.281/linux/mpi
     buildable: False
-  gcc@9.2.0:
+  gcc:
     modules:
        gcc@9.2.0: gcc-9.2.0
     buildable: False
