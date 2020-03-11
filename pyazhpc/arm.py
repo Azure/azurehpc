@@ -44,6 +44,66 @@ class ArmTemplate:
             }
         }
         self.resources.append(res)
+        
+        resource_group = cfg["resource_group"]
+        for peer_name in cfg["vnet"].get("peer", {}).keys():
+            peer_resource_group = cfg["vnet"]["peer"][peer_name]["resource_group"]
+            peer_vnet_name = cfg["vnet"]["peer"][peer_name]["vnet_name"]
+
+            self.resources.append({
+                "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                "apiVersion": "2019-11-01",
+                "name": f"{vnet_name}/{peer_name}-{peer_resource_group}",
+                "properties": {
+                    "remoteVirtualNetwork": {
+                        "id": f"[resourceId('{peer_resource_group}', 'Microsoft.Network/virtualNetworks', '{peer_vnet_name}')]"
+                    },
+                    "allowVirtualNetworkAccess": True,
+                    "allowForwardedTraffic": True,
+                    "allowGatewayTransit": False,
+                    "useRemoteGateways": False,
+                },
+                "dependsOn": [
+                    f"Microsoft.Network/virtualNetworks/{vnet_name}"
+                ]
+            })
+
+            self.resources.append({
+                "type": "Microsoft.Resources/deployments",
+                "apiVersion": "2017-05-10",
+                "name": f"{peer_resource_group}peer",
+                "resourceGroup": peer_resource_group,
+                "properties": {
+                    "mode": "Incremental",
+                    "template": {
+                        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                        "contentVersion": "1.0.0.0",
+                        "parameters": {},
+                        "variables": {},
+                        "resources": [
+                            {
+                                "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                                "apiVersion": "2019-11-01",
+                                "name": f"{peer_vnet_name}/{peer_name}-{resource_group}",
+                                "properties": {
+                                    "remoteVirtualNetwork": {
+                                        "id": f"[resourceId('{resource_group}', 'Microsoft.Network/virtualNetworks', '{vnet_name}')]"
+                                    },
+                                    "allowVirtualNetworkAccess": True,
+                                    "allowForwardedTraffic": True,
+                                    "allowGatewayTransit": False,
+                                    "useRemoteGateways": False
+                                }
+                            }
+                        ],
+                        "outputs": {}
+                    },
+                    "parameters": {}
+                },
+                "dependsOn": [
+                    f"Microsoft.Network/virtualNetworks/{vnet_name}"
+                ]
+            })
 
         # add route tables first (and keep track of mapping to subnet)
         route_table_map = {}
