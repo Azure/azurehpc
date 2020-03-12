@@ -156,10 +156,11 @@ def do_connect(args):
 
     rtype = c.read_value(f"resources.{args.resource}.type", "hostname")
 
+    target = args.resource
+
     if rtype == "vm":
         instances = c.read_value(f"resources.{args.resource}.instances", 1)
-        print(instances)
-
+        
         if instances > 1:
             target = f"{args.resource}{1:04}"
             log.info(f"Multiple instances of {args.resource}, connecting to {target}")
@@ -170,9 +171,11 @@ def do_connect(args):
             log.error("There are no instances in the vmss")
             sys.exit(1)
         target = vmssnodes[0]
+        if len(vmssnodes) > 1:
+            log.info(f"Multiple instances of {args.resource}, connecting to {target}")
 
     elif rtype == "hostname":
-        target = args.resource
+        pass
 
     else:
         log.debug(f"Unknown resource type - {rtype}")
