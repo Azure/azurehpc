@@ -407,8 +407,10 @@ def do_build(args):
     fqdn = None
     if jumpbox:
         fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
-    log.info("running install scripts")
-    azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
+        log.info("running install scripts")
+        azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
+    else:
+        log.info("nothing to install ('install_from' is not set)")
 
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))
