@@ -76,6 +76,7 @@
             "image": "variables.lustreimage",
             "subnet": "storage",
             "tags": [
+                "cndefault",
                 "lustre",
                 "lfsrepo",
                 "disable-selinux",

@@ -105,6 +105,33 @@ class ArmTemplate:
                 ]
             })
 
+        # private dns
+        dns_domain = cfg["vnet"].get("dns_domain", None)
+        if dns_domain:
+            log.info(f"add private dns ({dns_domain})")
+            self.resources.append({
+                "type": "Microsoft.Network/privateDnsZones",
+                "apiVersion": "2018-09-01",
+                "name": dns_domain,
+                "location": "global",
+                "properties": {},
+                "resources": [{
+                    "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                    "apiVersion": "2018-09-01",
+                    "name": f"[concat('{dns_domain}', '/{vnet_name}')]",
+                    "location": "global",
+                    "dependsOn": [
+                        f"[resourceId('Microsoft.Network/privateDnsZones', '{dns_domain}')]"
+                    ],
+                    "properties": {
+                        "registrationEnabled": True,
+                        "virtualNetwork": {
+                            "id": f"[resourceId('Microsoft.Network/virtualNetworks', '{vnet_name}')]"
+                        }
+                    }
+                }]
+            })
+
         # add route tables first (and keep track of mapping to subnet)
         route_table_map = {}
         for route_name in cfg["vnet"].get("routes", {}).keys():
