@@ -330,6 +330,8 @@ def do_build(args):
         f.write(tpl.to_json())
 
     log.info("creating resource group " + config["resource_group"])
+
+    resource_tags = config.get("resource_tags", {})
     #'CreatedBy='$USER'' 'CreatedOn='$(date +%Y%m%d-%H%M%S)'' \
     azutil.create_resource_group(
         config["resource_group"],
@@ -343,7 +345,7 @@ def do_build(args):
                 "key": "CreatedOn",
                 "value": datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             }
-        ]
+        ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
     )
     log.info("deploying arm template")
     deployname = azutil.deploy(

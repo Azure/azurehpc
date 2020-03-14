@@ -376,6 +376,7 @@ class ArmTemplate:
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
+        rtags = res.get("resource_tags", {})
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
@@ -495,7 +496,7 @@ class ArmTemplate:
                 "name": r,
                 "location": loc,
                 "dependsOn": deps,
-                "tags": {},
+                "tags": rtags,
                 "properties": {
                     "hardwareProfile": {
                         "vmSize": rsize
@@ -555,6 +556,7 @@ class ArmTemplate:
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
+        rtags = res.get("resource_tags", {})
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
         if vnetrg == rrg:
@@ -583,7 +585,7 @@ class ArmTemplate:
             "name": r,
             "location": loc,
             "dependsOn": deps,
-            "tags": {},
+            "tags": rtags,
             "sku": {
                 "name": rsize,
                 "capacity": rinstances
