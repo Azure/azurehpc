@@ -201,7 +201,7 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     shutil.copy(sshpubkey, tmpdir)
     shutil.copy(sshprivkey, tmpdir)
 
-    os.makedirs("scripts")
+    os.makedirs("scripts", exist_ok=True)
     _create_anf_mount_scripts(cfg, "scripts/auto_netappfiles_mount.sh")
 
     if jb and jb in cfg.get("resources", {}):
