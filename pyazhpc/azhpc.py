@@ -198,7 +198,7 @@ def do_connect(args):
         log.debug(" ".join(ssh_args + cmdline))
         os.execvp(ssh_exe, ssh_args + cmdline)
     else:
-        log.info("loggging in to {} (via {})".format(target, fqdn))
+        log.info("logging in to {} (via {})".format(target, fqdn))
         ssh_args = [
             ssh_exe, "-t", "-q",
             "-o", "StrictHostKeyChecking=no",
