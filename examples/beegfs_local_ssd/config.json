@@ -77,8 +77,8 @@
         },
         "beegfssm": {
             "type": "vmss",
-            "vm_type": "Standard_D4_v3",
-            "instances": 2,
+            "vm_type": "Standard_D16s_v3",
+            "instances": 4,
             "accelerated_networking": true,
             "image": "variables.image",
             "subnet": "compute",
