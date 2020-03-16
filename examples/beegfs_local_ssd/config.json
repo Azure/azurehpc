@@ -86,6 +86,7 @@
                 "beegfspkgs",
                 "beegfssd",
                 "beegfsmd",
+                "cndefault",
                 "disable-selinux"
             ]
         }
