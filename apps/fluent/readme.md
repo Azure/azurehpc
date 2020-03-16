@@ -56,7 +56,7 @@ for ppn in 60 45 30; do
         mkdir $name
         cd $name
         cp ../run_hpcx.sh .
-        qsub -l select=${nodes}:ncpus=${ppn}:mpiprocs=${ppn},place=scatter:excl -N $name ./run_hpcx.sh
+        qsub -l select=${nodes}:ncpus=${ppn}:mpiprocs=${ppn},place=scatter:excl -N $name ./run_fluent_hpcx.sh
         cd -
     done
 done
