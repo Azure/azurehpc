@@ -6,6 +6,8 @@
     "variables" : {
         "image" : "OpenLogic:CentOS:7.7:latest",
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "compute_instances": 4,
+        "vm_type": "Standard_HC44rs",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
@@ -46,8 +48,8 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HC44rs",
-            "instances": 2,
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
