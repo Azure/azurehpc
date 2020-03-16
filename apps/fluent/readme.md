@@ -32,11 +32,20 @@ azhpc-run -u hpcuser  apps/fluent/install_fluent.sh
 azhpc-connect -u hpcuser headnode
 ```
 
+## Setup the benchmark files
+
+Copy the benchmark tarball to /apps/ansys_inc/v193/fluent then run
+
+```
+tar xvf <tarfilename>.tar
+```
+
+This will place the required files where fluent will find them
+
 ## Running
 
 NOTE: In the run script you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
 
-Copy the benchmark to /apps/ansys_inc/v193/fluent
 
 Now, you can run as follows:
 
