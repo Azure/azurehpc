@@ -392,8 +392,11 @@ def do_build(args):
                     if "error" in props["statusMessage"]:
                         error_code = props["statusMessage"]["error"]["code"]
                         error_message = textwrap.TextWrapper(width=60).wrap(text=props["statusMessage"]["error"]["message"])
-                        error_target = props["statusMessage"]["error"]["target"]
-                        print(f"  Resource : {resource_name} - {error_code} ({error_target})")
+                        error_target = props["statusMessage"]["error"].get("target", None)
+                        error_target_str = ""
+                        if error_target:
+                            error_target_str = f"({error_target})"
+                        print(f"  Resource : {resource_name} - {error_code} {error_target_str}")
                         print(f"  Message  : {error_message[0]}")
                         for line in error_message[1:]:
                             print(f"             {line}")
