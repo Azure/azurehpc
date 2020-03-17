@@ -11,7 +11,9 @@
         "vnet_resource_group": "variables.resource_group",
         "compute_instances": 4,
         "vm_type": "Standard_HC44rs",
-        "anf_mount": "/netapps"
+        "anf_mount": "/netapps",
+        "anf_volume_size": 4,
+        "anf_service": "Premium"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -30,11 +32,11 @@
             "subnet": "storage",
             "pools": {
                 "anfpool" : {
-                    "size": 4,
-                    "service_level": "Premium",
+                    "size": "variables.anf_volume_size",
+                    "service_level": "variables.anf_service",
                     "volumes": {
                         "anfvol1" : {
-                            "size": 4,
+                            "size": "variables.anf_volume_size",
                             "mount": "variables.anf_mount"
                         }
                     }
