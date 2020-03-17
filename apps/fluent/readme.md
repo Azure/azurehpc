@@ -44,7 +44,7 @@ This will place the required files where fluent will find them
 
 ## Running
 
-NOTE: In the run script you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
+NOTE: In the run script (run_fluent_hpcx.sh) you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
 
 
 Now, you can run as follows:
