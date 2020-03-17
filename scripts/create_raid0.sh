@@ -20,7 +20,7 @@ for disk in $devices; do
     parted -s $disk print
     parted -s $disk "set 1 raid on"
 
-    partitions="$partitions ${disk}p1"
+    partitions="$partitions $(fdisk -l $disk | grep '^/dev' | cut -d' ' -f1)"
 done
 
 ndevices=$(echo $partitions | wc -w)
