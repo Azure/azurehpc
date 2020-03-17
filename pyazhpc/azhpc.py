@@ -332,7 +332,6 @@ def do_build(args):
     log.info("creating resource group " + config["resource_group"])
 
     resource_tags = config.get("resource_tags", {})
-    #'CreatedBy='$USER'' 'CreatedOn='$(date +%Y%m%d-%H%M%S)'' \
     azutil.create_resource_group(
         config["resource_group"],
         config["location"],

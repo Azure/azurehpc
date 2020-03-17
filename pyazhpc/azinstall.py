@@ -168,12 +168,41 @@ def generate_hostlists(cfg, tmpdir):
         with open(f"{tmpdir}/hostlists/tags/{n}", "w") as f:
             f.writelines(f"{h}\n" for h in tags[n])
 
+def _create_anf_mount_scripts(cfg, scriptfile):
+    script = """#!/bin/bash
+yum install -y nfs-utils
+"""
+    resource_group = cfg["resource_group"]
+    # loop over all anf accounts
+    accounts = [ x for x in cfg.get("storage",{}) if cfg["storage"][x]["type"] == "anf" ]
+    for account in accounts:
+        pools = cfg["storage"][account].get("pools",{}).keys()
+        for pool in pools:
+            volumes = cfg["storage"][account]["pools"][pool].get("volumes",{}).keys()
+            for volume in volumes:
+                ip = azutil.get_anf_volume_ip(resource_group, account, pool, volume)
+                mount_point = cfg["storage"][account]["pools"][pool]["volumes"][volume]["mount"]
+                script += f"""
+mkdir -p {mount_point}
+chmod 777 {mount_point}
+echo "{ip}:/{volume} {mount_point} nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0" >>/etc/fstab
+"""
+    script += """
+mount -a
+"""
+    with open(scriptfile, "w") as f:
+        os.chmod(scriptfile, 0o755)
+        f.write(script) 
+
 def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     jb = cfg.get("install_from", None)
     os.makedirs(tmpdir+"/install")
     os.makedirs(tmpdir+"/scripts")
     shutil.copy(sshpubkey, tmpdir)
     shutil.copy(sshprivkey, tmpdir)
+
+    os.makedirs("scripts", exist_ok=True)
+    _create_anf_mount_scripts(cfg, "scripts/auto_netappfiles_mount.sh")
 
     if jb and jb in cfg.get("resources", {}):
         inst = cfg.get("install", [])
