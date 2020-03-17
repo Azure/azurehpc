@@ -8,7 +8,10 @@
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
-        "vnet_resource_group": "variables.resource_group"
+        "vnet_resource_group": "variables.resource_group",
+        "compute_instances": 4,
+        "vm_type": "Standard_HC44rs",
+        "anf_mount": "/netapps"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -32,7 +35,7 @@
                     "volumes": {
                         "anfvol1" : {
                             "size": 4,
-                            "mount": "/netapps"
+                            "mount": "variables.anf_mount"
                         }
                     }
                 }
@@ -58,8 +61,8 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HC44rs",
-            "instances": 2,
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
@@ -91,7 +94,7 @@
         {
             "script": "replace_nfs_with_anf.sh",
             "args": [
-                "/netapps"
+                "variables.anf_mount"
             ],
             "tag": "replace_nfs_with_anf",
             "sudo": true
