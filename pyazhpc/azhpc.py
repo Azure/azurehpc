@@ -156,10 +156,11 @@ def do_connect(args):
 
     rtype = c.read_value(f"resources.{args.resource}.type", "hostname")
 
+    target = args.resource
+
     if rtype == "vm":
         instances = c.read_value(f"resources.{args.resource}.instances", 1)
-        print(instances)
-
+        
         if instances > 1:
             target = f"{args.resource}{1:04}"
             log.info(f"Multiple instances of {args.resource}, connecting to {target}")
@@ -170,9 +171,11 @@ def do_connect(args):
             log.error("There are no instances in the vmss")
             sys.exit(1)
         target = vmssnodes[0]
+        if len(vmssnodes) > 1:
+            log.info(f"Multiple instances of {args.resource}, connecting to {target}")
 
     elif rtype == "hostname":
-        target = args.resource
+        pass
 
     else:
         log.debug(f"Unknown resource type - {rtype}")
@@ -195,7 +198,7 @@ def do_connect(args):
         log.debug(" ".join(ssh_args + cmdline))
         os.execvp(ssh_exe, ssh_args + cmdline)
     else:
-        log.info("loggging in to {} (via {})".format(target, fqdn))
+        log.info("logging in to {} (via {})".format(target, fqdn))
         ssh_args = [
             ssh_exe, "-t", "-q",
             "-o", "StrictHostKeyChecking=no",
@@ -327,7 +330,8 @@ def do_build(args):
         f.write(tpl.to_json())
 
     log.info("creating resource group " + config["resource_group"])
-    #'CreatedBy='$USER'' 'CreatedOn='$(date +%Y%m%d-%H%M%S)'' \
+
+    resource_tags = config.get("resource_tags", {})
     azutil.create_resource_group(
         config["resource_group"],
         config["location"],
@@ -340,7 +344,7 @@ def do_build(args):
                 "key": "CreatedOn",
                 "value": datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             }
-        ]
+        ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
     )
     log.info("deploying arm template")
     deployname = azutil.deploy(
@@ -404,8 +408,10 @@ def do_build(args):
     fqdn = None
     if jumpbox:
         fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
-    log.info("running install scripts")
-    azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
+        log.info("running install scripts")
+        azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
+    else:
+        log.info("nothing to install ('install_from' is not set)")
 
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))

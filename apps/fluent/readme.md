@@ -32,11 +32,20 @@ azhpc-run -u hpcuser  apps/fluent/install_fluent.sh
 azhpc-connect -u hpcuser headnode
 ```
 
+## Setup the benchmark files
+
+Copy the benchmark tarball to /apps/ansys_inc/v193/fluent then run
+
+```
+tar xvf <tarfilename>.tar
+```
+
+This will place the required files where fluent will find them
+
 ## Running
 
-NOTE: In the run script you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
+NOTE: In the run script (run_fluent_hpcx.sh) you will need to update the license server.  Currently it is set to localhost which would require a tunnel to be created (currently the ssh tunnel command commented out in the script).
 
-Copy the benchmark to /apps/ansys_inc/v193/fluent
 
 Now, you can run as follows:
 
@@ -46,8 +55,8 @@ for ppn in 60 45 30; do
         name=racecar_hpcx_${nodes}x${ppn}
         mkdir $name
         cd $name
-        cp ../run_hpcx.sh .
-        qsub -l select=${nodes}:ncpus=${ppn}:mpiprocs=${ppn},place=scatter:excl -N $name ./run_hpcx.sh
+        cp ../run_fluent_hpcx.sh .
+        qsub -l select=${nodes}:ncpus=${ppn}:mpiprocs=${ppn},place=scatter:excl -N $name ./run_fluent_hpcx.sh
         cd -
     done
 done

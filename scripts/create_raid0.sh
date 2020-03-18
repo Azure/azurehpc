@@ -20,7 +20,7 @@ for disk in $devices; do
     parted -s $disk print
     parted -s $disk "set 1 raid on"
 
-    partitions="$partitions ${disk}p1"
+    partitions="$partitions $(lsblk -no kname -p $disk | tail -n1)"
 done
 
 ndevices=$(echo $partitions | wc -w)

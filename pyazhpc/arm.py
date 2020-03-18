@@ -105,6 +105,33 @@ class ArmTemplate:
                 ]
             })
 
+        # private dns
+        dns_domain = cfg["vnet"].get("dns_domain", None)
+        if dns_domain:
+            log.info(f"add private dns ({dns_domain})")
+            self.resources.append({
+                "type": "Microsoft.Network/privateDnsZones",
+                "apiVersion": "2018-09-01",
+                "name": dns_domain,
+                "location": "global",
+                "properties": {},
+                "resources": [{
+                    "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                    "apiVersion": "2018-09-01",
+                    "name": f"[concat('{dns_domain}', '/{vnet_name}')]",
+                    "location": "global",
+                    "dependsOn": [
+                        f"[resourceId('Microsoft.Network/privateDnsZones', '{dns_domain}')]"
+                    ],
+                    "properties": {
+                        "registrationEnabled": True,
+                        "virtualNetwork": {
+                            "id": f"[resourceId('Microsoft.Network/virtualNetworks', '{vnet_name}')]"
+                        }
+                    }
+                }]
+            })
+
         # add route tables first (and keep track of mapping to subnet)
         route_table_map = {}
         for route_name in cfg["vnet"].get("routes", {}).keys():
@@ -349,6 +376,7 @@ class ArmTemplate:
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
+        rtags = res.get("resource_tags", {})
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
@@ -468,7 +496,7 @@ class ArmTemplate:
                 "name": r,
                 "location": loc,
                 "dependsOn": deps,
-                "tags": {},
+                "tags": rtags,
                 "properties": {
                     "hardwareProfile": {
                         "vmSize": rsize
@@ -528,6 +556,7 @@ class ArmTemplate:
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
+        rtags = res.get("resource_tags", {})
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
         if vnetrg == rrg:
@@ -556,7 +585,7 @@ class ArmTemplate:
             "name": r,
             "location": loc,
             "dependsOn": deps,
-            "tags": {},
+            "tags": rtags,
             "sku": {
                 "name": rsize,
                 "capacity": rinstances

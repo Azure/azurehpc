@@ -229,6 +229,25 @@ def get_log_analytics_key(resource_group, name):
     saskey = out[0].decode('utf-8')
     return saskey
 
+def get_anf_volume_ip(resource_group, account, pool, volume):
+    cmd = [ 
+        "az", "netappfiles", "list-mount-targets",
+            "--resource-group", resource_group,
+            "--account-name", account,
+            "--pool-name", pool,
+            "--volume-name", volume,
+            "--query", "[0].ipAddress",
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+    out = res.stdout.splitlines()
+    if len(out) != 1:
+        log.error("unexpected output"+_make_subprocess_error_string(res))
+    ip = out[0].decode('utf-8')
+    return ip
+
 def get_acr_key(name):
     cmd = [
         "az", "acr", "credential", "show",
