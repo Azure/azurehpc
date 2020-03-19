@@ -30,4 +30,4 @@ popd >/dev/null
 
 export PATH=${DIR}/bin:$PATH
 export azhpc_dir=$DIR
-
+export azhpc_pypath=$(az --version | grep "Python location" | cut -d' ' -f3 | sed "s/'//g")
