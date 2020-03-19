@@ -55,7 +55,7 @@
   },
   "install": [
     {
-      "script": "auto_netappfiles_mount_anfpool.sh",
+      "script": "auto_netappfiles_mount.sh",
       "tag": "netapp-client",
       "sudo": true
   }

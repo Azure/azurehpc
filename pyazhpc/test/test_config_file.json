@@ -1,0 +1,9 @@
+{
+    "int_value": 42,
+    "bool_value": true,
+    "use_variable": "variables.simple_variable",
+    "double_curly_braces": "simple_variable={{variables.simple_variable}}",
+    "variables": {
+        "simple_variable": 42
+    }
+}

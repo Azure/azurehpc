@@ -3,7 +3,7 @@
 # parameters that can be overridden
 APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
 TMP_DIR=${TMP_DIR:-/mnt/resource}
-STARCCM_INSTALLER_FILE=${STARCCM_INSTALLER_FILE:-/mnt/resource/STAR-CCM+14.04.013_01_linux-x86_64-2.12_gnu7.1.zip}
+STARCCM_INSTALLER_FILE=${STARCCM_INSTALLER_FILE:-/mnt/resource/STAR-CCM+14.06.012_01_linux-x86_64-2.12_gnu7.1.zip}
 
 if [ ! -e $STARCCM_INSTALLER_FILE ]; then
     echo "Error:  $STARCCM_INSTALLER_FILE does not exist"

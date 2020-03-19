@@ -9,15 +9,13 @@
     "location": "<NOT-SET>",
     "vm_type": "Standard_HB60rs",
     "resource_group": "<NOT-SET>",
-    "vnet_resource_group": "variables.resource_group",
-    "ad_image": "MicrosoftWindowsServer:WindowsServer:2012-R2-Datacenter:latest",
+    "ad_image": "MicrosoftWindowsServer:WindowsServer:2019-Datacenter:latest",
     "ad_domain": "MyDomain.local",
     "ad_admin": "hpcadmin",
     "win_password": "<NOT-SET>",
     "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest"
   },
   "vnet": {
-    "resource_group": "variables.vnet_resource_group",
     "name": "hpcvnet",
     "address_prefix": "10.2.0.0/20",
     "subnets": {
@@ -32,6 +30,7 @@
       "public_ip": "true",
       "password": "variables.win_password",
       "vm_type": "Standard_D8_v3",
+      "os_disk_size": "127",
       "image": "variables.ad_image",
       "subnet": "admin",
       "tags": [
@@ -43,14 +42,17 @@
        "public_ip": "true",
        "password": "variables.win_password",
        "vm_type": "Standard_NV6",
+      "os_disk_size": "127",
        "image": "variables.nv_image",
        "subnet": "viz",
        "tags": [
             ]
     }
   },
-  "post_install": {
+  "install": [
+     {
         "script": "setup_win_join_domain.sh",
+        "type": "local_script",
         "args": [
             "variables.resource_group",
             "nvnode",
@@ -59,5 +61,6 @@
             "variables.ad_admin",
             "variables.win_password"
         ]
-   }
+     }
+  ]
 }

@@ -6,13 +6,13 @@
 #PBS -joe
 #PBS -l walltime=1800
 
-OMPI_ROOT=openmpi-4.0.1
+OMPI_ROOT=openmpi-4.0.2
 SHARED_APP=/apps
 SHARED_DATA=/data
 source /etc/profile # so we can load modules
 module use $SHARED_APP/modulefiles
 module load opm/v2019.04
-module load gcc-8.2.0
+module load gcc-9.2.0
 module load mpi/$OMPI_ROOT
 
 export OPAL_PREFIX=$MPI_HOME

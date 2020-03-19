@@ -14,12 +14,19 @@
     "variables": {
         "resource_group": "<NOT-SET>",
         "image": "OpenLogic:CentOS:7.6:latest",
+        "lustreimage": "OpenLogic:CentOS:7.6:latest",
+        "hpcimage": "OpenLogic:CentOS-HPC:7.6:latest",
+        "compute_instances": 2,
+        "lustre_instances": 4,
+        "low_priority": false,
         "storage_account": "<NOT-SET>",
-        "storage_key": "<NOT-SET>",
+        "storage_key": "sakey.{{variables.storage_account}}",
         "storage_container": "<NOT-SET>",
         "log_analytics_lfs_name": "<NOT-SET>",
-        "log_analytics_workspace": "<NOT-SET>",
-        "log_analytics_key": "<NOT-SET>",
+        "la_resourcegroup": "<NOT-SET>",
+        "la_name": "<NOT-SET>",
+        "log_analytics_workspace": "laworkspace.{{variables.la_resourcegroup}}.{{variables.la_name}}",
+        "log_analytics_key": "lakey.{{variables.la_resourcegroup}}.{{variables.la_name}}",
         "lustre_version": "2.10",
         "lustre_mount": "/lustre"
     },
@@ -33,41 +40,43 @@
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
+                "cndefault",
                 "lfsrepo",
                 "lfsclient",
                 "lfsazimport",
                 "localuser",
                 "pbsserver",
                 "loginnode",
-                "nfsserver",
-                "addmpich"
+                "nfsserver"
             ]
         },
         "compute": {
             "type": "vmss",
             "vm_type": "Standard_D32s_v3",
             "accelerated_networking": true,
-            "instances": 2,
-            "image": "variables.image",
+            "instances": "variables.compute_instances",
+            "low_priority": "variables.low_priority",
+            "image": "variables.hpcimage",
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
+                "cndefault",
                 "lfsrepo",
                 "lfsclient",
                 "localuser",
                 "pbsclient",
-                "nfsclient",
-                "addmpich"
+                "nfsclient"
             ]
         },
         "lustre": {
             "type": "vmss",
             "vm_type": "Standard_L32s_v2",
-            "instances": 4,
+            "instances": "variables.lustre_instances",
             "accelerated_networking": true,
-            "image": "variables.image",
+            "image": "variables.lustreimage",
             "subnet": "storage",
             "tags": [
+                "cndefault",
                 "lustre",
                 "lfsrepo",
                 "disable-selinux",
@@ -79,6 +88,11 @@
         {
             "script": "disable-selinux.sh",
             "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
             "sudo": true
         },
         {
@@ -207,11 +221,7 @@
             ],
             "tag": "pbsclient",
             "sudo": false
-        },
-        {
-            "script": "addmpich.sh",
-            "sudo": true,
-            "tag": "addmpich"
         }
+       
     ]
 }

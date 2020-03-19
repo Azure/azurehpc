@@ -14,17 +14,13 @@ done
 
 partitions=
 for disk in $devices; do
-    fdisk $disk << EOF
-n
-p
-1
 
+    parted -s $disk "mklabel gpt"
+    parted -s $disk -a optimal "mkpart primary 1 -1"
+    parted -s $disk print
+    parted -s $disk "set 1 raid on"
 
-t
-fd
-w
-EOF
-    partitions="$partitions $(fdisk -l $disk | grep '^/dev' | cut -d' ' -f1)"
+    partitions="$partitions $(lsblk -no kname -p $disk | tail -n1)"
 done
 
 ndevices=$(echo $partitions | wc -w)
@@ -32,3 +28,5 @@ ndevices=$(echo $partitions | wc -w)
 sleep 10
 mdadm --create $raid_device --level 0 --raid-devices $ndevices $partitions
 sleep 10
+
+mdadm --verbose --detail --scan > /etc/mdadm.conf

@@ -1,0 +1,42 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "proximity_placement_group_name": "test-ppg",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "image": "OpenLogic:CentOS:7.6:latest",
+        "location": "westeurope",
+        "resource_group": "pyazhpc-test-vm-and-vmss-with-ppg",
+        "vm_type": "Standard_D8s_v3"
+    },
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "proximity_placement_group": true,
+            "data_disks": [ 1024, 4096 ],
+            "image": "variables.image",
+            "accelerated_networking": true,
+            "subnet": "compute"
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": 2,
+            "proximity_placement_group": true,
+            "image": "variables.image",
+            "accelerated_networking": true,
+            "subnet": "compute"
+        }
+    },
+    "install": []
+}

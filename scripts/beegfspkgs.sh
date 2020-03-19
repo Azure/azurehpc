@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+BEEGFS_VER=${1-7_1.713}
+
 KERNEL=$(uname -r)
 echo "Kernel version is $KERNEL"
 #
@@ -11,7 +13,9 @@ yum install -y kernel-devel-${KERNEL} kernel-headers-${KERNEL} kernel-tools-libs
 yum -y install gcc gcc-c++
 yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs nfs-utils rpcbind mdadm wget python-pip automake autoconf
 #
-wget -O /etc/yum.repos.d/beegfs-rhel7.repo https://www.beegfs.io/release/beegfs_7_1/dists/beegfs-rhel7.repo
+wget -O /etc/yum.repos.d/beegfs-rhel7.repo https://www.beegfs.io/release/beegfs_${BEEGFS_VER}/dists/beegfs-rhel7.repo
+sed -i "s/beegfs_7_1/beegfs_${BEEGFS_VER}/g" /etc/yum.repos.d/beegfs-rhel7.repo
+
 rpm --import https://www.beegfs.io/release/latest-stable/gpg/RPM-GPG-KEY-beegfs
 #
 echo "net.ipv4.neigh.default.gc_thresh1=1100" | tee -a /etc/sysctl.conf

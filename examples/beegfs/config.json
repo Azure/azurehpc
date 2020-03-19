@@ -4,10 +4,13 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables" : {
-        "image" : "OpenLogic:CentOS:7.6:latest",
-        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "image" : "OpenLogic:CentOS:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_HB60rs",
+        "compute_instances": 2,
+        "low_priority": false,
         "vnet_resource_group": "variables.resource_group",
         "beegfs_disk_type": "nvme",
         "beegfs_node_type": "both",
@@ -46,9 +49,10 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HB60rs",
-            "instances": 2,
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
+            "low_priority": "variables.low_priority",
             "subnet": "compute",
             "tags": [
                 "nfsclient",
@@ -84,6 +88,7 @@
                 "beegfspkgs",
                 "beegfssd",
                 "beegfsmd",
+                "cndefault",
                 "disable-selinux"
             ]
         }

@@ -4,8 +4,10 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables" : {
-        "image" : "OpenLogic:CentOS:7.6:latest",
-        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "image" : "OpenLogic:CentOS:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "compute_instances": 4,
+        "vm_type": "Standard_HC44rs",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
@@ -30,7 +32,7 @@
             "vm_type": "Standard_D8s_v3",
             "accelerated_networking": true,
             "public_ip": true,
-            "image": "variables.image",
+            "image": "variables.hpc_image",
             "subnet": "compute",
             "data_disks": [2048, 2048],
             "tags": [
@@ -46,8 +48,8 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HC44rs",
-            "instances": 2,
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
@@ -86,6 +88,7 @@
                 "beegfspkgs",
                 "beegfssd",
                 "beegfsmd",
+                "cndefault",
                 "disable-selinux"
             ]
         }

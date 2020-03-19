@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# parameters that can be overridden
+APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
+DATA_DIR=${DATA_DIR:-/data/starccm}
+CASE=${CASE:-civil}
+OMPI=${OMPI:-openmpi4}
+STARCCM_VERSION=${STARCCM_VERSION:-14.06.012}
+
+# PODKEY is required (pass in as environment variable)
+if [ -z "$PODKEY" ];
+then
+    echo "Error: the PODKEY environment variable is not set"
+    exit 1
+fi
+
+INSTALL_DIR=$APP_INSTALL_DIR/starccm
+STARCCM_CASE=$DATA_DIR/${CASE}.sim
+
+export PATH=$INSTALL_DIR/$STARCCM_VERSION/STAR-CCM+$STARCCM_VERSION/star/bin:$PATH
+export CDLMD_LICENSE_FILE=1999@flex.cd-adapco.com
+
+mkdir $PBS_O_WORKDIR/$PBS_JOBID
+cd $PBS_O_WORKDIR/$PBS_JOBID
+
+CORES=$(wc -l <$PBS_NODEFILE)
+
+export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
+source /opt/hpcx-*-x86_64/hpcx-init.sh
+hpcx_load
+export OPENMPI_DIR=$HPCX_MPI_DIR
+
+BM_OPT="-preclear -preits 40 -nits 20 -nps $CORES"
+if [ "$CASE" = "EmpHydroCyclone_30M" ]
+then
+    BM_OPT="-preits 1 -nits 1 -nps $CORES"
+elif [ "$CASE" = "kcs_with_physics" ]
+then
+    BM_OPT="-preits 40 -nits 20 -nps $CORES"
+fi
+
+echo $BM_OPT
+
+echo "JobID: $PBS_JOBID"
+echo "Running Starccm Benchmark case : [${starccm_case}], Nodes: ${NODES} (Total Cores: ${CORES})"
+
+starccm+ \
+    -np $CORES \
+    -v \
+    -machinefile $PBS_NODEFILE \
+    -power \
+    -podkey "$PODKEY" \
+    -rsh ssh \
+    -mpi openmpi4 \
+    -cpubind bandwidth,v \
+    -ldlibpath $LD_LIBRARY_PATH \
+    -fabric ucx \
+    -xsystemucx \
+    -mppflags "-mca plm_rsh_no_tree_spawn 1 -mca plm_rsh_num_concurrent 800 -mca mca_base_env_list UCX_TLS=self,shm,rc,ud" \
+    $STARCCM_CASE -benchmark "$BM_OPT"
+
+NODES=$(sort -u < $PBS_NODEFILE | wc -l)
+PPN=$(uniq -c < $PBS_NODEFILE | tail -n1 | awk '{print $1}')
+DATE=$(date +"%Y%m%d-%H%M%S.%N")
+cp $CASE-*.xml $PBS_O_WORKDIR/${CASE}-hpcx-${NODES}n-${PPN}cpn-${CORES}c-${DATE}.xml

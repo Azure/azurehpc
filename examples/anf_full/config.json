@@ -4,14 +4,16 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables" : {
-        "image" : "OpenLogic:CentOS:7.6:latest",
-        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "image" : "OpenLogic:CentOS-HPC:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
-        "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
-        "win_password": "<NOT-SET>",
-        "apps_storage_account": "<NOT-SET>"
+        "compute_instances": 4,
+        "vm_type": "Standard_HC44rs",
+        "anf_mount": "/netapps",
+        "anf_volume_size": 4,
+        "anf_service": "Premium"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -25,17 +27,17 @@
         }
     },
     "storage": {
-        "hpcnetapp": {
+        "hpcnetappfull": {
             "type": "anf",
             "subnet": "storage",
             "pools": {
                 "anfpool" : {
-                    "size": 4,
-                    "service_level": "Premium",
+                    "size": "variables.anf_volume_size",
+                    "service_level": "variables.anf_service",
                     "volumes": {
                         "anfvol1" : {
-                            "size": 4,
-                            "mount": "/netapps"
+                            "size": "variables.anf_volume_size",
+                            "mount": "variables.anf_mount"
                         }
                     }
                 }
@@ -61,8 +63,8 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HC44rs",
-            "instances": 2,
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
@@ -72,16 +74,6 @@
                 "mount-anf",
                 "replace_nfs_with_anf",
                 "localuser"
-            ]
-        },
-        "nvnode": {
-            "type": "vm",
-            "public_ip": "true",
-            "password": "variables.win_password",
-            "vm_type": "Standard_NV6",
-            "image": "variables.nv_image",
-            "subnet": "viz",
-            "tags": [
             ]
         }
     },
@@ -104,7 +96,7 @@
         {
             "script": "replace_nfs_with_anf.sh",
             "args": [
-                "/netapps"
+                "variables.anf_mount"
             ],
             "tag": "replace_nfs_with_anf",
             "sudo": true
@@ -143,12 +135,5 @@
         }
     ],
     "post_install": {
-        "script": "setup_win_rgs.sh",
-        "args": [
-            "variables.resource_group",
-            "nvnode",
-            "headnode",
-            "variables.apps_storage_account"
-        ]
     }
 }

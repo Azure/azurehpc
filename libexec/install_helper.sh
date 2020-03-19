@@ -246,7 +246,7 @@ function run_install_scripts()
     for step in $(seq 0 $nsteps); do
 
         # skip jumpbox setup if no jumpbox scripts are required
-        if [ "$is_jumpbox_required" = "0" ]; then
+        if [ "$is_jumpbox_required" = "0" -a "$step" = "0" ]; then
             continue
         fi
 
@@ -364,13 +364,15 @@ function build_hostlists
         elif [ "$resource_type" = "vm" ]; then
             # only get ip for passwordless nodes
             read_value resource_password ".resources.$resource_name.password" "<no-password>"
+            read_value resource_instances ".resources.$resource_name.instances" "1"
             
-            az vm show \
-                --resource-group $resource_group \
-                --name $resource_name \
-                --query osProfile.computerName \
-                --output tsv \
-                > $tmp_dir/hostlists/$resource_name
+            if [ "$resource_instances" = "1" ]; then
+                echo $resource_name > $tmp_dir/hostlists/$resource_name
+            else
+                for i in $(seq -w $resource_instances); do
+                    echo ${resource_name}${i} 
+                done > $tmp_dir/hostlists/$resource_name
+            fi
 
             for tag in $(jq -r ".resources.$resource_name.tags | @tsv" $config_file); do
                 cat $tmp_dir/hostlists/$resource_name >> $tmp_dir/hostlists/tags/$tag
@@ -382,4 +384,9 @@ function build_hostlists
         fi
 
     done
+
+    read_value dns_prefix ".vnet.dns_domain" NOT-SET
+    if [ "$dns_prefix" != "NOT-SET" ]; then
+        find $tmp_dir/hostlists -type f | xargs sed -i "s/\$/.$dns_prefix/g"
+    fi
 }
