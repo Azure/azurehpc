@@ -102,7 +102,7 @@ def deploy(resource_group, arm_template):
         os.path.basename(arm_template)
     )[0] + time.strftime("%Y%m%d-%H%M%S")
     cmd = [
-        "az", "group", "deployment", "create",
+        "az", "deployment", "group", "create",
             "--resource-group", resource_group,
             "--template-file", arm_template,
             "--name", deployname,
