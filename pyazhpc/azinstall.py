@@ -204,7 +204,7 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     os.makedirs("scripts", exist_ok=True)
     _create_anf_mount_scripts(cfg, "scripts/auto_netappfiles_mount.sh")
 
-    if jb and jb in cfg.get("resources", {}):
+    if jb:
         inst = cfg.get("install", [])
         create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey)
 
