@@ -245,7 +245,7 @@ def __rsync(sshkey, src, dst):
 
 def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
     jb = cfg.get("install_from", None)
-    if jb and jb in cfg.get("resources", {}):
+    if jb:
         install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
         
         log.debug("rsyncing install files")
