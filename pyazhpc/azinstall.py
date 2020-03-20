@@ -123,7 +123,7 @@ cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 def generate_hostlists(cfg, tmpdir):
     os.makedirs(tmpdir+"/hostlists/tags")
-    dns_domain = cfg.get("dns_domain", None)
+    dns_domain = cfg["vnet"].get("dns_domain", None)
     dns_domain_end = ""
     if dns_domain:
         dns_domain_end = f".{dns_domain}"
