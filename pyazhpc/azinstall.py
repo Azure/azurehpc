@@ -123,6 +123,10 @@ cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 def generate_hostlists(cfg, tmpdir):
     os.makedirs(tmpdir+"/hostlists/tags")
+    dns_domain = cfg.get("dns_domain", None)
+    dns_domain_end = ""
+    if dns_domain:
+        dns_domain_end = f".{dns_domain}"
     hosts = {}
     tags = {}
     for rname in cfg.get("resources", {}).keys():
@@ -162,11 +166,11 @@ def generate_hostlists(cfg, tmpdir):
 
     for n in hosts.keys():
         with open(f"{tmpdir}/hostlists/{n}", "w") as f:
-            f.writelines(f"{h}\n" for h in hosts[n])
+            f.writelines(f"{h}{dns_domain_end}\n" for h in hosts[n])
     
     for n in tags.keys():
         with open(f"{tmpdir}/hostlists/tags/{n}", "w") as f:
-            f.writelines(f"{h}\n" for h in tags[n])
+            f.writelines(f"{h}{dns_domain_end}\n" for h in tags[n])
 
 def _create_anf_mount_scripts(cfg, scriptfile):
     script = """#!/bin/bash
