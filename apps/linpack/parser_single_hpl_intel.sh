@@ -5,7 +5,6 @@ module load mpi/impi-2019
 
 output_file=hpl.out
 
-#result_line=$(grep "WR12R2R4" ${output_file} | sed 's/  */ /g')
 grep -A2 " Gflops" $output_file | tail -n1 | tr -s ' ' | \
     jq --slurp --raw-input --raw-output 'split("\n") | .[0:-1] | map(split(" ")) | map({"tv": .[0], "N": .[1]|tonumber, "NB": .[2]|tonumber, "P": .[3]|tonumber, "Q": .[4]|tonumber, "time": .[5]|tonumber, "gflops": .[6]|tonumber})' > metrics.json
 
