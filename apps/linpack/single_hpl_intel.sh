@@ -1,16 +1,27 @@
 #!/bin/bash
-
+set -o pipefail
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2018-10-01" | jq -r '.vmSize')
 AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 
-total_mem=$(free -m | grep Mem: | xargs | cut -d' ' -f2)
+MEMORY_MB=$(free -m | grep Mem: | xargs | cut -d' ' -f2)
 
-HPL_NB=256
-HPL_N=$(bc <<< "((sqrt(${total_mem}*0.75*1024^2/8))/${HPL_NB})*${HPL_NB}")
+MEMORY_FACTOR=0.25 # use only 50% of the memory 
+case $AZHPC_VMSIZE in
+    standard_hc44rs)
+        HPL_NB=256
+        P=1
+        Q=1
+    ;;
+    *)
+        echo "VM Size $AZHPC_VMSIZE not covered by this test"
+        exit 1
+    ;;
+esac
 
-P=3
-Q=5
+# compute problem size
+HPL_N=$(bc <<< "((sqrt(${MEMORY_MB}*$MEMORY_FACTOR*1024^2/8))/${HPL_NB})*${HPL_NB}")
+
 
 cat <<EOF >HPL.dat
 HPLinpack benchmark input file
@@ -46,3 +57,10 @@ $HPL_NB           swapping threshold
 8            memory alignment in double (> 0)
 EOF
 
+source /etc/profile
+module use /usr/share/Modules/modulefiles
+module load mpi/impi-2019
+
+HPL_EXE=/opt/intel/compilers_and_libraries_2019.5.281/linux/mkl/benchmarks/mp_linpack/xhpl_intel64_static
+
+mpirun -np 1 $HPL_EXE | tee hpl.out
