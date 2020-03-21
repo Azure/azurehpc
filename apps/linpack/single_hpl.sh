@@ -1,14 +1,19 @@
 #!/bin/bash
 set -o pipefail
+source /etc/profile
+module use /usr/share/Modules/modulefiles
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2018-10-01" | jq -r '.vmSize')
 AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 
 MEMORY_MB=$(free -m | grep Mem: | xargs | cut -d' ' -f2)
 
-MEMORY_FACTOR=0.25 # use only 50% of the memory 
+MEMORY_FACTOR=0.25 # use only 25% of the memory 
 case $AZHPC_VMSIZE in
     standard_hc44rs)
+        module load mpi/impi-2019
+        mpi_options="-np 1 "
+        HPL_EXE=/opt/intel/compilers_and_libraries_2019.5.281/linux/mkl/benchmarks/mp_linpack/xhpl_intel64_static
         HPL_NB=256
         P=1
         Q=1
@@ -57,10 +62,4 @@ $HPL_NB           swapping threshold
 8            memory alignment in double (> 0)
 EOF
 
-source /etc/profile
-module use /usr/share/Modules/modulefiles
-module load mpi/impi-2019
-
-HPL_EXE=/opt/intel/compilers_and_libraries_2019.5.281/linux/mkl/benchmarks/mp_linpack/xhpl_intel64_static
-
-mpirun -np 1 $HPL_EXE | tee hpl.out
+mpirun $mpi_options $HPL_EXE | tee hpl.out
