@@ -67,7 +67,7 @@ ARCH         = Linux_AMD_BLIS
 # - HPL Directory Structure / HPL library ------------------------------
 # ----------------------------------------------------------------------
 #
-TOPdir       = $HPL_DIR
+TOPdir       = ${HPL_DIR}
 INCdir       = $(TOPdir)/include
 BINdir       = $(TOPdir)/bin/$(ARCH)
 LIBdir       = $(TOPdir)/lib/$(ARCH)
@@ -81,7 +81,7 @@ HPLlib       = $(LIBdir)/libhpl.a
 # header files,  MPlib  is defined  to be the name of  the library to be
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
-MPdir        = $MPI_HOME
+MPdir        = ${MPI_HOME}
 MPinc        = -I$(MPdir)/include
 MPlib        = $(MPdir)/lib/libmpi.so
 #
@@ -92,7 +92,7 @@ MPlib        = $(MPdir)/lib/libmpi.so
 # header files,  LAlib  is defined  to be the name of  the library to be
 # used. The variable LAdir is only used for defining LAinc and LAlib.
 #
-LAdir        = $BLIS_HOME
+LAdir        = ${BLIS_HOME}
 LAinc        =
 LAlib        = $(LAdir)/lib/libblis.a
 #

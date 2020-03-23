@@ -11,7 +11,7 @@ sudo yum install -y hwloc hwloc-devel libevent-devel
 #yum install -y autoconf automake 
 
 BUILD_DIR=$(pwd)
-export BLIS_HOME=/opt/amd/blis
+export BLIS_HOME=/opt/amd/blis-mt
 
 build_hpl() {
     # Get HPL. Release 2.3 supports OpenMPI 4.0.x
@@ -28,7 +28,6 @@ build_hpl() {
     popd
 
 }
-
 
 cd $BUILD_DIR
 
