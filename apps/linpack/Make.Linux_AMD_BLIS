@@ -94,7 +94,7 @@ MPlib        = $(MPdir)/lib/libmpi.so
 #
 LAdir        = ${BLIS_HOME}
 LAinc        =
-LAlib        = $(LAdir)/lib/libblis.a
+LAlib        = $(LAdir)/lib/libblis-mt.a
 #
 # ----------------------------------------------------------------------
 # - F77 / C interface --------------------------------------------------

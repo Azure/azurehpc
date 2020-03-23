@@ -1,5 +1,6 @@
 #!/bin/bash
 # Prerequisites : OpenMPI 4.0.x + GCC 9.x
+SHARED_APP=${1:-/apps}
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 source /etc/profile
@@ -10,7 +11,7 @@ module load gcc-9.2.0
 sudo yum install -y hwloc hwloc-devel libevent-devel
 #yum install -y autoconf automake 
 
-BUILD_DIR=$(pwd)
+BUILD_DIR=$SHARED_APP/linpack
 export BLIS_HOME=/opt/amd/blis-mt
 
 build_hpl() {
@@ -25,6 +26,7 @@ build_hpl() {
     cp $DIR/Make.Linux_AMD_BLIS .
 
     make arch=Linux_AMD_BLIS
+
     popd
 
 }
