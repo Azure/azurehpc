@@ -31,8 +31,8 @@ case $AZHPC_VMSIZE in
         mpi_options="-np 30 --map-by ppr:1:l3cache:pe=4 -x OMP_NUM_THREADS=4 -x OMP_PROC_BIND=TRUE -x OMP_PLACES=cores"
         HPL_EXE=/apps/linpack/hpl-2.3/bin/Linux_AMD_BLIS/xhpl
         HPL_NB=232
-        P=6
-        Q=5
+        P=5
+        Q=6
     ;;
     *)
         echo "VM Size $AZHPC_VMSIZE not covered by this test"
