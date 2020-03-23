@@ -128,8 +128,7 @@ class ConfigFile:
             path = ".".join(parts[2:])
             res = f"{url}{path}?{saskey}"
         elif prefix == "fqdn":
-            pass
-            #azutil.get_fqdn(self.data["resource_group"], parts[1]+"pip")
+            res = azutil.get_fqdn(self.read_value("resource_group"), parts[1]+"pip")
         elif prefix == "sakey":
             res = azutil.get_storage_key(parts[1])
         elif prefix == "saskey":
