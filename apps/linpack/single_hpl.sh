@@ -14,7 +14,7 @@ case $AZHPC_VMSIZE in
         module load mpi/impi-2019
         mpi_options="-np 1 "
         HPL_EXE=/opt/intel/compilers_and_libraries_2019.5.281/linux/mkl/benchmarks/mp_linpack/xhpl_intel64_static
-        HPL_NB=256
+        HPL_NB=384
         P=1
         Q=1
     ;;
