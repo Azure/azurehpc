@@ -68,11 +68,11 @@ ARCH         = Linux_AMD_BLIS
 # ----------------------------------------------------------------------
 #
 TOPdir       = $HPL_DIR
-INCdir       = \$(TOPdir)/include
-BINdir       = \$(TOPdir)/bin/\$(ARCH)
-LIBdir       = \$(TOPdir)/lib/\$(ARCH)
+INCdir       = $(TOPdir)/include
+BINdir       = $(TOPdir)/bin/$(ARCH)
+LIBdir       = $(TOPdir)/lib/$(ARCH)
 #
-HPLlib       = \$(LIBdir)/libhpl.a
+HPLlib       = $(LIBdir)/libhpl.a
 #
 # ----------------------------------------------------------------------
 # - MPI directories - library ------------------------------------------
@@ -82,8 +82,8 @@ HPLlib       = \$(LIBdir)/libhpl.a
 # used. The variable MPdir is only used for defining MPinc and MPlib.
 #
 MPdir        = $MPI_HOME
-MPinc        = -I\$(MPdir)/include
-MPlib        = \$(MPdir)/lib/libmpi.so
+MPinc        = -I$(MPdir)/include
+MPlib        = $(MPdir)/lib/libmpi.so
 #
 # ----------------------------------------------------------------------
 # - Linear Algebra library (BLAS or VSIPL) -----------------------------
@@ -94,7 +94,7 @@ MPlib        = \$(MPdir)/lib/libmpi.so
 #
 LAdir        = $BLIS_HOME
 LAinc        =
-LAlib        = \$(LAdir)/lib/libblis.a
+LAlib        = $(LAdir)/lib/libblis.a
 #
 # ----------------------------------------------------------------------
 # - F77 / C interface --------------------------------------------------
@@ -141,8 +141,8 @@ F2CDEFS      = -DAdd__ -DF77_INTEGER=int -DStringSunStyle
 # - HPL includes / libraries / specifics -------------------------------
 # ----------------------------------------------------------------------
 #
-HPL_INCLUDES = -I\$(INCdir) -I\$(INCdir)/\$(ARCH) \$(LAinc) \$(MPinc)
-HPL_LIBS     = \$(HPLlib) \$(LAlib) \$(MPlib) -lm
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) $(MPinc)
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -lm
 #
 # - Compile time options -----------------------------------------------
 #
@@ -160,18 +160,18 @@ HPL_OPTS     = -DHPL_CALL_CBLAS -DHPL_PROGRESS_REPORT
 #
 # ----------------------------------------------------------------------
 #
-HPL_DEFS     = \$(F2CDEFS) \$(HPL_OPTS) \$(HPL_INCLUDES)
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES)
 #
 # ----------------------------------------------------------------------
 # - Compilers / linkers - Optimization flags ---------------------------
 # ----------------------------------------------------------------------
 #
 CC           = gcc
-CCNOOPT      = \$(HPL_DEFS)
-CCFLAGS      = \$(HPL_DEFS) -std=c99 -march=native -fomit-frame-pointer -O3 -funroll-loops -W -Wall -fopenmp
+CCNOOPT      = $(HPL_DEFS)
+CCFLAGS      = $(HPL_DEFS) -std=c99 -march=native -fomit-frame-pointer -O3 -funroll-loops -W -Wall -fopenmp
 #
 LINKER       = gcc
-LINKFLAGS    = \$(CCFLAGS)
+LINKFLAGS    = $(CCFLAGS)
 #
 ARCHIVER     = ar
 ARFLAGS      = r
