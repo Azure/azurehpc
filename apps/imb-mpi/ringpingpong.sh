@@ -59,7 +59,7 @@ src=$(tail -n 1 $hostlist)
 for dst in $(<$hostlist); do
     mpirun $host_option $src,$dst \
         $mpi_options $numactl_options \
-        $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log 2>&1
+        $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log
     src=$dst
 done
 
