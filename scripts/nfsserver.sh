@@ -150,9 +150,10 @@ setup_disks()
 
     mkdir -p $NFS_MOUNT_POINT
 
-    if [ "$nbDisks" = "1" ]; then
+        
+    if [ "$nbDisks" -eq "1" ]; then
         setup_single_disk $NFS_MOUNT_POINT "ext4" "$dataDevices"
-    else
+    elif [ "$nbDisks" -gt "1" ]; then
         setup_data_disks $NFS_MOUNT_POINT "xfs" "$dataDevices" "md10"
     fi
 
