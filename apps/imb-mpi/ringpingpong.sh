@@ -25,7 +25,7 @@ case $MPI in
         export I_MPI_FABRICS="shm:ofi"
         #export I_MPI_FALLBACK_DEVICE=0
         export I_MPI_DEBUG=4
-        export FI_PROVIDER=mlx
+        export FI_PROVIDER=verbs
         mpi_options="-np 2 -ppn 1"
         host_option="-hosts"
         if [ -z $MPI_BIN ]; then
