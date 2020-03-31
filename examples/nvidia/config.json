@@ -14,7 +14,7 @@
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vm_type": "<NOT-SET>",
-        "image": "OpenLogic:CentOS:7.6:latest"
+        "image": "OpenLogic:CentOS:7.7:latest"
     },
     "resources": {
         "jumpbox": {
