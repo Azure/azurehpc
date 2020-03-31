@@ -24,7 +24,7 @@ case $MPI in
         module load mpi/impi-2019
         #source $MPI_BIN/mpivars.sh -ofi_internal
         export I_MPI_FABRICS="shm:ofi"
-        export I_MPI_FALLBACK_DEVICE=0
+        #export I_MPI_FALLBACK_DEVICE=0
         export I_MPI_DEBUG=4
         export FI_PROVIDER=verbs
         mpi_options="-hostfile $PBS_NODEFILE -np $num_ranks"
