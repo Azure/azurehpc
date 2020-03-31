@@ -30,7 +30,7 @@
         "gpumaster": {
             "type": "vm",
             "vm_type": "variables.vm_type",
-            "public_ip": true,
+            "public_ip": false,
             "image": "variables.image",
             "subnet": "admin",
             "tags": [
