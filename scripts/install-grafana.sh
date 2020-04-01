@@ -66,7 +66,9 @@ grafana-cli admin reset-admin-password "$GRAFANA_PWD"
 
 echo "Create the datasource"
 # https://grafana.com/docs/grafana/latest/administration/provisioning/
-cat <<EOF > /etc/grafana/provisioning/datasources/azhpc.yml
+grafana_etc_root=/etc/grafana/provisioning
+dashboard_dir=/var/lib/grafana/dashboards
+cat <<EOF > $grafana_etc_root/datasources/azhpc.yml
 apiVersion: 1
 
 datasources:
@@ -80,9 +82,9 @@ datasources:
     jsonData:
       httpMode: GET
 EOF
-chown root:grafana /etc/grafana/provisioning/datasources/azhpc.yml
+chown root:grafana $grafana_etc_root/datasources/azhpc.yml
 
-cat <<EOF > /etc/grafana/provisioning/dashboards/azhpc.yml
+cat <<EOF > $grafana_etc_root/dashboards/azhpc.yml
 apiVersion: 1
 
 providers:
@@ -95,13 +97,15 @@ providers:
   editable: true
   allowUiUpdates: true
   options:
-    path: /var/lib/grafana/dashboards
+    path: $dashboard_dir
 EOF
 
-chown root:grafana /etc/grafana/provisioning/dashboards/azhpc.yaml
-mkdir /var/lib/grafana/dashboards
+chown root:grafana $grafana_etc_root/dashboards/azhpc.yaml
 
-cp $DIR/telegraph_dashboard.json /var/lib/grafana/dashboards
+mkdir $dashboard_dir
+chown grafana:grafana $dashboard_dir
+
+cp $DIR/telegraf_dashboard.json $dashboard_dir
 
 systemctl stop grafana-server
 systemctl start grafana-server
