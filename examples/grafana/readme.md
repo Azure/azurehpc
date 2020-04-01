@@ -17,5 +17,19 @@ Once deployed:
  - Add port 3000 to the NSG of the grafana server
  - access the portal thru the URL : **http://[grafana server fqdn]:3000/**
  - Authenticate with the **admin** user and the password stored into your KeyVault
+ - Access the dashboard thru the left meny **Dashboards/Manage** and then select "Telegraf : system dashboard"
 
+> Note : To monitor other VMs, just add the **telegraf** tag to your resources and its associated install script as specified the in the configuration file
 
+```json
+        {
+            "script": "install-telegraf.sh",
+            "tag": "telegraf",
+            "sudo": true,
+            "args": [
+                "<grafana server or ip address>",
+                "azhpc",
+                "secret.{{variables.key_vault}}.GrafanaPassword"
+             ] 
+        }
+```
