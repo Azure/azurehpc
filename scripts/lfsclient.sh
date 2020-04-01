@@ -29,6 +29,6 @@ else
 fi
 
 mkdir $lfs_mount
-echo "${master}@tcp0:/LustreFS $lfs_mount lustre defaults,_netdev 0 0" >> /etc/fstab
+echo "${master}@tcp0:/LustreFS $lfs_mount lustre flock,defaults,_netdev 0 0" >> /etc/fstab
 mount -a
 chmod 777 $lfs_mount
