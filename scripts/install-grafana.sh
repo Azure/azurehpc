@@ -60,6 +60,10 @@ curl "http://localhost:8086/query" --data-urlencode "q=CREATE USER $GRAFANA_USER
 curl "http://localhost:8086/query" --data-urlencode "q=CREATE DATABASE monitor"
 curl "http://localhost:8086/query" --data-urlencode "q=GRANT ALL ON monitor to $GRAFANA_USER"
 
+echo "Add the administrator"
+# https://grafana.com/docs/grafana/latest/administration/cli/
+grafana-cli admin reset-admin-password "$GRAFANA_PWD"
+
 echo "Create the datasource"
 # https://grafana.com/docs/grafana/latest/administration/provisioning/
 cat <<EOF > /etc/grafana/provisioning/datasources/azhpc.yml

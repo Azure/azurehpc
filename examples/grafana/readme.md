@@ -11,5 +11,11 @@ The configuration file requires the following variables to be set:
 | vm_type                 | Azure GPU VM full name (NC or ND series)     |
 | key_vault               | Keyvault to store the GrafanaPassword secret |
 
-Pre-Requisites : Create an Azure Key Vault and store the Grafana Password in the secret named GrafanaPassword
+> Note : Create an Azure Key Vault and store the Grafana Password in the secret named _GrafanaPassword_
+
+Once deployed:
+ - Add port 3000 to the NSG of the grafana server
+ - access the portal thru the URL : **http://[grafana server fqdn]:3000/**
+ - Authenticate with the **admin** user and the password stored into your KeyVault
+
 
