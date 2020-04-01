@@ -261,11 +261,26 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
             read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
             read_value resource_zone ".resources.$resource_name.zone" 1
+            read_value resource_availability_set ".resources.$resource_name.availability_set" false
             read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
             resource_subnet_id="/subscriptions/$subscription_id/resourceGroups/$vnet_resource_group/providers/Microsoft.Network/virtualNetworks/$vnet_name/subnets/$resource_subnet"
 
             storage_sku_str="os=${resource_os_storage_sku}"
+
+            availability_set=
+            availability_set_option=
+            if [ "$resource_availability_set" = "true" ]; then
+                availability_set="${resource_name}"
+                status "creating availability-set: $resource_name"
+                az vm availability-set create \
+                    --name ${availability_set} \
+                    --resource-group $resource_group \
+                    --platform-fault-domain-count 1 \
+                    --platform-update-domain-count 1 \
+                    --output table
+                availability_set_option="--availability-set ${availability_set}"
+            fi
 
             # using resource_vm_name for the postfixed version
             for resource_vm_name in ${vm_list[@]}; do
@@ -358,6 +373,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                     $ppg_option \
                     $zone_option \
                     $disk_perfoptlevel_option \
+                    $availability_set_option \
                     --no-wait || exit 1
 
                 if [ "$?" -ne "0" ]; then

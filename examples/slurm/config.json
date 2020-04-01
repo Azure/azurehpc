@@ -1,0 +1,135 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "image": "OpenLogic:CentOS:7.6:latest",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+    "vm_type": "Standard_D4s_v3",
+    "hb_vm_type": "Standard_HB60rs",
+    "instances": 2,
+    "location": "eastus",
+    "resource_group": "hugo-slurm"
+  },
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "hpc": "10.2.0.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "public_ip": "true",
+      "vm_type": "Standard_D4s_v3",
+      "image": "variables.image",
+      "accelerated_networking": "true",
+      "subnet": "hpc",
+      "tags": [
+        "disable-selinux",
+        "cndefault",
+        "munge",
+        "azcli",
+        "nfsserver",
+        "slurmserver",
+        "localuser"
+        ]
+   },
+   "compute": {
+      "type": "vm",
+      "vm_type": "variables.vm_type",
+      "instances": "variables.instances",
+      "availability_set": "false",
+      "image": "variables.hpc_image",
+      "subnet": "hpc",
+      "tags": [
+         "nfsclient",
+         "cndefault",
+         "localuser",
+         "munge",
+         "slurmclient",
+         "disable-selinux"
+      ]
+   }
+  },
+  "install": [
+     {
+       "type": "local_script",
+       "script": "managed_identity.sh",
+       "tag": "managed_identity",
+       "args": [
+          "variables.resource_group",
+          "headnode"
+       ]
+     },
+     {
+       "script": "disable-selinux.sh",
+       "tag": "disable-selinux",
+       "sudo": true
+     },
+     {
+       "script": "cndefault.sh",
+       "tag": "cndefault",
+       "sudo": true
+     },
+     {
+       "script": "install-azcli.sh",
+       "tag": "azcli",
+       "sudo": true
+     },
+     {
+       "script": "nfsserver.sh",
+       "tag": "nfsserver",
+       "sudo": true
+     },
+     {
+       "script": "nfsclient.sh",
+       "args": [
+          "$(<hostlists/tags/nfsserver)"
+       ],
+       "tag": "nfsclient",
+       "sudo": true
+     },
+     {
+       "script": "localuser.sh",
+       "args": [
+          "$(<hostlists/tags/nfsserver)"
+       ],
+       "tag": "localuser",
+       "sudo": true
+     },
+     {
+       "script": "munge.sh",
+       "tag": "munge",
+       "args": [
+          "abcdefghijklmnopqrstuvwxyz123456"
+       ],
+       "sudo": true
+     },
+     {
+       "script": "slurmctl.sh",
+       "tag": "slurmserver",
+       "args": [
+          "variables.resource_group"
+       ],
+       "sudo": true
+     },
+     {
+       "script": "slurmpartition.sh",
+       "tag": "slurmserver",
+       "args": [
+          "compute",
+          "variables.instances",
+          "variables.vm_type"
+       ],
+       "sudo": true
+     },
+     {
+       "script": "slurmd.sh",
+       "tag": "slurmclient",
+       "sudo": true
+     }
+  ]
+}
