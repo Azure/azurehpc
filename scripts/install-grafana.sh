@@ -1,4 +1,5 @@
 #!/usr/bin/sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 GRAFANA_USER=${1-azhpc}
 GRAFANA_PWD=$2
 
@@ -58,3 +59,46 @@ curl "http://localhost:8086/query" --data-urlencode "q=CREATE USER admindb WITH 
 curl "http://localhost:8086/query" --data-urlencode "q=CREATE USER $GRAFANA_USER WITH PASSWORD '$GRAFANA_PWD'"
 curl "http://localhost:8086/query" --data-urlencode "q=CREATE DATABASE monitor"
 curl "http://localhost:8086/query" --data-urlencode "q=GRANT ALL ON monitor to $GRAFANA_USER"
+
+echo "Create the datasource"
+# https://grafana.com/docs/grafana/latest/administration/provisioning/
+cat <<EOF > /etc/grafana/provisioning/datasources/azhpc.yml
+apiVersion: 1
+
+datasources:
+  - name: azhpc
+    type: influxdb
+    access: proxy
+    database: monitor
+    user: $GRAFANA_USER
+    password: "$GRAFANA_PWD"
+    url: http://localhost:8086
+    jsonData:
+      httpMode: GET
+EOF
+chown root:grafana /etc/grafana/provisioning/datasources/azhpc.yml
+
+cat <<EOF > /etc/grafana/provisioning/dashboards/azhpc.yml
+apiVersion: 1
+
+providers:
+- name: 'azhpc'
+  orgId: 1
+  folder: ''
+  folderUid: ''
+  type: file
+  disableDeletion: false
+  editable: true
+  allowUiUpdates: true
+  options:
+    path: /var/lib/grafana/dashboards
+EOF
+
+chown root:grafana /etc/grafana/provisioning/dashboards/azhpc.yaml
+mkdir /var/lib/grafana/dashboards
+
+cp $DIR/telegraph_dashboard.json /var/lib/grafana/dashboards
+
+systemctl stop grafana-server
+systemctl start grafana-server
+

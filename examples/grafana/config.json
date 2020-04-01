@@ -54,7 +54,8 @@
             "args": [
                 "azhpc",
                 "secret.{{variables.key_vault}}.GrafanaPassword"
-             ] 
+             ],
+             "deps" : ["telegraf_ dashboard.json"]
         },
         {
             "script": "install-telegraf.sh",
