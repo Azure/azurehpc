@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 GRAFANA_USER=${1-azhpc}
 GRAFANA_PWD=$2

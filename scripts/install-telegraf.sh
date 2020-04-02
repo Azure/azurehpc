@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/bash
 GRAFANA_SERVER=$1
 GRAFANA_USER=$2
 GRAFANA_PWD=$3
