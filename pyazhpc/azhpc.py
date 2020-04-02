@@ -414,6 +414,7 @@ def do_build(args):
         if config[resources].get(jumpbox,{}).get("public_ip", False) == True:
             dest = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
         log.info("running install scripts")
+        log.debug(f"running script from : {dest}")
         azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, dest)
     else:
         log.info("nothing to install ('install_from' is not set)")
