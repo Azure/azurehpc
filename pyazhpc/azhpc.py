@@ -411,7 +411,7 @@ def do_build(args):
     fqdn = None
     if jumpbox:
         dest = jumpbox
-        if config[resources].get(jumpbox,{}).get("public_ip", False) == True:
+        if config["resources"].get(jumpbox,{}).get("public_ip", False) == True:
             dest = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
         log.info("running install scripts")
         log.debug(f"running script from : {dest}")
