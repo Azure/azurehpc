@@ -15251,6 +15251,11 @@
         "options": [
           {
             "selected": false,
+            "text": "4",
+            "value": "4"
+          },
+          {
+            "selected": false,
             "text": "8",
             "value": "8"
           },
@@ -15258,6 +15263,11 @@
             "selected": true,
             "text": "16",
             "value": "16"
+          },
+          {
+            "selected": true,
+            "text": "32",
+            "value": "32"
           },
           {
             "selected": false,
@@ -15270,12 +15280,17 @@
             "value": "60"
           },
           {
+            "selected": true,
+            "text": "64",
+            "value": "64"
+          },
+          {
             "selected": false,
             "text": "120",
             "value": "120"
           }
         ],
-        "query": "8, 16, 44, 60, 120",
+        "query": "4, 8, 16, 32, 44, 60, 64, 120",
         "refresh": 2,
         "skipUrlSync": false,
         "type": "interval"
