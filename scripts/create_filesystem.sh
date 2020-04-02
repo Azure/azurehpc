@@ -3,11 +3,12 @@ device=$1
 filesystem=${2-xfs}
 mount=${3-/data}
 
-echo "Creating a $filesystem filesystem on device $device mounted on $mount"
 if [[ $(id -u) -ne 0 ]] ; then
     echo "Must be run as root"
     exit 1
 fi
+
+echo "Creating a $filesystem filesystem on device $device mounted on $mount"
 
 if [ "$filesystem" == "xfs" ]; then
     mkfs -t $filesystem /dev/$device
