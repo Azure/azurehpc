@@ -1,4 +1,4 @@
-## Install and run Fluent Benchmarks
+## Install and run ConvergeCFD Benchmarks
 
 ## Prerequisites
 
