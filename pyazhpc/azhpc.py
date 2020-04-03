@@ -111,9 +111,12 @@ def do_scp(args):
     sshkey="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
 
-    jumpbox = c.read_value("install_from")
-    rg = c.read_value("resource_group")
-    fqdn = azutil.get_fqdn(rg, jumpbox+"pip")
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
+
+    fqdn = c.get_install_from_destination()
 
     if args.args and args.args[0] == "--":
         scp_args = args.args[1:]
@@ -145,12 +148,13 @@ def do_connect(args):
     else:
         sshuser = args.user
 
-    jumpbox = c.read_value("install_from")
-    resource_group = c.read_value("resource_group")
-    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
 
-    if fqdn == "":
-        log.warning(f"The install node does not have a public IP - trying hostname ({jumpbox})")
+    resource_group = c.read_value("resource_group")
+    fqdn = c.get_install_from_destination()
  
     log.debug("Getting resource name")
 
@@ -230,12 +234,13 @@ def do_status(args):
     adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
 
-    jumpbox = c.read_value("install_from")
-    resource_group = c.read_value("resource_group")
-    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
 
-    if fqdn == "":
-        log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
+    resource_group = c.read_value("resource_group")
+    fqdn = c.get_install_from_destination()
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
     _exec_command(fqdn, adminuser, ssh_private_key, f"pssh -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
@@ -255,12 +260,13 @@ def do_run(args):
     else:
         sshuser = args.user
 
-    jumpbox = c.read_value("install_from")
-    resource_group = c.read_value("resource_group")
-    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
 
-    if fqdn == "":
-        log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
+    resource_group = c.read_value("resource_group")
+    fqdn = c.get_install_from_destination()
 
     hosts = []
     if args.nodes:
@@ -407,17 +413,14 @@ def do_build(args):
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    jumpbox = config.get("install_from", None)
-    fqdn = None
-    if jumpbox:
-        dest = jumpbox
-        if config["resources"].get(jumpbox,{}).get("public_ip", False) == True:
-            dest = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
-        log.info("running install scripts")
-        log.debug(f"running script from : {dest}")
-        azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, dest)
-    else:
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
         log.info("nothing to install ('install_from' is not set)")
+    else:
+        resource_group = c.read_value("resource_group")
+        fqdn = c.get_install_from_destination()
+        log.debug(f"running script from : {fqdn}")
+        azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))
