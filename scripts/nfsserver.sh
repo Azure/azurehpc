@@ -20,103 +20,6 @@ NFS_DATA=$NFS_MOUNT_POINT/data
 NFS_HOME=$NFS_MOUNT_POINT/home
 NFS_SCRATCH=/mnt/resource/scratch
 
-# Partitions all data disks attached to the VM
-#
-setup_data_disks()
-{
-    mountPoint="$1"
-    filesystem="$2"
-    devices="$3"
-    raidDevice="$4"
-
-
-    $DIR/create_raid0 $raidDevice $devices
-    $DIR/make_filesystems $raidDevice $filesystem $mountPoint
-
-#     createdPartitions=""
-#     numdevices=`echo $devices | wc -w`
-#     if [ $numdevices -gt 1 ]
-#     then
-#     # Loop through and partition disks until not found
-#        for disk in $devices; do
-#            fdisk -l /dev/$disk || break
-#            $DIR/make_partitions /dev/$disk
-#            createdPartitions="$createdPartitions /dev/${disk}1"
-#        done
-#     else
-#         disk=$(echo $devices | tr -d [:space:])
-#         echo "Warning: Only a single device to partition, $disk"
-#         fdisk -l /dev/$disk || break
-#         $DIR/make_partitions /dev/$disk
-#         createdPartitions="$createdPartitions /dev/${disk}1"
-#     fi
-
-#     sleep 10
-
-#     # Create RAID-0 volume
-#     if [ -n "$createdPartitions" ]; then
-#         devices=`echo $createdPartitions | wc -w`
-#         if [ $numdevices -gt 1 ]
-#         then
-#            mdadm --create /dev/$raidDevice --level 0 --raid-devices $devices $createdPartitions
-#            sleep 10
-
-#            mdadm /dev/$raidDevice
-#         else
-#            echo "Warning: mdadm is not called, we have one partition named, ${disk}1 for mountpoint, $mountPoint"
-#            raidDevice=${disk}1
-#         fi
-
-#         if [ "$filesystem" == "xfs" ]; then
-#             mkfs -t $filesystem /dev/$raidDevice
-#             export xfsuuid="UUID=`blkid |grep dev/$raidDevice |cut -d " " -f 2 |cut -c 7-42`"
-# #            echo "$xfsuuid $mountPoint $filesystem rw,noatime,attr2,inode64,nobarrier,sunit=1024,swidth=4096,nofail 0 2" >> /etc/fstab
-#             echo "$xfsuuid $mountPoint $filesystem rw,noatime,attr2,inode64,nobarrier,nofail 0 2" >> /etc/fstab
-#         else
-#             mkfs.ext4 -i 2048 -I 512 -J size=400 -Odir_index,filetype /dev/$raidDevice
-#             sleep 5
-#             tune2fs -o user_xattr /dev/$raidDevice
-#             export ext4uuid="UUID=`blkid |grep dev/$raidDevice |cut -d " " -f 2 |cut -c 7-42`"
-#             echo "$ext4uuid $mountPoint $filesystem noatime,nodiratime,nobarrier,nofail 0 2" >> /etc/fstab
-#         fi
-
-#         sleep 10
-#         mount -a
-#     fi
-}
-
-setup_single_disk()
-{
-    mountPoint="$1"
-    filesystem="$2"
-    device="$3"
-
-    fdisk -l /dev/$device || break
-    fdisk /dev/$device << EOF
-n
-p
-1
-
-
-p
-w
-EOF
-
-    if [ "$filesystem" == "xfs" ]; then
-        mkfs -t $filesystem /dev/$device
-        echo "/dev/$device $mountPoint $filesystem rw,noatime,attr2,inode64,nobarrier,nofail 0 2" >> /etc/fstab
-    else
-        mkfs.ext4 -F -i 2048 -I 512 -J size=400 -Odir_index,filetype /dev/$device
-        sleep 5
-        tune2fs -o user_xattr /dev/$device
-        echo "/dev/$device $mountPoint $filesystem noatime,nodiratime,nobarrier,nofail 0 2" >> /etc/fstab
-    fi
-
-    sleep 10
-
-    mount /dev/$device $mountPoint
-}
-
 setup_disks()
 {
     # Dump the current disk config for debugging
@@ -142,11 +45,14 @@ setup_disks()
 
     mkdir -p $NFS_MOUNT_POINT
 
-        
     if [ "$nbDisks" -eq "1" ]; then
-        setup_single_disk $NFS_MOUNT_POINT "ext4" "$dataDevices"
+        #setup_single_disk $NFS_MOUNT_POINT "ext4" "$dataDevices"
+        $DIR/make_partitions.sh $dataDevices
+        $DIR/make_filesystems.sh $dataDevices "xfs" $NFS_MOUNT_POINT
     elif [ "$nbDisks" -gt "1" ]; then
-        setup_data_disks $NFS_MOUNT_POINT "xfs" "$dataDevices" "md10"
+        raid_device="md10"
+        $DIR/create_raid0.sh $raid_device "$dataDevices"
+        $DIR/make_filesystems.sh $raid_device "xfs" $NFS_MOUNT_POINT
     fi
 
     mkdir -p $NFS_APPS
