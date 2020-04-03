@@ -34,7 +34,7 @@ get_ssv()
 		sudo wget ${CADENCE_TOOLS_BLOB}${SSV_FILE}
 	fi
 	sudo tar xfz ${SSV_FILE}
-	sudo cp lnx86/ ${INSTALL_DIR}/SSV191
+	sudo mv lnx86/ ${INSTALL_DIR}/SSV191
 }
 
 get_tempus()
