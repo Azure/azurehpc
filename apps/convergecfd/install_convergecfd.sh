@@ -2,7 +2,6 @@
 
 # parameters that can be overridden
 APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
-TMP_DIR=${TMP_DIR:-/mnt/resource}
 CONVERGECFD_INSTALLER_FILE=${CONVERGECFD_INSTALLER_FILE:-/mnt/resource/Convergent_Science_Full_Package-3.0.12.tar.gz}
 CONVERGECFD_VERSION=$(tmp=${CONVERGECFD_INSTALLER_FILE/*[_-]}; echo ${tmp/\.tar.gz})
 CONVERGECFD_MAJOR_VERSION=${CONVERGECFD_VERSION%.*}
