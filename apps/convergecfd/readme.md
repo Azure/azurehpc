@@ -35,6 +35,7 @@ The following environment variables can be used to install ConvergeCFD:
 azhpc-run -u hpcuser  apps/convergecfd/install_convergecfd.sh 
 ```
 
+
 > Note: This will install into `/apps`.
 
 ## Connect to the headnode
@@ -59,20 +60,20 @@ The `run_ccfd_3.0_impi.pbs` script is ready to use.  Below are all the parameter
 | MPI                  | intelmpi      | Options: intelmpi (only supported option at this time)                                  |
 | CONVERGECFD_VERSION  | 3.0.12        | Required if not using the default version                                               |
 
-Now, you can run as follows:
+Now, you can run as follows for ConvergeCFD 3.0+ runs:
 
 ```
 for ppn in 116 120; do
     for nodes in 1 2 4 8 16; do
-        EX_PATH=/apps/Convergent_Science/CONVERGE/$CCFD_VERSION/example_cases/Internal_Combustion_Engines/Gasoline_spark_ignition_PFI
+        CCFD_VERSION=3.0.12
+        EX_PATH=/apps/Convergent_Science/Example_Cases/$CCFD_VERSION/Internal_Combustion_Engines/Gasoline_spark_ignition_PFI
         CASE=SI8_engine_PFI_SAGE
         LICENSE_INFO=2765@<ip_addr>
         name=SI8_SAGE_${nodes}n_${ppn}cpn
-        cp ~/apps/convergecfd/run_ccfd.sh .
         qsub -l select=${nodes}:ncpus=${ppn}:mpiprocs=${ppn},place=scatter:excl \
             -N $name \
             -v CCFD_VERSION=$CCFD_VERSION,EX_PATH=$EX_PATH,CASE=$CASE,LICENSE_INFO=$LICENSE_INFO \
-            ./run_ccfd_3.0_impi.pbs
+            ~/apps/convergecfd/run_ccfd_3.0_impi.pbs
     done
 done
 ```
@@ -83,7 +84,7 @@ done
 
 These steps require a Azure CycleCloud cluster with PBS.  The `cyclecloud_simple_pbs` template in the examples directory a suitable choice.
 
-It is recommended that you use HBv2 or HB VM instances. Follow the steps in the examples/cyclecloud_simple_pbs/readme.md to setup cycle, import the template and start cluster.
+It is recommended that you use HBv2 or HB VM instances for the best Performance/cost. Follow the steps in the examples/cyclecloud_simple_pbs/readme.md to setup cycle, import the template and start cluster.
 
 Log in to the headnode of the cluster:
 
