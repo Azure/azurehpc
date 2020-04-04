@@ -2,6 +2,7 @@
 #
 BEEGFS_VER=${1-7_1.713}
 
+RELEASE=$(cat /etc/redhat-release | cut -d' ' -f4)
 KERNEL=$(uname -r)
 echo "Kernel version is $KERNEL"
 #
@@ -9,7 +10,7 @@ systemctl stop firewalld
 systemctl disable firewalld
 #
 yum -y install epel-release
-yum install -y kernel-devel-${KERNEL} kernel-headers-${KERNEL} kernel-tools-libs-devel-${KERNEL}
+yum install -y --disablerepo=openlogic --releasever=$RELEASE kernel-devel-${KERNEL} kernel-headers-${KERNEL} kernel-tools-libs-devel-${KERNEL} 
 yum -y install gcc gcc-c++
 yum -y install zlib zlib-devel bzip2 bzip2-devel bzip2-libs openssl openssl-devel openssl-libs nfs-utils rpcbind mdadm wget python-pip automake autoconf
 #

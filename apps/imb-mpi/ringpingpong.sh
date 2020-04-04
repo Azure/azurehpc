@@ -1,5 +1,6 @@
 #!/bin/bash
 MPI=$1
+MODE=${2-ring}
 set -o pipefail
 source /etc/profile
 module use /usr/share/Modules/modulefiles
@@ -25,7 +26,7 @@ case $MPI in
         export I_MPI_FABRICS="shm:ofi"
         #export I_MPI_FALLBACK_DEVICE=0
         export I_MPI_DEBUG=4
-        export FI_PROVIDER=mlx
+        export FI_PROVIDER=verbs
         mpi_options="-np 2 -ppn 1"
         host_option="-hosts"
         if [ -z $MPI_BIN ]; then
@@ -54,15 +55,31 @@ sort -u $PBS_NODEFILE > $hostlist
 # remove .internal.cloudapp.net from node names
 sed -i 's/.internal.cloudapp.net//g' $hostlist
 
-src=$(tail -n 1 $hostlist)
-# -msglog 9:10 is for 512 and 1024 bytes message size only
-for dst in $(<$hostlist); do
-    mpirun $host_option $src,$dst \
-        $mpi_options $numactl_options \
-        $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log
-    src=$dst
-done
-
+case $MODE in
+    ring) # one to neighbour
+        src=$(tail -n 1 $hostlist)
+        # -msglog 9:10 is for 512 and 1024 bytes message size only
+        for dst in $(<$hostlist); do
+            mpirun $host_option $src,$dst \
+                $mpi_options $numactl_options \
+                $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log
+            src=$dst
+        done
+    ;;
+    half) # one to each one way
+        cp $hostlist desthosts.$PBS_JOBID
+        for src in $(<$hostlist); do
+            # delete the first line
+            sed -i '1d' desthosts.$PBS_JOBID
+            for dst in $(<desthosts.$PBS_JOBID); do
+                mpirun $host_option $src,$dst \
+                    $mpi_options $numactl_options \
+                    $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log
+            done
+        done
+        rm desthosts.$PBS_JOBID
+    ;;
+esac
 # clean up
 rm $hostlist
 

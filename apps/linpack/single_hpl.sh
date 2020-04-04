@@ -20,7 +20,9 @@ case $AZHPC_VMSIZE in
     ;;
     standard_hb60rs)
         module load mpi/hpcx
-        mpi_options="-np 15 --map-by ppr:1:l3cache:pe=4 -x OMP_NUM_THREADS=4 -x OMP_PROC_BIND=TRUE -x OMP_PLACES=cores"
+        threads=4
+        mpi_options="-np 15 --map-by ppr:1:l3cache:pe=$threads -x OMP_NUM_THREADS=$threads -x OMP_PROC_BIND=TRUE -x OMP_PLACES=cores"
+        mpi_options+=" -x BLIS_IR_NT=1 -x BLIS_JR_NT=1 -x BLIS_IC_NT=$threads -x BLIS_JC_NT=1"
         HPL_EXE=/apps/linpack/hpl-2.3/bin/Linux_AMD_BLIS/xhpl
         HPL_NB=232
         P=3
@@ -28,7 +30,9 @@ case $AZHPC_VMSIZE in
     ;;
     standard_hb120rs_v2)
         module load mpi/hpcx
-        mpi_options="-np 30 --map-by ppr:1:l3cache:pe=4 -x OMP_NUM_THREADS=4 -x OMP_PROC_BIND=TRUE -x OMP_PLACES=cores"
+        threads=4
+        mpi_options="-np 30 --map-by ppr:1:l3cache:pe=$threads -x OMP_NUM_THREADS=$threads -x OMP_PROC_BIND=TRUE -x OMP_PLACES=cores"
+        mpi_options+=" -x BLIS_IR_NT=1 -x BLIS_JR_NT=1 -x BLIS_IC_NT=$threads -x BLIS_JC_NT=1"
         HPL_EXE=/apps/linpack/hpl-2.3/bin/Linux_AMD_BLIS/xhpl
         HPL_NB=232
         P=5

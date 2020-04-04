@@ -15,6 +15,12 @@ class ArmTemplate:
         self.outputs = {}
     
     def _add_network(self, cfg):
+        resource_group = cfg["resource_group"]
+        vnet_resource_group = cfg["vnet"].get("resource_group", resource_group)
+        if resource_group != vnet_resource_group:
+            log.debug(f"using an existing vnet in {vnet_resource_group}")
+            return
+        
         location = cfg["location"]
         vnet_name = cfg["vnet"]["name"]
         address_prefix = cfg["vnet"]["address_prefix"]      
