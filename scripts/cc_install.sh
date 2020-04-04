@@ -70,15 +70,20 @@ if [ "$fqdn" != "" ]; then
         --output table
     source_vm=$fqdn
 else
+  #case if no FQDN for cycleserver VM and then run a remote ssh from the VM install_from
   fqdn=$(az network private-dns record-set list -g ${resource_group} -z ${dns_domain} --query "[?name=='${vmname}']" -o yaml | grep fqdn | awk -F " " '{print $2}')
-  #fqdn=${fqdn::-1}
   source_vm=$(
     az network public-ip show \
     --resource-group $resource_group \
     --name ${source_vm}pip --query dnsSettings.fqdn \
     --output tsv \
     2>/dev/null \
-)
+   )
+  #case if source_vm don't have a publicIP
+  if [ -z "$source_vm" ]
+  then
+    source_vm=$fqdn
+  fi
 fi
 
 echo "Creating storage account $projectstore for projects"
