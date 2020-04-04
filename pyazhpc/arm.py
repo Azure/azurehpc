@@ -1,11 +1,11 @@
 import json
-import logging
 import sys
 import uuid
 
+import azlog
 import azutil
 
-log = logging.getLogger(__name__)
+log = azlog.getLogger(__name__)
 
 class ArmTemplate:
     def __init__(self):

@@ -1,13 +1,14 @@
 import datetime
 import json
-import logging
 import os
 import shlex
 import subprocess
 import sys
 import time
 
-log = logging.getLogger(__name__)
+import azlog
+
+log = azlog.getLogger(__name__)
 
 def _make_subprocess_error_string(res):
     return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout.decode("utf-8"), res.stderr.decode("utf-8"))

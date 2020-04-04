@@ -1,11 +1,11 @@
 import json
-import logging
 import re
 import sys
 
+import azlog
 import azutil
 
-log = logging.getLogger(__name__)
+log = azlog.getLogger(__name__)
 
 class ConfigFile:
     def __init__(self):
