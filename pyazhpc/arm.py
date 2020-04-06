@@ -593,7 +593,7 @@ class ArmTemplate:
                     "resource_group": "[resourceGroup().id]",
                     "subscription": "[subscription().subscriptionId]"
                 }
-                scope = rmanagedidentity.get("scope", "ResourceGroup")
+                scope = rmanagedidentity.get("scope", "resource_group")
                 if scope not in scope_lookup:
                     log.error(f"{scope} is an invalid scope for a managed identity (options are: {', '.join(scope_lookup.keys())})")
                     sys.exit(1)
