@@ -259,7 +259,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
             read_value resource_an ".resources.$resource_name.accelerated_networking" false
             read_value resource_storage_sku ".resources.$resource_name.storage_sku" StandardSSD_LRS
             read_value resource_lowpri ".resources.$resource_name.low_priority" false
-            read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" 32
+            read_value resource_os_disk_size ".resources.$resource_name.os_disk_size" default
             read_value resource_zone ".resources.$resource_name.zone" 1
             read_value resource_os_storage_sku ".resources.$resource_name.os_storage_sku" StandardSSD_LRS
             resource_disk_count=$(jq -r ".resources.$resource_name.data_disks | length" $config_file)
@@ -327,8 +327,12 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                 zone_option= 
                 if [ "$resource_storage_sku" = "UltraSSD_LRS" ]; then
                     zone_option="--zone $resource_zone"
-                fi 
-
+                fi
+ 
+                os_disk_size_option=
+                if [ "$resource_os_disk_size" != "default" ]; then
+                    os_disk_size_option="--os-disk-size-gb $resource_os_disk_size"
+                fi
 
                 read_value resource_password ".resources.$resource_name.password" "<no-password>"
                 if [ "$resource_password" = "<no-password>" ]; then
@@ -352,7 +356,7 @@ for resource_name in $(jq -r ".resources | keys | @tsv" $config_file); do
                     --public-ip-address "$public_ip_address" \
                     --public-ip-address-dns-name $resource_name$uuid_str \
                     --nsg "$nsg_name" \
-                    --os-disk-size-gb $resource_os_disk_size \
+                    $os_disk_size_option \
                     $data_disks_options \
                     $lowpri_option \
                     $ppg_option \
