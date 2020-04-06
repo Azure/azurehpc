@@ -365,6 +365,16 @@ class ArmTemplate:
             "version": refstr.split(":")[3]
         }
 
+    def __helper_arm_add_zones(self, res, zones):
+        strzones = []
+        if type(zones) == list:
+            for z in zone:
+                strzones.append(z)
+        elif zones != None:
+            strzones.append(str(zones))
+        if len(strzones) > 0:
+            res["zones"] = strzones
+
     def _add_vm(self, cfg, r):
         res = cfg["resources"][r]
         rtype = res["type"]
@@ -374,6 +384,7 @@ class ArmTemplate:
         rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
+        raz = res.get("availability_zones", None)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -539,6 +550,8 @@ class ArmTemplate:
                     "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups','{}')]".format(rppgname)
                 }
             
+            self.__helper_arm_add_zones(vmres, raz)
+
             self.resources.append(vmres)
 
     def _add_vmss(self, cfg, r):
@@ -550,6 +563,7 @@ class ArmTemplate:
         rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
+        raz = res.get("availability_zones", None)
         rfaultdomaincount = cfg.get("fault_domain_count", None)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
@@ -653,6 +667,7 @@ class ArmTemplate:
             vmssres["properties"]["virtualMachineProfile"]["priority"] = "Spot"
             vmssres["properties"]["virtualMachineProfile"]["evictionPolicy"] = "Delete"
 
+        self.__helper_arm_add_zones(vmssres, raz)
         self.resources.append(vmssres)
 
 
