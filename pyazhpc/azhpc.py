@@ -406,6 +406,13 @@ def do_build(args):
                         print(f"  Message  : {error_message[0]}")
                         for line in error_message[1:]:
                             print(f"             {line}")
+                        if "details" in props["statusMessage"]["error"]:
+                            details_code = props["statusMessage"]["error"]["details"].get("code", "")
+                            details_message = textwrap.TextWrapper(width=60).wrap(text=props["statusMessage"]["error"]["details"].get("message", ""))
+                            print(f"  Details  : {details_code}")
+                            for line in details_message:
+                                print(f"             {line}")
+
         sys.exit(1)
     
     log.info("building host lists")
