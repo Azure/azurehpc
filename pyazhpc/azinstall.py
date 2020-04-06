@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 import shutil
@@ -6,9 +5,10 @@ import subprocess
 import sys
 import time
 
+import azlog
 import azutil
 
-log = logging.getLogger(__name__)
+log = azlog.getLogger(__name__)
 
 pssh_threads = 50
 

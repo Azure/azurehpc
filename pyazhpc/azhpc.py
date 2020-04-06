@@ -1,7 +1,6 @@
 import argparse
 import datetime
 import json
-import logging
 import os
 import shutil
 import sys
@@ -11,13 +10,14 @@ import time
 import arm
 import azconfig
 import azinstall
+import azlog
 import azutil
 
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
 
-log = logging.getLogger(__name__)
+log = azlog.getLogger(__name__)
 
 def do_preprocess(args):
     log.debug("reading config file ({})".format(args.config_file))
@@ -450,6 +450,11 @@ if __name__ == "__main__":
         help="increase output verbosity",
         action="store_true"
     )
+    gopt_parser.add_argument(
+        "--no-color", 
+        help="turn off color in output",
+        action="store_true"
+    )
 
     subparsers = azhpc_parser.add_subparsers(help="actions")
 
@@ -614,14 +619,14 @@ if __name__ == "__main__":
         help="displays the resource uptime"
     )
     status_parser.set_defaults(func=do_status)
-
     args = azhpc_parser.parse_args()
+
+    if args.debug:
+        azlog.setDebug(True)
+    if args.no_color:
+        azlog.setColor(False)
+
     log.debug(args)
     
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(filename)s:%(lineno)d:%(levelname)s:%(message)s')
-    else:
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
-
     args.func(args)
 
