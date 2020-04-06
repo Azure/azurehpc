@@ -397,6 +397,9 @@ class ArmTemplate:
                 "type": "Microsoft.Compute/availabilitySets",
                 "apiVersion": "2018-10-01",
                 "location": loc,
+                "sku": {
+                    "name": "Aligned"
+                },
                 "properties": {
                     "platformUpdateDomainCount": 1,
                     "platformFaultDomainCount": 1
