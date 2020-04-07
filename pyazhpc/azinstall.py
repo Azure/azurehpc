@@ -198,6 +198,12 @@ mount -a
         os.chmod(scriptfile, 0o755)
         f.write(script) 
 
+def __config_has_netapp(cfg):
+    for r in cfg.get("storage", {}).keys():
+        if cfg["storage"][r].get("type", "") == "anf":
+            return True
+    return False
+
 def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     jb = cfg.get("install_from", None)
     os.makedirs(tmpdir+"/install")
@@ -205,8 +211,9 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     shutil.copy(sshpubkey, tmpdir)
     shutil.copy(sshprivkey, tmpdir)
 
-    os.makedirs("scripts", exist_ok=True)
-    _create_anf_mount_scripts(cfg, "scripts/auto_netappfiles_mount.sh")
+    if __config_has_netapp(cfg):
+        os.makedirs("scripts", exist_ok=True)
+        _create_anf_mount_scripts(cfg, "scripts/auto_netappfiles_mount.sh")
 
     if jb:
         inst = cfg.get("install", [])
