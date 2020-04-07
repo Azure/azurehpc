@@ -395,6 +395,7 @@ class ArmTemplate:
         rstoragecache = res.get("storage_cache", "ReadWrite")
         rtags = res.get("resource_tags", {})
         loc = cfg["location"]
+        ravset = res.get("availability_set", False)
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
         vnetname = cfg["vnet"]["name"]
@@ -407,6 +408,21 @@ class ArmTemplate:
         with open(adminuser+"_id_rsa.pub") as f:
             sshkey = f.read().strip()
         
+        if ravset:
+            self.resources.append({
+                "name": r,
+                "type": "Microsoft.Compute/availabilitySets",
+                "apiVersion": "2018-10-01",
+                "location": loc,
+                "sku": {
+                    "name": "Aligned"
+                },
+                "properties": {
+                    "platformUpdateDomainCount": 1,
+                    "platformFaultDomainCount": 1
+                }
+            })
+
         rorig = r
         for instance in range(1, rinstances+1):    
             if rinstances > 1:
@@ -506,6 +522,8 @@ class ArmTemplate:
             deps = [ "Microsoft.Network/networkInterfaces/"+nicname ]
             if rppg:
                 deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
+            if ravset:
+                deps.append("Microsoft.Compute/availabilitySets/"+rorig)
 
             vmres = {
                 "type": "Microsoft.Compute/virtualMachines",
@@ -547,10 +565,13 @@ class ArmTemplate:
 
             if rppg:
                 vmres["properties"]["proximityPlacementGroup"] = {
-                    "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups','{}')]".format(rppgname)
+                    "id": f"[resourceId('Microsoft.Compute/proximityPlacementGroups','{rppgname}')]"
                 }
             
-            self.__helper_arm_add_zones(vmres, raz)
+            if ravset:
+                vmres["properties"]["availabilitySet"] = {
+                    "id": f"[resourceId('Microsoft.Compute/availabilitySets','{rorig}')]"
+                }
 
             self.resources.append(vmres)
 
