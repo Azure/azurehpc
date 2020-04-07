@@ -524,8 +524,6 @@ class ArmTemplate:
                 deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
             if ravset:
                 deps.append("Microsoft.Compute/availabilitySets/"+rorig)
-            if rosdisksize:
-                vmres["properties"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
 
             vmres = {
                 "type": "Microsoft.Compute/virtualMachines",
@@ -574,6 +572,9 @@ class ArmTemplate:
                     "id": f"[resourceId('Microsoft.Compute/availabilitySets','{rorig}')]"
                 }
 
+            if rosdisksize:
+                vmres["properties"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
+
             self.resources.append(vmres)
 
     def _add_vmss(self, cfg, r):
@@ -590,7 +591,7 @@ class ArmTemplate:
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
-        rosdisksize = res.get("os_disk_size", 32)
+        rosdisksize = res.get("os_disk_size", None)
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
@@ -645,7 +646,6 @@ class ArmTemplate:
                             "managedDisk": {
                                 "storageAccountType": rosstoragesku
                             },
-                            "diskSizeGb": rosdisksize,
                         },
                         "dataDisks": datadisks,
                         "imageReference": imageref
@@ -688,6 +688,9 @@ class ArmTemplate:
         if rlowpri:
             vmssres["properties"]["virtualMachineProfile"]["priority"] = "Spot"
             vmssres["properties"]["virtualMachineProfile"]["evictionPolicy"] = "Delete"
+
+        if rosdisksize:
+            vmssres["properties"]["virtualMachineProfile"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
 
         self.__helper_arm_add_zones(vmssres, raz)
         self.resources.append(vmssres)
