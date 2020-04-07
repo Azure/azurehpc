@@ -388,7 +388,7 @@ class ArmTemplate:
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
-        rosdisksize = res.get("os_disk_size", 32)
+        rosdisksize = res.get("os_disk_size", None)
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
@@ -524,6 +524,8 @@ class ArmTemplate:
                 deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
             if ravset:
                 deps.append("Microsoft.Compute/availabilitySets/"+rorig)
+            if rosdisksize:
+                vmres["properties"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
 
             vmres = {
                 "type": "Microsoft.Compute/virtualMachines",
@@ -550,7 +552,6 @@ class ArmTemplate:
                             "managedDisk": {
                                 "storageAccountType": rosstoragesku
                             },
-                            "diskSizeGb": rosdisksize
                         },
                         "imageReference": imageref,
                         "dataDisks": datadisks
