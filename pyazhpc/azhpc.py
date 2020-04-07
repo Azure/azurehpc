@@ -1,7 +1,6 @@
 import argparse
 import datetime
 import json
-import logging
 import os
 import shutil
 import sys
@@ -11,13 +10,14 @@ import time
 import arm
 import azconfig
 import azinstall
+import azlog
 import azutil
 
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
 
-log = logging.getLogger(__name__)
+log = azlog.getLogger(__name__)
 
 def do_preprocess(args):
     log.debug("reading config file ({})".format(args.config_file))
@@ -111,9 +111,12 @@ def do_scp(args):
     sshkey="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
 
-    jumpbox = c.read_value("install_from")
-    rg = c.read_value("resource_group")
-    fqdn = azutil.get_fqdn(rg, jumpbox+"pip")
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
+
+    fqdn = c.get_install_from_destination()
 
     if args.args and args.args[0] == "--":
         scp_args = args.args[1:]
@@ -145,12 +148,13 @@ def do_connect(args):
     else:
         sshuser = args.user
 
-    jumpbox = c.read_value("install_from")
-    resource_group = c.read_value("resource_group")
-    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
 
-    if fqdn == "":
-        log.warning(f"The install node does not have a public IP - trying hostname ({jumpbox})")
+    resource_group = c.read_value("resource_group")
+    fqdn = c.get_install_from_destination()
  
     log.debug("Getting resource name")
 
@@ -230,12 +234,13 @@ def do_status(args):
     adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
 
-    jumpbox = c.read_value("install_from")
-    resource_group = c.read_value("resource_group")
-    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
 
-    if fqdn == "":
-        log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
+    resource_group = c.read_value("resource_group")
+    fqdn = c.get_install_from_destination()
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
     _exec_command(fqdn, adminuser, ssh_private_key, f"pssh -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
@@ -255,12 +260,13 @@ def do_run(args):
     else:
         sshuser = args.user
 
-    jumpbox = c.read_value("install_from")
-    resource_group = c.read_value("resource_group")
-    fqdn = azutil.get_fqdn(resource_group, jumpbox+"pip")
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
 
-    if fqdn == "":
-        log.warning("The install node does not have a public IP - trying hostname ({})".format(jumpbox))
+    resource_group = c.read_value("resource_group")
+    fqdn = c.get_install_from_destination()
 
     hosts = []
     if args.nodes:
@@ -400,6 +406,13 @@ def do_build(args):
                         print(f"  Message  : {error_message[0]}")
                         for line in error_message[1:]:
                             print(f"             {line}")
+                        if "details" in props["statusMessage"]["error"]:
+                            details_code = props["statusMessage"]["error"]["details"].get("code", "")
+                            details_message = textwrap.TextWrapper(width=60).wrap(text=props["statusMessage"]["error"]["details"].get("message", ""))
+                            print(f"  Details  : {details_code}")
+                            for line in details_message:
+                                print(f"             {line}")
+
         sys.exit(1)
     
     log.info("building host lists")
@@ -407,14 +420,14 @@ def do_build(args):
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    jumpbox = config.get("install_from", None)
-    fqdn = None
-    if jumpbox:
-        fqdn = azutil.get_fqdn(config["resource_group"], jumpbox+"pip")
-        log.info("running install scripts")
-        azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
-    else:
+    jumpbox = c.read_value("install_from", None)
+    if jumpbox == None:
         log.info("nothing to install ('install_from' is not set)")
+    else:
+        resource_group = c.read_value("resource_group")
+        fqdn = c.get_install_from_destination()
+        log.debug(f"running script from : {fqdn}")
+        azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))
@@ -442,6 +455,11 @@ if __name__ == "__main__":
     gopt_parser.add_argument(
         "--debug", 
         help="increase output verbosity",
+        action="store_true"
+    )
+    gopt_parser.add_argument(
+        "--no-color", 
+        help="turn off color in output",
         action="store_true"
     )
 
@@ -608,14 +626,14 @@ if __name__ == "__main__":
         help="displays the resource uptime"
     )
     status_parser.set_defaults(func=do_status)
-
     args = azhpc_parser.parse_args()
+
+    if args.debug:
+        azlog.setDebug(True)
+    if args.no_color:
+        azlog.setColor(False)
+
     log.debug(args)
     
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s:%(filename)s:%(lineno)d:%(levelname)s:%(message)s')
-    else:
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
-
     args.func(args)
 

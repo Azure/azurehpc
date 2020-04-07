@@ -1,0 +1,71 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "jumpbox",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.1.0/24"
+        }
+    },
+    "variables": {
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "<NOT-SET>",
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "key_vault": "<NOT-SET>"
+    },
+    "resources": {
+        "jumpbox": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "admin",
+            "tags": [
+            ]
+        },
+        "grafana": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "admin",
+            "tags": [
+                "disable-selinux",
+                "grafana",
+                "telegraf"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "install-grafana.sh",
+            "tag": "grafana",
+            "sudo": true,
+            "args": [
+                "azhpc",
+                "secret.{{variables.key_vault}}.GrafanaPassword"
+             ],
+             "deps" : ["telegraf_dashboard.json"]
+        },
+        {
+            "script": "install-telegraf.sh",
+            "tag": "telegraf",
+            "sudo": true,
+            "args": [
+                "$(<hostlists/tags/grafana)",
+                "azhpc",
+                "secret.{{variables.key_vault}}.GrafanaPassword"
+             ] 
+        }
+    ]
+}
