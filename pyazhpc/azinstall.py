@@ -303,6 +303,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
         duration = time.time() - starttime
         log.info(f"    duration: {duration:0.0f} seconds")
 
-        log.debug("rsyncing log files back")
-        __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
+        if jb:
+            log.debug("rsyncing log files back")
+            __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
         
