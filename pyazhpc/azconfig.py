@@ -24,7 +24,7 @@ class ConfigFile:
     def get_install_from_destination(self):
         install_from = self.read_value("install_from")
         dest = install_from
-        if install_from is not None:
+        if install_from:
             if self.read_value(f"resources.{install_from}.public_ip", False):
                 dest = azutil.get_fqdn(self.read_value("resource_group"), f"{install_from}pip")
         log.debug(f"install_from destination : {dest}")
