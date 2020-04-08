@@ -255,12 +255,10 @@ def __rsync(sshkey, src, dst):
 
 def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
     jb = cfg.get("install_from")
+    install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
-        install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
         log.debug("rsyncing install files")
         __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
-    else:
-        install_steps = cfg.get("install", [])
 
     for idx, step in enumerate(install_steps):
         script = step["script"]
@@ -288,7 +286,8 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
                     __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
                     sys.exit(1)
             else:
-                log.warning("skipping step as no jumpbox (install_from) is set")
+                if idx > 0:
+                    log.warning("skipping step as no jumpbox (install_from) is set")
 
         elif scripttype == "local_script":
             res = subprocess.run(instcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
