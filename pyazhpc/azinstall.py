@@ -257,9 +257,10 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
     jb = cfg.get("install_from")
     if jb:
         install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
-        
         log.debug("rsyncing install files")
         __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
+    else:
+        install_steps = cfg.get("install", [])
 
     for idx, step in enumerate(install_steps):
         script = step["script"]
