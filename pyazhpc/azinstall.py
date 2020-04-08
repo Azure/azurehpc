@@ -226,7 +226,7 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
             elif stype == "local_script":
                 create_local_script(step, tmpdir, n+1)
             else:
-                error(f"unrecognised script type ({stype})")
+                log.error(f"unrecognised script type ({stype})")
                 sys.exit(1)
             
             for script in [ step["script"] ] + step.get("deps", []):
