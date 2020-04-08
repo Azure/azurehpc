@@ -49,7 +49,8 @@
           "variables.key_vault",
           "variables.spn_name",
           "variables.projectstore",
-          "variables.appId"
+          "variables.appId",
+          "cycleserver"
       ]
     }
   ]

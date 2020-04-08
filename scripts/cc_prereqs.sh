@@ -9,6 +9,7 @@ key_vault=$2
 spn_appname=$3
 projectstore=$4
 appId=$5
+vmname=$6
 
 # Create Key Vault to store secrets and keys
 az keyvault show -n $key_vault --output table 2>/dev/null
@@ -71,3 +72,13 @@ if [ "$secret" == "" ]; then
     exit 1
 fi
 
+# Create the NSG to open port 443
+echo "Open port 443 for $vmname"
+az network nsg rule create \
+    -g ${resource_group} \
+    --nsg-name ${vmname}NSG \
+    --name cyclehttps \
+    --priority 2000 \
+    --protocol Tcp \
+    --destination-port-ranges 443 \
+    --output table
