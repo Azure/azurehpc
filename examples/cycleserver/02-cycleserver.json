@@ -20,6 +20,7 @@
     "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
     "appId": "",
+    "tenandId": "<NOT-SET>",
     "image": "OpenLogic:CentOS:7.6:latest"
   },
   "resources": {
@@ -31,27 +32,23 @@
       "image": "variables.image",
       "subnet": "admin",
       "tags": [
-        "loginnode",
-        "disable-selinux"
+        "cycle"
       ]
     }
   },
   "install": [
     {
-      "script": "disable-selinux.sh",
-      "tag": "disable-selinux",
-      "sudo": true
-    },
-    {
-      "type": "local_script",
       "script": "cc_install.sh",
+      "tag": "cycle",
+      "sudo": true,
       "args": [
-          "variables.resource_group",
-          "cycleserver",
-          "variables.key_vault",
-          "variables.spn_name",
-          "variables.projectstore",
-          "variables.appId"
+          "fqdn.cycleserver",
+          "secret.{{variables.key_vault}}.{{variables.spn_name}}",
+          "variables.appId",
+          "variables.tenandId",
+          "variables.admin_user",
+          "secret.{{variables.key_vault}}.CycleAdminPassword",
+          "variables.projectstore"
       ]
     }
   ]

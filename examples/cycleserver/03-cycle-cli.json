@@ -1,7 +1,7 @@
 {
   "location": "variables.location",
   "resource_group": "variables.resource_group",
-  "install_from": "cycleserver",
+  "install_from": "",
   "admin_user": "variables.admin_user",
   "vnet": {
     "name": "hpcvnet",
@@ -31,17 +31,10 @@
       "image": "variables.image",
       "subnet": "admin",
       "tags": [
-        "loginnode",
-        "disable-selinux"
       ]
     }
   },
   "install": [
-    {
-      "script": "disable-selinux.sh",
-      "tag": "disable-selinux",
-      "sudo": true
-    },
     {
       "type": "local_script",
       "script": "cyclecli_install.sh",
