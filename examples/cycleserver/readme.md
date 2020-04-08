@@ -24,6 +24,7 @@ The required variables you need to set are :
 | key_vault      | The Key Vault name to use. If it doesn't exists it will be created in the same `resource_group`. If it exists, make sure you have read/write access policies to secrets. |
 | spn_name       | Service Principal Name to be used by CycleCloud. If it doesn't exists it will be created, you have to be owner of the subscription. If it exists you need to store its associated secret in the Key Vault `key_vault` under the secret `CycleAdminPassword`|
 | projectstore   | The name of the Azure Storage to be created to store Cycel Project files |
+| tenandId       | The tenantId in which the SPN has been generated                 |
 
 
 The optional variables you need to set are :
@@ -34,14 +35,26 @@ The optional variables you need to set are :
 
 
 ```
-$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=eastus,resource_group=azhpc-cycle,key_vault=mykv,spn_name=CycleApp,projectstore=azhpccyclestore
+$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=westeurope,resource_group=azhpc-cycle,key_vault=mykv,spn_name=CycleApp,projectstore=cyclestore,appId=xxxxxx,tenandId=xxxxx
 ```
 
-Create the VM
+## Create the CycleSerer VM and create the pre-requisites resources
 
 ```
 $ cd cycleserver
-$ azhpc-build
+$ azhpc-build -c 01-prereqs.json
+```
+
+## Install CycleCloud on the CycleServer VM
+
+```
+$ azhpc-build -c 02-cycleserver.json
+```
+
+## Install the Cycle CLI on the current machine
+
+```
+$ azhpc-build -c 03-cycle-cli.json
 ```
 
 Once finished list the CycleCloud configuration 
@@ -58,13 +71,7 @@ $ key_vault="mykv"
 $ az keyvault secret show --name "CycleAdminPassword" --vault-name $key_vault -o json | jq -r '.value'
 ```
 
-Setup Cycle Cloud CLI
 
-```
-$ azhpc-build -c config_cli.json
-```
-
-
-Browse to the **url** displayed to start the Cycle Web UI, connect with the **hpcadmin** user and the password retrieved above.
+Browse to the **url** listed in the list above, connect with the **hpcadmin** user and the password retrieved above.
 
 

@@ -1,7 +1,7 @@
 {
   "location": "variables.location",
   "resource_group": "variables.resource_group",
-  "install_from": "",
+  "install_from": "cycleserver",
   "admin_user": "variables.admin_user",
   "vnet": {
     "name": "hpcvnet",
