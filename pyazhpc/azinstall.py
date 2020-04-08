@@ -269,7 +269,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
         starttime = time.time()
 
         if scripttype == "jumpbox_script":
-            if jb
+            if jb:
                 tag = step.get("tag", None)
                 if tag:
                     instcmd.append(tag)
