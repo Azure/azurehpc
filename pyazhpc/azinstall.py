@@ -255,13 +255,14 @@ def __rsync(sshkey, src, dst):
 
 def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
     jb = cfg.get("install_from")
+    install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
-        install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
-        
         log.debug("rsyncing install files")
         __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
 
     for idx, step in enumerate(install_steps):
+        if idx == 0 and not jb:
+            continue
         script = step["script"]
         scripttype = step.get("type", "jumpbox_script")
         instcmd = [ f"{tmpdir}/install/{idx:02}_{script}" ]
@@ -269,7 +270,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
         starttime = time.time()
 
         if scripttype == "jumpbox_script":
-            if jb
+            if jb:
                 tag = step.get("tag", None)
                 if tag:
                     instcmd.append(tag)
@@ -293,7 +294,6 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
             res = subprocess.run(instcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if res.returncode != 0:
                 log.error("invalid returncode"+_make_subprocess_error_string(res))
-                __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
                 sys.exit(1)
         
         else:
@@ -302,6 +302,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
         duration = time.time() - starttime
         log.info(f"    duration: {duration:0.0f} seconds")
 
-        log.debug("rsyncing log files back")
-        __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
+        if jb:
+            log.debug("rsyncing log files back")
+            __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
         
