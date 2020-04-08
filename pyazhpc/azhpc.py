@@ -111,7 +111,7 @@ def do_scp(args):
     sshkey="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
 
-    jumpbox = c.read_value("install_from", None)
+    jumpbox = c.read_value("install_from")
     if jumpbox == None:
         log.error(f"Missing 'install_from' property")
         sys.exit(1)
@@ -148,7 +148,7 @@ def do_connect(args):
     else:
         sshuser = args.user
 
-    jumpbox = c.read_value("install_from", None)
+    jumpbox = c.read_value("install_from")
     if jumpbox == None:
         log.error(f"Missing 'install_from' property")
         sys.exit(1)
@@ -234,7 +234,7 @@ def do_status(args):
     adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
 
-    jumpbox = c.read_value("install_from", None)
+    jumpbox = c.read_value("install_from")
     if jumpbox == None:
         log.error(f"Missing 'install_from' property")
         sys.exit(1)
@@ -260,7 +260,7 @@ def do_run(args):
     else:
         sshuser = args.user
 
-    jumpbox = c.read_value("install_from", None)
+    jumpbox = c.read_value("install_from")
     if jumpbox == None:
         log.error(f"Missing 'install_from' property")
         sys.exit(1)
@@ -271,7 +271,7 @@ def do_run(args):
     hosts = []
     if args.nodes:
         for r in args.nodes.split(" "):
-            rtype = c.read_value(f"resources.{r}.type", None)
+            rtype = c.read_value(f"resources.{r}.type")
             if not rtype:
                 log.error(f"resource {r} does not exist in config")
                 sys.exit(1)
@@ -420,7 +420,7 @@ def do_build(args):
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    jumpbox = c.read_value("install_from", None)
+    jumpbox = c.read_value("install_from")
     if jumpbox == None:
         log.info("nothing to install ('install_from' is not set)")
     else:
