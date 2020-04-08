@@ -293,7 +293,6 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
             res = subprocess.run(instcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if res.returncode != 0:
                 log.error("invalid returncode"+_make_subprocess_error_string(res))
-                __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
                 sys.exit(1)
         
         else:
