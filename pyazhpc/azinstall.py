@@ -261,6 +261,8 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
         __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
 
     for idx, step in enumerate(install_steps):
+        if idx == 0 and not jb:
+            continue
         script = step["script"]
         scripttype = step.get("type", "jumpbox_script")
         instcmd = [ f"{tmpdir}/install/{idx:02}_{script}" ]
@@ -286,8 +288,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
                     __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
                     sys.exit(1)
             else:
-                if idx > 0:
-                    log.warning("skipping step as no jumpbox (install_from) is set")
+                log.warning("skipping step as no jumpbox (install_from) is set")
 
         elif scripttype == "local_script":
             res = subprocess.run(instcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
