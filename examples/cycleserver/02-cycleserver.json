@@ -48,7 +48,7 @@
       "tag": "cycle",
       "sudo": true,
       "args": [
-          "fqdn.cycleserver",
+          "cycleserver",
           "secret.{{variables.key_vault}}.{{variables.spn_name}}",
           "variables.appId",
           "variables.tenandId",
