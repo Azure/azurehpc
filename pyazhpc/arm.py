@@ -5,13 +5,15 @@ import uuid
 import azlog
 import azutil
 
+import re
+
 log = azlog.getLogger(__name__)
 
 class ArmTemplate:
     def __init__(self):
         self.parameters = {}
         self.variables = {}
-        self.resources = []
+        self.eesources = []
         self.outputs = {}
     
     def _add_network(self, cfg):
@@ -358,11 +360,16 @@ class ArmTemplate:
         return datadisks
 
     def __helper_arm_create_image_reference(self, refstr):
-        return {
-            "publisher": refstr.split(":")[0],
-            "offer": refstr.split(":")[1],
-            "sku": refstr.split(":")[2],
-            "version": refstr.split(":")[3]
+        if re.search(":", refstr):
+           return {
+              "publisher": refstr.split(":")[0],
+              "offer": refstr.split(":")[1],
+              "sku": refstr.split(":")[2],
+              "version": refstr.split(":")[3]
+        }
+        else:
+           return {
+              "Id": refstr
         }
 
     def __helper_arm_add_zones(self, res, zones):
