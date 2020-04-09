@@ -1,10 +1,9 @@
 {
   "location": "variables.location",
   "resource_group": "variables.resource_group",
-  "install_from": "jumpbox",
+  "install_from": "",
   "admin_user": "variables.ad_admin",
   "variables": {
-    "image": "OpenLogic:CentOS:7.7:latest",
     "location": "westeurope",
     "resource_group": "ad_demo",
     "vnet_resource_group": "variables.resource_group",
@@ -24,14 +23,6 @@
     }
   },
   "resources": {
-    "jumpbox": {
-      "type": "vm",
-      "public_ip": "true",
-      "vm_type": "Standard_D4_v3",
-      "image": "variables.image",
-      "subnet": "admin",
-      "tags": []
-    },
     "adnode": {
       "type": "vm",
       "public_ip": "true",
