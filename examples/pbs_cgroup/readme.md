@@ -73,4 +73,4 @@ nvidia-smi
 +-------------------------------+----------------------+----------------------+
 ```
 
->Note: A job run on there requested resources will only use 2 gpu's, 10 cpu cores and 160 GB of memory.
+>Note: A job run on there requested resources will only use 2 gpu's, 10 cpu cores and 160 GB of memory. Wth Cgroups its improtant to specify how much memory you need because the default memory setting is very low.
