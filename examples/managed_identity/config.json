@@ -1,0 +1,55 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "image": "OpenLogic:CentOS:7.7:latest",
+    "vm_type": "Standard_D4s_v3",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>"
+  },
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "hpc": "10.2.0.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "public_ip": "true",
+      "vm_type": "variables.vm_type",
+      "image": "variables.image",
+      "accelerated_networking": "true",
+      "managed_identity": {
+          "role": "contributor",
+          "scope": "resource_group"
+      }, 
+      "subnet": "hpc",
+      "tags": [
+        "disable-selinux",
+        "cndefault",
+        "azcli"
+        ]
+   }
+  },
+  "install": [
+     {
+       "script": "disable-selinux.sh",
+       "tag": "disable-selinux",
+       "sudo": true
+     },
+     {
+       "script": "cndefault.sh",
+       "tag": "cndefault",
+       "sudo": true
+     },
+     {
+       "script": "install-azcli.sh",
+       "tag": "azcli",
+       "sudo": true
+     }
+  ]
+}
