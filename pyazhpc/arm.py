@@ -5,8 +5,6 @@ import uuid
 import azlog
 import azutil
 
-import re
-
 log = azlog.getLogger(__name__)
 
 class ArmTemplate:
@@ -360,7 +358,7 @@ class ArmTemplate:
         return datadisks
 
     def __helper_arm_create_image_reference(self, refstr):
-        if re.search(":", refstr):
+        if ":" in refstr:
            return {
               "publisher": refstr.split(":")[0],
               "offer": refstr.split(":")[1],
@@ -369,7 +367,7 @@ class ArmTemplate:
         }
         else:
            return {
-              "Id": refstr
+              "id": refstr
         }
 
     def __helper_arm_add_zones(self, res, zones):
