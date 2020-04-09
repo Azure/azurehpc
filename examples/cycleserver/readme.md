@@ -38,20 +38,26 @@ The optional variables you need to set are :
 $ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=westeurope,resource_group=azhpc-cycle,key_vault=mykv,spn_name=CycleApp,projectstore=cyclestore,appId=xxxxxx,tenandId=xxxxx
 ```
 
-## Create the CycleSerer VM and create the pre-requisites resources
+## Create the pre-requisites resources
 
 ```
 $ cd cycleserver
 $ azhpc-build -c 01-prereqs.json
 ```
 
-## Install CycleCloud on the CycleServer VM
+## Create the CycleSerer VM and install CycleCloud on the CycleServer VM
 
 ```
 $ azhpc-build -c 02-cycleserver.json
 ```
 
 ## Install the Cycle CLI on the current machine
+Before running this step, please update the 03-cycle-cli.json file with the cycleserver fqdn
+
+```json
+    "image": "OpenLogic:CentOS:7.7:latest",
+    "cycle_fdn": "<update me>"
+```
 
 ```
 $ azhpc-build -c 03-cycle-cli.json
@@ -71,7 +77,5 @@ $ key_vault="mykv"
 $ az keyvault secret show --name "CycleAdminPassword" --vault-name $key_vault -o json | jq -r '.value'
 ```
 
-
 Browse to the **url** listed in the list above, connect with the **hpcadmin** user and the password retrieved above.
-
 

@@ -20,8 +20,8 @@
     "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
     "appId": "",
-    "image": "OpenLogic:CentOS:7.6:latest",
-    "cycle_fdn": ""
+    "image": "OpenLogic:CentOS:7.7:latest",
+    "cycle_fdn": "<NOT-SET>"
   },
   "resources": {
   },

@@ -20,7 +20,7 @@
     "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
     "appId": "",
-    "image": "OpenLogic:CentOS:7.6:latest"
+    "image": "OpenLogic:CentOS:7.7:latest"
   },
   "resources": {
   },
