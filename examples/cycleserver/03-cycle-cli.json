@@ -20,26 +20,17 @@
     "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
     "appId": "",
-    "image": "OpenLogic:CentOS:7.6:latest"
+    "image": "OpenLogic:CentOS:7.6:latest",
+    "cycle_fdn": ""
   },
   "resources": {
-    "cycleserver": {
-      "type": "vm",
-      "vm_type": "Standard_D8s_v3",
-      "accelerated_networking": true,
-      "public_ip": true,
-      "image": "variables.image",
-      "subnet": "admin",
-      "tags": [
-      ]
-    }
   },
   "install": [
     {
       "type": "local_script",
       "script": "cyclecli_install.sh",
       "args": [
-          "fqdn.cycleserver",
+          "variables.cycle_fdn",
           "variables.admin_user",
           "secret.{{variables.key_vault}}.CycleAdminPassword",
           "variables.resource_group",

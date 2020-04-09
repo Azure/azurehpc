@@ -32,11 +32,17 @@
       "image": "variables.image",
       "subnet": "admin",
       "tags": [
+        "disable-selinux",
         "cycle"
       ]
     }
   },
   "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
     {
       "script": "cc_install.sh",
       "tag": "cycle",
@@ -49,6 +55,14 @@
           "variables.admin_user",
           "secret.{{variables.key_vault}}.CycleAdminPassword",
           "variables.projectstore"
+      ]
+    },
+    {
+      "type": "local_script",
+      "script": "cc_nsg.sh",
+      "args": [
+          "variables.resource_group",
+          "cycleserver"
       ]
     }
   ]
