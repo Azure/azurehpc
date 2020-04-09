@@ -358,11 +358,16 @@ class ArmTemplate:
         return datadisks
 
     def __helper_arm_create_image_reference(self, refstr):
-        return {
-            "publisher": refstr.split(":")[0],
-            "offer": refstr.split(":")[1],
-            "sku": refstr.split(":")[2],
-            "version": refstr.split(":")[3]
+        if ":" in refstr:
+           return {
+              "publisher": refstr.split(":")[0],
+              "offer": refstr.split(":")[1],
+              "sku": refstr.split(":")[2],
+              "version": refstr.split(":")[3]
+        }
+        else:
+           return {
+              "id": refstr
         }
 
     def __helper_arm_add_zones(self, res, zones):
