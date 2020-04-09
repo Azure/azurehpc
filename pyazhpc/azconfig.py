@@ -22,9 +22,9 @@ class ConfigFile:
             json.dump(self.data, f, indent=4)
 
     def get_install_from_destination(self):
-        install_from = self.read_value("install_from", None)
+        install_from = self.read_value("install_from")
         dest = install_from
-        if install_from is not None:
+        if install_from:
             if self.read_value(f"resources.{install_from}.public_ip", False):
                 dest = azutil.get_fqdn(self.read_value("resource_group"), f"{install_from}pip")
         log.debug(f"install_from destination : {dest}")
@@ -97,13 +97,9 @@ class ConfigFile:
             else:
                 res = it
         except KeyError:
-            if default is not None:
-                log.debug(f"using default value ({default})")
-                res = default
-            else:
-                log.error("read_value : "+v+" not in config")
-                sys.exit(1)
-
+            log.debug(f"using default value ({default})")
+            res = default
+        
         log.debug("read_value (exit): "+v+"="+str(res))
 
         return res
