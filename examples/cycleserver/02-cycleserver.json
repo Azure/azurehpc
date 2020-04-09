@@ -1,0 +1,69 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "cycleserver",
+  "admin_user": "variables.admin_user",
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "admin": "10.2.1.0/24",
+      "storage": "10.2.3.0/24",
+      "compute": "10.2.4.0/22"
+    }
+  },
+  "variables": {
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "key_vault": "<NOT-SET>",
+    "spn_name": "<NOT-SET>",
+    "projectstore": "<NOT-SET>",
+    "admin_user": "hpcadmin",
+    "appId": "",
+    "tenandId": "<NOT-SET>",
+    "image": "OpenLogic:CentOS:7.7:latest"
+  },
+  "resources": {
+    "cycleserver": {
+      "type": "vm",
+      "vm_type": "Standard_D8s_v3",
+      "accelerated_networking": true,
+      "public_ip": true,
+      "image": "variables.image",
+      "subnet": "admin",
+      "tags": [
+        "disable-selinux",
+        "cycle"
+      ]
+    }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "cc_install.sh",
+      "tag": "cycle",
+      "sudo": true,
+      "args": [
+          "cycleserver",
+          "secret.{{variables.key_vault}}.{{variables.spn_name}}",
+          "variables.appId",
+          "variables.tenandId",
+          "variables.admin_user",
+          "secret.{{variables.key_vault}}.CycleAdminPassword",
+          "variables.projectstore"
+      ]
+    },
+    {
+      "type": "local_script",
+      "script": "cc_nsg.sh",
+      "args": [
+          "variables.resource_group",
+          "cycleserver"
+      ]
+    }
+  ]
+}
