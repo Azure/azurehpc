@@ -13,7 +13,7 @@ class ArmTemplate:
     def __init__(self):
         self.parameters = {}
         self.variables = {}
-        self.eesources = []
+        self.resources = []
         self.outputs = {}
     
     def _add_network(self, cfg):
