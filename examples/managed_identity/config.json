@@ -4,7 +4,7 @@
   "install_from": "headnode",
   "admin_user": "hpcadmin",
   "variables": {
-    "image": "OpenLogic:CentOS:7.6:latest",
+    "image": "OpenLogic:CentOS:7.7:latest",
     "vm_type": "Standard_D4s_v3",
     "location": "<NOT-SET>",
     "resource_group": "<NOT-SET>"
@@ -20,7 +20,7 @@
     "headnode": {
       "type": "vm",
       "public_ip": "true",
-      "vm_type": "Standard_D4s_v3",
+      "vm_type": "variables.vm_type",
       "image": "variables.image",
       "accelerated_networking": "true",
       "managed_identity": {
