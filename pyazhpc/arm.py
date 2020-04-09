@@ -368,7 +368,7 @@ class ArmTemplate:
     def __helper_arm_add_zones(self, res, zones):
         strzones = []
         if type(zones) == list:
-            for z in zone:
+            for z in zones:
                 strzones.append(z)
         elif zones != None:
             strzones.append(str(zones))
@@ -388,7 +388,7 @@ class ArmTemplate:
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
-        rosdisksize = res.get("os_disk_size", 32)
+        rosdisksize = res.get("os_disk_size", None)
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
@@ -551,7 +551,6 @@ class ArmTemplate:
                             "managedDisk": {
                                 "storageAccountType": rosstoragesku
                             },
-                            "diskSizeGb": rosdisksize
                         },
                         "imageReference": imageref,
                         "dataDisks": datadisks
@@ -573,6 +572,9 @@ class ArmTemplate:
                 vmres["properties"]["availabilitySet"] = {
                     "id": f"[resourceId('Microsoft.Compute/availabilitySets','{rorig}')]"
                 }
+
+            if rosdisksize:
+                vmres["properties"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
 
             if rmanagedidentity is not None:
                 vmres["identity"] = {
@@ -628,7 +630,7 @@ class ArmTemplate:
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
-        rosdisksize = res.get("os_disk_size", 32)
+        rosdisksize = res.get("os_disk_size", None)
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
@@ -683,7 +685,6 @@ class ArmTemplate:
                             "managedDisk": {
                                 "storageAccountType": rosstoragesku
                             },
-                            "diskSizeGb": rosdisksize,
                         },
                         "dataDisks": datadisks,
                         "imageReference": imageref
@@ -726,6 +727,9 @@ class ArmTemplate:
         if rlowpri:
             vmssres["properties"]["virtualMachineProfile"]["priority"] = "Spot"
             vmssres["properties"]["virtualMachineProfile"]["evictionPolicy"] = "Delete"
+
+        if rosdisksize:
+            vmssres["properties"]["virtualMachineProfile"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
 
         self.__helper_arm_add_zones(vmssres, raz)
         self.resources.append(vmssres)
