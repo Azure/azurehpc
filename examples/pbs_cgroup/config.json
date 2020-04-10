@@ -1,0 +1,126 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "<NOT-SET>",
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "location": "southcentralus",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_ND40rs_v2",
+        "compute_instances": 1,
+        "low_priority": true,
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "cndefault",
+                "nfsserver",
+                "pbsserver",
+                "loginnode",
+                "localuser",
+                "disable-selinux",
+                "pbs_cgroup",
+                "pbs_restart"
+            ]
+        },
+        "gpu": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
+            "low_priority": "variables.low_priority",
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "nfsclient",
+                "pbsclient",
+                "cndefault",
+                "localuser",
+                "disable-selinux",
+                "pbs_restart"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "nfsserver.sh",
+            "tag": "nfsserver",
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": false
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
+            "sudo": false
+        },
+        {
+            "script": "pbs_cgroup.sh",
+            "tag": "pbs_cgroup",
+            "sudo": true
+        },
+        {
+            "script": "pbs_restart.sh",
+            "tag": "pbs_restart",
+            "sudo": true
+        }
+    ]
+}
