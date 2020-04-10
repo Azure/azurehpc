@@ -619,6 +619,7 @@ class ArmTemplate:
                     ]
                 })
 
+            self.__helper_arm_add_zones(vmres, raz)
             self.resources.append(vmres)
 
     def _add_vmss(self, cfg, r):
