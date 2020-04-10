@@ -100,7 +100,7 @@ providers:
     path: $dashboard_dir
 EOF
 
-chown root:grafana $grafana_etc_root/dashboards/azhpc.yaml
+chown root:grafana $grafana_etc_root/dashboards/azhpc.yml
 
 mkdir $dashboard_dir
 chown grafana:grafana $dashboard_dir

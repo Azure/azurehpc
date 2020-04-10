@@ -358,17 +358,22 @@ class ArmTemplate:
         return datadisks
 
     def __helper_arm_create_image_reference(self, refstr):
-        return {
-            "publisher": refstr.split(":")[0],
-            "offer": refstr.split(":")[1],
-            "sku": refstr.split(":")[2],
-            "version": refstr.split(":")[3]
+        if ":" in refstr:
+           return {
+              "publisher": refstr.split(":")[0],
+              "offer": refstr.split(":")[1],
+              "sku": refstr.split(":")[2],
+              "version": refstr.split(":")[3]
+        }
+        else:
+           return {
+              "id": refstr
         }
 
     def __helper_arm_add_zones(self, res, zones):
         strzones = []
         if type(zones) == list:
-            for z in zone:
+            for z in zones:
                 strzones.append(z)
         elif zones != None:
             strzones.append(str(zones))
@@ -388,12 +393,13 @@ class ArmTemplate:
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
-        rosdisksize = res.get("os_disk_size", 32)
+        rosdisksize = res.get("os_disk_size", None)
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
         rtags = res.get("resource_tags", {})
+        rmanagedidentity = res.get("managed_identity", None)
         loc = cfg["location"]
         ravset = res.get("availability_set", False)
         adminuser = cfg["admin_user"]
@@ -550,7 +556,6 @@ class ArmTemplate:
                             "managedDisk": {
                                 "storageAccountType": rosstoragesku
                             },
-                            "diskSizeGb": rosdisksize
                         },
                         "imageReference": imageref,
                         "dataDisks": datadisks
@@ -573,6 +578,47 @@ class ArmTemplate:
                     "id": f"[resourceId('Microsoft.Compute/availabilitySets','{rorig}')]"
                 }
 
+            if rosdisksize:
+                vmres["properties"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
+
+            if rmanagedidentity is not None:
+                vmres["identity"] = {
+                    "type": "SystemAssigned"
+                }
+
+                role_lookup = {
+                    "reader": "[resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+                    "contributor": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                    "owner": "[resourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]"
+                }
+                role = rmanagedidentity.get("role", "reader")
+                if role not in role_lookup:
+                    log.error(f"{role} is an invalid role for a managed identity (options are: {', '.join(role_lookup.keys())})")
+                    sys.exit(1)
+
+                scope_lookup = {
+                    "resource_group": "[resourceGroup().id]",
+                    "subscription": "[subscription().subscriptionId]"
+                }
+                scope = rmanagedidentity.get("scope", "resource_group")
+                if scope not in scope_lookup:
+                    log.error(f"{scope} is an invalid scope for a managed identity (options are: {', '.join(scope_lookup.keys())})")
+                    sys.exit(1)
+
+                self.resources.append({
+                    "apiVersion": "2017-09-01",
+                    "type": "Microsoft.Authorization/roleAssignments",
+                    "name": f"[guid(subscription().subscriptionId, resourceGroup().id, '{r}')]",
+                    "properties": {
+                        "roleDefinitionId": role_lookup[role],
+                        "principalId": f"[reference('{r}', '2017-12-01', 'Full').identity.principalId]",
+                        "scope": scope_lookup[scope]
+                    },
+                    "dependsOn": [
+                        f"[resourceId('Microsoft.Compute/virtualMachines/', '{r}')]"
+                    ]
+                })
+
             self.resources.append(vmres)
 
     def _add_vmss(self, cfg, r):
@@ -589,7 +635,7 @@ class ArmTemplate:
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
-        rosdisksize = res.get("os_disk_size", 32)
+        rosdisksize = res.get("os_disk_size", None)
         rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
@@ -644,7 +690,6 @@ class ArmTemplate:
                             "managedDisk": {
                                 "storageAccountType": rosstoragesku
                             },
-                            "diskSizeGb": rosdisksize,
                         },
                         "dataDisks": datadisks,
                         "imageReference": imageref
@@ -687,6 +732,9 @@ class ArmTemplate:
         if rlowpri:
             vmssres["properties"]["virtualMachineProfile"]["priority"] = "Spot"
             vmssres["properties"]["virtualMachineProfile"]["evictionPolicy"] = "Delete"
+
+        if rosdisksize:
+            vmssres["properties"]["virtualMachineProfile"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
 
         self.__helper_arm_add_zones(vmssres, raz)
         self.resources.append(vmssres)

@@ -215,30 +215,29 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
         os.makedirs("scripts", exist_ok=True)
         _create_anf_mount_scripts(cfg, "scripts/auto_netappfiles_mount.sh")
 
-    if jb:
-        inst = cfg.get("install", [])
-        create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey)
+    inst = cfg.get("install", [])
+    create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey)
 
-        for n, step in enumerate(inst):
-            stype = step.get("type", "jumpbox_script")
-            if stype == "jumpbox_script":
-                create_jumpbox_script(step, tmpdir, n+1)
-            elif stype == "local_script":
-                create_local_script(step, tmpdir, n+1)
+    for n, step in enumerate(inst):
+        stype = step.get("type", "jumpbox_script")
+        if stype == "jumpbox_script":
+            create_jumpbox_script(step, tmpdir, n+1)
+        elif stype == "local_script":
+            create_local_script(step, tmpdir, n+1)
+        else:
+            log.error(f"unrecognised script type ({stype})")
+            sys.exit(1)
+        
+        for script in [ step["script"] ] + step.get("deps", []):
+            if os.path.exists(f"scripts/{script}"):
+                log.debug(f"using script from this project ({script})")
+                shutil.copy(f"scripts/{script}", tmpdir+"/scripts")
+            elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
+                log.debug(f"using azhpc script ({script})")
+                shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{script}", tmpdir+"/scripts")
             else:
-                error(f"unrecognised script type ({stype})")
+                log.error(f"cannot find script ({script})")
                 sys.exit(1)
-            
-            for script in [ step["script"] ] + step.get("deps", []):
-                if os.path.exists(f"scripts/{script}"):
-                    log.debug(f"using script from this project ({script})")
-                    shutil.copy(f"scripts/{script}", tmpdir+"/scripts")
-                elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
-                    log.debug(f"using azhpc script ({script})")
-                    shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{script}", tmpdir+"/scripts")
-                else:
-                    log.error(f"cannot find script ({script})")
-                    sys.exit(1)
 
 def _make_subprocess_error_string(res):
     return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout.decode("utf-8"), res.stderr.decode("utf-8"))
@@ -255,21 +254,23 @@ def __rsync(sshkey, src, dst):
         sys.exit(1)
 
 def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
-    jb = cfg.get("install_from", None)
+    jb = cfg.get("install_from")
+    install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
-        install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
-        
         log.debug("rsyncing install files")
         __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
 
-        for idx, step in enumerate(install_steps):
-            script = step["script"]
-            scripttype = step.get("type", "jumpbox_script")
-            instcmd = [ f"{tmpdir}/install/{idx:02}_{script}" ]
-            log.info(f"Step {idx:02} : {script} ({scripttype})")
-            starttime = time.time()
+    for idx, step in enumerate(install_steps):
+        if idx == 0 and not jb:
+            continue
+        script = step["script"]
+        scripttype = step.get("type", "jumpbox_script")
+        instcmd = [ f"{tmpdir}/install/{idx:02}_{script}" ]
+        log.info(f"Step {idx:02} : {script} ({scripttype})")
+        starttime = time.time()
 
-            if scripttype == "jumpbox_script":
+        if scripttype == "jumpbox_script":
+            if jb:
                 tag = step.get("tag", None)
                 if tag:
                     instcmd.append(tag)
@@ -286,20 +287,22 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
                     log.error("invalid returncode"+_make_subprocess_error_string(res))
                     __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
                     sys.exit(1)
-
-            elif scripttype == "local_script":
-                res = subprocess.run(instcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                if res.returncode != 0:
-                    log.error("invalid returncode"+_make_subprocess_error_string(res))
-                    __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
-                    sys.exit(1)
-            
             else:
-                log.error(f"unrecognised script type {scripttype}")
+                log.warning("skipping step as no jumpbox (install_from) is set")
 
-            duration = time.time() - starttime
-            log.info(f"    duration: {duration:0.0f} seconds")
+        elif scripttype == "local_script":
+            res = subprocess.run(instcmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if res.returncode != 0:
+                log.error("invalid returncode"+_make_subprocess_error_string(res))
+                sys.exit(1)
+        
+        else:
+            log.error(f"unrecognised script type {scripttype}")
 
-        log.debug("rsyncing log files back")
-        __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
+        duration = time.time() - starttime
+        log.info(f"    duration: {duration:0.0f} seconds")
+
+        if jb:
+            log.debug("rsyncing log files back")
+            __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
         
