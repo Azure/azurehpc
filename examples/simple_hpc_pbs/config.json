@@ -66,6 +66,7 @@
         {
             "script": "nfsserver.sh",
             "tag": "nfsserver",
+            "deps": ["make_filesystem.sh", "create_raid0.sh"],
             "sudo": true
         },
         {
