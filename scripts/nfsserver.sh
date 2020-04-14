@@ -41,7 +41,7 @@ setup_disks()
     nbDisks=`fdisk -l | grep '^Disk /dev/' | grep -v $rootDevice | grep -v $tmpDevice | wc -l`
     echo "nbDisks=$nbDisks"
 
-    dataDevices="`fdisk -l | grep '^Disk /dev/' | grep $dataDiskSize | awk '{print $2}' | awk -F: '{print $1}' | sort | head -$nbDisks | tr '\n' ' ' | sed 's|/dev/||g'`"
+    dataDevices="`fdisk -l | grep '^Disk /dev/' | grep $dataDiskSize | awk '{print $2}' | awk -F: '{print $1}' | sort | head -$nbDisks | tr '\n' ' ' `"
 
     mkdir -p $NFS_MOUNT_POINT
 
@@ -105,6 +105,6 @@ systemctl restart nfs-server
 ln -s /share/apps /apps
 ln -s /share/data /data
 
-df
+df -h
 
 
