@@ -50,7 +50,7 @@ setup_disks()
         #$DIR/make_partitions.sh $dataDevices
         $DIR/make_filesystem.sh $dataDevices "xfs" $NFS_MOUNT_POINT
     elif [ "$nbDisks" -gt "1" ]; then
-        raid_device="md10"
+        raid_device="/dev/md0"
         $DIR/create_raid0.sh $raid_device "$dataDevices"
         $DIR/make_filesystem.sh $raid_device "xfs" $NFS_MOUNT_POINT
     fi

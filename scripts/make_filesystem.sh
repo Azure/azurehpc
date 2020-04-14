@@ -32,5 +32,5 @@ case $filesystem in
 esac
 
 sleep 10
-mkdir $mount
+mkdir -p $mount
 mount $mount
