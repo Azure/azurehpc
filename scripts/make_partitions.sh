@@ -21,8 +21,6 @@ case $filesystem in
     ;;
 esac
 
-if [ "$filesystem" == "xfs" ]; then
-
 for disk in $devices; do
     # https://docs.microsoft.com/en-us/azure/virtual-machines/linux/attach-disk-portal
     parted $disk --script mklabel gpt mkpart $parted_options 0% 100%
