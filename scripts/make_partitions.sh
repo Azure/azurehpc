@@ -12,7 +12,7 @@ case $filesystem in
     ;;
 
     ext4)
-        parted_options="primary ext4"
+        parted_options="ext4part ext4"
     ;;
 
     *)
