@@ -18,7 +18,7 @@ case $filesystem in
     ;;
 
     ext4)
-        mkfs.ext4 -F -i 2048 -I 512 -J size=400 -Odir_index,filetype $device || exit 1
+        mkfs.ext4 -F -m 0 -i 2048 -I 512 -J size=400 -Odir_index,filetype $device || exit 1
         sleep 5
         tune2fs -o user_xattr $device
         ext4uuid="UUID=`blkid |grep $device |cut -d " " -f 2 |cut -c 7-42`"
