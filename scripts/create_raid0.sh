@@ -20,6 +20,8 @@ for disk in $devices; do
     parted -s $disk print
     parted -s $disk "set 1 raid on"
 
+    partprobe ${disk}1
+
     partitions="$partitions $(lsblk -no kname -p $disk | tail -n1)"
 done
 
