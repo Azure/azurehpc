@@ -394,9 +394,9 @@ class ArmTemplate:
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
         rosdisksize = res.get("os_disk_size", None)
-        rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
+        rosstoragesku = res.get("os_storage_sku", "Premium_LRS")
         rdatadisks = res.get("data_disks", [])
-        rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
+        rstoragesku = res.get("storage_sku", "Premium_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
         rtags = res.get("resource_tags", {})
         rmanagedidentity = res.get("managed_identity", None)
@@ -637,9 +637,9 @@ class ArmTemplate:
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
         rosdisksize = res.get("os_disk_size", None)
-        rosstoragesku = res.get("os_storage_sku", "StandardSSD_LRS")
+        rosstoragesku = res.get("os_storage_sku", "Premium_LRS")
         rdatadisks = res.get("data_disks", [])
-        rstoragesku = res.get("storage_sku", "StandardSSD_LRS")
+        rstoragesku = res.get("storage_sku", "Premium_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
