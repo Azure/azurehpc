@@ -21,7 +21,7 @@
     "admin_user": "hpcadmin",
     "appId": "",
     "image": "OpenLogic:CentOS:7.7:latest",
-    "cycle_fdn": "<NOT-SET>"
+    "cycle_fqdn": "<NOT-SET>"
   },
   "resources": {
   },
@@ -30,7 +30,7 @@
       "type": "local_script",
       "script": "cyclecli_install.sh",
       "args": [
-          "variables.cycle_fdn",
+          "variables.cycle_fqdn",
           "variables.admin_user",
           "secret.{{variables.key_vault}}.CycleAdminPassword",
           "variables.resource_group",
