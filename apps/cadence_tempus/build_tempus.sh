@@ -55,6 +55,7 @@ get_tempus
 SSV191=${INSTALL_DIR}/SSV191
 export PATH=${SSV191}/bin:${SSV191}/tools.lnx86/bin:$PATH
 sudo ln -s /datadrive/work .
+sudo chown -R ${USER} work/
 echo "-----------------------DONE."
 
 
