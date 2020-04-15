@@ -117,6 +117,9 @@ def do_scp(args):
     #     sys.exit(1)
 
     fqdn = c.get_install_from_destination()
+    if not fqdn:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
 
     if args.args and args.args[0] == "--":
         scp_args = args.args[1:]
@@ -241,6 +244,9 @@ def do_status(args):
 
     # resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
+    if not fqdn:
+        log.error(f"Missing 'install_from' property")
+        sys.exit(1)
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
     _exec_command(fqdn, adminuser, ssh_private_key, f"pssh -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
