@@ -46,8 +46,6 @@ setup_disks()
     mkdir -p $NFS_MOUNT_POINT
 
     if [ "$nbDisks" -eq "1" ]; then
-        #setup_single_disk $NFS_MOUNT_POINT "ext4" "$dataDevices"
-        #$DIR/make_partitions.sh $dataDevices
         $DIR/make_filesystem.sh $dataDevices "xfs" $NFS_MOUNT_POINT
     elif [ "$nbDisks" -gt "1" ]; then
         raid_device="/dev/md0"
