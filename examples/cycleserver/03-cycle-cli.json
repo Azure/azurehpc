@@ -21,7 +21,7 @@
     "admin_user": "hpcadmin",
     "appId": "",
     "image": "OpenLogic:CentOS:7.7:latest",
-    "cycle_fqdn": "<NOT-SET>"
+    "cycle_fqdn": "#FQDN#"
   },
   "resources": {
   },
