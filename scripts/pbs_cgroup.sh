@@ -41,7 +41,7 @@ EOF
 
 patch -p0 < pbs_cgroups_py.patch
 
-/opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-python default" pbs_cgroups.py
+/opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-python default pbs_cgroups.py"
 
 /opt/pbs/bin/qmgr -c "set hook pbs_cgroups enabled = true"
 
