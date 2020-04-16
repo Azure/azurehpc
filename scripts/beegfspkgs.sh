@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-BEEGFS_VER=${1-7_1.713}
+BEEGFS_VER=${1-7_1}
 
 RELEASE=$(cat /etc/redhat-release | cut -d' ' -f4)
 KERNEL=$(uname -r)
