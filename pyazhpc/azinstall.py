@@ -20,7 +20,6 @@ def create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey):
         os.chmod(scriptfile, 0o755)
         f.write(f"""#!/bin/bash
 
-# expecting to be in $tmp_dir
 cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 tag=linux
@@ -46,7 +45,7 @@ EOF
 
 fi
 
-prsync -p {pssh_threads} -a -h hostlists/$tag ~/{tmp_dir} ~ >> {logfile} 2>&1
+prsync -p {pssh_threads} -a -h hostlists/$tag ~/{tmpdir} ~ >> {logfile} 2>&1
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/.ssh ~ >> {logfile} 2>&1
 
 pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> {logfile} 2>&1
