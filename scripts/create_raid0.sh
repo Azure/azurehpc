@@ -12,24 +12,34 @@ while (( "$#" )); do
     shift
 done
 
-# dump partitions
+echo "devices=$devices"
+
+# print partition information
 parted -s --list
 
-partitions=
+# creating the partitions
 for disk in $devices; do
-
+    echo "partitioning $disk"
     parted -s $disk "mklabel gpt"
     parted -s $disk -a optimal "mkpart primary 1 -1"
     parted -s $disk print
     parted -s $disk "set 1 raid on"
+done
 
+# make sure all the partitions are ready
+sleep 10
+# get the partition names
+partitions=
+for disk in $devices; do
     partitions="$partitions $(lsblk -no kname -p $disk | tail -n1)"
 done
+echo "partitions=$partitions"
 
 ndevices=$(echo $partitions | wc -w)
 
 sleep 10
-mdadm --create $raid_device --level 0 --raid-devices $ndevices $partitions || exit 1
+echo "creating raid device"
+mdadm --create $raid_device --level 0 --raid-devices $ndevices $partitions
 sleep 10
 
 mdadm --verbose --detail --scan > /etc/mdadm.conf
