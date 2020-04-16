@@ -39,7 +39,7 @@ cat > pbs_cgroups_py.patch << EOF
                  pbs.logmsg(pbs.EVENT_DEBUG4,
 EOF
 
-patch -p0 < pbs_cgroups.patch
+patch -p0 < pbs_cgroups_py.patch
 
 /opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-python default" pbs_cgroups.py
 
