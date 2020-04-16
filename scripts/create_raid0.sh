@@ -15,7 +15,7 @@ done
 echo "devices=$devices"
 
 # print partition information
-parted -s --list
+parted -s --list 2>/dev/null
 
 # creating the partitions
 for disk in $devices; do
