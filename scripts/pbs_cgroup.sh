@@ -34,7 +34,7 @@ cat > pbs_cgroups_py.patch << EOF
                             'offload_devices: %s' % offload_devices)
              if cuda_visible_devices:
 +                cuda_visible_devices = range(0,len(cuda_visible_devices))
-                 value = string.join(cuda_visible_devices, '\\,')
+                 value = string.join(cuda_visible_devices, '\\\,')
                  pbs.event().env['CUDA_VISIBLE_DEVICES'] = '%s' % value
                  pbs.logmsg(pbs.EVENT_DEBUG4,
 EOF
