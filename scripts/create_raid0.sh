@@ -12,6 +12,9 @@ while (( "$#" )); do
     shift
 done
 
+# dump partitions
+parted -s --list
+
 partitions=
 for disk in $devices; do
 
@@ -26,7 +29,7 @@ done
 ndevices=$(echo $partitions | wc -w)
 
 sleep 10
-mdadm --create $raid_device --level 0 --raid-devices $ndevices $partitions
+mdadm --create $raid_device --level 0 --raid-devices $ndevices $partitions || exit 1
 sleep 10
 
 mdadm --verbose --detail --scan > /etc/mdadm.conf
