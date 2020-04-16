@@ -45,6 +45,8 @@ EOF
 
 fi
 
+pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'sudo yum install -y rsync' >> {logfile} 2>&1
+
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/{tmpdir} ~ >> {logfile} 2>&1
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/.ssh ~ >> {logfile} 2>&1
 
