@@ -111,12 +111,10 @@ def do_scp(args):
     sshkey="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
 
-    jumpbox = c.read_value("install_from")
-    if not jumpbox:
+    fqdn = c.get_install_from_destination()
+    if not fqdn:
         log.error(f"Missing 'install_from' property")
         sys.exit(1)
-
-    fqdn = c.get_install_from_destination()
 
     if args.args and args.args[0] == "--":
         scp_args = args.args[1:]
@@ -234,13 +232,10 @@ def do_status(args):
     adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
 
-    jumpbox = c.read_value("install_from")
-    if not jumpbox:
+    fqdn = c.get_install_from_destination()
+    if not fqdn:
         log.error(f"Missing 'install_from' property")
         sys.exit(1)
-
-    resource_group = c.read_value("resource_group")
-    fqdn = c.get_install_from_destination()
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
     _exec_command(fqdn, adminuser, ssh_private_key, f"pssh -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
