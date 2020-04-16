@@ -37,7 +37,6 @@ echo "partitions=$partitions"
 
 ndevices=$(echo $partitions | wc -w)
 
-sleep 10
 echo "creating raid device"
 mdadm --create $raid_device --level 0 --raid-devices $ndevices $partitions
 sleep 10
