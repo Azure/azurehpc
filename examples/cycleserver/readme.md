@@ -56,7 +56,7 @@ Before running this step, please update the 03-cycle-cli.json file with the cycl
 
 ```json
     "image": "OpenLogic:CentOS:7.7:latest",
-    "cycle_fdn": "<update me>"
+    "cycle_fqdn": "<update me>"
 ```
 
 ```

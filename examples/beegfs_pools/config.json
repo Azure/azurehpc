@@ -65,7 +65,7 @@
         },
         "beegfsm": {
             "type": "vm",
-            "vm_type": "Standard_D4_v3",
+            "vm_type": "Standard_D4s_v3",
             "accelerated_networking": true,
             "image": "variables.image",
             "subnet": "compute",
