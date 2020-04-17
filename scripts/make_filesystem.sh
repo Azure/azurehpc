@@ -1,7 +1,7 @@
 #!/bin/bash
 device=$1
 filesystem=${2-xfs}
-mount=${3-/mnt/datadisk}
+mount=${3-/share}
 
 if [[ $(id -u) -ne 0 ]] ; then
     echo "Must be run as root"
