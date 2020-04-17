@@ -288,7 +288,7 @@ def do_run(args):
 
 def do_build(args):
     log.debug(f"reading config file ({args.config_file})")
-    tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
+    tmpdir = "azhpc_install_" + os.path.basename(args.config_file)[:-5]
     log.debug(f"tmpdir = {tmpdir}")
     if os.path.isdir(tmpdir):
         log.debug("removing existing tmp directory")
