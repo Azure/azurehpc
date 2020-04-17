@@ -71,8 +71,11 @@
             "sudo": true
         },
         {
-            "script": "nfsserver.sh",
+            "script": "install-nfsserver.sh",
             "tag": "nfsserver",
+            "args": [
+                "/share"
+            ],
             "sudo": true
         },
         {

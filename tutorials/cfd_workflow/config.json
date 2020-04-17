@@ -3,8 +3,8 @@
     "resource_group": "variables.resource_group",
     "install_from": "headnode",
     "admin_user": "hpcadmin",
-    "variables" : {
-        "image" : "OpenLogic:CentOS:7.6:latest",
+    "variables": {
+        "image": "OpenLogic:CentOS:7.6:latest",
         "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
@@ -60,8 +60,7 @@
             "vm_type": "Standard_NV6",
             "image": "variables.nv_image",
             "subnet": "viz",
-            "tags": [
-            ]
+            "tags": []
         }
     },
     "install": [
@@ -76,8 +75,30 @@
             "sudo": true
         },
         {
-            "script": "nfsserver.sh",
+            "script": "create_raid0.sh",
             "tag": "nfsserver",
+            "args": [
+                "/dev/md10",
+                "/dev/sd[c-d]"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "make_filesystem.sh",
+            "tag": "nfsserver",
+            "args": [
+                "/dev/md10",
+                "xfs",
+                "/share"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "nfsserver",
+            "args": [
+                "/share"
+            ],
             "sudo": true
         },
         {

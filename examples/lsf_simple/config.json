@@ -4,113 +4,115 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "vnet": {
-      "name": "hpcvnet",
-      "address_prefix": "10.2.0.0/20",
-      "subnets": {
-        "admin": "10.2.1.0/24",
-        "storage": "10.2.3.0/24",
-        "compute": "10.2.4.0/22"
-      }
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.1.0/24",
+            "storage": "10.2.3.0/24",
+            "compute": "10.2.4.0/22"
+        }
     },
     "variables": {
-      "location": "eastus",
-      "resource_group": "<NOT-SET>",
-      "image": "OpenLogic:CentOS:7.6:latest",
-      "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
-      "vm_type": "Standard_HC44rs",
-      "lsf_product_sas":"sasurl.[account].[container]/LSF-10.7/lsf10.1_linux2.6-glibc2.3-x86_64.tar.Z",
-      "lsf_product_sp7_sas":"sasurl.[account].[container]/LSF-10.7/lsf10.1_linux2.6-glibc2.3-x86_64-509238.tar.Z",
-      "lsf_install_sas":"sasurl.[account].[container]/LSF-10.7/lsf10.1_lsfinstall_linux_x86_64.tar.Z",
-      "lsf_entitlement_sas":"sasurl.[account].[container]/LSF-10.7/lsf_std_entitlement.dat"
+        "location": "eastus",
+        "resource_group": "<NOT-SET>",
+        "image": "OpenLogic:CentOS:7.6:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+        "vm_type": "Standard_HC44rs",
+        "lsf_product_sas": "sasurl.[account].[container]/LSF-10.7/lsf10.1_linux2.6-glibc2.3-x86_64.tar.Z",
+        "lsf_product_sp7_sas": "sasurl.[account].[container]/LSF-10.7/lsf10.1_linux2.6-glibc2.3-x86_64-509238.tar.Z",
+        "lsf_install_sas": "sasurl.[account].[container]/LSF-10.7/lsf10.1_lsfinstall_linux_x86_64.tar.Z",
+        "lsf_entitlement_sas": "sasurl.[account].[container]/LSF-10.7/lsf_std_entitlement.dat"
     },
     "resources": {
-      "headnode": {
-        "type": "vm",
-        "vm_type": "Standard_D16s_v3",
-        "accelerated_networking": true,
-        "public_ip": true,
-        "image": "variables.image",
-        "subnet": "admin",
-        "tags": [
-          "loginnode",
-          "disable-selinux",
-          "cndefault",
-          "localuser",
-          "nfsserver",
-          "lsfmaster"
-        ]
-      },
-      "compute": {
-        "type": "vmss",
-        "vm_type": "variables.vm_type",
-        "instances": 2,
-        "image": "variables.hpc_image",
-        "subnet": "compute",
-        "tags": [
-          "disable-selinux",
-          "cndefault",
-          "localuser",
-          "nfsclient",
-          "lsfnode"
-        ]
-      }
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D16s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "admin",
+            "tags": [
+                "loginnode",
+                "disable-selinux",
+                "cndefault",
+                "localuser",
+                "nfsserver",
+                "lsfmaster"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": 2,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "cndefault",
+                "localuser",
+                "nfsclient",
+                "lsfnode"
+            ]
+        }
     },
     "install": [
-      {
-        "script": "disable-selinux.sh",
-        "tag": "disable-selinux",
-        "sudo": true
-      },
-      {
-          "script": "cndefault.sh",
-          "tag": "cndefault",
-          "sudo": true
-      },
-      {
-        "script": "nfsserver.sh",
-        "tag": "nfsserver",
-        "sudo": true
-      },
-      {
-        "script": "nfsclient.sh",
-        "args": [
-          "$(<hostlists/tags/nfsserver)"
-        ],
-        "tag": "nfsclient",
-        "sudo": true
-      },
-      {
-        "script": "localuser.sh",
-        "args": [
-          "$(<hostlists/tags/nfsserver)"
-        ],
-        "tag": "localuser",
-        "sudo": true
-      },
-      {
-        "script": "lsfpkgs.sh",
-        "args": [
-            "variables.lsf_product_sas",
-            "variables.lsf_product_sp7_sas",
-            "variables.lsf_install_sas",
-            "variables.lsf_entitlement_sas"
-          ],  
-        "tag": "lsfmaster",
-        "sudo": true
-      },
-      {
-        "script": "lsfinstall.sh",
-        "tag": "lsfmaster",
-        "sudo": true
-      },
-      {
-        "script": "lsfnode.sh",
-        "tag": "lsfnode"
-      },
-      {
-        "script": "lsfmaster.sh",
-        "tag": "lsfmaster"
-      }
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "nfsserver",
+            "args": [
+                "/share"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "lsfpkgs.sh",
+            "args": [
+                "variables.lsf_product_sas",
+                "variables.lsf_product_sp7_sas",
+                "variables.lsf_install_sas",
+                "variables.lsf_entitlement_sas"
+            ],
+            "tag": "lsfmaster",
+            "sudo": true
+        },
+        {
+            "script": "lsfinstall.sh",
+            "tag": "lsfmaster",
+            "sudo": true
+        },
+        {
+            "script": "lsfnode.sh",
+            "tag": "lsfnode"
+        },
+        {
+            "script": "lsfmaster.sh",
+            "tag": "lsfmaster"
+        }
     ]
-  }
-  
+}
