@@ -17,7 +17,7 @@ cat > pbs_cgroups_py.patch << EOF
                  if gpus:
                      # Don't put quotes around the values. ex "0" or "0,1".
                      # This will cause it to fail.
-+                    gpus = range(0,len(gpus))
++                    gpus = [str(i) for i in range(0,len(gpus))]
                      env_list.append('CUDA_VISIBLE_DEVICES=%s' %
                                      string.join(gpus, ','))
              pbs.logmsg(pbs.EVENT_DEBUG4, 'ENV_LIST: %s' % env_list)
@@ -25,7 +25,7 @@ cat > pbs_cgroups_py.patch << EOF
                  if gpus:
                      # Don't put quotes around the values. ex "0" or "0,1".
                      # This will cause it to fail.
-+                    gpus=range(0,len(gpus))
++                    gpus = [str(i) for i in range(0,len(gpus))]
                      env_list.append('CUDA_VISIBLE_DEVICES=%s' %
                                      string.join(gpus, ','))
              pbs.logmsg(pbs.EVENT_DEBUG4, 'ENV_LIST: %s' % env_list)
@@ -33,15 +33,15 @@ cat > pbs_cgroups_py.patch << EOF
                  pbs.logmsg(pbs.EVENT_DEBUG4,
                             'offload_devices: %s' % offload_devices)
              if cuda_visible_devices:
-+                cuda_visible_devices = range(0,len(cuda_visible_devices))
-                 value = string.join(cuda_visible_devices, '\\,')
++                cuda_visible_devices = [str(i) for i in range(0,len(cuda_visible_devices))]
+                 value = string.join(cuda_visible_devices, '\\\,')
                  pbs.event().env['CUDA_VISIBLE_DEVICES'] = '%s' % value
                  pbs.logmsg(pbs.EVENT_DEBUG4,
 EOF
 
-patch -p0 < pbs_cgroups.patch
+patch -p0 < pbs_cgroups_py.patch
 
-/opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-python default" pbs_cgroups.py
+/opt/pbs/bin/qmgr -c "import hook pbs_cgroups application/x-python default pbs_cgroups.py"
 
 /opt/pbs/bin/qmgr -c "set hook pbs_cgroups enabled = true"
 
