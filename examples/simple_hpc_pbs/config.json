@@ -74,7 +74,7 @@
         {
             "script": "make_filesystem.sh",
             "tag": "nfsserver",
-            "args": ["/dev/md10", "xfs", "/mnt/datadisk"],
+            "args": ["/dev/md10", "xfs", "/share"],
             "sudo": true
         },
         {
