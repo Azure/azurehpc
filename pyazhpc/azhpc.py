@@ -326,8 +326,10 @@ def do_build(args):
     tpl = arm.ArmTemplate()
     tpl.read(config)
 
-    log.info("writing out arm template to " + args.output_template)
-    with open(args.output_template, "w") as f:
+    output_template = "deploy_"+args.config_file
+
+    log.info("writing out arm template to " + output_template)
+    with open(output_template, "w") as f:
         f.write(tpl.to_json())
 
     log.info("creating resource group " + config["resource_group"])
@@ -350,7 +352,7 @@ def do_build(args):
     log.info("deploying arm template")
     deployname = azutil.deploy(
         config["resource_group"],
-        args.output_template
+        output_template
     )
     log.debug(f"deployment name: {deployname}")
 
@@ -465,13 +467,6 @@ if __name__ == "__main__":
         help="create an arm template and deploy"
     )
     build_parser.set_defaults(func=do_build)
-    build_parser.add_argument(
-        "--output-template", 
-        "-o", 
-        type=str, 
-        default="deploy.json", 
-        help="filename for the arm template",
-    )
 
     connect_parser = subparsers.add_parser(
         "connect", 
