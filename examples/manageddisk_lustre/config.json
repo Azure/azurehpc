@@ -140,9 +140,11 @@
       "sudo": true
     },
     {
-      "script": "nfsserver.sh",
+      "script": "install-nfsserver.sh",
       "tag": "nfsserver",
-      "deps": ["make_filesystem.sh", "create_raid0.sh"],
+      "args": [
+        "/share"
+      ],
       "sudo": true
     },
     {
@@ -165,7 +167,7 @@
       "script": "create_raid0.sh",
       "args": [
         "/dev/md0",
-	"/dev/sd[c-l]"
+        "/dev/sd[c-l]"
       ],
       "tag": "lfsoss",
       "sudo": true
@@ -174,7 +176,7 @@
       "script": "lfsrepo.sh",
       "tag": "lfsrepo",
       "args": [
-          "variables.lustre_version"
+        "variables.lustre_version"
       ],
       "sudo": true
     },
