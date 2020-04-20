@@ -11,19 +11,20 @@ cd ${WORKING_DIR}
 install_required_packages()
 {
 	echo "----------------------installing required packages."
-	sudo -y yum install ksh
-	sudo -y yum install mesa-libGLU
-	sudo -y yum install motif
-	sudo -y yum redhat-lsb
-	sudo -y yum install glibc.i686
-	sudo -y yum install elfutils-libelf.i686
-	sudo -y yum install mesa-libGL.i686
-	sudo -y yum install mesa-libGLU.i686
-	sudo -y yum install motif.i686
-	sudo -y yum install redhat-lsb.i686
-	sudo -y yum install glibc-devel.i686
-	sudo -y yum install libXScrnSaver.i686
-	sudo -y yum install libXScrnSaver.x86_64
+	sudo yum -y install ksh
+	sudo yum -y install mesa-libGLU
+	sudo yum -y install motif
+	sudo yum -y redhat-lsb
+	sudo yum -y install glibc.i686
+	sudo yum -y install elfutils-libelf.i686
+	sudo yum -y install mesa-libGL.i686
+	sudo yum -y install mesa-libGLU.i686
+	sudo yum -y install motif.i686
+	sudo yum -y install redhat-lsb.i686
+	sudo yum -y install redhat-lsb.x86_64
+	sudo yum -y install glibc-devel.i686
+	sudo yum -y install libXScrnSaver.i686
+	sudo yum -y install libXScrnSaver.x86_64
 }
 
 get_ssv()
