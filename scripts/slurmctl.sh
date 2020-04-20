@@ -53,6 +53,7 @@ SchedulerParameters=salloc_wait_nodes
 SlurmctldParameters=cloud_dns,idle_on_node_suspend
 CommunicationParameters=NoAddrCache
 DebugFlags=PowerSave
+PrivateData=cloud
 
 EOF
 
@@ -75,13 +76,25 @@ echo "running resume at \`date\` with options \$@" >> /var/log/slurm/autoscale.l
 hosts=\`scontrol show hostnames \$1\`
 for host in \$hosts
 do
-   NODES+=\`az vm show -g \${RESOURCEGROUP} -n \${host} --query id -o tsv\`
-   NODES+=" "
-   echo \$NODES >> /var/log/slurm/autoscale.log
+   NODE_ID=\`az vm show -g \${RESOURCEGROUP} -n \${host} --query id -o tsv\`
+   if [ ! -z "\$NODE_ID" ]; then
+     echo node_id is \$NODE_ID
+     NODES+="\$NODE_ID "
+     echo \$NODES >> /var/log/slurm/autoscale.log
+   else
+     echo need to create \$host
+     SKU=\`scontrol show node \$host | grep AvailableFeatures | awk -F "=" '{print \$2}' | awk -F "," '{print \$1}'\`
+     IMAGE=\`scontrol show node \$host | grep Partitions | awk -F "=" '{print \$2}'\`
+     echo az vm create -n \$host --image \${IMAGE} -g \${RESOURCEGROUP} --admin-username hpcadmin --generate-ssh-keys --size \${SKU} --public-ip-address \"\" --nsg \"\" >> /var/log/slurm/autoscale.log
+     az vm create -n \$host --image \${IMAGE} -g \${RESOURCEGROUP} --admin-username hpcadmin --generate-ssh-keys --size \${SKU} --public-ip-address "" --nsg "" -o table >> /var/log/slurm/autoscale.log
+     az vm wait -g \${RESOURCEGROUP} -n \$host --created
+   fi
 done
 
-echo az vm start --ids \$NODES >> /var/log/slurm/autoscale.log
-az vm start --ids \$NODES
+if [ ! -z "\$NODES" ]; then
+  echo az vm start --ids \$NODES >> /var/log/slurm/autoscale.log
+  az vm start --ids \$NODES
+fi 
 
 for host in \$hosts
 do

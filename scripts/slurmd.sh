@@ -13,7 +13,10 @@ chown slurm /var/log/slurm
 
 ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
 
+sed -i "s/Delegate=yes.*/Delegate=yes\nExecStartPre=\/bin\/sleep 30/g" /lib/systemd/system/slurmd.service
+
+systemctl daemon-reload
 systemctl enable slurmd
-systemctl start slurmd
+#systemctl start slurmd
 
 exit 0
