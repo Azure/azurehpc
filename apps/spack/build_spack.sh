@@ -2,7 +2,7 @@
 
 APP_NAME=spack
 APP_VERSION=0.14.2
-SHARED_APPS=${SHARED_APP:-/apps}
+SHARED_APP=${SHARED_APP:-/apps}
 USER=`whoami`
 
 sku_type=$1
@@ -14,7 +14,7 @@ CONFIG_YAML=config.yaml
 
 sudo yum install -y python3
 
-SPACKDIR=${SHARED_APPS}/${APP_NAME}/${APP_VERSION}
+SPACKDIR=${SHARED_APP}/${APP_NAME}/${APP_VERSION}
 mkdir -p $SPACKDIR
 cd $SPACKDIR
 git clone https://github.com/spack/spack.git
