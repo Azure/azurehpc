@@ -44,7 +44,7 @@ ResourceDisk.SwapSizeMB=xx
 ```
 Note: The xx placeholder represents the desired number of megabytes (MB) for the swap file. For example: 8096.
 
-2. Restart the WALinuxAgent service by running one of the following commands, depending on the system in question:
+2. Restart the WALinuxAgent service by running one of the following commands, depending on your OS.
 Ubuntu: 
 ```
 service walinuxagent restart
