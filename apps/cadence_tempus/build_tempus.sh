@@ -11,19 +11,19 @@ cd ${WORKING_DIR}
 install_required_packages()
 {
 	echo "----------------------installing required packages."
-	sudo yum install ksh
-	sudo yum install mesa-libGLU
-	sudo yum install motif
-	sudo yum redhat-lsb
-	sudo yum install glibc.i686
-	sudo yum install elfutils-libelf.i686
-	sudo yum install mesa-libGL.i686
-	sudo yum install mesa-libGLU.i686
-	sudo yum install motif.i686
-	sudo yum install redhat-lsb.i686
-	sudo yum install glibc-devel.i686
-	sudo yum install libXScrnSaver.i686
-	sudo yum install libXScrnSaver.x86_64
+	sudo -y yum install ksh
+	sudo -y yum install mesa-libGLU
+	sudo -y yum install motif
+	sudo -y yum redhat-lsb
+	sudo -y yum install glibc.i686
+	sudo -y yum install elfutils-libelf.i686
+	sudo -y yum install mesa-libGL.i686
+	sudo -y yum install mesa-libGLU.i686
+	sudo -y yum install motif.i686
+	sudo -y yum install redhat-lsb.i686
+	sudo -y yum install glibc-devel.i686
+	sudo -y yum install libXScrnSaver.i686
+	sudo -y yum install libXScrnSaver.x86_64
 }
 
 get_ssv()
@@ -54,6 +54,7 @@ get_tempus
 
 SSV191=${INSTALL_DIR}/SSV191
 export PATH=${SSV191}/bin:${SSV191}/tools.lnx86/bin:$PATH
+cd ~
 sudo ln -s /datadrive/work .
 sudo chown -R ${USER} work/
 echo "-----------------------DONE."
