@@ -33,16 +33,31 @@ azhpc-run -u hpcuser -n "headnode compute" ~/apps/cadence_tempus/build_tempus.sh
 ```
 Note 3: There is no need to have license to install the Tempus tools.
 
-### Add enough size of SWAP File
+### Create SWAP File
 For Tempus, it is required to have at least 4GB size of SWAP File, and the 'checkSysConf' util will check if it meets the requirement.
 
-To create a swap file, you can update the /etc/waagent.conf file by setting the following three parameters:
+1. To create a swap file, update the /etc/waagent.conf file by setting the following three parameters:
 ```
 ResourceDisk.Format=y
 ResourceDisk.EnableSwap=y
 ResourceDisk.SwapSizeMB=xx
 ```
 Note: The xx placeholder represents the desired number of megabytes (MB) for the swap file. For example: 8096.
+
+2. Restart the WALinuxAgent service by running one of the following commands, depending on the system in question:
+Ubuntu: 
+```
+service walinuxagent restart
+```
+Red Hat/Centos: 
+```
+service waagent restart
+```
+3. Run the following commands to show the new swap apace that's being used after the restart:
+```
+swapon -s
+```
+4. If the swap file isn't created, you can restart the virtual machine.
 
 ### Config License
 
