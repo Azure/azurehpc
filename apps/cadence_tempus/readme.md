@@ -22,16 +22,27 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 
 ### Install Prerequisite Packages, Cadence SSV_191 and Tempus_171
 
-Note 1. Please ensure you have at least 300GB free space in your storage. You can run below command to verify:
+Note 1: Please ensure you have at least 300GB free space in your storage. You can run below command to verify:
 ```
 df -h
 ```
-Note 2. You can modify your installation directory in the scripts. (Default is /datadrive) 
+Note 2: You can modify your installation directory in the scripts. (Default is /datadrive) 
 
 ```
 azhpc-run -u hpcuser -n "headnode compute" ~/apps/cadence_tempus/build_tempus.sh
 ```
-Note: There is no need to have license to install the Tempus tools.
+Note 3: There is no need to have license to install the Tempus tools.
+
+### Add enough size of SWAP File
+For Tempus, it is required to have at least 4GB size of SWAP File, and the 'checkSysConf' util will check if it meets the requirement.
+
+To create a swap file, you can update the /etc/waagent.conf file by setting the following three parameters:
+```
+ResourceDisk.Format=y
+ResourceDisk.EnableSwap=y
+ResourceDisk.SwapSizeMB=xx
+```
+Note: The xx placeholder represents the desired number of megabytes (MB) for the swap file. For example: 8096.
 
 ### Config License
 
@@ -70,6 +81,7 @@ SERVER Cadence_SERVER 000d3a6d1234 5280
 .
 ```
 3. Config the license server:
+Edit the config_license.sh and replace <your license filename> with your license file name.
 ```
 azhpc-run -u hpcuser -n headnode ~/apps/cadence_tempus/config_license.sh <your license filename>
 ```
