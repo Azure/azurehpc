@@ -1,12 +1,13 @@
 #!/bin/bash
 
 APP_NAME=wrf
-APP_VERSION=4.1.3
+APP_VERSION=4.1.5
 SKU_TYPE=${SKU_TYPE:-hb}
 SHARED_APP=${SHARED_APP:-/apps}
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 MODULE_NAME=${APP_VERSION}-omp-openmpi
 APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-omp-openmpi
+OPENMPI_VER=4.0.3
 APPS_WRF_DIR=`pwd`
 
 function create_modulefile {
@@ -24,7 +25,7 @@ EOF
 sudo yum install -y jasper-devel
 sudo yum install -y libpng-devel
 
-spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^openmpi@4.0.2
+spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^openmpi@${OPENMPI_VER}
 source ${SPACK_ROOT}/share/spack/setup-env.sh
 
 mkdir -p ${APP_DIR}
@@ -36,7 +37,7 @@ spack load netcdf-fortran^openmpi
 spack load netcdf^openmpi
 spack load hdf5^openmpi
 spack load perl
-module load mpi/openmpi-4.0.2
+module load mpi/openmpi-${OPENMPI_VER}
 module load gcc-9.2.0
 
 export HDF5=$(spack location -i hdf5^openmpi)
