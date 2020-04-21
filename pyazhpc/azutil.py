@@ -179,7 +179,7 @@ def get_storage_key(account):
 def get_storage_saskey(account, container, permissions):
     log.debug(f"creating sas key: container={container}, permissions={permissions}")
     start = (datetime.datetime.utcnow() - datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    expiry = (datetime.datetime.utcnow() + datetime.timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    expiry = (datetime.datetime.utcnow() + datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
     cmd = [
         "az", "storage", "container", "generate-sas",
             "--account-name", account,
