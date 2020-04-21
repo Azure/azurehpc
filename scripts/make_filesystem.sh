@@ -34,3 +34,4 @@ esac
 sleep 10
 mkdir -p $mount
 mount $mount
+chmod 777 $mount
