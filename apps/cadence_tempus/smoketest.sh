@@ -1,4 +1,5 @@
 #!/bin/bash
+export LM_LICENSE_FILE=5280@headnode
 
 INSTALL_DIR="/datadrive"
 
