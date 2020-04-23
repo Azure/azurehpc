@@ -1,5 +1,5 @@
 {
-    "location": "westeurope",
+    "location": "variable.location",
     "resource_group": "variables.resource_group",
     "install_from": "headnode",
     "admin_user": "hpcadmin",
@@ -13,8 +13,11 @@
     },
     "variables": {
         "resource_group": "<NOT-SET>",
-        "image": "OpenLogic:CentOS:7.6:latest",
-        "hpcimage": "OpenLogic:CentOS-HPC:7.6:latest",
+        "location": "westeurope",
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "hpcimage": "OpenLogic:CentOS-HPC:7.7:latest",
+        "compute_instances": 2,
+        "oss_instances": 2,
         "storage_account": "<NOT-SET>",
         "storage_key": "sakey.{{variables.storage_account}}",
         "storage_container": "<NOT-SET>",
@@ -49,7 +52,7 @@
             "type": "vmss",
             "vm_type": "Standard_HB60rs",
             "accelerated_networking": false,
-            "instances": 2,
+            "instances": "variables.compute_instances",
             "image": "variables.hpcimage",
             "subnet": "compute",
             "tags": [
@@ -78,7 +81,7 @@
         "lfsoss": {
             "type": "vmss",
             "vm_type": "Standard_L8s_v2",
-            "instances": 2,
+            "instances": "variables.oss_instances",
             "accelerated_networking": true,
             "image": "variables.image",
             "subnet": "storage",
