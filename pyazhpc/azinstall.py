@@ -45,7 +45,7 @@ EOF
 
 fi
 
-pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'sudo yum install -y rsync' >> {logfile} 2>&1
+pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'rpm -q rsync || sudo yum install -y rsync' >> {logfile} 2>&1
 
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/{tmpdir} ~ >> {logfile} 2>&1
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/.ssh ~ >> {logfile} 2>&1
@@ -69,6 +69,7 @@ tag=${{1:-{tag}}}
 
 if [ ! -f "hostlists/tags/$tag" ]; then
     echo "    Tag is not assigned to any resource (not running)"
+    exit 0
 fi
 
 """

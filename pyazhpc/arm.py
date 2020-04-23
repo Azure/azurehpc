@@ -13,6 +13,8 @@ class ArmTemplate:
         self.variables = {}
         self.resources = []
         self.outputs = {}
+
+        self.avsets = set()
     
     def _add_network(self, cfg):
         resource_group = cfg["resource_group"]
@@ -380,7 +382,7 @@ class ArmTemplate:
         if len(strzones) > 0:
             res["zones"] = strzones
 
-    def _add_vm(self, cfg, r):
+    def _add_vm(self, cfg, r, vnet_in_deployment):
         res = cfg["resources"][r]
         rtype = res["type"]
         rsize = res["vm_type"]
@@ -401,12 +403,12 @@ class ArmTemplate:
         rtags = res.get("resource_tags", {})
         rmanagedidentity = res.get("managed_identity", None)
         loc = cfg["location"]
-        ravset = res.get("availability_set", False)
+        ravset = res.get("availability_set")
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
-        if vnetrg == rrg:
+        if vnet_in_deployment:
             rsubnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetname, rsubnet)
         else:
             rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnetname, rsubnet)
@@ -414,9 +416,9 @@ class ArmTemplate:
         with open(adminuser+"_id_rsa.pub") as f:
             sshkey = f.read().strip()
         
-        if ravset:
+        if ravset and ravset not in self.avsets:
             self.resources.append({
-                "name": r,
+                "name": ravset,
                 "type": "Microsoft.Compute/availabilitySets",
                 "apiVersion": "2018-10-01",
                 "location": loc,
@@ -428,6 +430,7 @@ class ArmTemplate:
                     "platformFaultDomainCount": 1
                 }
             })
+            self.avsets.add(ravset)
 
         rorig = r
         for instance in range(1, rinstances+1):    
@@ -435,13 +438,13 @@ class ArmTemplate:
                 r = "{}{:04}".format(rorig, instance)
 
             nicdeps = []
-            if vnetrg == rrg:
+            if vnet_in_deployment:
                 nicdeps.append("Microsoft.Network/virtualNetworks/"+vnetname)
 
             if rpip:
-                pipname = r+"pip"
+                pipname = r+"_pip"
                 dnsname = r+str(uuid.uuid4())[:6]
-                nsgname = r+"nsg"
+                nsgname = r+"_nsg"
 
                 nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)
                 nicdeps.append("Microsoft.Network/networkSecurityGroups/"+nsgname)
@@ -486,8 +489,8 @@ class ArmTemplate:
                     }
                 })
 
-            nicname = r+"nic"
-            ipconfigname = r+"ipconfig"
+            nicname = r+"_nic"
+            ipconfigname = r+"_ipconfig"
             nicprops = {
                 "ipConfigurations": [
                     {
@@ -525,11 +528,11 @@ class ArmTemplate:
             datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
             imageref = self.__helper_arm_create_image_reference(rimage)
 
-            deps = [ "Microsoft.Network/networkInterfaces/"+nicname ]
+            deps = [ f"Microsoft.Network/networkInterfaces/{nicname}" ]
             if rppg:
-                deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
+                deps.append(f"Microsoft.Compute/proximityPlacementGroups/{rppgname}")
             if ravset:
-                deps.append("Microsoft.Compute/availabilitySets/"+rorig)
+                deps.append(f"Microsoft.Compute/availabilitySets/{ravset}")
 
             vmres = {
                 "type": "Microsoft.Compute/virtualMachines",
@@ -551,6 +554,7 @@ class ArmTemplate:
                     },
                     "storageProfile": {
                         "osDisk": {
+                            "name": f"{r}_osdisk",
                             "createOption": "fromImage",
                             "caching": "ReadWrite",
                             "managedDisk": {
@@ -575,7 +579,7 @@ class ArmTemplate:
             
             if ravset:
                 vmres["properties"]["availabilitySet"] = {
-                    "id": f"[resourceId('Microsoft.Compute/availabilitySets','{rorig}')]"
+                    "id": f"[resourceId('Microsoft.Compute/availabilitySets','{ravset}')]"
                 }
 
             if rosdisksize:
@@ -622,7 +626,7 @@ class ArmTemplate:
             self.__helper_arm_add_zones(vmres, raz)
             self.resources.append(vmres)
 
-    def _add_vmss(self, cfg, r):
+    def _add_vmss(self, cfg, r, vnet_in_deployment):
         res = cfg["resources"][r]
         rtype = res["type"]
         rsize = res["vm_type"]
@@ -647,7 +651,7 @@ class ArmTemplate:
         rtags = res.get("resource_tags", {})
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
-        if vnetrg == rrg:
+        if vnet_in_deployment:
             rsubnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetname, rsubnet)
         else:
             rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnetname, rsubnet)
@@ -656,7 +660,7 @@ class ArmTemplate:
             sshkey = f.read().strip()
 
         deps = []
-        if vnetrg == rrg:
+        if vnet_in_deployment:
             deps.append("Microsoft.Network/virtualNetworks/"+vnetname)
         if rppg:
             deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
@@ -665,8 +669,8 @@ class ArmTemplate:
         datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
         imageref = self.__helper_arm_create_image_reference(rimage)
 
-        nicname = r+"nic"
-        ipconfigname = r+"ipconfig"
+        nicname = r+"_nic"
+        ipconfigname = r+"_ipconfig"
         vmssres = {
             "type": "Microsoft.Compute/virtualMachineScaleSets",
             "apiVersion": "2019-07-01",
@@ -741,19 +745,28 @@ class ArmTemplate:
         self.resources.append(vmssres)
 
 
-    def read(self, cfg):
-        self._add_network(cfg)
-        self._add_proximity_group(cfg)
-
+    def read_resources(self, cfg, vnet_in_deployment):
         resources = cfg.get("resources", {})
         for r in resources.keys():
             rtype = cfg["resources"][r]["type"]
             if rtype == "vm":
-                self._add_vm(cfg, r)
+                self._add_vm(cfg, r, vnet_in_deployment)
             elif rtype == "vmss":
-                self._add_vmss(cfg, r)
+                self._add_vmss(cfg, r, vnet_in_deployment)
+            elif rtype == "slurm_partition":
+                pass
             else:
                 log.error("unrecognised resource type ({}) for {}".format(rtype, r))
+
+    def read(self, cfg):
+        rg = cfg["resource_group"]
+        vnetrg = cfd["vnet"].get("resource_group", rg)
+
+        vnet_in_deployment = bool(rg == vnetrg)
+        
+        self._add_network(cfg)
+        self._add_proximity_group(cfg)
+        self.read_resources(cfg, vnet_in_deployment)
 
         storage = cfg.get("storage", {})
         for s in storage.keys():

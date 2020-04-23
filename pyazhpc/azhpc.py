@@ -2,6 +2,7 @@ import argparse
 import datetime
 import json
 import os
+import re
 import shutil
 import sys
 import textwrap
@@ -286,21 +287,7 @@ def do_run(args):
     cmd = " ".join(args.args)
     _exec_command(fqdn, sshuser, ssh_private_key, f"pssh -H '{hostlist}' -i -t 0 '{cmd}'")
 
-def do_build(args):
-    log.debug(f"reading config file ({args.config_file})")
-    tmpdir = "azhpc_install_" + os.path.basename(args.config_file)[:-5]
-    log.debug(f"tmpdir = {tmpdir}")
-    if os.path.isdir(tmpdir):
-        log.debug("removing existing tmp directory")
-        shutil.rmtree(tmpdir)
-
-    c = azconfig.ConfigFile()
-    c.open(args.config_file)
-    config = c.preprocess()
-
-    adminuser = config["admin_user"]
-    private_key_file = adminuser+"_id_rsa"
-    public_key_file = adminuser+"_id_rsa.pub"
+def _create_private_key(private_key_file, public_key_file):
     if not (os.path.exists(private_key_file) and os.path.exists(public_key_file)):
         # create ssh keys
         key = rsa.generate_private_key(
@@ -323,45 +310,13 @@ def do_build(args):
             os.chmod(public_key_file, 0o644)
             f.write(public_key+b'\n')
 
-    tpl = arm.ArmTemplate()
-    tpl.read(config)
-
-    output_template = "deploy_"+args.config_file
-
-    log.info("writing out arm template to " + output_template)
-    with open(output_template, "w") as f:
-        f.write(tpl.to_json())
-
-    log.info("creating resource group " + config["resource_group"])
-
-    resource_tags = config.get("resource_tags", {})
-    azutil.create_resource_group(
-        config["resource_group"],
-        config["location"],
-        [
-            {
-                "key": "CreatedBy",
-                "value": os.getenv("USER")
-            },
-            {
-                "key": "CreatedOn",
-                "value": datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            }
-        ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
-    )
-    log.info("deploying arm template")
-    deployname = azutil.deploy(
-        config["resource_group"],
-        output_template
-    )
-    log.debug(f"deployment name: {deployname}")
-
+def _wait_for_deployment(resource_group, deploy_name):
     building = True
     success = True
     del_lines = 1
     while building:
         time.sleep(5)
-        res = azutil.get_deployment_status(config["resource_group"], deployname)
+        res = azutil.get_deployment_status(resource_group, deploy_name)
         log.debug(res)
         
         print("\033[F"*del_lines)
@@ -411,6 +366,189 @@ def do_build(args):
                                 print(f"             {line}")
 
         sys.exit(1)
+
+def do_slurm_suspend(args):
+    log.debug(f"reading config file ({args.config_file})")
+    
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    config = c.preprocess()
+
+    log.info(f"slurm suspend for {args.nodes}")
+    # first get the resource name
+    all_resources = config.get("resources", [])
+    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
+    resource_list = []
+    if bool(brackets):
+        for part in brackets.split(","):
+            if "-" in part:
+                lo, hi = part.split("-")
+                assert len(lo) == 4, "expecting number width of 4"
+                assert len(hi) == 4, "expecting number width of 4"
+                for i in range(int(lo), int(hi) + 1):
+                    resource_list.append(f"{resource_name}{i:04d}")
+            else:
+                assert len(part) == 4, "expecting number width of 4"
+                resource_list.append(f"{resource_name}{part}")
+    else:
+        resource_list.append(resource_name)
+        resource_name = resource_name[:-4]
+    
+    subscription_id = azutil.get_subscription_id()
+    resource_group = config["resource_group"]
+
+    vm_ids = []
+    nic_ids = []
+    disk_ids = []
+    for resource in resource_list:
+        vm_ids.append(f"/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Compute/virtualMachines/{resource}")
+        nic_ids.append(f"/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Network/networkInterfaces/{resource}_nic")
+        disk_ids.append(f"/subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Compute/disks/{resource}_osdisk")
+
+    # delete vms
+    log.debug("deleting vms: "+",".join(vm_ids))
+    azutil.delete_resources(vm_ids)
+    # delete nics and disks
+    log.debug("deleting nics and disks: "+",".join(nic_ids + disk_ids))
+    azutil.delete_resources(nic_ids + disk_ids)
+    log.debug("exiting do_slurm_suspend")
+
+def do_slurm_resume(args):
+    log.debug(f"reading config file ({args.config_file})")
+    while True:
+        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        tmpdir = "azhpc_install_" + os.path.basename(args.config_file)[:-5] + "_" + timestamp
+        if not os.path.isdir(tmpdir):
+            break
+        log.warning(f"{tmpdir} already exists, sleeping for 5 seconds and retrying")
+        time.sleep(5)
+    log.debug(f"tmpdir = {tmpdir}")
+
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    config = c.preprocess()
+
+    adminuser = config["admin_user"]
+    private_key_file = adminuser+"_id_rsa"
+    public_key_file = adminuser+"_id_rsa.pub"
+
+    log.info(f"slurm resume for {args.nodes}")
+    # first get the resource name
+    all_resources = config.get("resources", [])
+    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
+    resource_list = []
+    if bool(brackets):
+        for part in brackets.split(","):
+            if "-" in part:
+                lo, hi = part.split("-")
+                assert len(lo) == 4, "expecting number width of 4"
+                assert len(hi) == 4, "expecting number width of 4"
+                for i in range(int(lo), int(hi) + 1):
+                    resource_list.append(f"{resource_name}{i:04d}")
+            else:
+                assert len(part) == 4, "expecting number width of 4"
+                resource_list.append(f"{resource_name}{part}")
+    else:
+        resource_list.append(resource_name)
+        resource_name = resource_name[:-4]
+    
+    template_resource = config.get("resources", {}).get(resource_name)
+    if not template_resource:
+        log.error(f"${res} resource not found in config")
+        sys.exit(1)
+    if template_resource.get("type") != "slurm_partition":
+        log.error(f"invalid resource type for scaling")
+    
+    template_resource["type"] = "vm"
+    del template_resource["instances"]
+
+    log.info(f"resource_name= {resource_name}")
+    log.info("resource_list= " + ",".join(resource_list))
+    
+    config["resources"] = {}
+    for rname in resource_list:
+        config["resources"][rname] = template_resource
+
+    tpl = arm.ArmTemplate()
+    tpl.read_resources(config, False)
+
+    output_template = f"deploy_{args.config_file}_{timestamp}"
+
+    log.info("writing out arm template to " + output_template)
+    with open(output_template, "w") as f:
+        f.write(tpl.to_json())
+
+    log.info("deploying arm template")
+    deployname = azutil.deploy(
+        config["resource_group"],
+        output_template
+    )
+    log.debug(f"deployment name: {deployname}")
+
+    _wait_for_deployment(config["resource_group"], deployname)
+    
+    log.info("building host lists")
+    azinstall.generate_hostlists(config, tmpdir)
+    log.info("building install scripts")
+    azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
+    
+    jumpbox = c.read_value("install_from")
+    resource_group = c.read_value("resource_group")
+    fqdn = c.get_install_from_destination()
+    log.debug(f"running script from : {fqdn}")
+    azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
+
+def do_build(args):
+    log.debug(f"reading config file ({args.config_file})")
+    tmpdir = "azhpc_install_" + os.path.basename(args.config_file)[:-5]
+    log.debug(f"tmpdir = {tmpdir}")
+    if os.path.isdir(tmpdir):
+        log.debug("removing existing tmp directory")
+        shutil.rmtree(tmpdir)
+
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    config = c.preprocess()
+
+    adminuser = config["admin_user"]
+    private_key_file = adminuser+"_id_rsa"
+    public_key_file = adminuser+"_id_rsa.pub"
+    _create_private_key(private_key_file, public_key_file)
+
+    tpl = arm.ArmTemplate()
+    tpl.read(config)
+
+    output_template = "deploy_"+args.config_file
+
+    log.info("writing out arm template to " + output_template)
+    with open(output_template, "w") as f:
+        f.write(tpl.to_json())
+
+    log.info("creating resource group " + config["resource_group"])
+
+    resource_tags = config.get("resource_tags", {})
+    azutil.create_resource_group(
+        config["resource_group"],
+        config["location"],
+        [
+            {
+                "key": "CreatedBy",
+                "value": os.getenv("USER")
+            },
+            {
+                "key": "CreatedOn",
+                "value": datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            }
+        ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
+    )
+    log.info("deploying arm template")
+    deployname = azutil.deploy(
+        config["resource_group"],
+        output_template
+    )
+    log.debug(f"deployment name: {deployname}")
+
+    _wait_for_deployment(config["resource_group"], deployname)
     
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
@@ -613,7 +751,35 @@ if __name__ == "__main__":
         help="displays the resource uptime"
     )
     status_parser.set_defaults(func=do_status)
+
+    slurm_resume_parser = subparsers.add_parser(
+        "slurm_resume",
+        parents=[gopt_parser],
+        add_help=False,
+        help="resume VMs for slurm"
+    )
+    slurm_resume_parser.add_argument(
+        "nodes",
+        type=str,
+        help="the nodes in the slurm array format"
+    )
+    slurm_resume_parser.set_defaults(func=do_slurm_resume)
+
+    slurm_suspend_parser = subparsers.add_parser(
+        "slurm_suspend",
+        parents=[gopt_parser],
+        add_help=False,
+        help="suspend VMs for slurm"
+    )
+    slurm_suspend_parser.add_argument(
+        "nodes",
+        type=str,
+        help="the nodes in the slurm array format"
+    )
+    slurm_suspend_parser.set_defaults(func=do_slurm_suspend)
+
     args = azhpc_parser.parse_args()
+
 
     if args.debug:
         azlog.setDebug(True)
