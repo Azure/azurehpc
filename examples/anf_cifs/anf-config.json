@@ -53,7 +53,7 @@
       "type": "vm",
       "public_ip": "true",
       "password": "variables.win_password",
-      "vm_type": "Standard_D8_v3",
+      "vm_type": "Standard_D8s_v3",
       "image": "variables.ad_image",
       "subnet": "admin",
       "tags": [
@@ -62,7 +62,7 @@
     },
     "headnode": {
       "type": "vm",
-      "vm_type": "Standard_D8_v3",
+      "vm_type": "Standard_D8s_v3",
       "public_ip": true,
       "image": "variables.image",
       "subnet": "compute",
