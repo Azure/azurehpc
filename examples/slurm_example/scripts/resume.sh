@@ -7,7 +7,11 @@ echo "$(date) : [resume.sh] : running resume with options $@" >> /var/log/slurm/
 cd /var/lib/slurm
 
 az login --identity -o table
-azhpc-build 
+
+source /apps/slurm/azurehpc/install.sh
+
+cd /apps/slurm/azscale
+python3 $azhpc_dir/pyazhpc/azhpc.py slurm_resume "$NODES" >> /var/log/slurm/autoscale.log 2>&1
 
 for host in $(scontrol show hostnames $NODES)
 do

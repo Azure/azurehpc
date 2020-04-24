@@ -59,65 +59,21 @@ EOF
 mkdir -p /apps/slurm/scripts
 chown slurm /apps/slurm/scripts
 
-#cp scripts/slurm/resume.sh /apps/slurm/scripts/
-
-cat <<EOF >> /apps/slurm/scripts/resume.sh
-#!/bin/bash
-
-NODES=""
-NODENAMES=\$1
-RESOURCEGROUP="NOT-SET"
-
-az login --identity -o table >> /var/log/slurm/autoscale.log
-
-echo "running resume at \`date\` with options \$@" >> /var/log/slurm/autoscale.log
-
-hosts=\`scontrol show hostnames \$1\`
-for host in \$hosts
-do
-   NODES+=\`az vm show -g \${RESOURCEGROUP} -n \${host} --query id -o tsv\`
-   NODES+=" "
-   echo \$NODES >> /var/log/slurm/autoscale.log
-done
-
-echo az vm start --ids \$NODES >> /var/log/slurm/autoscale.log
-az vm start --ids \$NODES
-
-for host in \$hosts
-do
-   NODEIP=\`az vm list-ip-addresses -g \${RESOURCEGROUP} -n \${host} | jq -r '.[].virtualMachine.network.privateIpAddresses[0]'\`
-   echo scontrol update nodename=\${host} nodeaddr=\${NODEIP} >> /var/log/slurm/autoscale.log
-   scontrol update nodename=\${host} nodeaddr=\${NODEIP}
-done
-EOF
-
-cat <<EOF >> /apps/slurm/scripts/suspend.sh
-#!/bin/bash
-
-RESOURCEGROUP="NOT-SET"
-NODES=""
-
-az login --identity
-
-echo "running suspend at \`date\` with options \$@" >> /var/log/slurm/autoscale.log
-
-hosts=\`scontrol show hostnames \$1\`
-for host in \$hosts
-do
-   NODES+=\`az vm show -g \${RESOURCEGROUP} -n \${host} --query id -o tsv\`
-   NODES+=" "
-   echo \$NODES >> /var/log/slurm/autoscale.log
-done
-
-
-echo az vm deallocate --ids \$NODES  >> /var/log/slurm/autoscale.log
-az vm deallocate --ids \$NODES
-EOF
+cp scripts/suspend.sh /apps/slurm/scripts/
+cp scripts/resume.sh /apps/slurm/scripts/
 
 chmod +x /apps/slurm/scripts/*.sh
 ls -alh /apps/slurm/scripts
 sed -i "s/RESOURCEGROUP=.*/RESOURCEGROUP=${RESOURCEGROUP}/g" /apps/slurm/scripts/resume.sh
 sed -i "s/RESOURCEGROUP=.*/RESOURCEGROUP=${RESOURCEGROUP}/g" /apps/slurm/scripts/suspend.sh
+
+mkdir -p /apps/slurm/azscale/scripts
+cp scripts/config.json /apps/slurm/azscale
+cp -r scripts /apps/slurm/azscale/.
+
+pushd /apps/slurm
+git clone https://github.com/Azure/azurehpc.git
+popd
 
 systemctl enable slurmctld
 #systemctl start slurmctld

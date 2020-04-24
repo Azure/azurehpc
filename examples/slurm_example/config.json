@@ -109,6 +109,11 @@
        "args": [
           "variables.resource_group"
        ],
+       "deps": [
+        "suspend.sh",
+        "resume.sh",
+        "config.json"
+       ],
        "sudo": true
      },
      {

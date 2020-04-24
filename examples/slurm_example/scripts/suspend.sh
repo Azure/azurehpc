@@ -7,15 +7,9 @@ echo "$(date) : [suspend.sh] : running suspend with options $@" >> /var/log/slur
 
 az login --identity
 
-hosts=`scontrol show hostnames $1`
-for host in $hosts
-do
-   NODES+=`az vm show -g ${RESOURCEGROUP} -n ${host} --query id -o tsv`
-   NODES+=" "
-   echo "$(date) : [suspend.sh] : nodes = $NODES" >> /var/log/slurm/autoscale.log
-done
+source /apps/slurm/azurehpc/install.sh
 
-echo az vm deallocate --ids $NODES
-az vm deallocate --ids $NODES
+cd /apps/slurm/azscale
+python3 $azhpc_dir/pyazhpc/azhpc.py slurm_suspend "$NODES" >> /var/log/slurm/autoscale.log 2>&1
 
 echo "$(date) : [suspend.sh] : exiting" >> /var/log/slurm/autoscale.log
