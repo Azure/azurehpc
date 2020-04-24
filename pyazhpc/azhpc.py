@@ -157,6 +157,8 @@ def do_connect(args):
     log.debug("Getting resource name")
 
     rtype = c.read_value(f"resources.{args.resource}.type", "hostname")
+    rimage = c.read_value(f"resources.{args.resource}.image", "hostname")
+    log.debug(f"image is - {rimage}")
 
     target = args.resource
 
@@ -183,34 +185,59 @@ def do_connect(args):
         log.debug(f"Unknown resource type - {rtype}")
         sys.exit(1)
 
-    ssh_exe = "ssh"
-    cmdline = []
-    if len(args.args) > 0:
-        cmdline.append(" ".join(args.args))
+    ros = rimage.split(':')
+    if ros[0] == "MicrosoftWindowsServer":
+        log.debug(f"os is - {ros[0]} for node {args.resource}")
+        fqdn = azutil.get_fqdn(c.read_value("resource_group"), args.resource+"pip")
+        winpassword = c.read_value("variables.win_password")
+        log.debug(f"fqdn is {fqdn} for node {args.resource}")
+        cmdkey_exe = "cmdkey.exe"
+        mstsc_exe = "mstsc.exe"
+        cmdline = []
+        if len(args.args) > 0:
+            cmdline.append(" ".join(args.args))
 
-    if args.resource == jumpbox:
-        log.info("logging directly into {}".format(fqdn))
-        ssh_args = [
-            "ssh", "-t", "-q", 
-            "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=/dev/null",
-            "-i", ssh_private_key,
-            f"{sshuser}@{fqdn}"
-        ]
-        log.debug(" ".join(ssh_args + cmdline))
-        os.execvp(ssh_exe, ssh_args + cmdline)
-    else:
-        log.info("logging in to {} (via {})".format(target, fqdn))
-        ssh_args = [
-            ssh_exe, "-t", "-q",
-            "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=/dev/null",
-            "-i", ssh_private_key,
-            "-o", f"ProxyCommand=ssh -i {ssh_private_key} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p {sshuser}@{fqdn}",
-            f"{sshuser}@{target}"
-        ]
-        log.debug(" ".join(ssh_args + cmdline))
-        os.execvp(ssh_exe, ssh_args + cmdline)
+        cmdkey_args = [
+            "cmdkey.exe", f"/generic:{fqdn}", f"/user:{sshuser}", f"/password:{winpassword}"
+            ]
+        mstsc_args = [
+            "mstsc.exe", f"/v:{fqdn}"
+            ]
+        log.debug(" ".join(cmdkey_args + cmdline))
+        cmdkey_cmdline = " ".join(cmdkey_args)
+        os.system(cmdkey_cmdline)
+        log.debug(" ".join(mstsc_args + cmdline))
+        os.execvp(mstsc_exe, mstsc_args)
+
+    else: 
+        ssh_exe = "ssh"
+        cmdline = []
+        if len(args.args) > 0:
+            cmdline.append(" ".join(args.args))
+
+        if args.resource == jumpbox:
+            log.info("logging directly into {}".format(fqdn))
+            ssh_args = [
+                "ssh", "-t", "-q", 
+                "-o", "StrictHostKeyChecking=no",
+                "-o", "UserKnownHostsFile=/dev/null",
+                "-i", ssh_private_key,
+                f"{sshuser}@{fqdn}"
+            ]
+            log.debug(" ".join(ssh_args + cmdline))
+            os.execvp(ssh_exe, ssh_args + cmdline)
+        else:
+            log.info("logging in to {} (via {})".format(target, fqdn))
+            ssh_args = [
+                ssh_exe, "-t", "-q",
+                "-o", "StrictHostKeyChecking=no",
+                "-o", "UserKnownHostsFile=/dev/null",
+                "-i", ssh_private_key,
+                "-o", f"ProxyCommand=ssh -i {ssh_private_key} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p {sshuser}@{fqdn}",
+                f"{sshuser}@{target}"
+            ]
+            log.debug(" ".join(ssh_args + cmdline))
+            os.execvp(ssh_exe, ssh_args + cmdline)
 
 def _exec_command(fqdn, sshuser, sshkey, cmdline):
     ssh_exe = "ssh"

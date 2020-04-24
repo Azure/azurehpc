@@ -387,6 +387,7 @@ class ArmTemplate:
         rtype = res["type"]
         rsize = res["vm_type"]
         rimage = res["image"]
+        ros = rimage.split(':')
         rinstances = res.get("instances", 1)
         rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
@@ -462,31 +463,58 @@ class ArmTemplate:
                     }
                 })
 
-                self.resources.append({
-                    "type": "Microsoft.Network/networkSecurityGroups",
-                    "apiVersion": "2015-06-15",
-                    "name": nsgname,
-                    "location": loc,
-                    "dependsOn": [],
-                    "tags": {},
-                    "properties": {
-                        "securityRules": [
-                            {
-                                "name": "default-allow-ssh",
-                                "properties": {
-                                    "protocol": "Tcp",
-                                    "sourcePortRange": "*",
-                                    "destinationPortRange": "22",
-                                    "sourceAddressPrefix": "*",
-                                    "destinationAddressPrefix": "*",
-                                    "access": "Allow",
-                                    "priority": 1000,
-                                    "direction": "Inbound"
+                if ros[0] == "MicrosoftWindowsServer":
+                    self.resources.append({
+                        "type": "Microsoft.Network/networkSecurityGroups",
+                        "apiVersion": "2015-06-15",
+                        "name": nsgname,
+                        "location": loc,
+                        "dependsOn": [],
+                        "tags": {},
+                        "properties": {
+                            "securityRules": [
+                                {
+                                    "name": "default-allow-rdp",
+                                    "properties": {
+                                        "protocol": "Tcp",
+                                        "sourcePortRange": "*",
+                                        "destinationPortRange": "3389",
+                                        "sourceAddressPrefix": "*",
+                                        "destinationAddressPrefix": "*",
+                                        "access": "Allow",
+                                        "priority": 1000,
+                                        "direction": "Inbound"
+                                    }
                                 }
-                            }
-                        ]
-                    }
-                })
+                             ]
+                        }
+                    })
+                else:
+                    self.resources.append({
+                        "type": "Microsoft.Network/networkSecurityGroups",
+                        "apiVersion": "2015-06-15",
+                        "name": nsgname,
+                        "location": loc,
+                        "dependsOn": [],
+                        "tags": {},
+                        "properties": {
+                            "securityRules": [
+                                {
+                                    "name": "default-allow-ssh",
+                                    "properties": {
+                                        "protocol": "Tcp",
+                                        "sourcePortRange": "*",
+                                        "destinationPortRange": "22",
+                                        "sourceAddressPrefix": "*",
+                                        "destinationAddressPrefix": "*",
+                                        "access": "Allow",
+                                        "priority": 1000,
+                                        "direction": "Inbound"
+                                    }
+                                }
+                            ]
+                        }
+                    })
 
             nicname = r+"nic"
             ipconfigname = r+"ipconfig"
