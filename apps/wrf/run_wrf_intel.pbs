@@ -1,0 +1,38 @@
+#!/bin/bash
+
+SHARED_APP=${SHARED_APP:-/apps}
+INTEL_COMPILER_INSTALL_DIR=${INTEL_COMPILER_INSTALL_DIR:-/apps/intel}
+INTEL_MPI_VERSION=${INTEL_MPI_VERSION:-2020.1.217}
+INTEL_COMPILER_PACKAGE_VERSION=${INTEL_COMPILER_VERSION:-2019.6.324}
+INTEL_COMPILER_VERSION=${INTEL_COMPILER_VERSION:-19.0.8.324}
+
+export MODULEPATH=${SHARED_APP}/modulefiles/${SKU_TYPE}:$MODULEPATH
+export OMP_NUM_THREADS=4
+export I_MPI_DEBUG=4
+export I_MPI_PIN_DOMAIN=numa
+export KMP_STACKSIZE=256m
+
+module load gcc-9.2.0
+source ${INTEL_COMPILER_INSTALL_DIR}/compilers_and_libraries_${INTEL_COMPILER_PACKAGE_VERSION}/linux/bin/compilervars.sh intel64
+source /opt/intel/compilers_and_libraries_${INTEL_MPI_VERSION}/linux/mpi/intel64/bin/mpivars.sh
+
+spack load netcdf-fortran%intel@${INTEL_COMPILER_VERSION}^intel-mpi
+spack load hdf5+fortran%intel@${INTEL_COMPILER_VERSION}^intel-mpi
+spack load perl%intel@${INTEL_COMPILER_VERSION}
+#module load wrf/4.1.5-intel
+module load wrf/4.1.5-omp-intel
+
+which mpicc
+which wrf.exe
+
+cat $PBS_NODEFILE
+
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+
+cd $PBS_O_WORKDIR
+ln -s ${WRFROOT}/run/* .
+cp ${INPUTDIR}/*_d01 .
+cp ${INPUTDIR}/namelist.input .
+
+#mpirun -n $NPROCS --hostfile $PBS_NODEFILE --map-by core wrf.exe
+mpirun -n $NPROCS --hostfile $PBS_NODEFILE wrf.exe
