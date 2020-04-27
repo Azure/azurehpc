@@ -1,0 +1,195 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/22",
+            "storage": "10.2.4.0/24"
+        }
+    },
+    "variables": {
+        "resource_group": "<NOT-SET>",
+        "location": "southcentralus",
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "glusterfsimage": "OpenLogic:CentOS:7.7:latest",
+        "hpcimage": "OpenLogic:CentOS-HPC:7.7:latest",
+        "compute_vm_type": "Standard_HB60rs",
+        "compute_instances": 2,
+        "glusterfs_instances": 4,
+        "low_priority": false,
+        "glusterfs_mount": "/glusterfs"
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "cndefault",
+                "lfsrepo",
+                "lfsclient",
+                "lfsazimport",
+                "localuser",
+                "pbsserver",
+                "loginnode",
+                "nfsserver"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.compute_vm_type",
+            "accelerated_networking": true,
+            "instances": "variables.compute_instances",
+            "low_priority": "variables.low_priority",
+            "image": "variables.hpcimage",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "cndefault",
+                "lfsrepo",
+                "lfsclient",
+                "localuser",
+                "pbsclient",
+                "nfsclient",
+                "glusterfs_client"
+            ]
+        },
+        "glusterfs": {
+            "type": "vmss",
+            "vm_type": "Standard_L16s_v2",
+            "instances": "variables.glusterfs_instances",
+            "accelerated_networking": true,
+            "image": "variables.glusterfsimage",
+            "subnet": "storage",
+            "tags": [
+                "cndefault",
+                "lustre",
+                "lfsrepo",
+                "disable-selinux",
+                "create_raid0",
+                "make_filesystem",
+                "glusterfs_pkgs",
+                "glusterfs_vol",
+                "glusterfs_pool"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "nfsserver",
+            "args": [
+                "/share"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "create_raid0.sh",
+            "args": [
+                "/dev/md20",
+                "/dev/nvme*n1"
+            ],
+            "tag": "create_raid0",
+            "sudo": true
+        },
+        {
+            "script": "make_filesystem.sh",
+            "args": [
+                "/dev/md20",
+                "xfs",
+                "/mnt/resource_nvme"
+            ],
+            "tag": "make_filesystem",
+            "sudo": true
+        },
+        {
+            "script": "glusterfs_pkgs.sh",
+            "tag": "glusterfs_pkgs",
+            "sudo": true
+        },
+        {
+            "script": "glusterfs_vol.sh",
+            "tag": "glusterfs_vol",
+            "args": [
+                "glusterfs",
+                0
+            ],
+            "sudo": true
+        },
+        {
+            "script": "glusterfs_pool.sh",
+            "tag": "glusterfs_pool",
+            "args": [
+                "$(head -n1 hostlists/tags/glusterfs)"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "glusterfs_client.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/glusterfs)",
+                "variables.glusterfs_mount"
+            ],
+            "tag": "glusterfs_client",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": false
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
+            "sudo": false
+        }
+    ]
+}
