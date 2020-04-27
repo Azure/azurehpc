@@ -147,7 +147,7 @@
             "script": "glusterfs_pool.sh",
             "tag": "glusterfs_pool",
             "args": [
-                "$(head -n1 hostlists/tags/glusterfs)"
+                "glusterfs"
             ],
             "sudo": true
         },
