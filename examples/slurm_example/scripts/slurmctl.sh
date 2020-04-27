@@ -72,7 +72,7 @@ cp scripts/config.json /apps/slurm/azscale
 cp -r scripts /apps/slurm/azscale/.
 
 pushd /apps/slurm
-git clone https://github.com/Azure/azurehpc.git
+git clone -b slurm-in-azhpc https://github.com/Azure/azurehpc.git
 popd
 
 systemctl enable slurmctld
