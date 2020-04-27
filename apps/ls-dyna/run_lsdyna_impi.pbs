@@ -1,0 +1,121 @@
+#!/bin/bash
+#PBS -N DYNA-9.3.1-IBV
+#PBS -l select=2:ncpus=120:mpiprocs=120
+#PBS -j oe
+
+##ulimit -s unlimited
+
+# Setup environment variables
+LS_DYNA_EXE_PATH=${LS_DYNA_PATH:-/apps/LS-DYNA}
+LS_DYNA_DATA_PATH=${LS_DYNA_FILES_PATH:-/data/LS-DYNA/topcrunch}
+LS_DYNA_MPP_EXE=${LS_DYNA_EXE:-ls-dyna_mpp_s_R9_3_1_x64_centos65_ifort131_avx2_intelmpi-2018}
+LS_DYNA_HYB_EXE=${LS_DYNA_EXE:-ls-dyna_hyb_s_R9_3_1_x64_centos65_ifort131_avx2_intelmpi-2018}
+LS_DYNA_CASE=${LS_DYNA_CASE:-3cars_rev02}
+LS_DYNA_INPUT=${LS_DYNA_INPUT:-3cars_shell2_150ms.k_rev02}
+LS_DYNA_PROFILE=${LS_DYNA_PROFILE:-3cars.pfile}
+LS_DYNA_RUN_LOCAL=${LS_DYNA_RUN_LOCAL:-no}
+OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+LICENSE_INFO=${LICENSE_INFO:-10.1.0.5}
+NODES=$(cat $PBS_NODEFILE | sort -u | wc -l)
+CORES=$(cat $PBS_NODEFILE | wc -l)
+PPN=$(cat $PBS_NODEFILE | sort -n | uniq -c | head -n 1 | awk '{print $1}')
+DATE=`date "+%Y%m%d-%H%M%S-%4N"`
+
+#Get VM Instance type
+AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2018-10-01" | jq -r '.vmSize')
+AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
+echo "VM SIZE: $AZHPC_VMSIZE"
+
+# Setup Intel MPI
+source /etc/profile
+module load mpi/impi
+source $MPI_BIN/mpivars.sh
+export I_MPI_FALLBACK_DEVICE=0
+export LSTC_RSH ssh
+
+
+#LSTC recommended
+export I_MPI_SHM_LMT=shm
+export I_MPI_EAGER_THRESHOLD=134000
+
+# Mellanox recommendations
+export DAT_OVERRIDE=/etc/dat.conf
+export I_MPI_DAT_LIBRARY=/usr/lib64/libdat2.so 
+export I_MPI_FABRICS=shm:dapl 
+export I_MPI_DAPL_UD=on 
+export I_MPI_DAPL_PROVIDER=ofa-v2-mlx5_0-1u
+export I_MPI_PIN=on
+
+MPI_OPTIONS="-hostfile $PBS_NODEFILE -np $CORES -DAPL"
+IMB_ROOT=$MPI_BIN
+
+export LSTC_LICENSE=network
+export LSTC_LICENSE_SERVER=10.1.0.5
+
+# Check to see if the user is wanted hybrid
+echo "# Threads: $OMP_NUM_THREADS"
+if (( $OMP_NUM_THREADS > 1 )); then
+    if (( $OMP_NUM_THREADS == $PPN )); then
+        OMP_NUM_THREADS=1
+        GLS_DYNA_EXE=$LS_DYNA_MPP_EXE
+    else
+        MPI_OPTIONS="$MPI_OPTIONS -ppn $PPN"
+        add_inputs="ncpus=-$OMP_NUM_THREADS"
+        LS_DYNA_EXE=$LS_DYNA_HYB_EXE
+    fi
+else
+    LS_DYNA_EXE=$LS_DYNA_MPP_EXE
+fi
+
+if [[ "$LS_DYNA_RUN_LOCAL" == "yes" ]]; then
+    RUN_DIR=/mnt/resource/$PBS_JOBID
+    cd $RUN_DIR
+
+    cp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_PROFILE} ${PBS_JOBID}.pfile
+
+    # This requires that you use the PBS hook in www.github.com/Azure/azurehpc to setup a local directory on each node for the job
+    sed -i "s/\/mnt\/scratch_shared/\/mnt\/resource\/${PBS_JOBID}/g" ${PBS_JOBID}.pfile
+
+    LS_DYNA_PROFILE=${PBS_JOBID}.pfile
+
+    # setup files on the nodes
+    for node in `sort -u $PBS_NODEFILE`
+    do
+        scp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_INPUT} $node:$RUN_DIR/.
+        scp ${PBS_JOBID}.pfile $node:$RUN_DIR/.
+        ssh $node ln -s ${LS_DYNA_EXE_PATH}/${LS_DYNA_EXE} $RUN_DIR/.
+    done
+
+else
+    RUN_DIR=${PBS_O_WORKDIR}/${PBS_JOBID}
+    mkdir -p $RUN_DIR
+    cd $RUN_DIR
+
+    # Copy necessary files to the directory
+    cp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_INPUT} .
+    cp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_PROFILE} .
+    ln -s ${LS_DYNA_EXE_PATH}/${LS_DYNA_EXE} .
+fi
+
+if [[ "$LS_DYNA_PROFILE" == "none" ]]; then
+    echo "No profile file provided"
+else
+    echo "Use $LS_DYNA_PROFILE for the profile file"
+    add_inputs="p=$LS_DYNA_PROFILE $add_inputs"
+fi
+# provide some additional information
+pwd
+ls -latr
+
+# Run job
+echo "mpirun $MPI_OPTIONS $RUN_DIR/${LS_DYNA_EXE} i=${LS_DYNA_INPUT} memory=1400m memory2=200m $add_inputs"
+
+mpirun \
+       $MPI_OPTIONS \
+       $RUN_DIR/${LS_DYNA_EXE} i=${LS_DYNA_INPUT} memory=1400m memory2=200m $add_inputs
+
+# Copy back the neded output files
+mv d3hsp ${PBS_O_WORKDIR}/$AZHPC_VMSIZE.${LS_DYNA_EXE}.${NODES}n.${CORES}c_${DATE}.d3hsp
+
+# Clean up
+rm -rf $RUN_DIR
