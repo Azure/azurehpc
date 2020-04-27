@@ -1,7 +1,6 @@
 #!/bin/bash
 
-RESOURCEGROUP=paul-slurm-test
-NODES=""
+NODES=$1
 
 echo "$(date) : [suspend.sh] : running suspend with options $@" >> /var/log/slurm/autoscale.log
 

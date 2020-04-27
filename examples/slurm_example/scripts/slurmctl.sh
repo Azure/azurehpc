@@ -69,11 +69,10 @@ cp scripts/*_id_rsa* /apps/slurm/azscale
 chmod 600 /apps/slurm/azscale/*_id_rsa
 chmod 644 /apps/slurm/azscale/*_id_rsa.pub
 cp -r scripts /apps/slurm/azscale/.
-chown slurm.slurm -R /apps/slurm
-
 pushd /apps/slurm
 git clone -b slurm-in-azhpc https://github.com/Azure/azurehpc.git
 popd
+chown slurm.slurm -R /apps/slurm
 
 systemctl enable slurmctld
 #systemctl start slurmctld
