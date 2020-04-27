@@ -64,11 +64,12 @@ cp scripts/resume.sh /apps/slurm/scripts/
 
 chmod +x /apps/slurm/scripts/*.sh
 ls -alh /apps/slurm/scripts
-sed -i "s/RESOURCEGROUP=.*/RESOURCEGROUP=${RESOURCEGROUP}/g" /apps/slurm/scripts/resume.sh
-sed -i "s/RESOURCEGROUP=.*/RESOURCEGROUP=${RESOURCEGROUP}/g" /apps/slurm/scripts/suspend.sh
 
 mkdir -p /apps/slurm/azscale/scripts
 cp scripts/config.json /apps/slurm/azscale
+cp scripts/*_id_rsa* /apps/slurm/azscale
+chmod 600 /apps/slurm/azscale/*_id_rsa
+chmod 644 /apps/slurm/azscale/*_id_rsa.pub
 cp -r scripts /apps/slurm/azscale/.
 
 pushd /apps/slurm
