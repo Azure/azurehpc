@@ -11,7 +11,7 @@ if [ "$PSSH_NODENUM" = "0" ]; then
    echo $hosts_str
 
    replica_str=""
-   if [ $REPLICAS -gt 0 ]; then
+   if [ $REPLICA -gt 0 ]; then
       replica_str="replica $REPLICA"
    fi
 
