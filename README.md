@@ -308,7 +308,6 @@ Aliases have been created to allow an easier usage as well as a backward compati
 | **[azhpc-get](#azhpc-get)**               | This will return the value of a variable from the config file          |
 | **[azhpc-init](#azhpc-init)**             | Update or create variables in the config file                          |
 | **[azhpc-preprocess](#azhpc-preprocess)** | Preprocess the configuration file                                      |
-| **[azhpc-resize](#azhpc-resize)**         | Resize a VMSS                                                          |
 | **[azhpc-run](#azhpc-run)**               | Run a command on one of multiple resources                             |
 | **[azhpc-scp](#azhpc-scp)**               | Uses the scp to copy a file to/from the remote resource                |
 | **[azhpc-status](#azhpc-status)**         | Show the uptime for all the resources in the project                   |
@@ -433,22 +432,6 @@ optional arguments:
   --debug               increase output verbosity
   --no-color            turn off color in output
 ```
-
-### azhpc-resize
-
-This should be used on a running setup where you can resize an existing VMSS.  After the VMSS has been resized an install script will be generated and run on any new VMs.
-
-```
-Command:
-    azhpc-resize [options] <vmss-resource> <size>
-
-Arguments
-    -h --help  : diplay this help
-    -c --config: config file to use
-                 default: config.json
-```
-
-> Note: some manual interventions may be required to keep you set up in good order.  For example, this will not remove nodes from a PBS cluster when scaling down.
 
 ### azhpc-run
 
