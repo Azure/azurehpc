@@ -19,7 +19,7 @@
     "spn_name": "<NOT-SET>",
     "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
-    "appId": "",
+    "appid": "",
     "image": "OpenLogic:CentOS:7.7:latest"
   },
   "resources": {
@@ -33,7 +33,7 @@
           "variables.key_vault",
           "variables.spn_name",
           "variables.projectstore",
-          "variables.appId"
+          "variables.appid"
       ]
     }
   ]
