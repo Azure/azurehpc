@@ -21,9 +21,9 @@
     "gpu_vm_type": "Standard_ND40rs_v2",
     "vm_type": "Standard_D8s_v3",
     "vnet_resource_group": "variables.resource_group",
-    "reveal_sas_url": "sasurl.cathpcappsncus.apps/reveal/reveal-time-4.1-2020-04-12.tar.gz",
-    "reveal_license_sas_url": "sasurl.cathpcappsncus.apps/reveal/license-demo-microsoft_azure-05-06-2020-al-am-rtmc-rtmg",
-    "headnode_pw": "secret.cg-vault-we.headnode-pw"
+    "reveal_sas_url": "<NOT-SET>",
+    "reveal_license_sas_url": "<NOT-SET>",
+    "headnode_pw": "<NOT-SET>"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
