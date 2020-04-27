@@ -11,8 +11,7 @@ az login --identity -o table
 source /apps/slurm/azurehpc/install.sh
 
 cd /apps/slurm/azscale
-export PYTHONPATH=$PYTHONPATH:$AZHPC_PYTHONPATH
-$azhpc_pypath $azhpc_dir/pyazhpc/azhpc.py slurm_resume "$NODES" >> /var/log/slurm/autoscale.log 2>&1
+azhpc slurm_resume "$NODES" >> /var/log/slurm/autoscale.log 2>&1
 
 resource_group=$(azhpc-get resource_group | tr ' ' '\n' | tail -n 1)
 
