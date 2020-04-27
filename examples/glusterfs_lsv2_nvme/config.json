@@ -34,9 +34,6 @@
             "tags": [
                 "disable-selinux",
                 "cndefault",
-                "lfsrepo",
-                "lfsclient",
-                "lfsazimport",
                 "localuser",
                 "pbsserver",
                 "loginnode",
@@ -46,7 +43,7 @@
         "compute": {
             "type": "vmss",
             "vm_type": "variables.compute_vm_type",
-            "accelerated_networking": true,
+            "accelerated_networking": false,
             "instances": "variables.compute_instances",
             "low_priority": "variables.low_priority",
             "image": "variables.hpcimage",
@@ -54,8 +51,6 @@
             "tags": [
                 "disable-selinux",
                 "cndefault",
-                "lfsrepo",
-                "lfsclient",
                 "localuser",
                 "pbsclient",
                 "nfsclient",
@@ -71,8 +66,6 @@
             "subnet": "storage",
             "tags": [
                 "cndefault",
-                "lustre",
-                "lfsrepo",
                 "disable-selinux",
                 "create_raid0",
                 "make_filesystem",
