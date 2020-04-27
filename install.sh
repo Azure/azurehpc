@@ -15,11 +15,12 @@ fi
 for cmd in "" build connect destroy get init preprocess run scp status; do
     if [ "$cmd" = "" ]; then
         cmd_name=azhpc
-        launch_cmd=azhpc.py
+        cmd_launch=azhpc.py
     else
         cmd_name=azhpc-$cmd
         cmd_launch="azhpc.py $cmd"
     fi
+    
     if [ ! -f "$DIR/bin/$cmd_name" ]; then
         cat <<EOF >$DIR/bin/$cmd_name
 #!/bin/bash
