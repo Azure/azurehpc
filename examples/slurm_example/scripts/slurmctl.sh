@@ -1,7 +1,5 @@
 #!/bin/bash
 
-RESOURCEGROUP=$1
-
 yum install -y epel-release screen
 
 yum install perl-ExtUtils-MakeMaker gcc mariadb-devel openssl openssl-devel pam-devel rpm-build numactl numactl-devel hwloc hwloc-devel lua lua-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad -y

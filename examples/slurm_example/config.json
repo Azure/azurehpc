@@ -106,9 +106,6 @@
      {
        "script": "slurmctl.sh",
        "tag": "slurmserver",
-       "args": [
-          "variables.resource_group"
-       ],
        "deps": [
         "suspend.sh",
         "resume.sh",
