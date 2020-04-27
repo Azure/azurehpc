@@ -3,6 +3,7 @@
 APP_NAME=spack
 APP_VERSION=0.14.2
 SHARED_APP=${SHARED_APP:-/apps}
+INTEL_MPI_VERSION=${INTEL_MPI_VERSION:-2020.1.217}
 USER=`whoami`
 
 sku_type=$1
@@ -11,6 +12,7 @@ STORAGE_ENDPOINT=$3
 
 APPS_SPACK_DIR=`pwd`
 CONFIG_YAML=config.yaml
+PACKAGES_YAML=packages.yaml
 
 sudo yum install -y python3
 
@@ -32,6 +34,8 @@ sudo chown $USER /mnt/resource/spack
 mkdir ~/.spack
 sed -i "s/SKU_TYPE/${sku_type}/" ${APPS_SPACK_DIR}/${CONFIG_YAML}
 sed -i "s#SHARED_APP#${SHARED_APP}#" ${APPS_SPACK_DIR}/${CONFIG_YAML}
+sed -i "s/INTEL_MPI_VERSION/${INTEL_MPI_VERSION}/" ${APPS_SPACK_DIR}/${PACKAGES_YAML}
+
 cp ${APPS_SPACK_DIR}/${CONFIG_YAML} ~/.spack
 cp ${APPS_SPACK_DIR}/packages.yaml ~/.spack
 cp ${APPS_SPACK_DIR}/compilers.yaml ~/.spack

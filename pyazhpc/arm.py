@@ -143,6 +143,7 @@ class ArmTemplate:
         # add route tables first (and keep track of mapping to subnet)
         route_table_map = {}
         for route_name in cfg["vnet"].get("routes", {}).keys():
+            # TODO : Why is this unused ?
             route_address_prefix = cfg["vnet"]["routes"][route_name]["address_prefix"]
             route_next_hop = cfg["vnet"]["routes"][route_name]["next_hop"]
             route_subnet = cfg["vnet"]["routes"][route_name]["subnet"]
@@ -280,6 +281,7 @@ class ArmTemplate:
                 vol = pool["volumes"][volname]
                 volsize = vol["size"]
                 voltype = vol.get("type", "nfs")
+                # TODO : Why is this unused ?
                 volmount = vol["mount"]
                 netapp_volume = {
                     "name": name+"/"+poolname+"/"+volname,
@@ -632,6 +634,7 @@ class ArmTemplate:
         rsize = res["vm_type"]
         rimage = res["image"]
         rinstances = res.get("instances")
+        # TODO : Why is this unused ?
         rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)

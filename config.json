@@ -1,0 +1,118 @@
+{
+    "admin_user": "default cluster admin - nodefault",
+    "install_from": "VM to install from. If public IP is set use FQDN, otherwise use this value. Can be left empty when running local scripts only",
+    "location": "azure region to use",
+    "proximity_placement_group_name": "name of the proximity placement group to create and join resources to",
+    "resource_group": "resource group name to create resources in",
+    "variables": {
+        "variable1": "value1",
+        "variable2": "value2"
+    },
+    "vnet": {
+        "address_prefix": "address space (CIDR)",
+        "dns_domain": "private domain name to create",
+        "name": "vnet name - If it exists it has to be in a different resource groups than the resources deployed",
+        "resource_group": "vnet resource group when specifying an existing vnet",
+        "subnets": {
+            "subnet1": "range1 (CIDR)",
+            "subnet2": "range2 (CIDR)"
+        },
+        "peer": {
+            "peername1": {
+                "resource_group": "name of the resource group to peer the vnet to",
+                "vnet_name": "name of the vnet to peer to"
+            }
+        },
+        "routes": {
+            "route1": {
+                "address_prefix": "address space (CIDR)",
+                "next_hop": "TO DOCUMENT",
+                "subnet": "TO DOCUMENT"
+            }
+        }
+    },
+    "storage": {
+        "storagename": {
+            "ad_password": "Domain password to join to",
+            "ad_server": "Domain Server to connect to",
+            "ad_username": "User to use to join the domain",
+            "joindomain": "Domain name to join to",
+            "subnet": "subnet name in which to inject ANF NICs",
+            "type": "anf",
+            "pools": {
+                "pool1": {
+                    "service_level": "Ultra, Premium, Standard",
+                    "size": "Total pool size in TB. 4 to 100",
+                    "volumes": {
+                        "volume1": {
+                            "size": "Volume size in TB",
+                            "type": "(nfs), cifs",
+                            "mount": "/mount1"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "resources": {
+        "vmName1": {
+            "accelerated_networking": "true, (false)",
+            "availability_set": "true, (false)",
+            "availability_zones": "1,2,3 - Cannot be empty, can be removed",
+            "data_disks": [1024, 2048],
+            "image": "For a public image use format OpenLogic:CentOS:7.7:latest ; For a custom image use the imageID of a managed image",
+            "instances": "Number of VMs to create; default is 1",
+            "low_priority": "true, (false)",
+            "managed_identity": {
+                "role": "reader, contributor, owner",
+                "scope": "resource_group"
+            },
+            "os_disk_size": "OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size",
+            "os_storage_sku": "(Premium_LRS), StandardSSD_LRS, Standard_LRS",
+            "password": "user admin password to use with Windows",
+            "proximity_placement_group": "true, (false)",
+            "public_ip": "true, (false)",
+            "resource_tags": "TO DOCUMENT",
+            "subnet": "subnet name to create the VMs in",
+            "storage_cache": "None, (ReadWrite), ReadOnly - Only used for datadisks",
+            "storage_sku": "(Premium_LRS), StandardSSD_LRS, Standard_LRS",
+            "tags": ["tag1", "tag2"],
+            "type": "vm",
+            "vm_type": "VM SKU size"
+        },
+        "vmssName1": {
+            "accelerated_networking": "true, (false)",
+            "availability_zones": "1,2,3 - Cannot be empty, can be removed",
+            "data_disks": [128, 1024],
+            "fault_domain_count": 99,
+            "image": "For a public image use format OpenLogic:CentOS:7.7:latest ; For a custom image use the imageID of a managed image",
+            "instances": "Number of VMs to create in the VMSS",
+            "low_priority": "true, (false)",
+            "os_disk_size": "OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size",
+            "os_storage_sku": "(Premium_LRS), StandardSSD_LRS, Standard_LRS",
+            "password": "user admin password to use with Windows",
+            "proximity_placement_group": "true, (false)",
+            "resource_tags": "TO DOCUMENT",
+            "subnet": "subnet name to create the VMs in",
+            "storage_cache": "None, (ReadWrite), ReadOnly - Only used for datadisks",
+            "storage_sku": "(Premium_LRS), StandardSSD_LRS, Standard_LRS",
+            "tags": ["tag1", "tag2"],
+            "type": "vmss",
+            "vm_type": "VM SKU size"
+        }
+    },
+    "install": [
+        {
+            "script": "script1.sh",
+            "type": "(jumpbox_script), local_script",
+            "tag": "tag1",
+            "copy": [
+                "filename"
+            ],
+            "args": ["value1", "value2" ],
+            "deps": ["file1", "file2" ],
+            "sudo": "true, (false)",
+            "reboot": "true, (false)"
+        }
+    ]
+}

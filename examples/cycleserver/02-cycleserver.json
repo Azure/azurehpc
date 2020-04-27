@@ -19,8 +19,8 @@
     "spn_name": "<NOT-SET>",
     "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
-    "appId": "",
-    "tenandId": "<NOT-SET>",
+    "appid": "",
+    "tenandid": "<NOT-SET>",
     "image": "OpenLogic:CentOS:7.7:latest"
   },
   "resources": {
@@ -50,8 +50,8 @@
       "args": [
           "cycleserver",
           "secret.{{variables.key_vault}}.{{variables.spn_name}}",
-          "variables.appId",
-          "variables.tenandId",
+          "variables.appid",
+          "variables.tenandid",
           "variables.admin_user",
           "secret.{{variables.key_vault}}.CycleAdminPassword",
           "variables.projectstore"

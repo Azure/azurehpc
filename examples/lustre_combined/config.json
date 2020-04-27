@@ -1,5 +1,5 @@
 {
-    "location": "westeurope",
+    "location": "variables.location",
     "resource_group": "variables.resource_group",
     "install_from": "headnode",
     "admin_user": "hpcadmin",
@@ -13,9 +13,10 @@
     },
     "variables": {
         "resource_group": "<NOT-SET>",
-        "image": "OpenLogic:CentOS:7.6:latest",
-        "lustreimage": "OpenLogic:CentOS:7.6:latest",
-        "hpcimage": "OpenLogic:CentOS-HPC:7.6:latest",
+        "location": "westeurope",
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "lustreimage": "OpenLogic:CentOS:7.7:latest",
+        "hpcimage": "OpenLogic:CentOS-HPC:7.7:latest",
         "compute_instances": 2,
         "lustre_instances": 4,
         "low_priority": false,
@@ -27,7 +28,7 @@
         "la_name": "<NOT-SET>",
         "log_analytics_workspace": "laworkspace.{{variables.la_resourcegroup}}.{{variables.la_name}}",
         "log_analytics_key": "lakey.{{variables.la_resourcegroup}}.{{variables.la_name}}",
-        "lustre_version": "2.10",
+        "lustre_version": "2.12",
         "lustre_mount": "/lustre"
     },
     "resources": {

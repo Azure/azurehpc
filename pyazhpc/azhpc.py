@@ -261,6 +261,7 @@ def do_run(args):
         log.error(f"Missing 'install_from' property")
         sys.exit(1)
 
+    # TODO : Why is this unused ?
     resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
 
@@ -555,7 +556,9 @@ def do_build(args):
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
+    # TODO : Why is this unused ?
     jumpbox = c.read_value("install_from")
+    # TODO : Why is this unused ?
     resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
     log.debug(f"running script from : {fqdn}")

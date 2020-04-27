@@ -14,7 +14,7 @@ packages:
     buildable: False
   intel-mpi:
     paths:
-       intel-mpi@2019.6.166: /opt/intel/compilers_and_libraries_2019.6.166/linux/mpi
+       intel-mpi@INTEL_MPI_VERSION: /opt/intel/compilers_and_libraries_INTEL_MPI_VERSION/linux/mpi
     buildable: False
   gcc:
     modules:
