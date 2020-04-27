@@ -70,8 +70,8 @@
                 "create_raid0",
                 "make_filesystem",
                 "glusterfs_pkgs",
-                "glusterfs_vol",
-                "glusterfs_pool"
+                "glusterfs_pool",
+                "glusterfs_vol"
             ]
         }
     },
@@ -135,19 +135,19 @@
             "sudo": true
         },
         {
+            "script": "glusterfs_pool.sh",
+            "tag": "glusterfs_pool",
+            "args": [
+                "glusterfs"
+            ],
+            "sudo": true
+        },
+        {
             "script": "glusterfs_vol.sh",
             "tag": "glusterfs_vol",
             "args": [
                 "glusterfs",
                 0
-            ],
-            "sudo": true
-        },
-        {
-            "script": "glusterfs_pool.sh",
-            "tag": "glusterfs_pool",
-            "args": [
-                "glusterfs"
             ],
             "sudo": true
         },
