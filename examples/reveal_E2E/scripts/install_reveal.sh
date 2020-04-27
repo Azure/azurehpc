@@ -53,7 +53,7 @@ cat > opencps_install.prefs << EOF
 "disable_pbs_out_err" : false,
 "pbs_sched" : "pbspro",
 "com.ogi.opencps.mpi_protocol" : "ib",
-"use_pbs_array_jobs" : false,
+"use_pbs_array_jobs" : true,
 "scratch" : [ "/mnt/resource" ]
 }
 EOF
