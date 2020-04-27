@@ -112,6 +112,8 @@
        "deps": [
         "suspend.sh",
         "resume.sh",
+        "hpcadmin_id_rsa",
+        "hpcadmin_id_rsa.pub",
         "config.json"
        ],
        "sudo": true
