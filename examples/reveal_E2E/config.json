@@ -43,7 +43,7 @@
       "public_ip": true,
       "image": "variables.image",
       "accelerated_networking": true,
-      "proximity_placement_group": false,
+      "proximity_placement_group": true,
       "os_storage_sku": "Premium_LRS",
       "disk_perfoptlevel": true,
       "storage_sku": "Premium_LRS",
