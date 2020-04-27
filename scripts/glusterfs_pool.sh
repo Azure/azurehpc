@@ -2,8 +2,8 @@
 
 HOSTLIST=$1
 
-systemctl glusterd start
-systemctl glusterd status
+systemctl start glusterd
+systemctl status glusterd
 
 if [ "$PSSH_NODENUM" = "0" ]; then
    for host in `cat hostlists/$HOSTLIST`
