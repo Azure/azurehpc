@@ -760,7 +760,7 @@ class ArmTemplate:
 
     def read(self, cfg):
         rg = cfg["resource_group"]
-        vnetrg = cfd["vnet"].get("resource_group", rg)
+        vnetrg = cfg["vnet"].get("resource_group", rg)
 
         vnet_in_deployment = bool(rg == vnetrg)
         

@@ -72,6 +72,11 @@ if [ ! -f "hostlists/tags/$tag" ]; then
     exit 0
 fi
 
+if [ "$(wc -l < hostlists/tags/$tag)" = "0" ]; then
+    echo "    Tag does not contain any resources (not running)"
+    exit 0
+fi
+
 """
     reboot = inst.get("reboot", False)
     sudo = inst.get("sudo", False)
