@@ -24,6 +24,14 @@ cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 tag=linux
 
+# wait for DNS to update for all hostnames
+for h in $(<hostlists/$tag); do
+    until host $h >/dev/null 2>&1; do
+        echo "Waiting for host - $h (sleeping for 5 seconds)"
+        sleep 5
+    done
+done
+
 if [ "$1" != "" ]; then
     tag=tags/$1
 else
