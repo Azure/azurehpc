@@ -3,12 +3,15 @@
 HOSTLIST=$1
 REPLICA=$2
 
-GLUSTERFS_VOL_NAME=glusterfs_vol
+GLUSTERFS_VOL_NAME=gv0
+mkdir -p /mnt/brick1/$GLUSTERFS_VOL_NAME
+
+mkdir 
 
 if [ "$PSSH_NODENUM" = "0" ]; then
    for host in `cat hostlists/$HOSTLIST`
    do
-      hosts_str=${host_str}"$host:/mnt/resource_nvme "
+      hosts_str=${host_str}"$host:/mnt/brick1/$GLUSTERFS_VOL_NAME "
    done
    echo $hosts_str
 
