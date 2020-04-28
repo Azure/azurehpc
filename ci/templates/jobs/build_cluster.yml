@@ -34,7 +34,7 @@ jobs:
       azureSubscription: 'target-subscription'
       scriptType: 'bash'
       scriptLocation: 'scriptPath'
-      scriptPath: './scripts/build.sh' 
+      scriptPath: './ci/scripts/build.sh' 
       scriptArguments: $(Pipeline.Workspace)/$(System.JobName)
       useGlobalConfig: true
       failOnStandardError: false
@@ -47,7 +47,7 @@ jobs:
       scriptType: 'bash'
       scriptLocation: inlineScript
       inlineScript: |       
-        . azurehpc/install.sh
+        . install.sh
         config_file=$(basename $AZHPC_CONFIG)
         debug_option=""
         if [ "$SYSTEM_DEBUG" = "true" ]; then
@@ -70,16 +70,16 @@ jobs:
 
         # Copy Applications run scripts
         echo "Copy Applications run scripts to $AZHPC_SCRIPT_REMOTE_DEST"
-        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/azurehpc/apps/. $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/apps/. $AZHPC_SCRIPT_REMOTE_DEST || exit 1
 
         # Copy telemetry wrapper scripts
         echo "Copy telemetry wrapper scripts to $AZHPC_SCRIPT_REMOTE_DEST"
-        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/scripts/telemetry/runwith_telemetry.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
-        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/scripts/telemetry/send_to_loganalytics.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scripts/telemetry/runwith_telemetry.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scripts/telemetry/send_to_loganalytics.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
 
         # Copy pipeline telemetry scripts
         echo "Copy pipeline library scripts to $AZHPC_SCRIPT_REMOTE_DEST"
-        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/scripts/library/*.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scripts/library/*.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
 
         # Copy pipeline tests scripts if any
         if ls $BUILD_REPOSITORY_LOCALPATH/$AZHPC_PIPELINE_DIR/*.sh 1> /dev/null 2>&1; then

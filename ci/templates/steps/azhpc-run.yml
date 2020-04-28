@@ -13,7 +13,7 @@ steps:
       scriptLocation: inlineScript
       scriptType: 'bash'
       inlineScript: |
-        . azurehpc/install.sh
+        . install.sh
         config_file=$(basename $AZHPC_CONFIG)
         pushd $(Pipeline.Workspace)/$(System.JobName)
         azhpc-run -c $config_file -u ${{ parameters.user }} ${{ parameters.command }} || exit 1
