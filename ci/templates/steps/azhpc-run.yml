@@ -1,0 +1,21 @@
+parameters:
+  user: hpcadmin
+  command: ''
+  timeout: 60
+  continueOnError: true
+
+steps:  
+  - task : AzureCLI@2
+    displayName: ${{ parameters.command }}
+    timeoutInMinutes: ${{ parameters.timeout }}
+    inputs:
+      azureSubscription: 'azhpc'
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: |
+        . azurehpc/install.sh
+        config_file=$(basename $AZHPC_CONFIG)
+        pushd $(Pipeline.Workspace)/$(System.JobName)
+        azhpc-run -c $config_file -u ${{ parameters.user }} ${{ parameters.command }} || exit 1
+      failOnStandardError: false
+    continueOnError: ${{ parameters.continueOnError }}

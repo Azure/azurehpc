@@ -1,0 +1,23 @@
+trigger: none
+
+pool: Default
+#  vmImage: Ubuntu-16.04
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  azhpc.config: azurehpc/examples/grafana/config.json
+  # pipeline directory
+  azhpc.pipeline_dir: azurehpc/examples/grafana
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
+
+# Add the variables needed in your configuration file below
+  azhpc.variables.location: southcentralus
+  azhpc.variables.vm_type: Standard_D8s_v3
+  azhpc.variables.key_vault: hpccatkv
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../ci/templates/jobs/build_cluster.yml

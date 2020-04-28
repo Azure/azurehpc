@@ -1,0 +1,13 @@
+jobs:
+- job: InitMatrix
+  steps:
+  - task: Bash@3
+    name: mtrx
+    displayName: 'Read Matrix'
+    inputs:
+      targetType: 'inline'
+      script: |
+          azhpc_matrix=$(jq -c '.' $BUILD_REPOSITORY_LOCALPATH/$AZHPC_VARIABLES_MATRIX)
+          echo "matrix=$azhpc_matrix"
+          echo "##vso[task.setvariable variable=azhpc_matrix;isOutput=true]$azhpc_matrix"
+

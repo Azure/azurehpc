@@ -1,0 +1,108 @@
+parameters:
+  extra_steps: ''
+
+jobs:
+- template : ../jobs/init_matrix.yml
+
+- job: BuildCluster
+  timeoutInMinutes: 180
+  cancelTimeoutInMinutes: 2
+  dependsOn: InitMatrix
+  strategy:
+    matrix: $[ dependencies.InitMatrix.outputs['mtrx.azhpc_matrix'] ]
+
+  steps:
+  # from https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
+  # To pass the variable FOO, write it to a file
+  # While the file name doesn't matter, naming it like the variable and putting it inside the $(Pipeline.Workspace)/variables folder could be a good pattern
+  - task: Bash@3
+    displayName: 'Create Resource Group Name'
+    inputs:
+      targetType: 'inline'
+      script: |
+          UUID_STR="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+          ResourceGroup="azhpc-$UUID_STR"
+          echo "Resource Group name is $ResourceGroup"
+          # Create pipeline variable
+          echo "##vso[task.setvariable variable=azhpc.ResourceGroup]$ResourceGroup"
+          mkdir -p $(Pipeline.Workspace)/$(System.JobName)
+          echo "$ResourceGroup" > $(Pipeline.Workspace)/$(System.JobName)/azhpc.ResourceGroup
+         
+  - task: AzureCLI@2
+    displayName: "Build Resources"
+    inputs:
+      azureSubscription: 'azhpc'
+      scriptType: 'bash'
+      scriptLocation: 'scriptPath'
+      scriptPath: './scripts/build.sh' 
+      scriptArguments: $(Pipeline.Workspace)/$(System.JobName)
+      useGlobalConfig: true
+      failOnStandardError: false
+    continueOnError: false
+
+  - task : AzureCLI@2
+    displayName: "Install Scripts"
+    inputs:
+      azureSubscription: 'azhpc'
+      scriptType: 'bash'
+      scriptLocation: inlineScript
+      inlineScript: |       
+        . azurehpc/install.sh
+        config_file=$(basename $AZHPC_CONFIG)
+        debug_option=""
+        if [ "$SYSTEM_DEBUG" = "true" ]; then
+          debug_option="--debug "
+          set -x
+        fi
+
+        pushd $(Pipeline.Workspace)/$(System.JobName)
+        if [ "$AZHPC_SCRIPT_REMOTE_DEST" = "" ]; then
+            export AZHPC_SCRIPT_REMOTE_DEST="hpcuser@headnode:/apps"
+        fi
+
+        # If install_from is not set, skip this steps
+
+        install_from=$(jq -r '.install_from' $config_file)
+        if [ "$install_from" == "" ]; then
+          echo "Install from is not set, exiting"
+          exit 0
+        fi
+
+        # Copy Applications run scripts
+        echo "Copy Applications run scripts to $AZHPC_SCRIPT_REMOTE_DEST"
+        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/azurehpc/apps/. $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+
+        # Copy telemetry wrapper scripts
+        echo "Copy telemetry wrapper scripts to $AZHPC_SCRIPT_REMOTE_DEST"
+        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/scripts/telemetry/runwith_telemetry.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/scripts/telemetry/send_to_loganalytics.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+
+        # Copy pipeline telemetry scripts
+        echo "Copy pipeline library scripts to $AZHPC_SCRIPT_REMOTE_DEST"
+        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/scripts/library/*.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+
+        # Copy pipeline tests scripts if any
+        if ls $BUILD_REPOSITORY_LOCALPATH/$AZHPC_PIPELINE_DIR/*.sh 1> /dev/null 2>&1; then
+          echo "Copy pipeline tests scripts to the $AZHPC_SCRIPT_REMOTE_DEST"
+          azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/$AZHPC_PIPELINE_DIR/*.sh $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+        fi
+
+      failOnStandardError: false
+    continueOnError: false
+
+  - ${{ if not(eq(parameters.extra_steps,'')) }}:
+    - template: ${{parameters.extra_steps}}
+
+  - task: AzureCLI@2
+    condition: always()
+    displayName: 'Remove Resource Group'
+    inputs:
+      azureSubscription: 'azhpc'
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: |
+        # don't delete if in debug mode
+        if [ "$SYSTEM_DEBUG" = "false" ]; then
+          echo "removing resource group $AZHPC_RESOURCEGROUP"
+          az group delete -n $AZHPC_RESOURCEGROUP -y --no-wait
+        fi
