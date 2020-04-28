@@ -124,7 +124,7 @@
             "args": [
                 "/dev/md20",
                 "xfs",
-                "/mnt/resource_nvme"
+                "/mnt/brick1"
             ],
             "tag": "make_filesystem",
             "sudo": true
