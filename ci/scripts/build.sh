@@ -22,7 +22,7 @@ if [ "$AZHPC_RESOURCEGROUP" = "" ]; then
     exit 1
 fi
 if [ "$AZHPC_ADD_TELEMETRY" = "" ]; then
-    export AZHPC_ADD_TELEMETRY=1
+    export AZHPC_ADD_TELEMETRY=0
 fi
 
 azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
@@ -37,7 +37,7 @@ done
 
 echo $init_variables
 
-. azurehpc/install.sh
+. install.sh
 
 conf_dir=$(dirname $AZHPC_CONFIG)
 #conf_dir=${conf_dir##*/}
