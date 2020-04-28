@@ -3,14 +3,16 @@
 HOSTLIST=$1
 REPLICA=$2
 
+USER=hpcadmin
+
 GLUSTERFS_VOL_NAME=gv0
 
 mkdir -p /mnt/brick1/$GLUSTERFS_VOL_NAME
 
 if [ "$PSSH_NODENUM" = "0" ]; then
-   for host in `cat hostlists/$HOSTLIST`
+   for host in `cat ~${USER}/azhpc_install_config/hostlists/$HOSTLIST`
    do
-      hosts_str=${host_str}"$host:/mnt/brick1/$GLUSTERFS_VOL_NAME "
+      hosts_str=${hosts_str}"$host:/mnt/brick1/$GLUSTERFS_VOL_NAME "
    done
    echo $hosts_str
 
