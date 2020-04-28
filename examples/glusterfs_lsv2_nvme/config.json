@@ -21,7 +21,8 @@
         "compute_instances": 2,
         "glusterfs_instances": 4,
         "low_priority": false,
-        "glusterfs_mount": "/glusterfs"
+        "glusterfs_mount": "/glusterfs",
+        "glusterfs_replica": 0
     },
     "resources": {
         "headnode": {
@@ -148,7 +149,7 @@
             "tag": "glusterfs_vol",
             "args": [
                 "glusterfs",
-                0
+                "variables.glusterfs_replica"
             ],
             "sudo": true
         },
