@@ -30,6 +30,7 @@ case $AZHPC_VMSIZE in
 
         sudo yum install -y hwloc hwloc-devel libevent-devel
         BUILD_DIR=$SHARED_APP/linpack
+        mkdir -p $BUILD_DIR
         export BLIS_HOME=/opt/amd/blis-mt
 
         pushd $BUILD_DIR
