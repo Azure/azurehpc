@@ -8,7 +8,7 @@ BRICK_MOUNT_PT=${BRICK_MOUNT_PT:-/mnt/brick1}
 
 GLUSTERFS_VOL_NAME=gv0
 
-mkdir -p /mnt/brick1/$GLUSTERFS_VOL_NAME
+mkdir -p ${BRICK_MOUNT_PT}/$GLUSTERFS_VOL_NAME
 
 if [ "$PSSH_NODENUM" = "0" ]; then
    for host in $HOSTLIST
