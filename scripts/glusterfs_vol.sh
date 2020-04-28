@@ -4,6 +4,8 @@ HOSTLIST=$1
 STRIPE=$2
 REPLICA=$3
 
+BRICK_MOUNT_PT=${BRICK_MOUNT_PT:-/mnt/brick1}
+
 GLUSTERFS_VOL_NAME=gv0
 
 mkdir -p /mnt/brick1/$GLUSTERFS_VOL_NAME
@@ -11,7 +13,7 @@ mkdir -p /mnt/brick1/$GLUSTERFS_VOL_NAME
 if [ "$PSSH_NODENUM" = "0" ]; then
    for host in $HOSTLIST
    do
-      hosts_str=${hosts_str}"$host:/mnt/brick1/$GLUSTERFS_VOL_NAME "
+      hosts_str=${hosts_str}"$host:${BRICK_MOUNT_PT}/$GLUSTERFS_VOL_NAME "
    done
    echo $hosts_str
 
