@@ -39,7 +39,9 @@
                 "localuser",
                 "pbsserver",
                 "loginnode",
-                "nfsserver"
+                "nfsserver",
+                "glusterfs_pkgs",
+                "glusterfs_client"
             ]
         },
         "compute": {
