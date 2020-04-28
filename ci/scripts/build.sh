@@ -50,7 +50,7 @@ config_file=$(basename $AZHPC_CONFIG)
 ls -al $PROJECT_DIR
 rm -rf $PROJECT_DIR 
 
-azhpc-init -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables
+azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables
 pushd $PROJECT_DIR
 
 if [ -e $BUILD_REPOSITORY_LOCALPATH/$AZHPC_PIPELINE_DIR/compute.input ]; then
