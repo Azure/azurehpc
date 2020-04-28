@@ -1,5 +1,12 @@
 trigger:
-- azure-pipelines
+  batch: true
+  branches:
+    include : 
+    - azure-pipelines
+  paths:
+    include:
+      - "*.yml"
+
 
 pool: Default
 
