@@ -54,6 +54,7 @@
                 "localuser",
                 "pbsclient",
                 "nfsclient",
+                "glusterfs_pkgs",
                 "glusterfs_client"
             ]
         },
