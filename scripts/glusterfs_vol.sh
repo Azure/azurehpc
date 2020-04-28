@@ -4,9 +4,8 @@ HOSTLIST=$1
 REPLICA=$2
 
 GLUSTERFS_VOL_NAME=gv0
-mkdir -p /mnt/brick1/$GLUSTERFS_VOL_NAME
 
-mkdir 
+mkdir -p /mnt/brick1/$GLUSTERFS_VOL_NAME
 
 if [ "$PSSH_NODENUM" = "0" ]; then
    for host in `cat hostlists/$HOSTLIST`
