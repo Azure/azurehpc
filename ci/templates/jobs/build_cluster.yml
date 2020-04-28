@@ -31,7 +31,7 @@ jobs:
   - task: AzureCLI@2
     displayName: "Build Resources"
     inputs:
-      azureSubscription: 'azhpc'
+      azureSubscription: 'target-subscription'
       scriptType: 'bash'
       scriptLocation: 'scriptPath'
       scriptPath: './scripts/build.sh' 
@@ -43,7 +43,7 @@ jobs:
   - task : AzureCLI@2
     displayName: "Install Scripts"
     inputs:
-      azureSubscription: 'azhpc'
+      azureSubscription: 'target-subscription'
       scriptType: 'bash'
       scriptLocation: inlineScript
       inlineScript: |       
@@ -97,7 +97,7 @@ jobs:
     condition: always()
     displayName: 'Remove Resource Group'
     inputs:
-      azureSubscription: 'azhpc'
+      azureSubscription: 'target-subscription'
       scriptLocation: inlineScript
       scriptType: 'bash'
       inlineScript: |

@@ -9,7 +9,7 @@ steps:
     displayName: ${{ parameters.command }}
     timeoutInMinutes: ${{ parameters.timeout }}
     inputs:
-      azureSubscription: 'azhpc'
+      azureSubscription: 'target-subscription'
       scriptLocation: inlineScript
       scriptType: 'bash'
       inlineScript: |
