@@ -16,7 +16,7 @@ if [ "$PSSH_NODENUM" = "0" ]; then
    echo $hosts_str
 
    stripe_str=""
-   if [ $STRIPE -gt 0 ]; then
+   if [ $STRIPE -gt 1 ]; then
       stripe_str="stripe $STRIPE"
    fi
 
