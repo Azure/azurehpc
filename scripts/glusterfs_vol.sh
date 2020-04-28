@@ -1,9 +1,8 @@
 #!/bin/bash
 
 HOSTLIST=$1
-REPLICA=$2
-
-#USER=hpcadmin
+STRIPE=$2
+REPLICA=$3
 
 GLUSTERFS_VOL_NAME=gv0
 
@@ -16,12 +15,17 @@ if [ "$PSSH_NODENUM" = "0" ]; then
    done
    echo $hosts_str
 
+   stripe_str=""
+   if [ $STRIPE -gt 0 ]; then
+      stripe_str="stripe $STRIPE"
+   fi
+
    replica_str=""
    if [ $REPLICA -gt 0 ]; then
       replica_str="replica $REPLICA"
    fi
 
-   gluster volume create $GLUSTERFS_VOL_NAME $replica_str $hosts_str
+   gluster volume create $GLUSTERFS_VOL_NAME $stripe_str $replica_str $hosts_str
 
    gluster volume start $GLUSTERFS_VOL_NAME
 
