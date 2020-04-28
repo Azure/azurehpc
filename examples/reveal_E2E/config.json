@@ -1,0 +1,292 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "proximity_placement_group_name": "<NOT-SET>",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "image": "OpenLogic:CentOS:7.7:latest",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+    "gpu_image": "<NOT-SET>",
+    "beegfs_image": "OpenLogic:CentOS:7.7:latest",
+    "beegfs_mount": "/beegfs",
+    "beegfs_disk_type": "nvme",
+    "beegfs_node_type": "both",
+    "beegfs_node_type": "both",
+    "beegfs_pools": "false",
+    "beegfs_pools_restart": "false",
+    "location": "southcentralus",
+    "resource_group": "<NOT-SET>",
+    "compute_vm_type": "Standard_HB120rs_v2",
+    "gpu_vm_type": "Standard_ND40rs_v2",
+    "vm_type": "Standard_D8s_v3",
+    "vnet_resource_group": "variables.resource_group",
+    "reveal_sas_url": "<NOT-SET>",
+    "reveal_license_sas_url": "<NOT-SET>",
+    "headnode_pw": "<NOT-SET>"
+  },
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "hpcvnet",
+    "address_prefix": "10.41.0.0/20",
+    "subnets": {
+      "admin": "10.41.1.0/24",
+      "viz": "10.41.2.0/24",
+      "storage": "10.41.3.0/24",
+      "compute": "10.41.4.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "vm_type": "variables.vm_type",
+      "public_ip": true,
+      "image": "variables.image",
+      "accelerated_networking": true,
+      "proximity_placement_group": true,
+      "os_storage_sku": "Premium_LRS",
+      "disk_perfoptlevel": true,
+      "storage_sku": "Premium_LRS",
+      "data_disks": [2048,2048],
+      "subnet": "compute",
+      "tags": [
+        "cndefault",
+        "nfsserver",
+        "pbsserver",
+        "loginnode",
+        "localuser",
+        "disable-selinux",
+        "beegfspkgs",
+        "beegfsc",
+        "install_linux_rdp",
+        "install_reveal",
+        "pbs_cgroup",
+        "pbs_restart"
+      ]
+    },
+    "compute": {
+      "type": "vmss",
+      "vm_type": "variables.compute_vm_type",
+      "instances": 1,
+      "accelerated_networking": false,
+      "low_priority": false,
+      "proximity_placement_group": true,
+      "os_storage_sku": "Premium_LRS",
+      "image": "variables.hpc_image",
+      "subnet": "compute",
+      "tags": [
+        "nfsclient",
+        "pbsclient",
+        "cndefault",
+        "localuser",
+        "disable-selinux",
+        "beegfspkgs",
+        "beegfsc",
+        "create_share_links",
+        "pbs_restart"
+      ]
+    },
+    "gpu": {
+      "type": "vmss",
+      "vm_type": "variables.gpu_vm_type",
+      "instances": 1,
+      "accelerated_networking": false,
+      "low_priority": true,
+      "proximity_placement_group": true,
+      "os_storage_sku": "Premium_LRS",
+      "image": "variables.gpu_image",
+      "subnet": "compute",
+      "tags": [
+        "nfsclient",
+        "pbsclient",
+        "cndefault",
+        "localuser",
+        "disable-selinux",
+        "beegfspkgs",
+        "beegfsc",
+        "create_share_links",
+        "pbs_restart"
+      ]
+    },
+    "beegfsm": {
+            "type": "vm",
+            "vm_type": "Standard_D4s_v3",
+            "accelerated_networking": true,
+            "proximity_placement_group": true,
+            "os_storage_sku": "Premium_LRS",
+            "image": "variables.beegfs_image",
+            "subnet": "storage",
+            "tags": [
+                "beegfspkgs",
+                "beegfsm",
+                "disable-selinux",
+                "beegfsc"
+            ]
+        },
+        "beegfssm": {
+            "type": "vmss",
+            "vm_type": "Standard_L16s_v2",
+            "instances": 4,
+            "accelerated_networking": true,
+            "proximity_placement_group": true,
+            "os_storage_sku": "Premium_LRS",
+            "image": "variables.beegfs_image",
+            "subnet": "storage",
+            "tags": [
+                "disable-selinux",
+                "beegfspkgs",
+                "beegfssd",
+                "beegfsmd"
+            ]
+        }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "cndefault",
+      "sudo": true
+    },
+    {
+      "script": "nfsserver.sh",
+      "tag": "nfsserver",
+      "sudo": true
+    },
+    {
+      "script": "nfsclient.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "nfsclient",
+      "sudo": true
+    },
+    {
+      "script": "beegfspkgs.sh",
+      "tag": "beegfspkgs",
+      "sudo": true
+    },
+    {
+      "script": "beegfsm.sh",
+      "args": [
+                "/data/beegfs/mgmt"
+              ],
+      "tag": "beegfsm",
+      "sudo": true
+    },
+    {
+      "script": "beegfssd.sh",
+      "args": [
+                "variables.beegfs_disk_type",
+                "variables.beegfs_node_type",
+                "variables.beegfs_pools",
+                "variables.beegfs_pools_restart",
+                "$(<hostlists/tags/beegfsm)"
+              ],
+      "tag": "beegfssd",
+       "sudo": true
+    },
+    {
+      "script": "beegfsmd.sh",
+      "args": [
+                "variables.beegfs_disk_type",
+                "variables.beegfs_node_type",
+                "variables.beegfs_pools",
+                "$(<hostlists/tags/beegfsm)"
+               ],
+      "tag": "beegfsmd",
+      "sudo": true
+    },
+    {
+      "script": "beegfsc.sh",
+      "args": [
+                "$(<hostlists/tags/beegfsm)"
+              ],
+      "tag": "beegfsc",
+      "sudo": true
+    },
+    {
+      "script": "localuser.sh",
+      "args": [
+                 "$(<hostlists/tags/nfsserver)"
+              ],
+      "tag": "localuser",
+      "sudo": true
+    },
+    {
+      "script": "pbsdownload.sh",
+      "tag": "loginnode",
+      "sudo": false
+    },
+    {
+      "script": "pbsserver.sh",
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsserver",
+      "sudo": false
+    },
+    {
+      "script": "pbsclient.sh",
+      "args": [
+        "$(<hostlists/tags/pbsserver)"
+      ],
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsclient",
+      "sudo": false
+    },
+    {
+      "script": "install_linux_rdp.sh",
+      "tag": "install_linux_rdp",
+      "sudo": true
+    },
+    {
+      "script": "create_share_links.sh",
+      "tag": "create_share_links",
+      "sudo": true
+    },
+    {
+      "script": "install_reveal.sh",
+      "args": [
+        "variables.reveal_sas_url",
+        "variables.reveal_license_sas_url",
+        "/apps"
+      ],
+      "tag": "install_reveal",
+      "sudo": false
+    },
+    {
+      "script": "pbs_cgroup.sh",
+      "tag": "pbs_cgroup",
+      "sudo": true
+    },
+    {
+      "script": "pbs_restart.sh",
+      "tag": "pbs_restart",
+      "sudo": true
+    },
+    {
+      "type": "local_script",
+      "script": "open_rdp_port.sh",
+      "args": [
+        "variables.resource_group",
+        "headnode"
+      ]
+    },
+    {
+      "type": "local_script",
+      "script": "reset_headnode_passwd.sh",
+      "args": [
+        "variables.resource_group",
+        "headnode",
+        "hpcuser",
+        "variables.headnode_pw"
+      ]
+    }
+  ]
+}
