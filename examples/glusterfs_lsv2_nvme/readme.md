@@ -2,7 +2,7 @@
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/glusterfs_lsv2_nvme/config.json)
 
-This will deploy a GlusterFS distributed scake-out filesystem using local SSD's (L16s_v2), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed.
+This will deploy a GlusterFS distributed scale-out filesystem using local SSD's (L16s_v2), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed.
 
 >NOTE:
 - MAKE SURE YOU HAVE FOLLOWED THE STEPS IN [prerequisite](../../tutorials/prerequisites.md) before proceeding here
