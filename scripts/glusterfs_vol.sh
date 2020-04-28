@@ -9,7 +9,7 @@ GLUSTERFS_VOL_NAME=gv0
 mkdir -p /mnt/brick1/$GLUSTERFS_VOL_NAME
 
 if [ "$PSSH_NODENUM" = "0" ]; then
-   for host in `cat ~hpcadmin/azhpc_install_config/hostlists/$HOSTLIST`
+   for host in $HOSTLIST
    do
       hosts_str=${hosts_str}"$host:/mnt/brick1/$GLUSTERFS_VOL_NAME "
    done

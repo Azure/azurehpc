@@ -143,7 +143,7 @@
             "script": "glusterfs_pool.sh",
             "tag": "glusterfs_pool",
             "args": [
-                "glusterfs"
+                "$(<hostlists/glusterfs)"
             ],
             "sudo": true
         },
@@ -151,7 +151,7 @@
             "script": "glusterfs_vol.sh",
             "tag": "glusterfs_vol",
             "args": [
-                "glusterfs",
+                "$(<hostlists/glusterfs)",
                 "variables.glusterfs_stripe",
                 "variables.glusterfs_replica"
             ],
