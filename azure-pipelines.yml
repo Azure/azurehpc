@@ -5,7 +5,9 @@ trigger:
     - azure-pipelines
   paths:
     include:
-      - "*.yml"
+      - '*.yml'
+    exclude:
+      - README.md
 
 
 pool: Default
