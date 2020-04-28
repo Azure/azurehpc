@@ -154,7 +154,7 @@
         {
             "script": "glusterfs_client.sh",
             "args": [
-                "$(head -n1 hostlists/tags/glusterfs)",
+                "$(head -n1 hostlists/glusterfs)",
                 "variables.glusterfs_mount"
             ],
             "tag": "glusterfs_client",
