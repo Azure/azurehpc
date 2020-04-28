@@ -5,7 +5,7 @@ trigger:
     - azure-pipelines
   paths:
     include:
-      - '*.yml'
+      - foo.yml
 
 pool: Default
 
