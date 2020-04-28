@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Setup HP RGS on a Win10 VM
+echo $@
 
 resource_group=$1
 node_name=$2
@@ -9,6 +9,12 @@ ad_user=$4
 ad_password=$5
 
 echo "Calling ad_win.ps1..."
+echo resource_group $1
+echo node_name $2
+echo ad_domain $3
+echo ad_user $4
+echo ad_password $5
+
 
 az vm run-command invoke \
     --name $node_name  \

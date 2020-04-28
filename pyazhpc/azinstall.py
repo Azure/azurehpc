@@ -109,7 +109,8 @@ def create_local_script(inst, tmpdir, step):
     
     args = inst.get("args", [])
 
-    cmdline = " ".join([ "scripts/"+targetscript ] + [ f"'{arg}'" for arg in args ])
+    #cmdline = " ".join([ "scripts/"+targetscript ] + [ f"'{arg}'" for arg in args ])
+    cmdline = " ".join([ "scripts/"+targetscript ] + [ f'"{arg}"' for arg in args ])
     
     with open(scriptfile, "w") as f:
         os.chmod(scriptfile, 0o755)
