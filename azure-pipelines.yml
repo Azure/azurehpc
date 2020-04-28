@@ -3,12 +3,9 @@ trigger:
   branches:
     include : 
     - azure-pipelines
-  # paths:
-  #   include:
-  #     - '*.yml'
-  #   exclude:
-  #     - README.md
-
+  paths:
+    include:
+      - '*.yml'
 
 pool: Default
 
