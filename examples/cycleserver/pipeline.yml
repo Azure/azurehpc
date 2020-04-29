@@ -37,5 +37,5 @@ variables:
 
 jobs:
 - template: ../../ci/templates/jobs/build_cluster.yml
-parameters:
-      extra_steps: ../../examples/cycleserver/test.yml
+  parameters:
+    extra_steps: ../../examples/cycleserver/test.yml
