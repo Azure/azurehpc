@@ -41,45 +41,6 @@ jobs:
       failOnStandardError: false
     continueOnError: false
 
-  - task : AzureCLI@2
-    displayName: "Install Scripts"
-    inputs:
-      azureSubscription: 'target-subscription'
-      scriptType: 'bash'
-      scriptLocation: inlineScript
-      inlineScript: |       
-        . install.sh
-        config_file=$(basename $AZHPC_CONFIG)
-        debug_option=""
-        if [ "$SYSTEM_DEBUG" = "true" ]; then
-          debug_option="--debug "
-          set -x
-        fi
-
-        pushd $(Pipeline.Workspace)/$(System.JobName)
-        if [ "$AZHPC_SCRIPT_REMOTE_DEST" = "" ]; then
-            export AZHPC_SCRIPT_REMOTE_DEST="hpcuser@headnode:/apps"
-        fi
-
-        # If install_from is not set, skip this steps
-
-        install_from=$(jq -r '.install_from' $config_file)
-        if [ "$install_from" == "" ]; then
-          echo "Install from is not set, exiting"
-          exit 0
-        fi
-
-        # Copy Applications run scripts
-        echo "Copy Applications run scripts to $AZHPC_SCRIPT_REMOTE_DEST"
-        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/apps/. $AZHPC_SCRIPT_REMOTE_DEST || exit 1
-
-        # Copy pipeline library scripts
-        echo "Copy pipeline library scripts to $AZHPC_SCRIPT_REMOTE_DEST"
-        azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scripts/. $AZHPC_SCRIPT_REMOTE_DEST/_ci || exit 1
-
-      failOnStandardError: false
-    continueOnError: false
-
   - ${{ if not(eq(parameters.extra_steps,'')) }}:
     - template: ${{parameters.extra_steps}}
 

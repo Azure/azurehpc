@@ -25,6 +25,10 @@ if [ "$AZHPC_ADD_TELEMETRY" = "" ]; then
     export AZHPC_ADD_TELEMETRY=0
 fi
 
+echo "********************************************************************"
+echo "*                  INIT CONFIG VARIABLES                           *"
+echo "********************************************************************"
+
 azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
 init_variables="-v resource_group=$AZHPC_RESOURCEGROUP"
 for item in $azhpc_variables; do
@@ -53,6 +57,11 @@ azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DI
 pushd $PROJECT_DIR
 
 jq '.' $config_file
+
+
+echo "********************************************************************"
+echo "*                  BUILD RESOURCES                                 *"
+echo "********************************************************************"
 azhpc-build -c $config_file $AZHPC_OPTION
 return_code=$?
 cat deploy*.json
@@ -71,5 +80,27 @@ fi
 # Dump resource status only if install_from is set
 install_from=$(jq -r '.install_from' $config_file)
 if [ "$install_from" != "" ]; then
+    echo "********************************************************************"
+    echo "*                  RESOURCES UPTIME                                 *"
+    echo "********************************************************************"
     azhpc-status -c $config_file $AZHPC_OPTION
+else
+    echo "Exiting as no scripts need to be copied on remote VMs"
+    exit 0
 fi
+
+echo "********************************************************************"
+echo "*                  COPY SCRIPTS                                    *"
+echo "********************************************************************"
+# Copy scripts
+if [ "$AZHPC_SCRIPT_REMOTE_DEST" = "" ]; then
+    export AZHPC_SCRIPT_REMOTE_DEST="hpcuser@headnode:/apps"
+fi
+
+# Copy Applications run scripts
+echo "Copy Applications run scripts to $AZHPC_SCRIPT_REMOTE_DEST"
+azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/apps/. $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+
+# Copy pipeline library scripts
+echo "Copy pipeline library scripts to $AZHPC_SCRIPT_REMOTE_DEST"
+azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scripts/. $AZHPC_SCRIPT_REMOTE_DEST/ci || exit 1
