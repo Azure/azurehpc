@@ -34,7 +34,7 @@ jobs:
       azureSubscription: 'target-subscription'
       scriptType: 'bash'
       scriptLocation: 'scriptPath'
-      scriptPath: './templates/build.sh' 
+      scriptPath: './ci/build.sh' 
       #$(Pipeline.Workspace)/$(System.JobName)
       scriptArguments: 
       useGlobalConfig: true
