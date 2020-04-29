@@ -70,7 +70,7 @@ chmod 600 /apps/slurm/azscale/*_id_rsa
 chmod 644 /apps/slurm/azscale/*_id_rsa.pub
 cp -r scripts /apps/slurm/azscale/.
 pushd /apps/slurm
-git clone -b slurm-in-azhpc https://github.com/Azure/azurehpc.git
+git clone https://github.com/Azure/azurehpc.git
 popd
 chown slurm.slurm -R /apps/slurm
 
