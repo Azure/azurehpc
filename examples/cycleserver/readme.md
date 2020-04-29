@@ -1,4 +1,5 @@
 # Deploying a CycleCloud application server with azhpc
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/cycleserver?branchName=master)
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/cycleserver/config.json)
 
