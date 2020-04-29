@@ -1,0 +1,48 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "theia",
+  "admin_user": "azureuser",
+  "variables": {
+    "image": "OpenLogic:CentOS:7.6:latest",
+    "vm_type": "Standard_F8s_v2",
+    "location": "westeurope",
+    "resource_group": "<NOT-SET>"
+  },
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "theia": "10.2.0.0/22"
+    }
+  },
+  "resources": {
+    "theia": {
+      "type": "vm",
+      "public_ip": "true",
+      "vm_type": "variables.vm_type",
+      "image": "variables.image",
+      "accelerated_networking": "true",
+      "managed_identity": {
+        "role": "contributor",
+        "scope": "resource_group"
+      },
+      "subnet": "theia",
+      "tags": [
+        "theia"
+      ]
+   }
+  },
+  "install": [
+    {
+      "script": "install-azcli.sh",
+      "tag": "theia",
+      "sudo": true
+    },
+    {
+      "script": "setup-theia.sh",
+      "tag": "theia",
+      "sudo": false
+    }
+  ]
+}
