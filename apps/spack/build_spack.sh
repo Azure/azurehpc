@@ -34,7 +34,7 @@ sudo chown $USER /mnt/resource/spack
 mkdir ~/.spack
 sed -i "s/SKU_TYPE/${sku_type}/" ${APPS_SPACK_DIR}/${CONFIG_YAML}
 sed -i "s#SHARED_APP#${SHARED_APP}#" ${APPS_SPACK_DIR}/${CONFIG_YAML}
-sed -i "s/INTEL_MPI_VERSION/${INTEL_MPI_VERSION}/" ${APPS_SPACK_DIR}/${PACKAGES_YAML}
+sed -i "s/INTEL_MPI_VERSION/${INTEL_MPI_VERSION}/g" ${APPS_SPACK_DIR}/${PACKAGES_YAML}
 
 cp ${APPS_SPACK_DIR}/${CONFIG_YAML} ~/.spack
 cp ${APPS_SPACK_DIR}/packages.yaml ~/.spack
