@@ -15,7 +15,7 @@ trigger:
       - scripts/pbsdownload.sh
       - scripts/pbsserver.sh
       - scripts/pbsclient.sh
-      exclude:
+    exclude:
       - examples/simple_hpc_pbs/readme.md
 
 pool: Default
