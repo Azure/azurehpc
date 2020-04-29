@@ -109,4 +109,3 @@ cp $DIR/telegraf_dashboard.json $dashboard_dir
 
 systemctl stop grafana-server
 systemctl start grafana-server
-
