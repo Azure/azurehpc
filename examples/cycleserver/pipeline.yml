@@ -8,8 +8,8 @@ trigger:
     include:
       - examples/cycleserver/*
       - scripts/cc_prereqs.sh
-      - script/cc_install.sh
-      - script/cc_nsg.sh
+      - scripts/cc_install.sh
+      - scripts/cc_nsg.sh
     exclude:
       - examples/cycleserver/readme.md
 
@@ -38,4 +38,4 @@ variables:
 jobs:
 - template: ../../ci/templates/jobs/build_cluster.yml
   parameters:
-    extra_steps: ../../examples/cycleserver/test.yml
+    extra_steps: ../../../examples/cycleserver/test.yml
