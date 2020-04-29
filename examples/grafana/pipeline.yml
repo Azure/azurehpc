@@ -1,8 +1,9 @@
 trigger:
   batch: true
   branches:
-    include : 
-    - *
+    include :
+    - master
+    - '*'
   paths:
     include:
       - examples/grafana/*
