@@ -38,6 +38,6 @@ variables:
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 jobs:
-- template: ../../ci/templates/jobs/build_cluster.yml
-  parameters:
-    extra_steps: ../../../examples/simple_hpc_pbs/test.yml
+- template: ../../ci/templates/jobs/build.yml
+  # parameters:
+  #   extra_steps: ../../../examples/simple_hpc_pbs/test.yml

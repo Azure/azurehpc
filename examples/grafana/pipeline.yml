@@ -32,4 +32,4 @@ variables:
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 jobs:
-- template: ../../ci/templates/jobs/build_cluster.yml
+- template: ../../ci/templates/jobs/build.yml
