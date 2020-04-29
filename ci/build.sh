@@ -50,18 +50,21 @@ fi
 config_file=$(basename $AZHPC_CONFIG)
 
 # clean up project dir
-ls -al $PROJECT_DIR
-rm -rf $PROJECT_DIR 
+if [ -d $PROJECT_DIR ]; then
+    ls -al $PROJECT_DIR
+    rm -rf $PROJECT_DIR 
+fi
 
+echo "Calling azhpc-init"
 azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables
 pushd $PROJECT_DIR
 
 jq '.' $config_file
 
-
 echo "********************************************************************"
 echo "*                  BUILD RESOURCES                                 *"
 echo "********************************************************************"
+echo "Calling azhpc-build"
 azhpc-build -c $config_file $AZHPC_OPTION
 return_code=$?
 cat deploy*.json
