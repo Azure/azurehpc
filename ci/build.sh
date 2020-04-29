@@ -107,3 +107,9 @@ azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/apps/.
 # Copy pipeline library scripts
 echo "Copy pipeline library scripts to $AZHPC_SCRIPT_REMOTE_DEST"
 azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scripts/. $AZHPC_SCRIPT_REMOTE_DEST/ci || exit 1
+
+# List remote files
+echo "List files copied to $AZHPC_SCRIPT_REMOTE_DEST"
+azhpc-run $debug_option -c $config_file ls -al $AZHPC_SCRIPT_REMOTE_DEST
+azhpc-run $debug_option -c $config_file ls -al $AZHPC_SCRIPT_REMOTE_DEST/ci
+
