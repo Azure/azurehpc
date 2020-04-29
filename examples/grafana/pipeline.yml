@@ -23,10 +23,10 @@ variables:
   # destination of scripts. Default is hpcuser@headnode:/apps
   azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
 
-# Add the variables needed in your configuration file below
-  azhpc.variables.location: southcentralus
-  azhpc.variables.vm_type: Standard_D8s_v3
-  azhpc.variables.key_vault: hpccatkv
+# Add the variables needed in your configuration file below, or thru pipeline variables
+  # azhpc.variables.location: westeurope
+  # azhpc.variables.vm_type: Standard_D8s_v3
+  # azhpc.variables.key_vault: mykeyVault
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
