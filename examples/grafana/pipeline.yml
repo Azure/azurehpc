@@ -1,16 +1,18 @@
 trigger:
   batch: true
   branches:
-    include :
+    include:
     - master
     - '*'
   paths:
     include:
       - examples/grafana/*
-
+      - scripts/install-grafana.sh
+      - script/install-telegraf.sh
+    exclude:
+      - examples/grafana/readme.md
 
 pool: Default
-#  vmImage: Ubuntu-16.04
 
 variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
