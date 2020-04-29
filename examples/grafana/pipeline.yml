@@ -1,4 +1,12 @@
-trigger: none
+trigger:
+  batch: true
+  branches:
+    include : 
+    - *
+  paths:
+    include:
+      - examples/grafana/*
+
 
 pool: Default
 #  vmImage: Ubuntu-16.04
