@@ -35,7 +35,8 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'scriptPath'
       scriptPath: './ci/scripts/build.sh' 
-      scriptArguments: $(Pipeline.Workspace)/$(System.JobName)
+      #$(Pipeline.Workspace)/$(System.JobName)
+      scriptArguments: 
       useGlobalConfig: true
       failOnStandardError: false
     continueOnError: false
