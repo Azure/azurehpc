@@ -1,5 +1,5 @@
 # Deploy an initialize a Grafana server
-[![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/grafana?branchName=master)](https://azurecat.visualstudio.com/hpccat/_build/latest?definitionId=271&branchName=master)
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/grafana?branchName=master)
 
 This example shows how deploy a [Grafana](https://grafana.com/grafana/) server and configure [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/) on monitored machines.
 
