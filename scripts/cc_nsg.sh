@@ -6,7 +6,7 @@ vmname=$2
 echo "Open port 443 for $vmname"
 az network nsg rule create \
     -g ${resource_group} \
-    --nsg-name ${vmname}NSG \
+    --nsg-name ${vmname}_nsg \
     --name cyclehttps \
     --priority 2000 \
     --protocol Tcp \
