@@ -75,7 +75,5 @@ popd
 chown slurm.slurm -R /apps/slurm
 
 systemctl enable slurmctld
-#systemctl start slurmctld
-
 
 exit 0
