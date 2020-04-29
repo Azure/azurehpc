@@ -110,6 +110,7 @@ azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scr
 
 # List remote files
 echo "List files copied to $AZHPC_SCRIPT_REMOTE_DEST"
-azhpc-run $debug_option -c $config_file ls -al $AZHPC_SCRIPT_REMOTE_DEST
-azhpc-run $debug_option -c $config_file ls -al $AZHPC_SCRIPT_REMOTE_DEST/ci
+remote_dir=$(echo $AZHPC_SCRIPT_REMOTE_DEST | cut -d ':' -f2)
+azhpc-run $debug_option -c $config_file ls -al $remote_dir
+azhpc-run $debug_option -c $config_file ls -al $remote_dir/ci
 
