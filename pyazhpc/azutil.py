@@ -13,8 +13,17 @@ log = azlog.getLogger(__name__)
 def _make_subprocess_error_string(res):
     return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout.decode("utf-8"), res.stderr.decode("utf-8"))
 
-def get_subscription():
-    cmd = [ "az", "account", "show", "--output", "tsv", "--query", "[name,id]" ]
+def get_subscription_id():
+    cmd = [ "az", "account", "show", "--output", "tsv", "--query", "id" ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+    out = res.stdout.splitlines()
+    return out[0].decode("utf-8")
+
+def delete_resources(ids):
+    cmd = [ "az", "resource", "delete", "--ids" ] + ids
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))

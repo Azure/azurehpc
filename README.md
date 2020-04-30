@@ -149,7 +149,7 @@ This dictionary describes the resources for the project.
 |----------------------------|-----------------------------------------------------------------------------|----------|---------|
 | **type**                   | The resource type, either "vm" or "vmss" is currently supported             |   yes    |         |
 | **accelerated_networking** | Boolean flag for whether to use accelerated networking                      |   no     |  False  |
-| **availability_set**       | Boolean flag for whether to create and use an Availability Set (**vm only**)|   no     |         |
+| **availability_set**       | Name of the availability set and it is created if not existing (**vm only**)|   no     |         |
 | **availability_zones**     | List of integer where the resource need to be created. Can be 1, 2 or 3     |   no     |         |
 | **data_disks**             | Array of data disk size in GB                                               |   no     |         |
 | **fault_domain_count**     | FD count to use for **vmss only**                                           |   no     |         |

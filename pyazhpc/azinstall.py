@@ -24,6 +24,14 @@ cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 tag=linux
 
+# wait for DNS to update for all hostnames
+for h in $(<hostlists/$tag); do
+    until host $h >/dev/null 2>&1; do
+        echo "Waiting for host - $h (sleeping for 5 seconds)"
+        sleep 5
+    done
+done
+
 if [ "$1" != "" ]; then
     tag=tags/$1
 else
@@ -45,7 +53,7 @@ EOF
 
 fi
 
-pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'sudo yum install -y rsync' >> {logfile} 2>&1
+pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'rpm -q rsync || sudo yum install -y rsync' >> {logfile} 2>&1
 
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/{tmpdir} ~ >> {logfile} 2>&1
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/.ssh ~ >> {logfile} 2>&1
@@ -69,6 +77,12 @@ tag=${{1:-{tag}}}
 
 if [ ! -f "hostlists/tags/$tag" ]; then
     echo "    Tag is not assigned to any resource (not running)"
+    exit 0
+fi
+
+if [ "$(wc -l < hostlists/tags/$tag)" = "0" ]; then
+    echo "    Tag does not contain any resources (not running)"
+    exit 0
 fi
 
 """

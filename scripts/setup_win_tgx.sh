@@ -55,7 +55,7 @@ echo "TGX Installed"
 
 az network nsg rule create \
     --resource-group $resource_group \
-    --nsg-name ${node_name}NSG \
+    --nsg-name ${node_name}_nsg \
     --name TGX \
     --priority 310 \
     --destination-port-ranges 40001-40017 \

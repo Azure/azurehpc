@@ -56,7 +56,7 @@ echo "RGS Installed"
 
 az network nsg rule create \
     --resource-group $resource_group \
-    --nsg-name ${node_name}NSG \
+    --nsg-name ${node_name}_nsg \
     --name HP-RGS \
     --priority 310 \
     --destination-port-ranges 42966 \

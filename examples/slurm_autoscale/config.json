@@ -1,0 +1,134 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "image": "OpenLogic:CentOS:7.6:latest",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+    "vm_type": "Standard_D4s_v3",
+    "hb_vm_type": "Standard_HB60rs",
+    "instances": 2,
+    "location": "eastus",
+    "resource_group": "<NOT-SET>"
+  },
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "hpc": "10.2.0.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "public_ip": "true",
+      "vm_type": "Standard_D4s_v3",
+      "image": "variables.image",
+      "accelerated_networking": "true",
+      "managed_identity": {
+        "role": "contributor",
+        "scope": "resource_group"
+      },
+      "subnet": "hpc",
+      "tags": [
+        "disable-selinux",
+        "cndefault",
+        "munge",
+        "azcli",
+        "nfsserver",
+        "slurmserver",
+        "localuser"
+        ]
+   },
+   "compute": {
+      "type": "slurm_partition",
+      "vm_type": "variables.vm_type",
+      "instances": "variables.instances",
+      "availability_set": "compute",
+      "image": "variables.hpc_image",
+      "subnet": "hpc",
+      "tags": [
+         "nfsclient",
+         "cndefault",
+         "localuser",
+         "munge",
+         "slurmclient",
+         "disable-selinux"
+      ]
+   }
+  },
+  "install": [
+     {
+       "script": "disable-selinux.sh",
+       "tag": "disable-selinux",
+       "sudo": true
+     },
+     {
+       "script": "cndefault.sh",
+       "tag": "cndefault",
+       "sudo": true
+     },
+     {
+       "script": "install-azcli.sh",
+       "tag": "azcli",
+       "sudo": true
+     },
+     {
+       "script": "nfsserver.sh",
+       "tag": "nfsserver",
+       "sudo": true
+     },
+     {
+       "script": "nfsclient.sh",
+       "args": [
+          "headnode"
+       ],
+       "tag": "nfsclient",
+       "sudo": true
+     },
+     {
+       "script": "localuser.sh",
+       "args": [
+          "headnode"
+       ],
+       "tag": "localuser",
+       "sudo": true
+     },
+     {
+       "script": "munge.sh",
+       "tag": "munge",
+       "args": [
+          "abcdefghijklmnopqrstuvwxyz123456"
+       ],
+       "sudo": true
+     },
+     {
+       "script": "slurmctl.sh",
+       "tag": "slurmserver",
+       "deps": [
+        "suspend.sh",
+        "resume.sh",
+        "hpcadmin_id_rsa",
+        "hpcadmin_id_rsa.pub",
+        "config.json"
+       ],
+       "sudo": true
+     },
+     {
+       "script": "slurmpartition.sh",
+       "tag": "slurmserver",
+       "args": [
+          "compute",
+          "variables.instances",
+          "variables.vm_type"
+       ],
+       "sudo": true
+     },
+     {
+       "script": "slurmd.sh",
+       "tag": "slurmclient",
+       "sudo": true
+     }
+  ]
+}
