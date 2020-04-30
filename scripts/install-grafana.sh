@@ -107,6 +107,6 @@ chown grafana:grafana $dashboard_dir
 
 cp $DIR/telegraf_dashboard.json $dashboard_dir
 
+echo "Start grafana-server"
 systemctl stop grafana-server
 systemctl start grafana-server
-

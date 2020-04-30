@@ -1,0 +1,59 @@
+parameters:
+  extra_steps: ''
+
+jobs:
+- template : ../jobs/init_matrix.yml
+
+- job: BuildCluster
+  timeoutInMinutes: 180
+  cancelTimeoutInMinutes: 2
+  dependsOn: InitMatrix
+  strategy:
+    matrix: $[ dependencies.InitMatrix.outputs['mtrx.azhpc_matrix'] ]
+
+  steps:
+  # from https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
+  # To pass the variable FOO, write it to a file
+  # While the file name doesn't matter, naming it like the variable and putting it inside the $(Pipeline.Workspace)/variables folder could be a good pattern
+  - task: Bash@3
+    displayName: 'Create Resource Group Name'
+    inputs:
+      targetType: 'inline'
+      script: |
+          UUID_STR="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+          ResourceGroup="azhpc-$UUID_STR"
+          echo "Resource Group name is $ResourceGroup"
+          # Create pipeline variable
+          echo "##vso[task.setvariable variable=azhpc.ResourceGroup]$ResourceGroup"
+          mkdir -p $(Pipeline.Workspace)/$(System.JobName)
+          echo "$ResourceGroup" > $(Pipeline.Workspace)/$(System.JobName)/azhpc.ResourceGroup
+         
+  - task: AzureCLI@2
+    displayName: "Build Resources"
+    inputs:
+      azureSubscription: 'target-subscription'
+      scriptType: 'bash'
+      scriptLocation: 'scriptPath'
+      scriptPath: './ci/build.sh' 
+      #$(Pipeline.Workspace)/$(System.JobName)
+      scriptArguments: 
+      useGlobalConfig: true
+      failOnStandardError: false
+    continueOnError: false
+
+  - ${{ if not(eq(parameters.extra_steps,'')) }}:
+    - template: ${{parameters.extra_steps}}
+
+  - task: AzureCLI@2
+    condition: always()
+    displayName: 'Remove Resource Group'
+    inputs:
+      azureSubscription: 'target-subscription'
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: |
+        # don't delete if in debug mode
+        if [ "$SYSTEM_DEBUG" = "false" ]; then
+          echo "removing resource group $AZHPC_RESOURCEGROUP"
+          az group delete -n $AZHPC_RESOURCEGROUP -y --no-wait
+        fi

@@ -1,0 +1,35 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+    - '*'
+  paths:
+    include:
+      - examples/beeond/*
+      - scripts/setupbeeond.sh
+      - scripts/startbeeond.sh
+    exclude:
+      - examples/beeond/readme.md
+
+pool: Default
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  azhpc.config: examples/beeond/config.json
+  # pipeline directory
+  azhpc.pipeline_dir: examples/beeond
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  #azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
+
+# Add the variables needed in your configuration file
+# Uncomment and set values below, or leave commented and thru pipeline variables
+  # azhpc.variables.location: westeurope
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../ci/templates/jobs/build.yml
+  # parameters:
+  #   extra_steps: ../../../examples/beeond/test.yml

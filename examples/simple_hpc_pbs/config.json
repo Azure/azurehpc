@@ -5,9 +5,9 @@
     "admin_user": "hpcadmin",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
-        "location": "southcentralus",
+        "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
-        "vm_type": "Standard_HB60rs",
+        "vm_type": "<NOT-SET>",
         "compute_instances": 2,
         "low_priority": false,
         "vnet_resource_group": "variables.resource_group"

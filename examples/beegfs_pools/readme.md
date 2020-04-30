@@ -1,4 +1,5 @@
 # BeeGFS Cluster built using BeeGFS pools, ephemeral disks (temporary)  and HDD disks (persistent)
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/beegfs_pools?branchName=master)
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/beegfs_pools/config.json)
 
