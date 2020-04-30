@@ -21,9 +21,6 @@ if [ "$AZHPC_RESOURCEGROUP" = "" ]; then
     echo "variable AZHPC_RESOURCEGROUP is required"
     exit 1
 fi
-if [ "$AZHPC_ADD_TELEMETRY" = "" ]; then
-    export AZHPC_ADD_TELEMETRY=0
-fi
 
 echo "********************************************************************"
 echo "*                  INIT CONFIG VARIABLES                           *"
