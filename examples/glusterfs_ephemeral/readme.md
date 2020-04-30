@@ -1,4 +1,5 @@
 # GlusterFS Cluster built with Ephemeral disks (Lsv2 NVMe SSD's)
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/glusterfs_ephemeral?branchName=master)
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/glusterfs_ephemeral/config.json)
 
