@@ -28,6 +28,7 @@ systemctl restart sshd
 sed -i 's@override_homedir.*@override_homedir = /share/home/%u@' /etc/sssd/sssd.conf
 sed -i 's@fallback_homedir.*@fallback_homedir = /share/home/%u@' /etc/sssd/sssd.conf
 sed -i 's@use_fully_qualified_names.*@use_fully_qualified_names = False@' /etc/sssd/sssd.conf
+sed -i 's@ldap_id_mapping.*@ldap_id_mapping = False@' /etc/sssd/sssd.conf
 systemctl restart sssd
 
 cat <<EOF >/etc/ssh/ssh_config

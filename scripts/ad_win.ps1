@@ -11,6 +11,7 @@ Write-Output $ad_password
 
 Install-WindowsFeature AD-Domain-Services -IncludeAllSubFeature -IncludeManagementTools
 Install-WindowsFeature DNS -IncludeAllSubFeature -IncludeManagementTools
+Install-WindowsFeature FS-NFS-Service -IncludeManagementTools 
 Install-ADDSForest `
    -CreateDnsDelegation:$false `
    -DomainName $ad_domain `
@@ -23,3 +24,4 @@ Install-ADDSForest `
    -NoRebootOnCompletion:$false `
    -Force `
    -SafeModeAdministratorPassword (ConvertTo-SecureString $ad_password -AsPlainText -Force) > D:\domain.log
+Set-NfsMappingStore -EnableADLookup $true

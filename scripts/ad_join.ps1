@@ -20,4 +20,6 @@ $Computer    = $env:computername
 
 ([ADSI]"WinNT://$Computer/$LocalGroup,group").psbase.Invoke("Add",([ADSI]"WinNT://$ad_domain/$DomainGroup").path)
 
+netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
+
 shutdown.exe /r /t 00
