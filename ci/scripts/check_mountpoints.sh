@@ -1,9 +1,6 @@
 #!/bin/bash
+set -e
 mounts=$1
-
-for mount in $mounts; do
-    check_mountpoint $mount
-done
 
 check_mountpoint()
 {
@@ -17,3 +14,7 @@ check_mountpoint()
         exit 1
     fi
 }
+
+for mount in $mounts; do
+    check_mountpoint $mount
+done
