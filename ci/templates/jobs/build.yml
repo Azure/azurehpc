@@ -53,7 +53,7 @@ jobs:
       scriptType: 'bash'
       inlineScript: |
         # don't delete if in debug mode
-        if [ "$SYSTEM_DEBUG" = "false" ]; then
+        if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
           echo "removing resource group $AZHPC_RESOURCEGROUP"
           az group delete -n $AZHPC_RESOURCEGROUP -y --no-wait
         fi
