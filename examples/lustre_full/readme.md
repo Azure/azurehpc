@@ -1,4 +1,5 @@
 # Lustre Cluster
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/lustre_full?branchName=master)
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_full/config.json)
 
