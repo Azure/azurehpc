@@ -71,6 +71,11 @@
             "script": "cuda_drivers.sh",
             "tag": "nvidia",
             "sudo": true
+        },
+        {
+            "script": "check_gpu.sh",
+            "tag": "nvidia",
+            "sudo": true
         }
     ]
 }
