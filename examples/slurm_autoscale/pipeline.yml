@@ -21,7 +21,7 @@ variables:
   # pipeline directory
   azhpc.pipeline_dir: examples/slurm_autoscale
   # destination of scripts. Default is hpcuser@headnode:/apps
-  azhpc.script_remote_dest: 'azureuser@theia:.'
+  #azhpc.script_remote_dest: 'hpcuser@headnode:.'
 
 # Add the variables needed in your configuration file
 # Uncomment and set values below, or leave commented and thru pipeline variables
