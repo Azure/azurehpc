@@ -1,4 +1,6 @@
 # Deploy a GPU VM instance
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/nvidia?branchName=master)
+
 This example shows how to build a GPU instance that can be used as a based image for future deployments.
 
 

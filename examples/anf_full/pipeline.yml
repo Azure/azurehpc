@@ -1,0 +1,36 @@
+pr: none
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+    - '*'
+  paths:
+    include:
+      - examples/anf_full/*
+      - scripts/replace_nfs_with_anf.sh
+    exclude:
+      - examples/anf_full/readme.md
+
+pool: Default
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  azhpc.config: examples/anf_full/config.json
+  # pipeline directory
+  azhpc.pipeline_dir: examples/anf_full
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  #azhpc.script_remote_dest: 'hpcadmin@headnode:.'
+
+# Add the variables needed in your configuration file
+# Uncomment and set values below, or leave commented and thru pipeline variables
+  # azhpc.variables.location: eastus
+  azhpc.variables.anf_mount: /netapps
+  azhpc.variables.compute_instances: 4
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../ci/templates/jobs/build.yml
+  parameters:
+    extra_steps: ../../../examples/anf_full/test.yml

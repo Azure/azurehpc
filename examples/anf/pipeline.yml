@@ -1,0 +1,33 @@
+pr: none
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+    - '*'
+  paths:
+    include:
+      - examples/anf/*
+    exclude:
+      - examples/anf/readme.md
+
+pool: Default
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  azhpc.config: examples/anf/config.json
+  # pipeline directory
+  azhpc.pipeline_dir: examples/anf
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  azhpc.script_remote_dest: 'hpcadmin@headnode:.'
+
+# Add the variables needed in your configuration file
+# Uncomment and set values below, or leave commented and thru pipeline variables
+  # azhpc.variables.location: eastus
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../ci/templates/jobs/build.yml
+  parameters:
+    extra_steps: ../../../examples/anf/test.yml
