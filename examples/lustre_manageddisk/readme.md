@@ -1,5 +1,5 @@
 # Lustre Cluster
-![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/manageddisk_lustre?branchName=master)
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/lustre_manageddisk?branchName=master)
 
 This is a full set up of Lustre using managed disks for the MDS and OSS Lustre servers, with all Lustre features available. The config.json file may be modified to handle between 2 and 10 disks per Object SStorage Server (OSS).
 

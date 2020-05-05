@@ -7,7 +7,7 @@ trigger:
     - '*'
   paths:
     include:
-      - examples/manageddisk_lustre/*
+      - examples/lustre_manageddisk/*
       - scripts/lfsrepo.sh
       - scripts/lfspkgs.sh
       - scripts/lfsmaster.sh
@@ -17,16 +17,16 @@ trigger:
       - scripts/lfsimport.sh
       - scripts/lfsloganalytics.sh
     exclude:
-      - examples/manageddisk_lustre/readme.md
+      - examples/lustre_manageddisk/readme.md
 
 pool: Default
 
 variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/manageddisk_lustre/config.json
+  azhpc.config: examples/lustre_manageddisk/config.json
   # pipeline directory
-  azhpc.pipeline_dir: examples/manageddisk_lustre
+  azhpc.pipeline_dir: examples/lustre_manageddisk
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@headnode:.'
 
@@ -47,4 +47,4 @@ variables:
 jobs:
 - template: ../../ci/templates/jobs/build.yml
 #  parameters:
-#    extra_steps: ../../../examples/manageddisk_lustre/test.yml
+#    extra_steps: ../../../examples/lustre_manageddisk/test.yml
