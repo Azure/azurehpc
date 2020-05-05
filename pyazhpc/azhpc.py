@@ -86,7 +86,7 @@ def do_init(args):
                         )
                     )
                     log.debug(f"copying file: {oldfile} -> {newfile}")
-                    shutil.copy(oldfile, newfile)
+                    shutil.copy(oldfile, newfile, follow_symlinks=False)
 
         # get vars
         vset = {}
