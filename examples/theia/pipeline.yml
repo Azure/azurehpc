@@ -10,7 +10,7 @@ trigger:
       - examples/theia/*
       - scripts/setup-theia.sh
     exclude:
-      - examples/nvidia/readme.md
+      - examples/theia/readme.md
 
 pool: Default
 
