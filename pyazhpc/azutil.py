@@ -147,10 +147,7 @@ def get_keyvault_secret(vault, key):
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
-    out = res.stdout.splitlines()
-    if len(out) != 1:
-        log.error("expected output"+_make_subprocess_error_string(res))
-    secret = out[0].decode('utf-8')
+    secret = res.stdout.decode('utf-8').rstrip('\r\n')
     return secret
 
 def get_storage_url(account):
