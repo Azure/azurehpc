@@ -1,5 +1,4 @@
 # Build a LSF compute cluster
-[![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/lsf_simple?branchName=master)](https://azurecat.visualstudio.com/hpccat/_build/latest?definitionId=180&branchName=master)
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lsf_simple/config.json)
 
