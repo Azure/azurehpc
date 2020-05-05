@@ -92,7 +92,7 @@ def do_init(args):
         vset = {}
         if args.vars:
             for vp in args.vars.split(","):
-                vk, vv = vp.split("=")
+                vk, vv = vp.split("=", 1)
                 vset[vk] = vv
             
             for root, dirs, files in os.walk(args.dir):
