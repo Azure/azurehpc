@@ -1,7 +1,7 @@
 {
     "location": "variables.location",
     "resource_group": "variables.resource_group",
-    "proximity_placement_group_name": "<NOT-SET>",
+    "proximity_placement_group_name": "variables.ppg_name",
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "vnet": {
@@ -19,6 +19,7 @@
         "glusterfsimage": "OpenLogic:CentOS:7.7:latest",
         "hpcimage": "OpenLogic:CentOS-HPC:7.7:latest",
         "compute_vm_type": "Standard_HB60rs",
+        "ppg_name": "azhpc_cluster",
         "glusterfs_vm_type": "Standard_D16s_v3",
         "compute_instances": 2,
         "glusterfs_instances": 4,

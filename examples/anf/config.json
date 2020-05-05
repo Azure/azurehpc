@@ -1,63 +1,63 @@
 {
-  "location": "westeurope",
-  "resource_group": "variables.resource_group",
-  "install_from": "headnode",
-  "admin_user": "hpcadmin",
-  "variables": {
-    "resource_group": "<NOT-SET>"
-  },
-  "vnet": {
-    "name": "hpcvnet",
-    "address_prefix": "10.2.0.0/20",
-    "subnets": {
-      "admin": "10.2.0.0/24",
-      "netapp": "10.2.1.0/24"
-    }
-  },
-  "storage": {
-    "hpcnetapp": {
-      "type": "anf",
-      "subnet": "netapp",
-      "pools": {
-        "anfpool": {
-          "size": 10,
-          "service_level": "Premium",
-          "volumes": {
-            "anfvol1": {
-              "size": 4,
-              "mount": "/data"
-            },
-            "anfvol2": {
-              "size": 2,
-              "mount": "/apps"
-            },
-            "anfvol3": {
-              "size": 4,
-              "mount": "/scratch"
-            }
-          }
+    "location": "westeurope",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "resource_group": "<NOT-SET>"
+    },
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.0.0/24",
+            "netapp": "10.2.1.0/24"
         }
-      }
-    }
-  },
-  "resources": {
-    "headnode": {
-      "type": "vm",
-      "vm_type": "Standard_D8s_v3",
-      "accelerated_networking": true,
-      "public_ip": true,
-      "image": "OpenLogic:CentOS:7.6:latest",
-      "subnet": "admin",
-      "tags": [
-        "netapp-client"
-      ]
-    }
-  },
-  "install": [
-    {
-      "script": "auto_netappfiles_mount.sh",
-      "tag": "netapp-client",
-      "sudo": true
-  }
-  ]
+    },
+    "storage": {
+        "hpcnetapp": {
+            "type": "anf",
+            "subnet": "netapp",
+            "pools": {
+                "anfpool": {
+                    "size": 10,
+                    "service_level": "Premium",
+                    "volumes": {
+                        "anfvol1": {
+                            "size": 4,
+                            "mount": "/data"
+                        },
+                        "anfvol2": {
+                            "size": 2,
+                            "mount": "/apps"
+                        },
+                        "anfvol3": {
+                            "size": 4,
+                            "mount": "/scratch"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "OpenLogic:CentOS:7.6:latest",
+            "subnet": "admin",
+            "tags": [
+                "netapp-client"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "auto_netappfiles_mount.sh",
+            "tag": "netapp-client",
+            "sudo": true
+        }
+    ]
 }

@@ -133,7 +133,5 @@
             "tag": "pbsclient",
             "sudo": false
         }
-    ],
-    "post_install": {
-    }
+    ]
 }

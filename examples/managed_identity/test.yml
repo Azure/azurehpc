@@ -1,0 +1,7 @@
+steps:  
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcadmin
+    command: "az login -i; az account show"
+
+

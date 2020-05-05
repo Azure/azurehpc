@@ -53,7 +53,7 @@ if [ -d $PROJECT_DIR ]; then
 fi
 
 echo "Calling azhpc-init"
-azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables
+azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables || exit 1
 pushd $PROJECT_DIR
 
 jq '.' $config_file

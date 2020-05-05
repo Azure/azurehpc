@@ -39,6 +39,7 @@ variables:
   # azhpc.variables.la_name: analytics_workspace_name
   # azhpc.variables.la_resourcegroup: analytics_resource_group
   azhpc.variables.log_analytics_lfs_name: lfs
+  azhpc.variables.lustre_mount: /lustre
   # azhpc.variables.storage_account: account
   # azhpc.variables.storage_container: container
   
@@ -46,5 +47,5 @@ variables:
 
 jobs:
 - template: ../../ci/templates/jobs/build.yml
-#  parameters:
-#    extra_steps: ../../../examples/lustre_full/test.yml
+  parameters:
+    extra_steps: ../../../examples/lustre_full/test.yml
