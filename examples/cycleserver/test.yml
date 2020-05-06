@@ -11,14 +11,15 @@ steps:
         fi
         . install.sh
         conf_dir=$(dirname $AZHPC_CONFIG)
+        config_file=02-cycleserver.json
         if [ "$PROJECT_DIR" = "" ]; then
             PROJECT_DIR=${conf_dir##*/}
         fi
         pushd $PROJECT_DIR
-        cat 02-cycleserver.json
-        azhpc-build -c 02-cycleserver.json $options
+        cat $config_file
+        azhpc-build -c $config_file $options
         return_code=$?
-        cat azhpc_install_02-cycleserver/install/*.log
+        cat azhpc_install_02*/install/*.log
         if [ "$return_code" -ne "0" ]; then
           exit $return_code
         fi
@@ -36,14 +37,15 @@ steps:
         fi
         . install.sh
         conf_dir=$(dirname $AZHPC_CONFIG)
+        config_file=03-cycle-cli.json
         if [ "$PROJECT_DIR" = "" ]; then
             PROJECT_DIR=${conf_dir##*/}
         fi
         pushd $PROJECT_DIR
-        cat 03-cycleserver.json
-        azhpc-build -c 03-cycles-cli.json $options
+        cat $config_file
+        azhpc-build -c $config_file $options
         return_code=$?
-        cat azhpc_install_03-cycle-cli/install/*.log
+        cat azhpc_install_03*/install/*.log
         if [ "$return_code" -ne "0" ]; then
           exit $return_code
         fi
