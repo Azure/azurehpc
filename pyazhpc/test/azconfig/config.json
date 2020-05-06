@@ -1,5 +1,6 @@
 {
     "admin_user": "hpcuser",
+    "install_from": "",
     "location": "variables.location",
     "resource_group": "variables.resource_group",
     "variables": {
