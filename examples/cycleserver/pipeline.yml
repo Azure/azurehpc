@@ -10,6 +10,7 @@ trigger:
       - examples/cycleserver/*
       - scripts/cc_prereqs.sh
       - scripts/cc_install.sh
+      - scripts/cyclecli_install.sh
       - scripts/cc_nsg.sh
     exclude:
       - examples/cycleserver/readme.md
