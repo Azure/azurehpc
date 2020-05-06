@@ -1,0 +1,19 @@
+{
+    "admin_user": "hpcuser",
+    "install_from": "foo",
+    "location": "westeurope",
+    "resource_group": "variables.resource_group",
+    "variables": {
+        "resource_group": "<NOT-SET>"
+    },
+    "vnet": {
+        "name": "hpcvnet",
+        "resource_group": "non_existing_random_group"
+    },
+    "resources": {
+    },
+    "install": [
+        {
+        }
+    ]
+}
