@@ -1,8 +1,0 @@
-- apiVersion: "2018-10-01"
-  type: Microsoft.Network/virtualNetworks
-  name: '[parameters(''vnetName'')]'
-  location: '[parameters(''location'')]'
-  properties:
-    addressSpace:
-      addressPrefixes:
-      - '[parameters(''vnetAddressPrefix'')]'
