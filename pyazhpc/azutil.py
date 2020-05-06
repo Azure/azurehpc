@@ -47,12 +47,13 @@ def get_vm_private_ip(resource_group, vm_name):
 
 def get_dns_label(resource_group, public_ip, ignore_errors):
     cmd = [
-        "az", "network", "public-ip", "show"
+        "az", "network", "public-ip", "show",
             "--resource-group", resource_group,
             "--name", public_ip,
             "--query", "dnsSettings.domainNameLabel",
             "--output", "tsv"
     ]
+    log.debug(" ".join(cmd))
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         if ignore_errors:
