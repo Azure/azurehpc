@@ -14,9 +14,6 @@ steps:
         echo "Create Resource group $AZHPC_RESOURCEGROUP"
         az group create --name $AZHPC_RESOURCEGROUP --location $AZHPC_VARIABLES_LOCATION
 
-        # extract the random value from the resource group
-        random=$(echo $AZHPC_RESOURCEGROUP | cut -d '-' -f2)
-
         # Create a KeyVault and add a secret in it
         echo "Create Key Vault $AZHPC_RESOURCEGROUP"
         az keyvault create --name $AZHPC_RESOURCEGROUP --resource-group $AZHPC_RESOURCEGROUP
@@ -28,7 +25,7 @@ steps:
         az monitor log-analytics workspace create -n $AZHPC_RESOURCEGROUP -g $AZHPC_RESOURCEGROUP
 
         # Create an Azure Container Registry
-        az acr create -n $AZHPC_RESOURCEGROUP -g $AZHPC_RESOURCEGROUP --sku Standard
+        az acr create -n "acrrepo$AZHPC_UUID" -g $AZHPC_RESOURCEGROUP --sku Standard
       failOnStandardError: false
     continueOnError: false
 
