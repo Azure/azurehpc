@@ -22,7 +22,7 @@ steps:
         cat <<EOF >$uuidname.txt
         $uuidname
         EOF
-        az storage blob upload -f $uuidname.txt -c $uuidname -n $uuidname.txt
+        az storage blob upload -f $uuidname.txt -c $uuidname -n $uuidname.txt --account-name $uuidname
 
         # Create a KeyVault and add a secret in it
         echo "Create Key Vault $AZHPC_RESOURCEGROUP"
