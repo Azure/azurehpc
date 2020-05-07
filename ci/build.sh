@@ -68,7 +68,7 @@ azhpc-build -c $config_file $AZHPC_OPTION
 return_code=$?
 cat deploy*.json
 ls -al
-if [[ "$return_code" -ne "0" ] || [ "$show_logs" == "true" ]]; then
+if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
     config_file_no_path=${config_file##*/}
     config_file_no_path_or_extension=${config_file_no_path%.*}
     tmp_dir=azhpc_install_$config_file_no_path_or_extension
