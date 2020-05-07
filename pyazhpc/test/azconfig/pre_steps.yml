@@ -10,13 +10,16 @@ steps:
           set -x
         fi
 
+        # Create the RG to host test resources
+        az group create --name $AZHPC_RESOURCEGROUP --location $AZHPC_VARIABLES_LOCATION --output table
+
         # extract the random value from the resource group
         random=$(echo $AZHPC_RESOURCEGROUP | cut -d '-' -f2)
 
         # Create a KeyVault and add a secret in it
         az keyvault create --name $AZHPC_RESOURCEGROUP --resource-group $AZHPC_RESOURCEGROUP --output table
         az keyvault secret set --vault-name $AZHPC_RESOURCEGROUP --name "secret" --value "secretvalue" --output table
-        
+
       failOnStandardError: false
     continueOnError: false
 
