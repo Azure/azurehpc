@@ -73,8 +73,10 @@ if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
     config_file_no_path_or_extension=${config_file_no_path%.*}
     tmp_dir=azhpc_install_$config_file_no_path_or_extension
     if [ -d $tmp_dir ]; then
-        grep -A4 "\[FAILURE\]" $tmp_dir/install/*.log
         cat $tmp_dir/install/*.log
+        set +e
+        grep -A4 "\[FAILURE\]" $tmp_dir/install/*.log
+        set -e
     fi
     if [ "$return_code" -ne "0" ]; then
         exit $return_code
