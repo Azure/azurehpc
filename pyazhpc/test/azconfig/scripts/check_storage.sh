@@ -9,7 +9,7 @@ sakey="$5"
 saskey="$6"
 
 echo "Download blob with SASURL"
-wget $sasurl -o blob_sasurl.txt
+wget "$sasurl" -o blob_sasurl.txt
 cat blob_sasurl.txt
 
 echo "Download blob with sakey"
