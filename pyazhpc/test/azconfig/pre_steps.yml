@@ -11,15 +11,23 @@ steps:
         fi
 
         # Create the RG to host test resources
-        az group create --name $AZHPC_RESOURCEGROUP --location $AZHPC_VARIABLES_LOCATION --output table
+        echo "Create Resource group $AZHPC_RESOURCEGROUP"
+        az group create --name $AZHPC_RESOURCEGROUP --location $AZHPC_VARIABLES_LOCATION
 
         # extract the random value from the resource group
         random=$(echo $AZHPC_RESOURCEGROUP | cut -d '-' -f2)
 
         # Create a KeyVault and add a secret in it
-        az keyvault create --name $AZHPC_RESOURCEGROUP --resource-group $AZHPC_RESOURCEGROUP --output table
-        az keyvault secret set --vault-name $AZHPC_RESOURCEGROUP --name "secret" --value "secretvalue" --output table
+        echo "Create Key Vault $AZHPC_RESOURCEGROUP"
+        az keyvault create --name $AZHPC_RESOURCEGROUP --resource-group $AZHPC_RESOURCEGROUP
 
+        echo "Add a secret"
+        az keyvault secret set --vault-name $AZHPC_RESOURCEGROUP --name "secret" --value "secretvalue"
+
+        # Create Log Analytics Workspace
+        az monitor log-analytics workspace create -n $AZHPC_RESOURCEGROUP -g $AZHPC_RESOURCEGROUP
+
+        
       failOnStandardError: false
     continueOnError: false
 
