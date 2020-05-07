@@ -33,4 +33,4 @@ variables:
 jobs:
 - template: ../../../ci/templates/jobs/build.yml
   parameters:
-    pre_steps: ../../../../pyazhpc/test/azconfig/pre_steps.yml
+    pre_steps: ../../../pyazhpc/test/azconfig/pre_steps.yml
