@@ -19,6 +19,7 @@ variables:
   azhpc.config: pyazhpc/test/azconfig/config.json
   # pipeline directory
   azhpc.pipeline_dir: pyazhpc/test/azconfig
+  azhpc.show_logs: true
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
 
