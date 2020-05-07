@@ -1,15 +1,15 @@
 pr: none
-trigger: none
-  # batch: true
-  # branches:
-  #   include:
-  #   - '*'
-  # paths:
-  #   include:
-  #     - examples/nvidia/*
-  #     - scripts/update_kernel.sh
-  #   exclude:
-  #     - examples/nvidia/readme.md
+trigger: 
+  batch: true
+  branches:
+    include:
+    - '*'
+  paths:
+    include:
+      - pyazhpc/azconfig.py
+      - pyazhpc/azutil.py
+      - pyazhpc/test/azconfig/*
+      - pyazhpc/test/azconfig/scripts/*
 
 pool: Default
 
@@ -32,5 +32,5 @@ variables:
 
 jobs:
 - template: ../../../ci/templates/jobs/build.yml
-#  parameters:
-#    extra_steps: ../../../examples/nvidia/test.yml
+  parameters:
+    pre_steps: ../../../../pyazhpc/test/azconfig/pre_steps.yml

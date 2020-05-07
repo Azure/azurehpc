@@ -10,7 +10,8 @@
         "bool_value": true,
         "simple_variable": "value",
         "use_variable": "variables.simple_variable",
-        "double_curly_braces": "simple_variable={{variables.simple_variable}}"
+        "double_curly_braces": "simple_variable={{variables.simple_variable}}",
+        "key_vault": "variables.resource_group"
     },
     "vnet": {
         "name": "hpcvnet",
@@ -27,7 +28,8 @@
                 "variables.bool_value", true,
                 "variables.simple_variable", "value",
                 "variables.use_variable", "value",
-                "variables.double_curly_braces", "simple_variable=value"
+                "variables.double_curly_braces", "simple_variable=value",
+                "secret.{{variables.key_vault}}.secret", "secretvalue"
             ]
         }
     ]
