@@ -32,7 +32,7 @@ jobs:
   - ${{ if not(eq(parameters.pre_steps,'')) }}:
     - template: ${{parameters.pre_steps}}
 
-    - task: AzureCLI@2
+  - task: AzureCLI@2
     displayName: "Build Resources"
     inputs:
       azureSubscription: 'target-subscription'
