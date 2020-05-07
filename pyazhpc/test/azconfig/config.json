@@ -5,7 +5,12 @@
     "resource_group": "variables.resource_group",
     "variables": {
         "resource_group": "<NOT-SET>",
-        "location": "<NOT-SET>"
+        "location": "<NOT-SET>",
+        "int_value": 42,
+        "bool_value": true,
+        "simple_variable": "value",
+        "use_variable": "variables.simple_variable",
+        "double_curly_braces": "simple_variable={{variables.simple_variable}}"
     },
     "vnet": {
         "name": "hpcvnet",
@@ -14,5 +19,16 @@
     "resources": {
     },
     "install": [
+        {
+            "type": "local_script",
+            "script": "check_variables.sh",
+            "args": [
+                "variables.int_value", 42,
+                "variables.bool_value", true,
+                "variables.simple_variable", "value",
+                "variables.use_variable", "value",
+                "variables.double_curly_braces", "simple_variable=value"
+            ]
+        }
     ]
 }
