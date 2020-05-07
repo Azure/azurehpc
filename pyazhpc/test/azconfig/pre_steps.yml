@@ -28,7 +28,7 @@ steps:
         az monitor log-analytics workspace create -n $AZHPC_RESOURCEGROUP -g $AZHPC_RESOURCEGROUP
 
         # Create an Azure Container Registry
-        az acr create -n $AZHPC_RESOURCEGROUP -g $AZHPC_RESOURCEGROUP --sku Classic
+        az acr create -n $AZHPC_RESOURCEGROUP -g $AZHPC_RESOURCEGROUP --sku Standard
       failOnStandardError: false
     continueOnError: false
 
