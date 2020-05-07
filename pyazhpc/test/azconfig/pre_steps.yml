@@ -17,6 +17,12 @@ steps:
 
         # Create Storage Account
         az storage account create --name $uuidname --sku Standard_LRS --resource-group $AZHPC_RESOURCEGROUP --kind StorageV2
+        az storage container create -n $uuidname --account-name $uuidname --resource-group $AZHPC_RESOURCEGROUP
+
+        cat <<EOF >$uuidname.txt
+        $uuidname
+        EOF
+        az storage blob upload -f $uuidname.txt -c $uuidname -n $uuidname.txt
 
         # Create a KeyVault and add a secret in it
         echo "Create Key Vault $AZHPC_RESOURCEGROUP"
