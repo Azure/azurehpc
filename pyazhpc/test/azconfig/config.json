@@ -14,7 +14,7 @@
         "uuid": "<NOT-SET>",
         "key_vault": "variables.resource_group",
         "la_workspace": "variables.resource_group",
-        "acrname": "acrrepo{{variables.uuid}}"
+        "acrname": "azhpc{{variables.uuid}}"
     },
     "vnet": {
         "name": "hpcvnet",
