@@ -12,7 +12,8 @@
         "use_variable": "variables.simple_variable",
         "double_curly_braces": "simple_variable={{variables.simple_variable}}",
         "key_vault": "variables.resource_group",
-        "la_workspace": "variables.resource_group"
+        "la_workspace": "variables.resource_group",
+        "acrname": "variables.resource_group"
     },
     "vnet": {
         "name": "hpcvnet",
@@ -32,7 +33,8 @@
                 "variables.double_curly_braces", "simple_variable=value",
                 "secret.{{variables.key_vault}}.secret", "secretvalue",
                 "laworkspace.{{variables.resource_group}}.{{variables.la_workspace}}", "laworkspace.{{variables.resource_group}}.{{variables.la_workspace}}",
-                "lakey.{{variables.resource_group}}.{{variables.la_workspace}}", "lakey.{{variables.resource_group}}.{{variables.la_workspace}}"
+                "lakey.{{variables.resource_group}}.{{variables.la_workspace}}", "lakey.{{variables.resource_group}}.{{variables.la_workspace}}",
+                "acrkey.{{variables.acrname}}", "acrkey.{{variables.acrname}}"
             ]
         }
     ]
