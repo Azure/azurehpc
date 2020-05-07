@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 PROJECT_DIR=$1
 show_logs=${AZHPC_SHOW_LOGS,,}
 if [ "$SYSTEM_DEBUG" = "true" ]; then
