@@ -10,24 +10,27 @@ steps:
           set -x
         fi
 
+        uuidname="azhpc$AZHPC_UUID"
         # Create the RG to host test resources
         echo "Create Resource group $AZHPC_RESOURCEGROUP"
         az group create --name $AZHPC_RESOURCEGROUP --location $AZHPC_VARIABLES_LOCATION
 
+        # Create Storage Account
+        az storage account create --name $uuidname --sku Standard_LRS --resource-group $AZHPC_RESOURCEGROUP --kind StorageV2
+
         # Create a KeyVault and add a secret in it
         echo "Create Key Vault $AZHPC_RESOURCEGROUP"
-        az keyvault create --name $AZHPC_RESOURCEGROUP --resource-group $AZHPC_RESOURCEGROUP
+        az keyvault create --name $uuidname --resource-group $AZHPC_RESOURCEGROUP
 
         echo "Add a secret"
-        az keyvault secret set --vault-name $AZHPC_RESOURCEGROUP --name "secret" --value "secretvalue"
+        az keyvault secret set --vault-name $uuidname --name "secret" --value "secretvalue"
 
         # Create Log Analytics Workspace
-        az monitor log-analytics workspace create -n $AZHPC_RESOURCEGROUP -g $AZHPC_RESOURCEGROUP
+        az monitor log-analytics workspace create -n $uuidname -g $AZHPC_RESOURCEGROUP
 
         # Create an Azure Container Registry
-        reponame="azhpc$AZHPC_UUID"
-        az acr create -n $reponame -g $AZHPC_RESOURCEGROUP --sku Standard
-        az acr update -n $reponame --admin-enabled true
+        az acr create -n $uuidname -g $AZHPC_RESOURCEGROUP --sku Standard
+        az acr update -n $uuidname --admin-enabled true
       failOnStandardError: false
     continueOnError: false
 
