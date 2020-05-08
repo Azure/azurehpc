@@ -43,4 +43,8 @@ Locate the VM you want to connect to on the Azure portal and check "Connect".
 
 Click the bastion option and login using your private keys or user/password
 
-![Alt text](/examples/bastion/images/bastion_ssh.JPG?raw=true "Azure Bastion ssh")
+![Alt text2](/examples/bastion/images/bastion_ssh.JPG?raw=true "Azure Bastion ssh")
+
+Should now be on your linux headnode
+
+![Alt text3](/examples/bastion/images/bastion_ssh_login.JPG?raw=true "Azure Bastion ssh login")
