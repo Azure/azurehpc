@@ -24,7 +24,7 @@ azhpc-init -c $azhpc_dir/examples/bastion -d bastion -v resource_group=azurehpc-
 azhpc-init -c $azhpc_dir/examples/bastion -d bastion -v location=westus2,vm_type=Standard_HC44rs,resource_group=azhpc-cluster
 ```
 
-## Create the cluster 
+## Create the cluster with no public IP
 
 ```
 cd bastion
@@ -35,7 +35,7 @@ Allow ~15 minutes for deployment.  You are able to view the status VMs being dep
 
 ## Log in the cluster
 
-Connect to the linux headnode using Azure bastion service
+Connect to the linux headnode using Azure bastion service via ssh
 
 Locate the VM you want to connect to on the Azure portal and check "Connect".
 
