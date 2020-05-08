@@ -39,6 +39,8 @@ Connect to the linux headnode using Azure bastion service
 
 Locate the VM you want to connect to on the Azure portal and check "Connect".
 
-![Alt text](/examples/bastion/images/bastion_connect.JPG?raw=true "Azure Bastion")
+![Alt text](/examples/bastion/images/bastion_connect.JPG?raw=true "Azure Bastion connect")
 
+Click the bastion option and login using your private keys or user/password
 
+![Alt text](/examples/bastion/images/bastion_ssh.JPG?raw=true "Azure Bastion ssh")
