@@ -1,6 +1,6 @@
 # Build a compute cluster with no public IP access, log-on using Azure Bastion
 
-Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/bastion/config.json)
+Visualisation: [config.json](https://azurehpc.azureedge.net/o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/bastion/config.json)
 
 This example will create an HPC cluster wth no public IP, you can log-in using Azure Bastion, from the Portal RDP to a Windows VM or ssh to a linux VM.
 
