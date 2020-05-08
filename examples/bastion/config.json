@@ -44,12 +44,7 @@
             "public_ip": false,
             "image": "variables.hpc_image",
             "accelerated_networking": true,
-            "subnet": "compute",
-            "tags": [
-                "cndefault",
-                "localuser",
-                "disable-selinux"
-            ]
+            "subnet": "compute"
         },
         "headnode": {
             "type": "vm",
