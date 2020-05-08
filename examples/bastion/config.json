@@ -42,7 +42,7 @@
             "vm_type": "variables.vm_type",
             "password": "variables.win_password",
             "public_ip": false,
-            "image": "variables.hpc_image",
+            "image": "variables.win_image",
             "accelerated_networking": true,
             "subnet": "compute"
         },
