@@ -48,3 +48,9 @@ Click the bastion option and login using your private keys or user/password
 Should now be on your linux headnode
 
 ![Alt text3](/examples/bastion/images/bastion_ssh_login.JPG?raw=true "Azure Bastion ssh login")
+
+
+Similarly, you can use Azure bastion to login to a Windows VM using RDP
+
+![Alt text4](/examples/bastion/images/bastion_rdp_windows.JPG?raw=true "Azure Bastion rdp windows")
+
