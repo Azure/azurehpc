@@ -7,12 +7,12 @@
 
 # Setup environment variables
 LS_DYNA_EXE_PATH=${LS_DYNA_PATH:-/apps/LS-DYNA}
-LS_DYNA_DATA_PATH=${LS_DYNA_FILES_PATH:-/data/LS-DYNA/topcrunch}
-LS_DYNA_MPP_EXE=${LS_DYNA_EXE:-ls-dyna_mpp_s_R9_3_1_x64_centos65_ifort131_avx2_intelmpi-2018}
-LS_DYNA_HYB_EXE=${LS_DYNA_EXE:-ls-dyna_hyb_s_R9_3_1_x64_centos65_ifort131_avx2_intelmpi-2018}
+LS_DYNA_DATA_PATH=${LS_DYNA_DATA_PATH:-/data/LS-DYNA/topcrunch}
+LS_DYNA_MPP_EXE=${LS_DYNA_MPP_EXE:-ls-dyna_mpp_s_R9_3_1_x64_centos65_ifort131_avx2_intelmpi-2018}
+LS_DYNA_HYB_EXE=${LS_DYNA_HYB_EXE:-ls-dyna_hyb_s_R9_3_1_x64_centos65_ifort131_avx2_intelmpi-2018}
 LS_DYNA_CASE=${LS_DYNA_CASE:-3cars_rev02}
 LS_DYNA_INPUT=${LS_DYNA_INPUT:-3cars_shell2_150ms.k_rev02}
-LS_DYNA_PROFILE=${LS_DYNA_PROFILE:-3cars.pfile}
+LS_DYNA_PROFILE=${LS_DYNA_PROFILE:-none}
 LS_DYNA_RUN_LOCAL=${LS_DYNA_RUN_LOCAL:-no}
 OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
 LICENSE_INFO=${LICENSE_INFO:-10.1.0.5}
@@ -56,9 +56,11 @@ export LSTC_LICENSE_SERVER=10.1.0.5
 echo "# Threads: $OMP_NUM_THREADS"
 if (( $OMP_NUM_THREADS > 1 )); then
     if (( $OMP_NUM_THREADS == $PPN )); then
+        echo "Using the MPP version"
         OMP_NUM_THREADS=1
-        GLS_DYNA_EXE=$LS_DYNA_MPP_EXE
+        LS_DYNA_EXE=$LS_DYNA_MPP_EXE
     else
+        echo "Using the HYB version"
         MPI_OPTIONS="$MPI_OPTIONS -ppn $PPN"
         add_inputs="ncpus=-$OMP_NUM_THREADS"
         LS_DYNA_EXE=$LS_DYNA_HYB_EXE
@@ -68,33 +70,44 @@ else
 fi
 
 if [[ "$LS_DYNA_RUN_LOCAL" == "yes" ]]; then
+    echo "Setup for a local ssd run" 
     RUN_DIR=/mnt/resource/$PBS_JOBID
     cd $RUN_DIR
 
-    cp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_PROFILE} ${PBS_JOBID}.pfile
+    # Check to see if a pfile was specified
+    if [[ "$LS_DYNA_PROFILE" != "none" ]]; then
+        cp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_PROFILE} ${PBS_JOBID}.pfile
 
-    # This requires that you use the PBS hook in www.github.com/Azure/azurehpc to setup a local directory on each node for the job
-    sed -i "s/\/mnt\/scratch_shared/\/mnt\/resource\/${PBS_JOBID}/g" ${PBS_JOBID}.pfile
+        # This requires that you use the PBS hook in www.github.com/Azure/azurehpc to setup a local directory on each node for the job
+        sed -i "s/\/mnt\/scratch_shared/\/mnt\/resource\/${PBS_JOBID}/g" ${PBS_JOBID}.pfile
 
-    LS_DYNA_PROFILE=${PBS_JOBID}.pfile
+        LS_DYNA_PROFILE=${PBS_JOBID}.pfile
+    fi
 
     # setup files on the nodes
+    echo "Selected executable: ${LS_DYNA_EXE_PATH}/${LS_DYNA_EXE}"
     for node in `sort -u $PBS_NODEFILE`
     do
-        scp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_INPUT} $node:$RUN_DIR/.
-        scp ${PBS_JOBID}.pfile $node:$RUN_DIR/.
+        scp -r ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/* $node:$RUN_DIR/.
         ssh $node ln -s ${LS_DYNA_EXE_PATH}/${LS_DYNA_EXE} $RUN_DIR/.
+
+        # Check to see if a pfile was specified
+        if [[ "$LS_DYNA_PROFILE" != "none" ]]; then
+            scp ${PBS_JOBID}.pfile $node:$RUN_DIR/.
+        fi
     done
 
 else
+    echo "Setup for a NFS run" 
     RUN_DIR=${PBS_O_WORKDIR}/${PBS_JOBID}
     mkdir -p $RUN_DIR
     cd $RUN_DIR
 
     # Copy necessary files to the directory
-    cp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_INPUT} .
-    cp ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/${LS_DYNA_PROFILE} .
+    cp -r ${LS_DYNA_DATA_PATH}/${LS_DYNA_CASE}/* .
+    echo "Selected executable: ${LS_DYNA_EXE_PATH}/${LS_DYNA_EXE}"
     ln -s ${LS_DYNA_EXE_PATH}/${LS_DYNA_EXE} .
+
 fi
 
 if [[ "$LS_DYNA_PROFILE" == "none" ]]; then
@@ -103,6 +116,7 @@ else
     echo "Use $LS_DYNA_PROFILE for the profile file"
     add_inputs="p=$LS_DYNA_PROFILE $add_inputs"
 fi
+
 # provide some additional information
 pwd
 ls -latr
