@@ -1,0 +1,31 @@
+# Notes:
+This hook is used to create a local nfs share for the nodes that belong to the job. The mounted directory will be /mnt/shared_<pbs_job_id>.
+In your run script cd to /mnt/shared_${PBS_JOBID} and then copy over the needed files and run. At the end of the script, move the needed files to the desired location.
+Once the job is completed, the hook will clean up and remove the directory on each node
+
+# Setup for QMGR
+
+create hook setup_nfs_for_job
+set hook setup_nfs_for_job type = site
+set hook setup_nfs_for_job enabled = true
+set hook setup_nfs_for_job event = execjob_begin
+set hook setup_nfs_for_job event += execjob_epilogue
+set hook setup_nfs_for_job event += execjob_end
+set hook setup_nfs_for_job user = pbsadmin
+set hook setup_nfs_for_job alarm = 30
+set hook setup_nfs_for_job order = 1
+set hook setup_nfs_for_job debug = false
+set hook setup_nfs_for_job fail_action = none
+import hook setup_nfs_for_job application/x-python default setup_nfs_for_job.py
+
+# Prerequisites
+- nfs_utils rpm package has been installed on all of the nodes that will be part of the job
+
+## To run on NVME disks on HBv2 VMs they must be mounted in the VM as /mnt/resource_nvme
+
+# Run
+
+This hook requires the following variable be defined at run time (either in the script or on the qsub line)
+
+PBS_LOCAL_SHARED_DISK=[ssd,nvme] (Required for hook to work)
+PBS_LOCAL_SHARED_DISK_NETWORK=[eth (default),ib] (Optional)
