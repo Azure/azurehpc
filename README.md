@@ -165,7 +165,7 @@ This dictionary describes the resources for the project.
 | **resource_tags**          | Tags to be assigned to the resources                                        |   no     |         |
 | **subnet**                 | Subnet name to create the resource in                                       |   yes    |         |
 | **storage_cache**          | Datadisk storage cache mode. Can be `None`, `ReadWrite` or `ReadOnly`       |   no     |ReadWrite|
-| **storage_sku**            | Data Disk Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`   |   no     |Premium_LRS|
+| **storage_sku**            | Data Disk Storage SKU. `Premium_LRS`, `StandardSSD_LRS`, `Standard_LRS`, `UltraSSD_LRS` (if set to Ultra, availability_zones must be set) |   no     |Premium_LRS|
 | **vm_type**                | VM Size for example `Standard_D16s_v3`                                      |   yes    |         |
 | **tags**                   | Array of tags used to specify which scripts need to be applied on the resource|   no    |         |
 
