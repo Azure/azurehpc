@@ -446,7 +446,12 @@ class ArmTemplate:
 
             if rpip:
                 pipname = r+"_pip"
-                dnsname = r+str(uuid.uuid4())[:6]
+                dnsname = azutil.get_dns_label(rrg, pipname, True)
+                if dnsname:
+                    log.debug(f"dns name: {dnsname} (using existing one)")
+                else:
+                    dnsname = r+str(uuid.uuid4())[:6]
+                    log.debug(f"dns name: {dnsname}")
                 nsgname = r+"_nsg"
 
                 nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)

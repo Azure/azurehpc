@@ -45,6 +45,24 @@ def get_vm_private_ip(resource_group, vm_name):
     out = res.stdout.splitlines()
     return out[0].decode("utf-8")
 
+def get_dns_label(resource_group, public_ip, ignore_errors):
+    cmd = [
+        "az", "network", "public-ip", "show",
+            "--resource-group", resource_group,
+            "--name", public_ip,
+            "--query", "dnsSettings.domainNameLabel",
+            "--output", "tsv"
+    ]
+    log.debug(" ".join(cmd))
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        if ignore_errors:
+            return None
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+    out = res.stdout.splitlines()
+    return out[0].decode("utf-8")
+
 def get_fqdn(resource_group, public_ip):
     cmd = [ 
         "az", "network", "public-ip", "show", 
@@ -147,10 +165,7 @@ def get_keyvault_secret(vault, key):
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
-    out = res.stdout.splitlines()
-    if len(out) != 1:
-        log.error("expected output"+_make_subprocess_error_string(res))
-    secret = out[0].decode('utf-8')
+    secret = res.stdout.decode('utf-8').rstrip('\r\n')
     return secret
 
 def get_storage_url(account):

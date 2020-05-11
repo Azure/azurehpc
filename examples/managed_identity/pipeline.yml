@@ -38,5 +38,5 @@ variables:
 
 jobs:
 - template: ../../ci/templates/jobs/build.yml
-#  parameters:
-#    extra_steps: ../../../examples/managed_identity/test.yml
+  parameters:
+    extra_steps: ../../../examples/managed_identity/test.yml

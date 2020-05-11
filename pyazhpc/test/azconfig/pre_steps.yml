@@ -1,0 +1,42 @@
+steps:
+  - task : AzureCLI@2
+    displayName: "Create unit test resources"
+    inputs:
+      azureSubscription: 'target-subscription'
+      scriptType: 'bash'
+      scriptLocation: inlineScript
+      inlineScript: |
+        if [ "$SYSTEM_DEBUG" = "true" ]; then
+          set -x
+        fi
+
+        uuidname="azhpc$AZHPC_UUID"
+        # Create the RG to host test resources
+        echo "Create Resource group $AZHPC_RESOURCEGROUP"
+        az group create --name $AZHPC_RESOURCEGROUP --location $AZHPC_VARIABLES_LOCATION
+
+        # Create Storage Account
+        az storage account create --name $uuidname --sku Standard_LRS --resource-group $AZHPC_RESOURCEGROUP --kind StorageV2
+        az storage container create -n $uuidname --account-name $uuidname --resource-group $AZHPC_RESOURCEGROUP
+
+        cat <<EOF >$uuidname.txt
+        $uuidname
+        EOF
+        az storage blob upload -f $uuidname.txt -c $uuidname -n $uuidname.txt --account-name $uuidname
+
+        # Create a KeyVault and add a secret in it
+        echo "Create Key Vault $AZHPC_RESOURCEGROUP"
+        az keyvault create --name $uuidname --resource-group $AZHPC_RESOURCEGROUP
+
+        echo "Add a secret"
+        az keyvault secret set --vault-name $uuidname --name "secret" --value "secretvalue"
+
+        # Create Log Analytics Workspace
+        az monitor log-analytics workspace create -n $uuidname -g $AZHPC_RESOURCEGROUP
+
+        # Create an Azure Container Registry
+        az acr create -n $uuidname -g $AZHPC_RESOURCEGROUP --sku Standard
+        az acr update -n $uuidname --admin-enabled true
+      failOnStandardError: false
+    continueOnError: false
+
