@@ -1,8 +1,11 @@
 #!/bin/bash
+set -e
 PROJECT_DIR=$1
+show_logs=${AZHPC_SHOW_LOGS,,}
 if [ "$SYSTEM_DEBUG" = "true" ]; then
     set -x
     AZHPC_OPTION="--debug"
+    show_logs="true"
     printenv
 fi
 if [ "$AZHPC_CONFIG" = "" ]; then
@@ -14,18 +17,18 @@ if [ "$AZHPC_PIPELINE_DIR" = "" ]; then
     exit 1
 fi
 if [ "$AZHPC_VARIABLES_LOCATION" = "" ]; then
-    echo "variable AZHPC_LOCATION is required"
+    echo "variable AZHPC_VARIABLES_LOCATION is required"
     exit 1
 fi
 if [ "$AZHPC_RESOURCEGROUP" = "" ]; then
     echo "variable AZHPC_RESOURCEGROUP is required"
     exit 1
 fi
-
 echo "********************************************************************"
 echo "*                  INIT CONFIG VARIABLES                           *"
 echo "********************************************************************"
-
+# AZHPC_UUID is set when creating the RG unique name when starting the pipeline
+export AZHPC_VARIABLES_UUID=${AZHPC_UUID-azhpc}
 azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
 init_variables="-v resource_group=$AZHPC_RESOURCEGROUP"
 for item in $azhpc_variables; do
@@ -66,15 +69,23 @@ azhpc-build -c $config_file $AZHPC_OPTION
 return_code=$?
 cat deploy*.json
 ls -al
-if [ "$return_code" -ne "0" ]; then
+if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
     config_file_no_path=${config_file##*/}
     config_file_no_path_or_extension=${config_file_no_path%.*}
     tmp_dir=azhpc_install_$config_file_no_path_or_extension
     if [ -d $tmp_dir ]; then
-        grep -A4 "\[FAILURE\]" $tmp_dir/install/*.log
+        echo "============"
+        echo "Dumping logs"
+        echo "============"
+        echo ""
         cat $tmp_dir/install/*.log
+        set +e
+        grep -A4 "\[FAILURE\]" $tmp_dir/install/*.log
+        set -e
     fi
-    exit $return_code
+    if [ "$return_code" -ne "0" ]; then
+        exit $return_code
+    fi
 fi
 
 # Dump resource status only if install_from is set

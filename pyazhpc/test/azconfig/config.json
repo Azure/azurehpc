@@ -1,0 +1,58 @@
+{
+    "admin_user": "hpcuser",
+    "install_from": "",
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "variables": {
+        "resource_group": "<NOT-SET>",
+        "location": "<NOT-SET>",
+        "int_value": 42,
+        "bool_value": true,
+        "simple_variable": "value",
+        "use_variable": "variables.simple_variable",
+        "double_curly_braces": "simple_variable={{variables.simple_variable}}",
+        "uuid": "<NOT-SET>",
+        "key_vault": "variables.uuidname",
+        "la_workspace": "variables.uuidname",
+        "sa_account": "variables.uuidname",
+        "container": "variables.uuidname",
+        "blob": "{{variables.uuidname}}.txt",
+        "blobpath": "{{variables.container}}/{{variables.blob}}",
+        "uuidname": "azhpc{{variables.uuid}}"
+    },
+    "vnet": {
+        "name": "hpcvnet",
+        "resource_group": "non_existing_random_group"
+    },
+    "resources": {
+    },
+    "install": [
+        {
+            "type": "local_script",
+            "script": "check_variables.sh",
+            "args": [
+                "variables.int_value", 42,
+                "variables.bool_value", true,
+                "variables.simple_variable", "value",
+                "variables.use_variable", "value",
+                "variables.double_curly_braces", "simple_variable=value",
+                "secret.{{variables.key_vault}}.secret", "secretvalue",
+                "laworkspace.{{variables.resource_group}}.{{variables.la_workspace}}", "laworkspace.{{variables.resource_group}}.{{variables.la_workspace}}",
+                "lakey.{{variables.resource_group}}.{{variables.la_workspace}}", "lakey.{{variables.resource_group}}.{{variables.la_workspace}}",
+                "acrkey.{{variables.uuidname}}", "acrkey.{{variables.uuidname}}"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "check_storage.sh",
+            "args": [
+                "variables.sa_account",
+                "variables.container",
+                "variables.blob",
+                "sasurl.{{variables.sa_account}}.{{variables.blobpath}}",
+                "sakey.{{variables.sa_account}}",
+                "saskey.{{variables.sa_account}}.{{variables.blobpath}}"
+            ]
+        }
+    ]
+}

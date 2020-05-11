@@ -1,4 +1,5 @@
 parameters:
+  pre_steps: ''
   extra_steps: ''
 
 jobs:
@@ -25,9 +26,13 @@ jobs:
           echo "Resource Group name is $ResourceGroup"
           # Create pipeline variable
           echo "##vso[task.setvariable variable=azhpc.ResourceGroup]$ResourceGroup"
+          echo "##vso[task.setvariable variable=azhpc.uuid]$UUID_STR"
           mkdir -p $(Pipeline.Workspace)/$(System.JobName)
           echo "$ResourceGroup" > $(Pipeline.Workspace)/$(System.JobName)/azhpc.ResourceGroup
-         
+
+  - ${{ if not(eq(parameters.pre_steps,'')) }}:
+    - template: ${{parameters.pre_steps}}
+
   - task: AzureCLI@2
     displayName: "Build Resources"
     inputs:
