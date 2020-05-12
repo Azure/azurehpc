@@ -136,6 +136,7 @@ def deploy(resource_group, arm_template):
             "--name", deployname,
             "--no-wait"
     ]
+    log.debug(" ".join(cmd))
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
