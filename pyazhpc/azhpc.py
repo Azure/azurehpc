@@ -636,6 +636,7 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="do not create vnet resources in the arm template"
+    )
     build_parser.set_defaults(func=do_build)
 
     connect_parser = subparsers.add_parser(
