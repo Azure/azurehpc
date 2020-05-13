@@ -420,7 +420,7 @@ class ArmTemplate:
             sshkey = f.read().strip()
         
         if ravset and ravset not in self.avsets:
-            self.resources.append({
+            arm_avset = {
                 "name": ravset,
                 "type": "Microsoft.Compute/availabilitySets",
                 "apiVersion": "2018-10-01",
@@ -432,7 +432,15 @@ class ArmTemplate:
                     "platformUpdateDomainCount": 1,
                     "platformFaultDomainCount": 1
                 }
-            })
+            }
+            if rppg:
+                arm_avset["properties"]["proximityPlacementGroup"] = {
+                    "id": f"[resourceId('Microsoft.Compute/proximityPlacementGroups','{rppgname}')]"
+                }
+                arm_avset["dependsOn"] = [
+                    f"Microsoft.Compute/proximityPlacementGroups/{rppgname}"
+                ]
+            self.resources.append(arm_avset)
             self.avsets.add(ravset)
 
         rorig = r
