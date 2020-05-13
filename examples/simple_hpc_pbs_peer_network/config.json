@@ -31,7 +31,8 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "variables.vm_type",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
             "public_ip": true,
             "image": "variables.hpc_image",
             "subnet": "compute",
