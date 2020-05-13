@@ -1,0 +1,39 @@
+{
+    "infiniband":[
+        {
+            "sku":"Standard_H16r",
+            "state":"ACTIVE",
+            "phys_state": "<unknown>",
+            "speed": "54000Mb/s",
+            "rate": "5 Gb/sec (1X DDR)"
+        },
+        {
+            "sku":"Standard_H16mr",
+            "state":"ACTIVE",
+            "phys_state": "LINK_UP",
+            "speed": "54000Mb/s",
+            "rate": "5 Gb/sec (1X DDR)"
+        },
+        {
+            "sku":"Standard_HC44rs",
+            "state":"PORT_ACTIVE",
+            "phys_state": "LINK_UP",
+            "speed": "25.0 Gbps",
+            "rate": "4X"
+        },
+        {
+            "sku":"Standard_HB60rs",
+            "state":"PORT_ACTIVE",
+            "phys_state": "LINK_UP",
+            "speed": "25.0 Gbps",
+            "rate": "4X"
+        },
+        {
+            "sku":"Standard_HB120rs_v2",
+            "state":"PORT_ACTIVE",
+            "phys_state": "LINK_UP",
+            "speed": "50.0 Gbps",
+            "rate": "4X"
+        }
+    ]
+}
