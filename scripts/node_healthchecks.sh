@@ -90,7 +90,7 @@ function check_ib_values()
 
 check_ib_device
 
-if [ $bad_node -eq 1 ]; then
+if [ $bad_node -eq 0 ]; then
     echo "VM is healthy"
 else
     echo "VM is unhealthy"
