@@ -8,7 +8,7 @@
 # 
 # Dependencies : jq, azcopy, healthchecks.json
 #
-# If a node is unhealty its metadata will be stored into the container for which the full_sas_key is provided. The storage structure will be YYYY/MM/DD/HH/location
+# If a node is unhealty its metadata will be stored into the container for which the full_sas_key is provided. The storage structure will be YYYY/MM/DD/HH/location/vm_size
 full_sas_key=$1
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 bad_node=0
@@ -102,7 +102,7 @@ else
         curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" > $hostname.json
         d=$(date +"%Y/%m/%d/%H")
         location=$(jq -r '.compute.location' $hostname.json)
-        blob="$d/$location/$AZHPC_VMSIZE_$hostname.json"
+        blob="$d/$location/$AZHPC_VMSIZE/$hostname.json"
         sas=$(echo ${full_sas_key#*\?})
         uri=$(echo ${full_sas_key%\?*})
 
