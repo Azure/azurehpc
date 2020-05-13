@@ -123,6 +123,15 @@
             ],
             "tag": "pbsclient",
             "sudo": true
-        }
+        },
+        {
+            "script": "node_healthchecks.sh",
+            "tag": "pbsclient",
+            "sudo": true,
+            "args": [
+                "sasurl.azcathpcscus.badnodes,rw"
+            ],
+            "deps" : ["install-azcopy.sh","healthchecks.json"]
+        } 
     ]
 }
