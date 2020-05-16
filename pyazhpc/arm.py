@@ -463,7 +463,7 @@ class ArmTemplate:
                     }
                 })
 
-                if ros[0] == "MicrosoftWindowsServer":
+                if ros[0] == "MicrosoftWindowsServer" or ros[0] == "MicrosoftWindowsDesktop":
                     self.resources.append({
                         "type": "Microsoft.Network/networkSecurityGroups",
                         "apiVersion": "2015-06-15",

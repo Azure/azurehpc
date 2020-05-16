@@ -23,6 +23,6 @@ az vm run-command invoke \
     --output table
 
 echo Sleeping to allow AD to reboot
-sleep 60 
+sleep 180 
 echo "AD setup done"
 
