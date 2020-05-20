@@ -328,6 +328,7 @@ optional arguments:
                         config file
   --debug               increase output verbosity
   --no-color            turn off color in output
+  --no-vnet             do not create vnet resources in the arm template
 ```
 
 ### azhpc-connect

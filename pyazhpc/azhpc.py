@@ -560,7 +560,7 @@ def do_build(args):
     _create_private_key(private_key_file, public_key_file)
 
     tpl = arm.ArmTemplate()
-    tpl.read(config)
+    tpl.read(config, not args.no_vnet)
 
     output_template = "deploy_"+args.config_file
 
@@ -599,9 +599,6 @@ def do_build(args):
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    # TODO : Why is this unused ?
-    jumpbox = c.read_value("install_from")
-    # TODO : Why is this unused ?
     resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
     log.debug(f"running script from : {fqdn}")
@@ -649,6 +646,12 @@ if __name__ == "__main__":
         add_help=False,
         description="deploy the config",
         help="create an arm template and deploy"
+    )
+    build_parser.add_argument(
+        "--no-vnet", 
+        action="store_true",
+        default=False,
+        help="do not create vnet resources in the arm template"
     )
     build_parser.set_defaults(func=do_build)
 
