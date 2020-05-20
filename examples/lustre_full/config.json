@@ -131,6 +131,11 @@
             "sudo": true
         },
         {
+            "script": "cndefault.sh",
+            "tag": "pbsclient",
+            "sudo": true
+        },
+        {
             "script": "install-nfsserver.sh",
             "tag": "nfsserver",
             "args": [
