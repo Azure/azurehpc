@@ -121,7 +121,8 @@
        "args": [
           "compute",
           "variables.instances",
-          "variables.vm_type"
+          "variables.vm_type",
+          "variables.location"
        ],
        "sudo": true
      },
