@@ -1,0 +1,74 @@
+{
+    "location": "eastus",
+    "resource_group": "variables.resource_group",
+    "proximity_placement_group_name": "variables.ppg_name",
+    "install_from": "comp0",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/24"
+        }
+    },
+    "variables": {
+        "resource_group": "__resource_group__",
+        "ppg_name": "__ppg_name__",
+        "image": "OpenLogic:CentOS:7.6:latest",
+        "vm_sku": "__vm_sku__"
+    },
+    "resources": {
+        "comp0": {
+            "type": "vm",
+            "vm_type": "variables.vm_sku",
+            "accelerated_networking": true,
+            "proximity_placement_group": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "install_sockperf",
+                "remove_agents",
+                "run_sockperf"
+            ]
+        },
+        "comp1": {
+            "type": "vm",
+            "vm_type": "variables.vm_sku",
+            "accelerated_networking": true,
+            "proximity_placement_group": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "install_sockperf",
+                "remove_agents"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "remove_waagent.sh",
+            "tag": "remove_agents",
+            "sudo": true
+        },
+        {
+            "script": "remove_omsagent.sh",
+            "tag": "remove_agents",
+            "sudo": true
+        },
+        {
+            "script": "install_sockperf.sh",
+            "tag": "install_sockperf",
+            "sudo": true
+        },
+        {
+            "script": "run_sockperf.sh",
+            "tag": "run_sockperf"
+        },
+        {
+            "script": "list_processes.sh",
+            "tag": "remove_agents",
+            "sudo": true
+        }
+    ]
+}
