@@ -26,6 +26,7 @@
         "headnode": {
             "type": "vm",
             "vm_type": "variables.head_vm_type",
+            "accelerated_networking": true,
             "public_ip": true,
             "image": "variables.hpc_image",
             "subnet": "compute",
@@ -101,7 +102,7 @@
                 "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsserver",
-            "sudo": false
+            "sudo": true
         },
         {
             "script": "pbsclient.sh",
@@ -112,7 +113,7 @@
                 "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsclient",
-            "sudo": false
+            "sudo": true
         },
         {
             "script": "singularity_setup.sh",

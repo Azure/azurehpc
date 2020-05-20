@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 PROJECT_DIR=$1
 show_logs=${AZHPC_SHOW_LOGS,,}
 if [ "$SYSTEM_DEBUG" = "true" ]; then
@@ -79,9 +78,7 @@ if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
         echo "============"
         echo ""
         cat $tmp_dir/install/*.log
-        set +e
         grep -A4 "\[FAILURE\]" $tmp_dir/install/*.log
-        set -e
     fi
     if [ "$return_code" -ne "0" ]; then
         exit $return_code

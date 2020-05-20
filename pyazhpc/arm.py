@@ -680,7 +680,7 @@ class ArmTemplate:
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)
-        rfaultdomaincount = cfg.get("fault_domain_count", None)
+        rfaultdomaincount = res.get("fault_domain_count", None)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -771,7 +771,7 @@ class ArmTemplate:
         }
         
         if rfaultdomaincount:
-            vmssres["properties"]["virtualMachineProfile"]["platformFaultDomainCount"] = rfaultdomaincount
+            vmssres["properties"]["platformFaultDomainCount"] = rfaultdomaincount
 
         if rppg:
             vmssres["properties"]["proximityPlacementGroup"] = {
