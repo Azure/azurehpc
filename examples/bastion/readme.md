@@ -3,6 +3,7 @@
 Visualisation: [config.json](https://azurehpc.azureedge.net/o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/bastion/config.json)
 
 This example will create an HPC cluster wth no public IP, you can log-in using Azure Bastion, from the Portal RDP to a Windows VM or ssh to a linux VM.
+>Note: The config_no_pub_ip.json deploys an Azure Bastion, VNET and a jumpbox (no pub IP), then you can login to the jumpbox via the azure bastion and deploy the rest of your azurehpc deployment.
 
 ## Initialise the project
 
