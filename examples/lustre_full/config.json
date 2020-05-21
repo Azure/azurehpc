@@ -32,8 +32,8 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "Standard_HB60rs",
-            "accelerated_networking": false,
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
             "public_ip": true,
             "image": "variables.hpcimage",
             "subnet": "compute",
@@ -128,6 +128,11 @@
         {
             "script": "disable-selinux.sh",
             "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "pbsclient",
             "sudo": true
         },
         {
@@ -243,7 +248,7 @@
                 "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsserver",
-            "sudo": false
+            "sudo": true
         },
         {
             "script": "pbsclient.sh",
@@ -254,7 +259,7 @@
                 "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsclient",
-            "sudo": false
+            "sudo": true
         }
     ]
 }

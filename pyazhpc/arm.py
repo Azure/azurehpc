@@ -201,7 +201,7 @@ class ArmTemplate:
                 }
             })
 
-    def _add_netapp(self, cfg, name):
+    def _add_netapp(self, cfg, name, deploy_network):
         account = cfg["storage"][name]
         loc = cfg["location"]
         vnet = cfg["vnet"]["name"]
@@ -210,7 +210,7 @@ class ArmTemplate:
 
         rg = cfg["resource_group"]
         vnetrg = cfg["vnet"].get("resource_group", rg)
-        if rg == vnetrg:
+        if (rg == vnetrg) and deploy_network:
             log.debug("adding delegation to subnet")
             rvnet = next((x for x in self.resources if x["name"] == vnet), [])
             rsubnet = next((x for x in rvnet["properties"]["subnets"] if x["name"] == subnet), None)
@@ -420,7 +420,7 @@ class ArmTemplate:
             sshkey = f.read().strip()
         
         if ravset and ravset not in self.avsets:
-            self.resources.append({
+            arm_avset = {
                 "name": ravset,
                 "type": "Microsoft.Compute/availabilitySets",
                 "apiVersion": "2018-10-01",
@@ -432,7 +432,15 @@ class ArmTemplate:
                     "platformUpdateDomainCount": 1,
                     "platformFaultDomainCount": 1
                 }
-            })
+            }
+            if rppg:
+                arm_avset["properties"]["proximityPlacementGroup"] = {
+                    "id": f"[resourceId('Microsoft.Compute/proximityPlacementGroups','{rppgname}')]"
+                }
+                arm_avset["dependsOn"] = [
+                    f"Microsoft.Compute/proximityPlacementGroups/{rppgname}"
+                ]
+            self.resources.append(arm_avset)
             self.avsets.add(ravset)
 
         rorig = r
@@ -672,7 +680,7 @@ class ArmTemplate:
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)
-        rfaultdomaincount = cfg.get("fault_domain_count", None)
+        rfaultdomaincount = res.get("fault_domain_count", None)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -763,7 +771,7 @@ class ArmTemplate:
         }
         
         if rfaultdomaincount:
-            vmssres["properties"]["virtualMachineProfile"]["platformFaultDomainCount"] = rfaultdomaincount
+            vmssres["properties"]["platformFaultDomainCount"] = rfaultdomaincount
 
         if rppg:
             vmssres["properties"]["proximityPlacementGroup"] = {
@@ -794,13 +802,14 @@ class ArmTemplate:
             else:
                 log.error("unrecognised resource type ({}) for {}".format(rtype, r))
 
-    def read(self, cfg):
+    def read(self, cfg, deploy_network):
         rg = cfg["resource_group"]
         vnetrg = cfg["vnet"].get("resource_group", rg)
 
-        vnet_in_deployment = bool(rg == vnetrg)
+        vnet_in_deployment = bool(rg == vnetrg) and deploy_network
         
-        self._add_network(cfg)
+        if deploy_network:
+            self._add_network(cfg)
         self._add_proximity_group(cfg)
         self.read_resources(cfg, vnet_in_deployment)
 
@@ -808,7 +817,7 @@ class ArmTemplate:
         for s in storage.keys():
             stype = cfg["storage"][s]["type"]
             if stype == "anf":
-                self._add_netapp(cfg, s)
+                self._add_netapp(cfg, s, deploy_network)
             else:
                 log.error("unrecognised storage type ({}) for {}".format(stype, s))
         

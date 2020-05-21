@@ -1,0 +1,36 @@
+pr: none
+trigger: 
+  batch: true
+  branches:
+    include:
+    - '*'
+  paths:
+    include:
+      - pyazhpc/azconfig.py
+      - pyazhpc/azutil.py
+      - pyazhpc/test/azconfig/*
+      - pyazhpc/test/azconfig/scripts/*
+
+pool: Default
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  azhpc.config: pyazhpc/test/azconfig/config.json
+  # pipeline directory
+  azhpc.pipeline_dir: pyazhpc/test/azconfig
+  azhpc.show_logs: true
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  #azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
+
+# Add the variables needed in your configuration file
+# Uncomment and set values below, or leave commented and thru pipeline variables
+  # azhpc.variables.location: eastus
+  #azhpc.variables.vm_type: Standard_NC12s_v3
+  
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../../ci/templates/jobs/build.yml
+  parameters:
+    pre_steps: ../../../pyazhpc/test/azconfig/pre_steps.yml

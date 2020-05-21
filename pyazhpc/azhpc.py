@@ -387,11 +387,27 @@ def _wait_for_deployment(resource_group, deploy_name):
                         for line in error_message[1:]:
                             print(f"             {line}")
                         if "details" in props["statusMessage"]["error"]:
-                            details_code = props["statusMessage"]["error"]["details"].get("code", "")
-                            details_message = textwrap.TextWrapper(width=60).wrap(text=props["statusMessage"]["error"]["details"].get("message", ""))
-                            print(f"  Details  : {details_code}")
-                            for line in details_message:
-                                print(f"             {line}")
+                            def pretty_print(d, indent=0): 
+                                def wrapped_print(indent, text, max_width=80):
+                                    lines = textwrap.TextWrapper(width=max_width-indent).wrap(text=text)
+                                    for line in lines:
+                                        print(" "*indent + line)
+                                if isinstance(d, list):
+                                    for value in d:
+                                        pretty_print(value, indent)
+                                elif isinstance(d, dict):
+                                    for key, value in d.items(): 
+                                        if isinstance(value, dict): 
+                                            wrapped_print(indent, str(key)) 
+                                            pretty_print(value, indent+4)
+                                        elif isinstance(value, list):
+                                            wrapped_print(indent, str(key))
+                                            pretty_print(value, indent+4)
+                                        else: 
+                                            wrapped_print(indent, f"{key}: {value}")
+                                else:
+                                    wrapped_print(indent, str(d))
+                            pretty_print(props["statusMessage"]["error"]["details"], 13)
 
         sys.exit(1)
 
@@ -544,7 +560,7 @@ def do_build(args):
     _create_private_key(private_key_file, public_key_file)
 
     tpl = arm.ArmTemplate()
-    tpl.read(config)
+    tpl.read(config, not args.no_vnet)
 
     output_template = "deploy_"+args.config_file
 
@@ -583,9 +599,6 @@ def do_build(args):
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    # TODO : Why is this unused ?
-    jumpbox = c.read_value("install_from")
-    # TODO : Why is this unused ?
     resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
     log.debug(f"running script from : {fqdn}")
@@ -633,6 +646,12 @@ if __name__ == "__main__":
         add_help=False,
         description="deploy the config",
         help="create an arm template and deploy"
+    )
+    build_parser.add_argument(
+        "--no-vnet", 
+        action="store_true",
+        default=False,
+        help="do not create vnet resources in the arm template"
     )
     build_parser.set_defaults(func=do_build)
 
