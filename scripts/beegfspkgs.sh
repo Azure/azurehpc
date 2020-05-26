@@ -22,3 +22,4 @@ rpm --import https://www.beegfs.io/release/latest-stable/gpg/RPM-GPG-KEY-beegfs
 echo "net.ipv4.neigh.default.gc_thresh1=1100" | tee -a /etc/sysctl.conf
 echo "net.ipv4.neigh.default.gc_thresh2=2200" | tee -a /etc/sysctl.conf
 echo "net.ipv4.neigh.default.gc_thresh3=4400" | tee -a /etc/sysctl.conf
+sysctl -p
