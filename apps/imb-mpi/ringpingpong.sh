@@ -1,12 +1,27 @@
 #!/bin/bash
-MPI=$1
+MPI=${1-impi2018}
 MODE=${2-ring}
 set -o pipefail
-source /etc/profile
-module use /usr/share/Modules/modulefiles
+
 
 case $MPI in
+    impi2016)
+        source /opt/intel/impi/5.1.3.223/bin64/mpivars.sh
+        export I_MPI_FABRICS="shm:dapl"
+        export I_MPI_FALLBACK_DEVICE=0
+        export I_MPI_DAPL_PROVIDER=ofa-v2-ib0
+        export I_MPI_DEBUG=4
+        mpi_options="-np 2 -ppn 1"
+        host_option="-hosts"
+        if [ -z $MPI_BIN ]; then
+            IMB_ROOT=$I_MPI_ROOT/intel64/bin
+        else
+            IMB_ROOT=$MPI_BIN
+        fi
+    ;;
     impi2018)
+        source /etc/profile
+        module use /usr/share/Modules/modulefiles
         module load mpi/impi
         #source $MPI_BIN/mpivars.sh
         export I_MPI_FABRICS="shm:ofa"
@@ -21,6 +36,8 @@ case $MPI in
         fi
     ;;
     impi2019)
+        source /etc/profile
+        module use /usr/share/Modules/modulefiles
         module load mpi/impi-2019
         #source $MPI_BIN/mpivars.sh -ofi_internal
         export I_MPI_FABRICS="shm:ofi"
@@ -36,6 +53,8 @@ case $MPI in
         fi
     ;;
     ompi)
+        source /etc/profile
+        module use /usr/share/Modules/modulefiles
         module load mpi/hpcx
 
         mpi_options=" --map-by core"

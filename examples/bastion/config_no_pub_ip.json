@@ -1,0 +1,58 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "jumpbox_image": "OpenLogic:CentOS:7.7:latest",
+        "location": "southcentralus",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_D4s_v3",
+        "low_priority": false,
+        "bastion_subnet": "<NOT-SET>",
+        "rm_vm_name": "jumpbox",
+        "vnet_resource_group": "variables.resource_group",
+        "jumpbox_pw": "<NOT-SET>"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.41.0.0/20",
+        "subnets": {
+            "storage": "10.41.2.0/24",
+            "compute": "10.41.4.0/22"
+        }
+    },
+    "resources": {
+        "jumpbox": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": false,
+            "image": "variables.jumpbox_image",
+            "accelerated_networking": true,
+            "subnet": "compute",
+            "tags": []
+        }
+    },
+    "install": [
+        {
+            "type": "local_script",
+            "script": "bastion.sh",
+            "args": [
+                "variables.vnet_resource_group",
+                "variables.location",
+                "variables.bastion_subnet"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "reset_headnode_passwd.sh",
+            "args": [
+            "variables.resource_group",
+            "jumpbox",
+            "hpcuser",
+            "variables.jumpbox_pw"
+          ]
+        }
+    ]
+}
