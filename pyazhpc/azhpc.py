@@ -294,11 +294,11 @@ def do_run(args):
 
     hosts = []
     if args.nodes:
-        for r in args.nodes.split(" "):
+        for r in args.nodes.split(","):
             rtype = c.read_value(f"resources.{r}.type")
             if not rtype:
-                log.error(f"resource {r} does not exist in config")
-                sys.exit(1)
+                log.debug(f"resource {r} does not exist in config")
+                hosts.append(r)
             if rtype == "vm":
                 instances = c.read_value(f"resources.{r}.instances", 1)
                 if instances == 1:
@@ -770,7 +770,7 @@ if __name__ == "__main__":
         "--nodes", 
         "-n", 
         type=str,
-        help="the resources to run on (space separated for multiple)"
+        help="the resources to run on (comma separated for multiple)"
     )
     run_parser.add_argument(
         'args', 
