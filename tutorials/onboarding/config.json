@@ -10,6 +10,7 @@
     "vm_type": "Standard_HB60rs",
     "resource_group": "<NOT-SET>",
     "ad_image": "MicrosoftWindowsServer:WindowsServer:2019-Datacenter:latest",
+    "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
     "ad_domain": "MyDomain.local",
     "ad_admin": "hpcadmin",
     "win_password": "<NOT-SET>"
@@ -19,7 +20,34 @@
     "address_prefix": "10.2.0.0/20",
     "subnets": {
       "infra": "10.2.0.0/24",
+      "netapp": "10.2.1.0/24",
       "compute": "10.2.4.0/22"
+    }
+  },
+  "storage": {
+    "hpcnetappdep": {
+      "type": "anf",
+      "subnet": "netapp",
+      "pools": {
+        "anfpool": {
+          "size": 14,
+          "service_level": "Premium",
+          "volumes": {
+            "anfvol2": {
+              "size": 2,
+              "mount": "/apps"
+            },
+            "anfvol3": {
+              "size": 4,
+              "mount": "/scratch"
+            },
+            "anfvol4": {
+              "size": 4,
+              "mount": "/share/home"
+            }
+          }
+        }
+      }
     }
   },
   "resources": {
@@ -27,7 +55,7 @@
       "type": "vm",
       "public_ip": "true",
       "password": "variables.win_password",
-      "vm_type": "Standard_D8s_v3",
+      "vm_type": "Standard_D4s_v3",
       "image": "variables.ad_image",
       "subnet": "infra",
       "tags": [
@@ -38,8 +66,9 @@
       "type": "vm",
       "public_ip": "true",
       "password": "variables.win_password",
-      "vm_type": "Standard_D8s_v3",
-      "image": "variables.ad_image",
+      "vm_type": "Standard_NV6",
+      "os_storage_sku": "StandardSSD_LRS",
+      "image": "variables.nv_image",
       "subnet": "infra",
       "tags": [
       ]
@@ -52,19 +81,20 @@
       "subnet": "infra",
       "tags": [
  	"cndefault",
+        "netapp-client",
         "disable-selinux",
 	"join_domain"
       ]
     },
     "headnode": {
       "type": "vm",
-      "vm_type": "Standard_HB60rs",
+      "vm_type": "Standard_D8s_v3",
       "public_ip": true,
-      "image": "variables.image",
+      "image": "variables.hpc_image",
       "subnet": "compute",
       "tags": [
  	"cndefault",
-        "nfsserver",
+        "netapp-client",
         "pbsserver",
         "loginnode",
         "localuser",
@@ -73,13 +103,13 @@
       ]
     },
    "compute": {
-       "type": "vmss",
+      "type": "vmss",
       "vm_type": "variables.vm_type",
-      "instances": 8,
+      "instances": 2,
       "image": "variables.hpc_image",
       "subnet": "compute",
       "tags": [
-        "nfsclient",
+        "netapp-client",
         "pbsclient",
         "cndefault",
         "localuser",
@@ -101,6 +131,17 @@
       ]
     },
     {
+      "script": "setup_win_ad_nfs.sh",
+      "type": "local_script",
+      "args": [
+        "variables.resource_group",
+        "$(<hostlists/tags/ad_server)",
+        "variables.ad_domain",
+        "variables.ad_admin",
+        "variables.win_password"
+      ]
+    },
+    {
       "script": "disable-selinux.sh",
       "tag": "disable-selinux",
       "sudo": true
@@ -111,16 +152,8 @@
       "sudo": true
     },
     {
-      "script": "nfsserver.sh",
-      "tag": "nfsserver",
-      "sudo": true
-    },
-    {
-      "script": "nfsclient.sh",
-      "args": [
-        "$(<hostlists/tags/nfsserver)"
-      ],
-      "tag": "nfsclient",
+      "script": "auto_netappfiles_mount.sh",
+      "tag": "netapp-client",
       "sudo": true
     },
     {
@@ -165,6 +198,29 @@
       ],
       "tag": "join_domain",
       "sudo": true
+    },
+    {
+      "script": "setup_win_join_domain.sh",
+      "type": "local_script",
+      "args": [
+        "variables.resource_group",
+        "frontend",
+        "variables.ad_domain",
+        "$(<hostlists/tags/ad_server)",
+        "variables.ad_admin",
+        "variables.win_password"
+        ]
+    },
+    {
+      "script": "setup_win_ad_user.sh",
+      "type": "local_script",
+      "args": [
+        "variables.resource_group",
+        "$(<hostlists/tags/ad_server)",
+        "variables.ad_domain",
+        "variables.ad_admin",
+        "variables.win_password"
+      ]
     }
   ]
 }
