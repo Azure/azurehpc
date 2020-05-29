@@ -187,7 +187,7 @@ def do_connect(args):
         sys.exit(1)
 
     ros = rimage.split(':')
-    if ros[0] == "MicrosoftWindowsServer":
+    if ros[0] == "MicrosoftWindowsServer" or ros[0] == "MicrosoftWindowsDesktop":
         log.debug(f"os is - {ros[0]} for node {args.resource}")
         fqdn = azutil.get_fqdn(c.read_value("resource_group"), args.resource+"_pip")
         winpassword = c.read_value("variables.win_password")

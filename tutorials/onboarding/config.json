@@ -1,0 +1,226 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "image": "OpenLogic:CentOS:7.6:latest",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.6:latest",
+    "location": "<NOT-SET>",
+    "vm_type": "Standard_HB60rs",
+    "resource_group": "<NOT-SET>",
+    "ad_image": "MicrosoftWindowsServer:WindowsServer:2019-Datacenter:latest",
+    "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
+    "ad_domain": "MyDomain.local",
+    "ad_admin": "hpcadmin",
+    "win_password": "<NOT-SET>"
+  },
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "infra": "10.2.0.0/24",
+      "netapp": "10.2.1.0/24",
+      "compute": "10.2.4.0/22"
+    }
+  },
+  "storage": {
+    "hpcnetappdep": {
+      "type": "anf",
+      "subnet": "netapp",
+      "pools": {
+        "anfpool": {
+          "size": 14,
+          "service_level": "Premium",
+          "volumes": {
+            "anfvol2": {
+              "size": 2,
+              "mount": "/apps"
+            },
+            "anfvol3": {
+              "size": 4,
+              "mount": "/scratch"
+            },
+            "anfvol4": {
+              "size": 4,
+              "mount": "/share/home"
+            }
+          }
+        }
+      }
+    }
+  },
+  "resources": {
+    "adnode": {
+      "type": "vm",
+      "public_ip": "true",
+      "password": "variables.win_password",
+      "vm_type": "Standard_D4s_v3",
+      "image": "variables.ad_image",
+      "subnet": "infra",
+      "tags": [
+        "ad_server"
+      ]
+    },
+    "frontend": {
+      "type": "vm",
+      "public_ip": "true",
+      "password": "variables.win_password",
+      "vm_type": "Standard_NV6",
+      "os_storage_sku": "StandardSSD_LRS",
+      "image": "variables.nv_image",
+      "subnet": "infra",
+      "tags": [
+      ]
+    },
+    "license": {
+      "type": "vm",
+      "vm_type": "Standard_D4s_v3",
+      "public_ip": true,
+      "image": "variables.image",
+      "subnet": "infra",
+      "tags": [
+ 	"cndefault",
+        "netapp-client",
+        "disable-selinux",
+	"join_domain"
+      ]
+    },
+    "headnode": {
+      "type": "vm",
+      "vm_type": "Standard_D8s_v3",
+      "public_ip": true,
+      "image": "variables.hpc_image",
+      "subnet": "compute",
+      "tags": [
+ 	"cndefault",
+        "netapp-client",
+        "pbsserver",
+        "loginnode",
+        "localuser",
+        "disable-selinux",
+	"join_domain"
+      ]
+    },
+   "compute": {
+      "type": "vmss",
+      "vm_type": "variables.vm_type",
+      "instances": 2,
+      "image": "variables.hpc_image",
+      "subnet": "compute",
+      "tags": [
+        "netapp-client",
+        "pbsclient",
+        "cndefault",
+        "localuser",
+        "disable-selinux",
+        "join_domain"
+      ]
+    }
+  },
+  "install": [
+    {
+      "script": "setup_win_ad.sh",
+      "type": "local_script",
+      "args": [
+        "variables.resource_group",
+        "$(<hostlists/tags/ad_server)",
+        "variables.ad_domain",
+        "variables.ad_admin",
+        "variables.win_password"
+      ]
+    },
+    {
+      "script": "setup_win_ad_nfs.sh",
+      "type": "local_script",
+      "args": [
+        "variables.resource_group",
+        "$(<hostlists/tags/ad_server)",
+        "variables.ad_domain",
+        "variables.ad_admin",
+        "variables.win_password"
+      ]
+    },
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "cndefault",
+      "sudo": true
+    },
+    {
+      "script": "auto_netappfiles_mount.sh",
+      "tag": "netapp-client",
+      "sudo": true
+    },
+    {
+      "script": "localuser.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "localuser",
+      "sudo": true
+    },
+    {
+      "script": "pbsdownload.sh",
+      "tag": "loginnode",
+      "sudo": true 
+    },
+    {
+      "script": "pbsserver.sh",
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsserver",
+      "sudo": true
+    },
+    {
+      "script": "pbsclient.sh",
+      "args": [
+        "$(<hostlists/tags/pbsserver)"
+      ],
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsclient",
+      "sudo": true
+    },
+    {
+      "script": "join_domain.sh",
+      "args": [
+        "variables.ad_domain",
+        "variables.ad_admin",
+        "variables.win_password",
+        "$(<hostlists/tags/ad_server)"
+      ],
+      "tag": "join_domain",
+      "sudo": true
+    },
+    {
+      "script": "setup_win_join_domain.sh",
+      "type": "local_script",
+      "args": [
+        "variables.resource_group",
+        "frontend",
+        "variables.ad_domain",
+        "$(<hostlists/tags/ad_server)",
+        "variables.ad_admin",
+        "variables.win_password"
+        ]
+    },
+    {
+      "script": "setup_win_ad_user.sh",
+      "type": "local_script",
+      "args": [
+        "variables.resource_group",
+        "$(<hostlists/tags/ad_server)",
+        "variables.ad_domain",
+        "variables.ad_admin",
+        "variables.win_password"
+      ]
+    }
+  ]
+}

@@ -192,6 +192,7 @@ def _create_anf_mount_scripts(cfg, scriptfile):
     script = """#!/bin/bash
 yum install -y nfs-utils
 """
+    script_end = ""
     resource_group = cfg["resource_group"]
     # loop over all anf accounts
     accounts = [ x for x in cfg.get("storage",{}) if cfg["storage"][x]["type"] == "anf" ]
@@ -204,11 +205,14 @@ yum install -y nfs-utils
                 mount_point = cfg["storage"][account]["pools"][pool]["volumes"][volume]["mount"]
                 script += f"""
 mkdir -p {mount_point}
-chmod 777 {mount_point}
 echo "{ip}:/{volume} {mount_point} nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0" >>/etc/fstab
 """
-    script += """
+                script_end += f"""
+chmod 777 {mount_point}
+"""
+    script += f"""
 mount -a
+{script_end}
 """
     with open(scriptfile, "w") as f:
         os.chmod(scriptfile, 0o755)
