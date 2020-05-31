@@ -5,7 +5,7 @@ RESOURCE_GROUP=$1
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 PROJECT_DIR=cycle_projects
-TEMPLATE_NAME=pbs_beegfs
+TEMPLATE_NAME=pbs_beegfs_cc
 CLUSTER_NAME=pbs_azhpc_beegfs
 
 cd $HOME
