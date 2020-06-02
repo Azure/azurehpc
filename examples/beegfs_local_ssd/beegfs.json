@@ -21,6 +21,7 @@
         "address_prefix": "10.2.0.0/20",
         "subnets": {
             "admin": "10.2.1.0/24",
+            "storage": "10.2.3.0/24",
             "compute": "10.2.4.0/22"
         }
     },
@@ -31,7 +32,7 @@
             "accelerated_networking": true,
             "public_ip": true,
             "image": "variables.image",
-            "subnet": "compute",
+            "subnet": "admin",
             "tags": [
                 "cndefault",
                 "disable-selinux",
@@ -45,7 +46,7 @@
             "accelerated_networking": true,
             "public_ip": false,
             "image": "variables.image",
-            "subnet": "compute",
+            "subnet": "storage",
             "tags": [
                 "beegfspkgs",
                 "beegfsm",
@@ -59,7 +60,7 @@
             "instances": "variables.storage_instances",
             "accelerated_networking": true,
             "image": "variables.image",
-            "subnet": "compute",
+            "subnet": "storage",
             "tags": [
                 "beegfspkgs",
                 "beegfssd",
