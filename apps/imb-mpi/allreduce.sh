@@ -1,5 +1,5 @@
 #!/bin/bash
-MPI=${1:-impi2018}
+MPI=${1-impi2018}
 set -o pipefail
 
 num_ranks=$(wc -l <$PBS_NODEFILE)
