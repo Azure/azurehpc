@@ -2,7 +2,7 @@
 ## Cluster Configuration File ##
 ################################
 
-[cluster PBS Pro]
+[cluster azhpc-pbs]
 #IconURL = 
 FormLayout = selectionpanel
 Category = Azure HPC
@@ -33,7 +33,7 @@ Autoscale = $Autoscale
         [[[cluster-init cyclecloud/pbspro:master]]]
 
         [[[network-interface eth0]]]
-        AssociatePublicIpAddress = $UsePublicNetwork
+        AssociatePublicIpAddress = False
 
         [[[input-endpoint ganglia]]]
         PrivatePort = 8652
@@ -54,7 +54,7 @@ Autoscale = $Autoscale
         [[[cluster-init cyclecloud/pbspro:execute]]]
 
         [[[network-interface eth0]]]
-        AssociatePublicIpAddress = $UsePublicNetwork
+        AssociatePublicIpAddress = False
 
 
 [parameters About]
@@ -167,12 +167,3 @@ Order = 20
         DefaultValue = =undefined
         Description = Cluster init specs to apply to execute nodes
         ParameterType = Cloud.ClusterInitSpecs
-
-    [[parameters Advanced Networking]]
-    Description = Advanced networking settings
-
-        [[[parameter UsePublicNetwork]]]
-        Label = Public Head Node
-        DefaultValue = false
-        ParameterType = Boolean
-        Config.Label = Access master node from the Internet
