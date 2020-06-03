@@ -1,5 +1,8 @@
 # Performance Testing: Samba exporting BeeGFS
 
+Prerequisite:
+* Azure CLI should be installed and you should be logged in
+
 To run clone the azurehpc repo:
 
     git clone https://github.com/Azure/azurehpc.git
