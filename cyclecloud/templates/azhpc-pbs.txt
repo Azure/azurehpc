@@ -39,6 +39,14 @@ Autoscale = $Autoscale
         PrivatePort = 8652
         PublicPort = 8652
 
+        [[[configuration cyclecloud.exports.apps]]]
+        type = nfs
+        export_path = /share/apps
+
+        [[[configuration cyclecloud.exports.data]]]
+        type = nfs
+        export_path = /share/data
+
     [[nodearray execute]]
     MachineType = $ExecuteMachineType
     MaxCoreCount = $MaxExecuteCoreCount
@@ -53,6 +61,15 @@ Autoscale = $Autoscale
         
         [[[cluster-init cyclecloud/pbspro:execute]]]
 
+        [[[configuration cyclecloud.mounts.apps]]]
+        type = nfs
+        mountpoint = /apps
+        export_path = /share/apps
+
+        [[[configuration cyclecloud.mounts.data]]]
+        type = nfs
+        mountpoint = /data
+        export_path = /share/data
 
 [parameters About]
 Order = 1
