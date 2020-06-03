@@ -19,6 +19,9 @@ Autoscale = $Autoscale
     
         [[[configuration]]]
 
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = False
+
         [[[cluster-init cyclecloud/pbspro:default]]]
         Optional = false
 
@@ -31,9 +34,6 @@ Autoscale = $Autoscale
         [[[configuration]]]
 
         [[[cluster-init cyclecloud/pbspro:master]]]
-
-        [[[network-interface eth0]]]
-        AssociatePublicIpAddress = False
 
         [[[input-endpoint ganglia]]]
         PrivatePort = 8652
@@ -52,9 +52,6 @@ Autoscale = $Autoscale
         autoscale.disabled = ${Autoscale == False}
         
         [[[cluster-init cyclecloud/pbspro:execute]]]
-
-        [[[network-interface eth0]]]
-        AssociatePublicIpAddress = False
 
 
 [parameters About]
