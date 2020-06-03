@@ -3,7 +3,7 @@
 ## Cluster Configuration File ##
 ################################
 
-[cluster pbs_azhpc_beegfs]
+[cluster pbs_beegfs_cc]
 FormLayout = selectionpanel
 Category = Schedulers
 
