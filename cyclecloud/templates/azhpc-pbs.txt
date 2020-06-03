@@ -6,6 +6,7 @@
 #IconURL = 
 FormLayout = selectionpanel
 Category = Azure HPC
+CategoryOrder = 1
 
 Autoscale = $Autoscale
 
@@ -24,7 +25,7 @@ Autoscale = $Autoscale
     [[node master]]
     MachineType = $MasterMachineType
     ImageName = $MasterImageName
-    IsReturnProxy = False
+    IsReturnProxy = $ReturnProxy
     AdditionalClusterInitSpecs = $MasterClusterInitSpecs
     
         [[[configuration]]]
@@ -137,11 +138,6 @@ Order = 20
         Description = The credentials for the cloud provider
         ParameterType = Cloud.Credentials
 
-    [[parameters PBSPro Settings ]]
-    Description = "Section for configuring PBSPro"
-    Order = 5
-
-
     [[parameters Software]]
     Description = "Specify the scheduling software, and base OS installed on all nodes, and optionally the cluster-init and chef versions from your Locker."
     Order = 10
@@ -172,3 +168,17 @@ Order = 20
         Description = Cluster init specs to apply to execute nodes
         ParameterType = Cloud.ClusterInitSpecs
 
+    [[parameters Advanced Networking]]
+    Description = Advanced networking settings
+
+        [[[parameter ReturnProxy]]]
+        Label = Return Proxy
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Use SSH tunnel to connect to CycleCloud (required if direct access is blocked)
+
+        [[[parameter UsePublicNetwork]]]
+        Label = Public Head Node
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Access master node from the Internet
