@@ -2,9 +2,10 @@
 ## Cluster Configuration File ##
 ################################
 
-[cluster azhpc-pbs]
+[cluster PBS Pro]
+#IconURL = 
 FormLayout = selectionpanel
-Category = AzureHPC
+Category = Azure HPC
 
 Autoscale = $Autoscale
 
@@ -58,12 +59,12 @@ Autoscale = $Autoscale
 [parameters About]
 Order = 1
 
-    [[parameters About PBSPro]]
+    [[parameters About AzureHPC PBSPro]]
 
         [[[parameter pbspro]]]
         HideLabel = true
         Config.Plugin = pico.widget.HtmlTemplateWidget
-        Config.Template := "<table><tr><td><p>PBSPro is a highly configurable open source workload manager. See the <a href=\"http://www.pbspro.org/\" target=\"_blank\">PBSPro project site</a> for an overview.</p></td></tr></table>"
+        Config.Template := "<table><tr><td><p>This is a cluster running PBSPro and integrated with AzureHPC extensions.</p></td></tr></table>"
 
 [parameters Required Settings]
 Order = 10
