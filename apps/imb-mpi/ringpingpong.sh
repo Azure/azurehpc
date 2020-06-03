@@ -1,5 +1,5 @@
 #!/bin/bash
-MPI=${1-impi2018)
+MPI=${1-impi2018}
 MODE=${2-ring}
 set -o pipefail
 
