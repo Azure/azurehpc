@@ -25,7 +25,7 @@ Autoscale = $Autoscale
     [[node master]]
     MachineType = $MasterMachineType
     ImageName = $MasterImageName
-    IsReturnProxy = $ReturnProxy
+    IsReturnProxy = False
     AdditionalClusterInitSpecs = $MasterClusterInitSpecs
     
         [[[configuration]]]
@@ -170,12 +170,6 @@ Order = 20
 
     [[parameters Advanced Networking]]
     Description = Advanced networking settings
-
-        [[[parameter ReturnProxy]]]
-        Label = Return Proxy
-        DefaultValue = false
-        ParameterType = Boolean
-        Config.Label = Use SSH tunnel to connect to CycleCloud (required if direct access is blocked)
 
         [[[parameter UsePublicNetwork]]]
         Label = Public Head Node
