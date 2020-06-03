@@ -2,6 +2,7 @@
     "MaxExecuteCoreCount" : 1000,
     "MasterMachineType" : "Standard_D8s_v3",
     "Credentials" : "azure",
+    "BeeGFSMgmtHost" : "beegfsm",
     "Autoscale" : true,
     "SubnetId" : "#RESOURCE_GROUP#/hpcvnet/compute",
     "UseLowPrio" : false,
