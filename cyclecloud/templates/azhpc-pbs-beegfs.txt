@@ -25,7 +25,6 @@ Autoscale = $Autoscale
 
         [[[cluster-init cyclecloud/pbspro:default]]]
         [[[cluster-init azhpc:beegfs-client:1.0.0]]]
-        Optional = false
 
     [[node master]]
     MachineType = $MasterMachineType
@@ -36,6 +35,7 @@ Autoscale = $Autoscale
         [[[configuration]]]
 
         [[[cluster-init cyclecloud/pbspro:master]]]
+
         [[[cluster-init azhpc:apps:1.0.0]]]
 
         [[[input-endpoint ganglia]]]
