@@ -252,14 +252,14 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
             if os.path.exists(f"scripts/{script}"):
                 if os.path.isdir(f"scripts/{script}"):
                     log.debug(f"using dir from this project ({script})")
-                    shutil.copytree(f"scripts/{script}", tmpdir+"/scripts")
+                    shutil.copytree(f"scripts/{script}", f"{tmpdir}/scripts/{script}")
                 else:
                     log.debug(f"using script from this project ({script})")
                     shutil.copy(f"scripts/{script}", tmpdir+"/scripts")
             elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
                 if os.path.isdir(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
                     log.debug(f"using azhpc dir ({script})")
-                    shutil.copytree(f"{os.getenv('azhpc_dir')}/scripts/{script}", tmpdir+"/scripts")
+                    shutil.copytree(f"{os.getenv('azhpc_dir')}/scripts/{script}", f"{tmpdir}/scripts/{script}")
                 else:
                     log.debug(f"using azhpc script ({script})")
                     shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{script}", tmpdir+"/scripts")
