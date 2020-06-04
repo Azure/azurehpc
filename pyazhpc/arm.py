@@ -675,8 +675,6 @@ class ArmTemplate:
         rsize = res["vm_type"]
         rimage = res["image"]
         rinstances = res.get("instances")
-        # TODO : Why is this unused ?
-        rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)

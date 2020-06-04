@@ -456,7 +456,7 @@ optional arguments:
   --no-color            turn off color in output
   --user USER, -u USER  the user to run as
   --nodes NODES, -n NODES
-                        the resources to run on (space separated for multiple)
+                        the resources to run on (comma separated for multiple)
 ```
 
 ### azhpc-scp
