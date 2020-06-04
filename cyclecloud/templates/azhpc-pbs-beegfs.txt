@@ -24,7 +24,7 @@ Autoscale = $Autoscale
         AssociatePublicIpAddress = False
 
         [[[cluster-init cyclecloud/pbspro:default]]]
-        [[[cluster-init azhpc:beegfs-client:1.0.0]]]
+        [[[cluster-init azhpc:beegfs-client]]]
 
     [[node master]]
     MachineType = $MasterMachineType
@@ -36,7 +36,7 @@ Autoscale = $Autoscale
 
         [[[cluster-init cyclecloud/pbspro:master]]]
 
-        [[[cluster-init azhpc:apps:1.0.0]]]
+        [[[cluster-init azhpc:apps]]]
 
         [[[input-endpoint ganglia]]]
         PrivatePort = 8652
