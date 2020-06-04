@@ -1,5 +1,5 @@
 #!/bin/bash
-SHARED_APPS=/share/apps
+SHARED_APPS=/apps
 
 cd $SHARED_APPS
 yum install -y git

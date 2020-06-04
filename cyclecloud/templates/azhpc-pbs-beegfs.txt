@@ -36,6 +36,7 @@ Autoscale = $Autoscale
         [[[configuration]]]
 
         [[[cluster-init cyclecloud/pbspro:master]]]
+        [[[cluster-init azhpc:apps:1.0.0]]]
 
         [[[input-endpoint ganglia]]]
         PrivatePort = 8652
@@ -43,11 +44,11 @@ Autoscale = $Autoscale
 
         [[[configuration cyclecloud.exports.apps]]]
         type = nfs
-        export_path = /share/apps
+        export_path = /apps
 
         [[[configuration cyclecloud.exports.data]]]
         type = nfs
-        export_path = /share/data
+        export_path = /data
 
     [[nodearray execute]]
     MachineType = $ExecuteMachineType
@@ -66,12 +67,12 @@ Autoscale = $Autoscale
         [[[configuration cyclecloud.mounts.apps]]]
         type = nfs
         mountpoint = /apps
-        export_path = /share/apps
+        export_path = /apps
 
         [[[configuration cyclecloud.mounts.data]]]
         type = nfs
         mountpoint = /data
-        export_path = /share/data
+        export_path = /data
 
 [parameters About]
 Order = 1
