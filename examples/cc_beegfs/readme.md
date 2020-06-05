@@ -14,7 +14,7 @@ Outlines the procedure to access a BeeGFS PFS deployed by AzureHPC in CycleCloud
 
 A jumpbox will be deployed with cyclecloud CLI. This jumpbox will be used to integrate AzureHPC BeeGFS and CycleCloud. A Cyclecloud project for BeeGFS will be created and uploaded to the CycleCloud locker. The CycleCloud Scheduler template will be modified to access the BeeGFS client specs. The Cyclecloud scheduler template will be uploaded to the locker and a CycleCloud cluster will be created (i.e. CycleCloud controls/deploys Scheduler, Master and nodearray resources, AzureHPC deploys/controls the BeeGFS PFS and other Azure resources.)
 
-## Initialise the AzureHPC project
+## Initialize the AzureHPC project
 
 To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by copying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
 
