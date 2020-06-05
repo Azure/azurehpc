@@ -31,7 +31,7 @@ azhpc-init -c $azhpc_dir/examples/cc_beegfs -d cc_beegfs -v resource_group=azure
 > Note:  You can still update variables even if they are already set.  For example, in the command below we change the region to `westus2` and the SKU to `Standard_D16s_v3`:
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v location=westus2,vm_type=Standard_D16s_v3,resource_group=azhpc-jumpbox
+azhpc-init -c $azhpc_dir/examples/cc_beegfs -d cc_beegfs -v location=westus2,vm_type=Standard_D16s_v3,resource_group=azhpc-jumpbox
 ```
 
 ## Deploy the Jumpbox and CycleCloud CLI with AzureHPC
