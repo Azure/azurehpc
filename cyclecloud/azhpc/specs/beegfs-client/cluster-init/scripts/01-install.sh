@@ -1,2 +1,2 @@
 #!/bin/bash
-. $CYCLECLOUD_PROJECT_PATH/beegfs-client/files/beegfspkgs.sh
+. $CYCLECLOUD_PROJECT_PATH/$CYCLECLOUD_SPEC_NAME/files/beegfspkgs.sh
