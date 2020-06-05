@@ -24,6 +24,7 @@ Autoscale = $Autoscale
         AssociatePublicIpAddress = False
 
         [[[cluster-init cyclecloud/pbspro:default]]]
+        Optional = false
         [[[cluster-init azhpc:beegfs-client]]]
 
     [[node master]]
@@ -35,7 +36,6 @@ Autoscale = $Autoscale
         [[[configuration]]]
 
         [[[cluster-init cyclecloud/pbspro:master]]]
-
         [[[cluster-init azhpc:apps]]]
 
         [[[input-endpoint ganglia]]]
@@ -58,11 +58,11 @@ Autoscale = $Autoscale
     Interruptible = $UseLowPrio
     AdditionalClusterInitSpecs = $ExecuteClusterInitSpecs
 
-
         [[[configuration]]]
         autoscale.disabled = ${Autoscale == False}
         
         [[[cluster-init cyclecloud/pbspro:execute]]]
+        [[[cluster-init azhpc:pbs]]]
 
         [[[configuration cyclecloud.mounts.apps]]]
         type = nfs
