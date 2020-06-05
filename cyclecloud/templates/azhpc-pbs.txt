@@ -18,6 +18,13 @@ Autoscale = $Autoscale
     KeyPairLocation = ~/.ssh/cyclecloud.pem
     
         [[[configuration]]]
+        # To allow access to node metadata
+        cyclecloud.node.prevent_metadata_access=false
+        cyclecloud.selinux.policy = permissive
+        # To disable jetpack converge every 20mn
+        cyclecloud.maintenance_converge.enabled = false
+        # disable fail2ban
+        cyclecloud.fail2ban.enabled = false
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = False
