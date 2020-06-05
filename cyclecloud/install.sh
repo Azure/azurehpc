@@ -6,8 +6,10 @@ pushd $DIR/azhpc
 cyclecloud project upload
 popd
 
-for f in templates/*.txt; do 
-    cyclecloud delete_template $f
-    cyclecloud import_template -f templates/$f.txt --force
+for f in templates/*.txt; do
+    template=${f##*/}
+    template=${template%.txt}
+    cyclecloud delete_template $template
+    cyclecloud import_template -f $f --force
 done
 
