@@ -25,6 +25,8 @@ Autoscale = $Autoscale
         cyclecloud.maintenance_converge.enabled = false
         # disable fail2ban
         cyclecloud.fail2ban.enabled = false
+        # Install EPEL 
+        cyclecloud.install_epel=true
         beegfs.mgmt_host = $BeeGFSMgmtHost
 
         [[[network-interface eth0]]]
@@ -32,6 +34,7 @@ Autoscale = $Autoscale
 
         [[[cluster-init cyclecloud/pbspro:default]]]
         Optional = false
+        [[[cluster-init azhpc:default]]]
         [[[cluster-init azhpc:beegfs-client]]]
 
     [[node master]]

@@ -25,12 +25,15 @@ Autoscale = $Autoscale
         cyclecloud.maintenance_converge.enabled = false
         # disable fail2ban
         cyclecloud.fail2ban.enabled = false
+        # Install EPEL 
+        cyclecloud.install_epel=true
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = False
 
         [[[cluster-init cyclecloud/pbspro:default]]]
         Optional = false
+        [[[cluster-init azhpc:default]]]
 
     [[node master]]
     MachineType = $MasterMachineType
