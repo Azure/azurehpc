@@ -1,0 +1,47 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "variables.jumpbox",
+    "admin_user": "variables.admin_user",
+    "vnet": {
+      "name": "variables.vnet_name"
+    },
+    "variables": {
+      "location": "<NOT-SET>",
+      "jumpbox": "fqdn.jumpbox",
+      "resource_group": "<NOT-SET>",
+      "vnet_name": "hpcvnet",
+      "key_vault": "<NOT-SET>",
+      "spn_name": "<NOT-SET>",
+      "projectstore": "<NOT-SET>",
+      "admin_user": "hpcadmin",
+      "appid": "",
+      "image": "OpenLogic:CentOS:7.7:latest"
+    },
+    "resources": {
+          "jumpbox": {
+              "type": "vm",
+              "vm_type": "Standard_D8s_v3",
+              "accelerated_networking": true,
+              "public_ip": true,
+              "image": "variables.image",
+              "subnet": "admin",
+              "tags": [
+                  "jumpbox"
+              ]
+          }
+    },
+    "install": [
+      {
+        "tag": "jumpbox",
+        "script": "cyclecli_install.sh",
+        "args": [
+            "fqdn.cycleserver",
+            "variables.admin_user",
+            "secret.{{variables.key_vault}}.CycleAdminPassword",
+            "variables.resource_group",
+            "sakey.{{variables.projectstore}}"
+        ]
+      }
+    ]
+  }
