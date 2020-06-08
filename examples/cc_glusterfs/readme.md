@@ -50,7 +50,7 @@ azhpc build -c config_glusterfs.json
 
 Allow ~20 minutes for deployments.  You are able to view the status VMs being deployed by running `azhpc status` in another terminal.
 
-## Git clone AzxureHPC repository on Jumpbox
+## Git clone AzureHPC repository on Jumpbox
 
 We will need the AzureHPC scripts and cyclecloud directories.
 ```
