@@ -5,7 +5,7 @@
     "admin_user": "variables.admin_user",
     "vnet": {
         "resource_group": "variables.resource_group",
-        "name": "hpcvnet",
+        "name": "variables.vnet_name",
         "address_prefix": "10.2.0.0/20",
         "subnets": {
             "admin": "10.2.1.0/24",
@@ -18,6 +18,7 @@
     "variables": {
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
+        "vnet_name": "hpcvnet",
         "admin_user": "hpcadmin"
     },
     "resources": {},
