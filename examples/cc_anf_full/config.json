@@ -1,0 +1,65 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "jumpbox",
+  "admin_user": "variables.admin_user",
+  "vnet": {
+    "name": "hpcvnetjump",
+    "address_prefix": "10.22.0.0/20",
+    "subnets": {
+      "admin": "10.22.1.0/24",
+      "storage": "10.22.3.0/24",
+      "compute": "10.22.4.0/22"
+    }
+  },
+  "variables": {
+    "location": "southcentralus",
+    "resource_group": "raymond_rg",
+    "key_vault": "hpccatkv",
+    "spn_name": "hpccatCycle",
+    "projectstore": "azhpccycle01",
+    "admin_user": "hpcadmin",
+    "appid": "66077a14-a53e-4414-ad39-655f005e922e",
+    "tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "image": "OpenLogic:CentOS:7.7:latest"
+  },
+  "resources": {
+    "jumpbox": {
+      "type": "vm",
+      "vm_type": "Standard_D8s_v3",
+      "accelerated_networking": true,
+      "public_ip": true,
+      "image": "variables.image",
+      "subnet": "admin",
+      "tags": [
+        "cndefault",
+        "disable-selinux",
+        "install-azcopy",
+        "cyclecli" 
+      ]
+    }
+  },
+  "install": [
+    {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+    },
+    {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+    },
+    {
+            "script": "cyclecli_install.sh",
+            "args": [
+                     "fqdn.cycleserver",
+                     "variables.admin_user",
+                     "secret.{{variables.key_vault}}.CycleAdminPassword",
+                     "variables.resource_group",
+                     "sakey.{{variables.projectstore}}"
+            ],
+            "tag": "cyclecli"
+    }
+  ]
+}
