@@ -6,12 +6,13 @@
     "variables": {
         "jumpbox": "fqdn.jumpbox",
         "image": "OpenLogic:CentOS:7.7:latest",
-        "storage_instances": 2,
-        "storage_vm_type": "Standard_D16s_v3",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_name": "hpcvnet",
         "vnet_resource_group": "variables.resource_group",
+        "beegfs_storage_instances": 2,
+        "beegfs_storage_vm_type": "Standard_D16s_v3",
+        "beegfs_mgmt_vm_type": "Standard_D4s_v3",
         "beegfs_disk_type": "local_ssd",
         "beegfs_node_type": "both",
         "beegfs_pools": "false",
@@ -24,29 +25,29 @@
     "resources": {
         "beegfsm": {
             "type": "vm",
-            "vm_type": "Standard_D4s_v3",
+            "vm_type": "variables.beegfs_mgmt_vm_type",
             "accelerated_networking": true,
             "public_ip": false,
             "image": "variables.image",
-            "subnet": "compute",
+            "subnet": "storage",
             "tags": [
-                "beegfspkgs",
-                "beegfsm",
+                "beegfs-pkgs",
+                "beegfs-mgmt",
                 "disable-selinux",
-                "beegfsc"
+                "cndefault",
+                "beegfs-client"
             ]
         },
         "beegfssm": {
             "type": "vmss",
-            "vm_type": "variables.storage_vm_type",
-            "instances": "variables.storage_instances",
+            "vm_type": "variables.beegfs_storage_vm_type",
+            "instances": "variables.beegfs_storage_instances",
             "accelerated_networking": true,
             "image": "variables.image",
-            "subnet": "compute",
+            "subnet": "storage",
             "tags": [
-                "beegfspkgs",
-                "beegfssd",
-                "beegfsmd",
+                "beegfs-pkgs",
+                "beegfs-storage",
                 "cndefault",
                 "disable-selinux"
             ]
@@ -65,7 +66,7 @@
         },
         {
             "script": "beegfspkgs.sh",
-            "tag": "beegfspkgs",
+            "tag": "beegfs-pkgs",
             "sudo": true
         },
         {
@@ -73,7 +74,7 @@
             "args": [
                 "/data/beegfs/mgmt"
             ],
-            "tag": "beegfsm",
+            "tag": "beegfs-mgmt",
             "sudo": true
         },
         {
@@ -83,9 +84,9 @@
                 "variables.beegfs_node_type",
                 "variables.beegfs_pools",
                 "variables.beegfs_pools_restart",
-                "$(<hostlists/tags/beegfsm)"
+                "$(<hostlists/tags/beegfs-mgmt)"
             ],
-            "tag": "beegfssd",
+            "tag": "beegfs-storage",
             "sudo": true
         },
         {
@@ -94,17 +95,17 @@
                 "variables.beegfs_disk_type",
                 "variables.beegfs_node_type",
                 "variables.beegfs_pools",
-                "$(<hostlists/tags/beegfsm)"
+                "$(<hostlists/tags/beegfs-mgmt)"
             ],
-            "tag": "beegfsmd",
+            "tag": "beegfs-storage",
             "sudo": true
         },
         {
             "script": "beegfsc.sh",
             "args": [
-                "$(<hostlists/tags/beegfsm)"
+                "$(<hostlists/tags/beegfs-mgmt)"
             ],
-            "tag": "beegfsc",
+            "tag": "beegfs-client",
             "sudo": true
         }
     ]
