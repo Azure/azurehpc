@@ -3,18 +3,7 @@
     "resource_group": "variables.resource_group",
     "install_from": "jumpbox",
     "admin_user": "hpcadmin",
-    "variables": {
-        "image": "OpenLogic:CentOS:7.7:latest",
-        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
-        "location": "westeurope",
-        "resource_group": "paul-test-cc-beegfs",
-        "vm_type": "Standard_HB60rs",
-        "vnet_resource_group": "variables.resource_group",
-        "beegfs_disk_type": "nvme",
-        "beegfs_node_type": "both",
-        "beegfs_pools": "false",
-        "beegfs_pools_restart": "false"
-    },
+    "variables": "@variables.json",
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
         "name": "hpcvnet",
