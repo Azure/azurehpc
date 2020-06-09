@@ -1,0 +1,166 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "location": "westeurope",
+        "resource_group": "paul-test-cc-beegfs",
+        "vm_type": "Standard_HB60rs",
+        "vnet_resource_group": "variables.resource_group",
+        "beegfs_disk_type": "nvme",
+        "beegfs_node_type": "both",
+        "beegfs_pools": "false",
+        "beegfs_pools_restart": "false"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.1.0/24",
+            "viz": "10.2.2.0/24",
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "cyclecloud": {
+        "clusters": {
+            "pbscycle": {
+                "template": "pbspro_template_1.3.7",
+                "parameters": {
+                    "MaxExecuteCoreCount": 1000,
+                    "MasterMachineType": "Standard_D8s_v3",
+                    "Credentials": "azure",
+                    "Autoscale": true,
+                    "SubnetId": "{{variables.resource_group}}/hpcvnet/compute",
+                    "UseLowPrio": false,
+                    "Region": "westeurope",
+                    "MasterClusterInitSpecs": {
+                        "azurehpc:beegfs:1.0.0": {
+                            "Order": 10000,
+                            "Name": "azurehpc:beegfs:1.0.0",
+                            "Spec": "beegfs",
+                            "Project": "azurehpc",
+                            "Version": "1.0.0",
+                            "Locker": "azure-storage"
+                        }
+                    },
+                    "ExecuteMachineType": "variables.vm_type",
+                    "ImageName": "variables.hpc_image",
+                    "ExecuteClusterInitSpecs": {
+                        "azurehpc:beegfs:1.0.0": {
+                            "Order": 10000,
+                            "Name": "azurehpc:beegfs:1.0.0",
+                            "Spec": "beegfs",
+                            "Project": "azurehpc",
+                            "Version": "1.0.0",
+                            "Locker": "azure-storage"
+                        }
+                    }
+                }
+            }
+        },
+        "projects": {
+            "azurehpc:beegfs:1.0.0": [
+                {
+                    "script": "beegfspkgs.sh"
+                },
+                {
+                    "script": "beegfsc.sh",
+                    "args": [ "beegfsm" ]
+                }
+            ]
+        }
+    },
+    "resources": {
+        "jumpbox": {
+            "type": "vm",
+            "vm_type": "Standard_D4s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [ ]
+        },
+        "beegfsm": {
+            "type": "vm",
+            "vm_type": "Standard_D4s_v3",
+            "accelerated_networking": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "beegfspkgs",
+                "beegfsm",
+                "disable-selinux",
+                "beegfsc"
+            ]
+        },
+        "beegfssm": {
+            "type": "vmss",
+            "vm_type": "Standard_L8s_v2",
+            "instances": 2,
+            "accelerated_networking": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "beegfspkgs",
+                "beegfssd",
+                "beegfsmd",
+                "disable-selinux"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "beegfspkgs.sh",
+            "tag": "beegfspkgs",
+            "sudo": true
+        },
+        {
+            "script": "beegfsm.sh",
+            "args": [
+                "/data/beegfs/mgmt"
+            ],
+            "tag": "beegfsm",
+            "sudo": true
+        },
+        {
+            "script": "beegfssd.sh",
+            "args": [
+                "variables.beegfs_disk_type",
+                "variables.beegfs_node_type",
+                "variables.beegfs_pools",
+                "variables.beegfs_pools_restart",
+                "$(<hostlists/tags/beegfsm)"
+            ],
+            "tag": "beegfssd",
+            "sudo": true
+        },
+        {
+            "script": "beegfsmd.sh",
+            "args": [
+                "variables.beegfs_disk_type",
+                "variables.beegfs_node_type",
+                "variables.beegfs_pools",
+                "$(<hostlists/tags/beegfsm)"
+            ],
+            "tag": "beegfsmd",
+            "sudo": true
+        },
+        {
+            "script": "beegfsc.sh",
+            "args": [
+                "$(<hostlists/tags/beegfsm)"
+            ],
+            "tag": "beegfsc",
+            "sudo": true
+        }
+    ]
+}
