@@ -28,6 +28,7 @@ Autoscale = $Autoscale
         # Install EPEL 
         cyclecloud.install_epel=true
         # beegfs.mgmt_host = $BeeGFSMgmtHost
+        anf.mountpoint=$ANFMountPoint
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = False
