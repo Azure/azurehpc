@@ -12,7 +12,7 @@ $ mkdir cluster
 $ cd cluster
 ```
 
-Then copy the init.sh script and the variables.json from examples/cc_beegfs to your working directory.
+Then copy the init.sh and variables.json from examples/cc_beegfs to your working directory.
 
 ```
 $ cp $azhpc_dir/examples/cc_beegfs/init.sh .
@@ -44,14 +44,32 @@ $ azhpc-build --no-vnet -c jumpbox.json
 $ azhpc-build --no-vnet -c cycle-prereqs-managed-identity.json
 $ azhpc-build --no-vnet -c cycle-install-server-managed-identity.json
 ```
-Deploy the Cycle CLI locally or on the jumpbow depending on how you want to deploy cycle projects
- 
+
+## Step 3 - Connect to CycleServer UI
+Retrieve the CycleServer DNS name from the azure portal and browse to it with https.
+Retrieve the Cycle amdin password from the logs 
+
+```
+$ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
+```
+
+Connect to the Cycle UI with hpcadmin user and the password retrieved above.
+
+## Step 4 - Deploy the Cycle CLI
+Deploy the Cycle CLI locally and on the jumpbox
+
 ```
 $ azhpc-build --no-vnet -c cycle-cli-local.json
 $ azhpc-build --no-vnet -c cycle-cli-jumpbox.json
 ```
 
-Now deploy BeeGFS
+## Step 5 - Now deploy the BeeGFS cluster
 ```
 $ azhpc-build --no-vnet -c beegfs-cluster.json
+```
+
+## Step 6 - Create the PBS cluster in CycleCloud
+
+```
+$ azhpc ccbuild -c pbscycle.json
 ```

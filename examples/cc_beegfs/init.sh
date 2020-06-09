@@ -19,3 +19,5 @@ for block in $blocks; do
     echo "initializing config for $block"
     init_config $azhpc_dir/experimental/blocks/$block
 done
+
+init_config $azhpc_dir/examples/cc_beegfs/pbscycle.json
