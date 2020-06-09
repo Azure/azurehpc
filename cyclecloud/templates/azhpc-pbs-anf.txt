@@ -194,4 +194,13 @@ Order = 20
         DefaultValue = =undefined
         Description = Cluster init specs to apply to execute nodes
         ParameterType = Cloud.ClusterInitSpecs
+        
+        [[parameters Azure NetApp Files Settings]]
+        Description = Azure NetApp Files (ANF) settings
+
+        [[[parameter ANFMountPoint]]]
+        Label = ANF Mount Point
+        Description = Path of ANF Mount Point
+        Required = True
+        DefaultValue = "/netapps"
 
