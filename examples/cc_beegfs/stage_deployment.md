@@ -47,7 +47,7 @@ $ azhpc-build --no-vnet -c cycle-install-server-managed-identity.json
 
 ## Step 3 - Connect to CycleServer UI
 Retrieve the CycleServer DNS name from the azure portal and browse to it with https.
-Retrieve the Cycle amdin password from the logs 
+Retrieve the Cycle admin password from the logs 
 
 ```
 $ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
