@@ -10,5 +10,6 @@
     "ExecuteMachineType" : "Standard_HB120rs_v2",
     "HPCImageName" : "OpenLogic:CentOS-HPC:7.7:latest",
     "MasterImageName" : "OpenLogic:CentOS:7.7:latest",
-    "ExecuteClusterInitSpecs" : null
+    "ExecuteClusterInitSpecs" : null,
+    "ANFMountPoint" : "/netapps"
 }
