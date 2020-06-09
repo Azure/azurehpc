@@ -14,7 +14,7 @@ function init_config()
     jq '.variables+=$variables' --argjson variables "$(cat variables.json)" temp.json > $config_file
 }
 
-blocks="vnet.json jumpbox.json cycle-prereqs-managed-identity.json cycle-install-server-managed-identity.json cycle-cli-jumpbox.json beegfs-cluster.json"
+blocks="vnet.json jumpbox.json cycle-prereqs-managed-identity.json cycle-install-server-managed-identity.json cycle-cli-local.json cycle-cli-jumpbox.json beegfs-cluster.json"
 for block in $blocks; do
     echo "initializing config for $block"
     init_config $azhpc_dir/experimental/blocks/$block

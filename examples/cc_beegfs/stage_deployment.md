@@ -43,6 +43,15 @@ $ azhpc-build -c vnet.json
 $ azhpc-build --no-vnet -c jumpbox.json
 $ azhpc-build --no-vnet -c cycle-prereqs-managed-identity.json
 $ azhpc-build --no-vnet -c cycle-install-server-managed-identity.json
+```
+Deploy the Cycle CLI locally or on the jumpbow depending on how you want to deploy cycle projects
+ 
+```
+$ azhpc-build --no-vnet -c cycle-cli-local.json
 $ azhpc-build --no-vnet -c cycle-cli-jumpbox.json
+```
+
+Now deploy BeeGFS
+```
 $ azhpc-build --no-vnet -c beegfs-cluster.json
 ```
