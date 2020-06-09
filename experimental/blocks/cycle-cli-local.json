@@ -1,0 +1,32 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "",
+    "admin_user": "variables.admin_user",
+    "vnet": {
+      "name": "variables.vnet_name"
+    },
+    "variables": {
+      "location": "<NOT-SET>",
+      "resource_group": "<NOT-SET>",
+      "vnet_name": "hpcvnet",
+      "key_vault": "<NOT-SET>",
+      "projectstore": "<NOT-SET>",
+      "admin_user": "hpcadmin"
+    },
+    "resources": {
+    },
+    "install": [
+      {
+        "type": "local_script",
+        "script": "cyclecli_install.sh",
+        "args": [
+            "fqdn.cycleserver",
+            "variables.admin_user",
+            "secret.{{variables.key_vault}}.CycleAdminPassword",
+            "variables.resource_group",
+            "sakey.{{variables.projectstore}}"
+        ]
+      }
+    ]
+  }
