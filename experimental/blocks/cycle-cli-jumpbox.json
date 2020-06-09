@@ -12,10 +12,8 @@
       "resource_group": "<NOT-SET>",
       "vnet_name": "hpcvnet",
       "key_vault": "<NOT-SET>",
-      "spn_name": "<NOT-SET>",
       "projectstore": "<NOT-SET>",
       "admin_user": "hpcadmin",
-      "appid": "",
       "image": "OpenLogic:CentOS:7.7:latest"
     },
     "resources": {
