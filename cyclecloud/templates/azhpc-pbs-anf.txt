@@ -195,11 +195,3 @@ Order = 20
         Description = Cluster init specs to apply to execute nodes
         ParameterType = Cloud.ClusterInitSpecs
 
-    [[parameters BeeGFS Settings]]
-    Description = BeeGFS settings
-
-        [[[parameter BeeGFSMgmtHost]]]
-        Label = BeeGFS Cluster
-        Description = Name of BeeGFS Management Host
-        Required = True
-        DefaultValue = beegfsm
