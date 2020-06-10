@@ -17,7 +17,7 @@
         "lustre_vm_type": "Standard_L8s_v2",
         "lustre_instances": 4,
         "lustre_storage_account": "<NOT-SET>",
-        "lustre_storage_container": "<NOT-SET>",
+        "lustre_storage_container": "hsm",
         "lustre_version": "2.12.4",
         "lustre_mount": "/lustre"
     },
