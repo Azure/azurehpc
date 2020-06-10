@@ -1,85 +1,82 @@
-# AzureHPC BeeGFS and CycleCloud Integration
+# Building the infrastructure
+Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER and BEEGFS by using building blocks. These blocks are stored into the experimental/blocks directory.
 
-Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/cc_beegfs/config.json)
+## Step 1 - install azhpc
+after cloning azhpc, source the install.sh script
 
-Outlines the procedure to access a BeeGFS PFS deployed by AzureHPC in CycleCloud.
-
-> ***********************************************************************************
-> NOTE : Please use the updated instructions from [here](stage_deployment.md)
-> ==================================================================================
-
-## Pre-requisites:
-
-* An installed and setup Azure CycleCloud Application Server (instructions [here](https://docs.microsoft.com/en-us/azure/cyclecloud/quickstart-install-cyclecloud) or using the [azurehpc script](https://github.com/Azure/azurehpc/tree/master/examples/cycleserver))
-* The Azure CycleCloud CLI (instructions [here](https://docs.microsoft.com/en-us/azure/cyclecloud/install-cyclecloud-cli))
-* A BeeGFS PFS deployed with AzureHPC ([examples/beegfs](https://github.com/Azure/azurehpc/tree/master/examples/beegfs))
-
-## Overview of procedure
-
-A jumpbox will be deployed with cyclecloud CLI. This jumpbox will be used to integrate AzureHPC BeeGFS and CycleCloud. A Cyclecloud project for BeeGFS will be created and uploaded to the CycleCloud locker. The CycleCloud Scheduler template will be modified to access the BeeGFS client specs. The Cyclecloud scheduler template will be uploaded to the locker and a CycleCloud cluster will be created (i.e. CycleCloud controls/deploys Scheduler, Master and nodearray resources, AzureHPC deploys/controls the BeeGFS PFS and other Azure resources.)
-
-## Initialize the AzureHPC project
-
-To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by copying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
+## Step 2 - Initialize the configuration files
+Create a working directory from where you will do the deployment and configuration update. Don't work directly from the cloned repo.
 
 ```
-azhpc init -c $azhpc_dir/examples/cc_beegfs -d cc_beegfs -s
+$ mkdir cluster
+$ cd cluster
 ```
 
-The variables can be set with the `-v` option where variables are comma separated.  The output from the previous command as a starting point.  The `-d` option is required and will create a new directory name for you.  Please update to whatever `resource_group` you would like to deploy to:
+Then copy the init.sh and variables.json from examples/cc_beegfs to your working directory.
 
 ```
-azhpc-init -c $azhpc_dir/examples/cc_beegfs -d cc_beegfs -v resource_group=azurehpc-jumpbox
+$ cp $azhpc_dir/examples/cc_beegfs/init.sh .
+$ cp $azhpc_dir/examples/cc_beegfs/variables.json .
 ```
 
-> Note:  You can still update variables even if they are already set.  For example, in the command below we change the region to `westus2` and the SKU to `Standard_D16s_v3`:
+Edit the variables.json to match your environment. Leave the projectstore empty as it will be filled up with a random value by the init script. An existing keyvault should be referenced as it won't be created for you.
 
-```
-azhpc-init -c $azhpc_dir/examples/cc_beegfs -d cc_beegfs -v location=westus2,vm_type=Standard_D16s_v3,resource_group=azhpc-jumpbox
-```
-
-## Deploy the Jumpbox and CycleCloud CLI with AzureHPC
-
-```
-cd cc_beegfs
-azhpc build
+```json
+{
+    "resource_group": "my resource group",
+    "location": "location",
+    "key_vault": "my key vault",
+    "projectstore": ""
+  }
 ```
 
-Allow ~10 minutes for deployment.  You are able to view the status VMs being deployed by running `azhpc status` in another terminal.
-
-## Upload scripts and cc_beegfs directories
+Run the init.sh script which will copy all the config files of the building blocks and initialize the variables by using the variables.json updated above.
 
 ```
-azhpc rcp -r $azhpc_dir/scripts jumpbox:.
-azhpc rcp -r $azhpc_dir/examples/cc_beegfs jumpbox:.
+$ ./init.sh
 ```
 
-## Log in the Jumpbox
-
-Connect to the jumpbox
+## Step 2 - Build the system
 
 ```
-$ azhpc connect jumpbox
+$ azhpc-build -c vnet.json
+$ azhpc-build --no-vnet -c jumpbox.json
+$ azhpc-build --no-vnet -c cycle-prereqs-managed-identity.json
+$ azhpc-build --no-vnet -c cycle-install-server-managed-identity.json
 ```
 
-## Create BeeGFS CycleCloud project and upload to CycleCloud locker
+## Step 3 - Deploy the Cycle CLI
+Deploy the Cycle CLI locally and on the jumpbox
 
 ```
-cd cc_beegfs
-./beegfs_cc_specs.sh
+$ azhpc-build --no-vnet -c cycle-cli-local.json
+$ azhpc-build --no-vnet -c cycle-cli-jumpbox.json
 ```
->Note: The AzureHPC scripts need to be located at ~/scripts (on jumpbox)
- 
-## Create CycleCloud Cluster with AzureHPC BeeGFS
+
+## Step 4 - Now deploy the BeeGFS cluster
+```
+$ azhpc-build --no-vnet -c beegfs-cluster.json
+```
+
+## Step 5 - Create the PBS cluster in CycleCloud
 
 ```
-cd cc_beegfs
-./pbs_beegfs_cc_cluster.sh <RESOURCE-GROUP>
+$ azhpc ccbuild -c pbscycle.json
 ```
->Note : The RESOURCE-GROUP argument is used to locate the compute subnet that CycleCloud will use to deploy the Master and nodearray resources. Review/Edit the CycleCloud template parameters json file for your deployment/customization.
 
-## Check that BeeGFS is Mounted on Master and Nodearray resources.
+## Step 6 - Connect to CycleServer UI
+Retrieve the CycleServer DNS name by connecting with azhpc
 
 ```
-df -h
+$ azhpc-connect -c cycle-install-server-managed-identity.json cycleserver
+[2020-06-10 08:28:04] logging directly into cycleserver559036.westeurope.cloudapp.azure.com
+$ [hpcadmin@cycleserver ~]$ exit
 ```
+
+Retrieve the Cycle admin password from the logs 
+
+```
+$ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
+```
+
+Connect to the Cycle UI with hpcadmin user and the password retrieved above. Check that you have a pbscycle cluster ready and start it
