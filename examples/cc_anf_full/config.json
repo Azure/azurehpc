@@ -13,14 +13,14 @@
     }
   },
   "variables": {
-    "location": "southcentralus",
-    "resource_group": "raymond_rg",
-    "key_vault": "hpccatkv",
-    "spn_name": "hpccatCycle",
-    "projectstore": "azhpccycle01",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "key_vault": "<NOT-SET>",
+    "spn_name": "<NOT-SET>",
+    "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
-    "appid": "66077a14-a53e-4414-ad39-655f005e922e",
-    "tenantid": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+    "appid": "<NOT-SET>",
+    "tenantid": "<NOT-SET>",
     "image": "OpenLogic:CentOS:7.7:latest"
   },
   "resources": {
