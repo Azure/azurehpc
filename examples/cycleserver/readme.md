@@ -5,7 +5,7 @@ Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githu
 
 This example shows how to silently setup a VM with CycleCloud installed and configured, plus installing and configuring the CycleCloue CLI for that instance.
 
->NOTE: MAKE SURE you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here
+>NOTE: MAKE SURE you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here.
 
 ## Initialize your environment
 First initialise a new project. AZHPC provides the `azhpc-init` command that will help here.  Running with the `-s` parameter will show all the variables that need to be set, e.g.
@@ -16,27 +16,33 @@ $ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -s
 
 The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
 
-The required variables you need to set are :
+The required variables you need to set are:
 
 | Name           | Description                                                         |
 |----------------|---------------------------------------------------------------------|
-| location       | The region where the resources are created                          |
-| resource_group | The resource group to put the resources                             |
+| location       | The region where the resources are created.                          |
+| resource_group | The resource group to deploy the resources.                             |
 | key_vault      | The Key Vault name to use. If it doesn't exists it will be created in the same `resource_group`. If it exists, make sure you have read/write access policies to secrets. |
-| spn_name       | Service Principal Name to be used by CycleCloud. If it doesn't exists it will be created, you have to be owner of the subscription. If it exists you need to store its associated secret in the Key Vault `key_vault` under the secret `CycleAdminPassword`|
-| projectstore   | The name of the Azure Storage to be created to store Cycel Project files |
-| tenandId       | The tenantId in which the SPN has been generated                 |
+| spn_name       | Service Principal Name to be used by CycleCloud. If it doesn't exists it will be created, you have to be owner of the subscription. If it exists you need to store its associated secret in the Key Vault `key_vault` under the secret `CycleAdminPassword`. |
+| projectstore   | The name of the Azure Storage Account to be created to store Cycle Project files. |
+| tenandid       | The tenantId in which the SPN referenced in `spn_name` has been generated.  |
 
-
-The optional variables you need to set are :
+Only if using an already existing SPN, the following optional variable must be set:
 
 | Name           | Description                                                         |
 |----------------|---------------------------------------------------------------------|
-| appId          | The appId associated to the `spn_name` in case of an existing SPN not owned by the user running the script |
+| appid          | The appId associated to the SPN referenced in `spn_name`. When specified, the new SPN creation is disabled. |
 
+To initialize a new CycleCloud server deployment project, if using an already existing SPN:
 
 ```
-$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=westeurope,resource_group=azhpc-cycle,key_vault=mykv,spn_name=CycleApp,projectstore=cyclestore,appId=xxxxxx,tenandId=xxxxx
+$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=<region>,resource_group=<rg_name>,key_vault=<keyvault_name>,spn_name=<spn_name>,projectstore=<storage_account_name>,appid=<spn_appId>,tenandid=<tenant_id>
+```
+
+Otherwise, if a new SPN should be automatically created by `azhpc`:
+
+```
+$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=<region>,resource_group=<rg_name>,key_vault=<keyvault_name>,spn_name=<spn_name>,projectstore=<storage_account_name>,tenandid=<tenant_id>
 ```
 
 ## Create the pre-requisites resources
