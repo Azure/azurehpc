@@ -29,6 +29,7 @@ Autoscale = $Autoscale
         cyclecloud.install_epel=true
         # beegfs.mgmt_host = $BeeGFSMgmtHost
         anf.mountpoint=$ANFMountPoint
+        anf.mountpath=$ANFMountPath
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = False
@@ -199,9 +200,15 @@ Order = 20
         [[parameters Azure NetApp Files Settings]]
         Description = Azure NetApp Files (ANF) settings
 
-        [[[parameter ANFMountPoint]]]
+        [[[parameter ANFMountPath]]]
         Label = ANF Mount Point
-        Description = Path of ANF Mount Point
+        Description = ANF Mount Path
+        Required = True
+        DefaultValue = "10.2.8.4:/raymondanfvol"
+        
+        [[[parameter ANFMountPoint]]]
+        Label = ANF Mount Path
+        Description = ANF Mount Point
         Required = True
         DefaultValue = "/netapps"
 
