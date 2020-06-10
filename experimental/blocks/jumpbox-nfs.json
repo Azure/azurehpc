@@ -25,7 +25,7 @@
       "data_disks": [1024, 1024],
       "storage_sku": "Premium_LRS",
       "tags": [
-        "jumpbox"
+        "jumpbox", "nfsserver"
       ]
     }
   },
