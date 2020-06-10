@@ -27,7 +27,7 @@
     },
     "cyclecloud": {
         "clusters": {
-            "slurmcycle2": {
+            "slurmcycle": {
                 "template": "slurm_template_2.1.0",
                 "parameters": {
                     "MaxHPCExecuteCoreCount": 240,
