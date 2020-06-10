@@ -1,0 +1,43 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "admin_user": "variables.admin_user",
+  "vnet": {
+    "name": "variables.vnet_name"
+  },
+  "variables": {
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "vnet_name": "hpcvnet",
+    "admin_user": "hpcadmin",
+    "ad_image": "MicrosoftWindowsServer:WindowsServer:2019-Datacenter:latest",
+    "ad_domain": "MyDomain.local",
+    "win_password": "WindowsPassword@12345"
+  },
+  "resources": {
+    "adnode": {
+      "type": "vm",
+      "public_ip": "true",
+      "password": "variables.win_password",
+      "vm_type": "Standard_D8_v3",
+      "os_storage_sku": "StandardSSD_LRS",
+      "os_disk_size": "127",
+      "image": "variables.ad_image",
+      "subnet": "admin",
+      "tags": []
+    }
+  },
+  "install": [
+       {
+           "script": "setup_win_ad.sh",
+           "type": "local_script",
+           "args": [
+             "variables.resource_group",
+             "adnode",
+             "variables.ad_domain",
+             "variables.admin_user",
+             "variables.win_password"
+           ]
+       }
+     ]
+}
