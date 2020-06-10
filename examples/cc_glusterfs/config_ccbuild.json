@@ -1,0 +1,101 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_HB60rs",
+        "glusterfs_mount_host": "<NOT-SET>",
+        "glusterfs_mount_point": "/glusterfs",
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.1.0/24",
+            "storage": "10.2.3.0/24",
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "cyclecloud": {
+        "clusters": {
+            "pbscycle": {
+                "template": "pbspro_template_1.3.7",
+                "parameters": {
+                    "MaxExecuteCoreCount": 1000,
+                    "MasterMachineType": "Standard_D8s_v3",
+                    "ExecuteMachineType": "variables.vm_type",
+                    "Credentials": "azure",
+                    "Autoscale": true,
+                    "SubnetId": "{{variables.resource_group}}/hpcvnet/compute",
+                    "UseLowPrio": false,
+                    "Region": "southcentralus",
+                    "ImageName": "variables.hpc_image",
+                    "MasterClusterInitSpecs": {
+                        "azurehpc:default:1.0.0": {
+                            "Order": 10000,
+                            "Name": "azurehpc:default:1.0.0",
+                            "Spec": "default",
+                            "Project": "azurehpc",
+                            "Version": "1.0.0",
+                            "Locker": "azure-storage"
+                        },
+                        "azurehpc:glusterfs:1.0.0": {
+                            "Order": 10000,
+                            "Name": "azurehpc:glusterfs:1.0.0",
+                            "Spec": "glusterfs",
+                            "Project": "azurehpc",
+                            "Version": "1.0.0",
+                            "Locker": "azure-storage"
+                        }
+                    },
+                    "ExecuteClusterInitSpecs": {
+                        "azurehpc:default:1.0.0": {
+                            "Order": 10000,
+                            "Name": "azurehpc:default:1.0.0",
+                            "Spec": "default",
+                            "Project": "azurehpc",
+                            "Version": "1.0.0",
+                            "Locker": "azure-storage"
+                        },
+                        "azurehpc:glusterfs:1.0.0": {
+                            "Order": 10000,
+                            "Name": "azurehpc:glusterfs:1.0.0",
+                            "Spec": "glusterfs",
+                            "Project": "azurehpc",
+                            "Version": "1.0.0",
+                            "Locker": "azure-storage"
+                        }
+                    }
+                }
+            }
+        },
+        "projects": {
+            "azurehpc:default:1.0.0": [
+                {
+                    "script": "cndefault.sh"
+                }
+            ],
+            "azurehpc:glusterfs:1.0.0": [
+                {
+                    "script": "glusterfs_pkgs.sh"
+                },
+                {
+                    "script": "glusterfs_client.sh",
+                    "args": [ 
+                             "variables.glusterfs_mount_host",
+                             "variables.glusterfs_mount_point"
+                            ]
+                }
+            ]
+        }
+    },
+    "resources": {},
+    "install": []
+}
