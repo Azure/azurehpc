@@ -231,14 +231,23 @@ def __config_has_netapp(cfg):
 def __copy_script(name, dest):
     # this looks for the script locally first, else in $azhpc_dir/scripts
     if os.path.exists(f"scripts/{name}"):
-        log.debug(f"using script from this project ({name})")
-        shutil.copy(f"scripts/{name}", dest)
+        if os.path.isdir(f"scripts/{name}"):
+            log.debug(f"using dir from this project ({name})")
+            shutil.copytree(f"scripts/{name}", f"{dest}/{name}")
+        else:
+            log.debug(f"using script from this project ({name})")
+            shutil.copy(f"scripts/{name}", dest)
     elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{name}"):
-        log.debug(f"using azhpc script ({name})")
-        shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{name}", dest)
+        if os.path.isdir(f"{os.getenv('azhpc_dir')}/scripts/{name}"):
+            log.debug(f"using azhpc dir ({name})")
+            shutil.copytree(f"{os.getenv('azhpc_dir')}/scripts/{name}", f"{dest}/{name}")
+        else:
+            log.debug(f"using azhpc script ({name})")
+            shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{name}", dest)
     else:
-        log.error(f"cannot find script ({name})")
+        log.error(f"cannot find script/dir ({name})")
         sys.exit(1)
+
 
 def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     jb = cfg.get("install_from", None)

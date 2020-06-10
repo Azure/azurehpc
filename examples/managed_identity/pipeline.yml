@@ -8,14 +8,6 @@ trigger:
   paths:
     include:
       - examples/managed_identity/*
-      - scripts/lfsrepo.sh
-      - scripts/lfspkgs.sh
-      - scripts/lfsmaster.sh
-      - scripts/lfsoss.sh
-      - scripts/lfshsm.sh
-      - scripts/lfsclient.sh
-      - scripts/lfsimport.sh
-      - scripts/lfsloganalytics.sh
     exclude:
       - examples/managed_identity/readme.md
 

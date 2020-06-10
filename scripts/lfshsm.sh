@@ -11,6 +11,12 @@ storage_key=$3
 storage_container=$4
 lustre_version=${5-2.10}
 
+# remove the patch version
+ndots=${lustre_version//[^.]} 
+if [ "${#ndots}" = "2" ]; then
+    lustre_version=${lustre_version%.*}
+fi
+
 # adding kernel module for lustre client
 if [ "$lustre_version" = "2.10" ]; then
     yum install -y kmod-lustre-client
