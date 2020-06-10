@@ -26,7 +26,7 @@
     "log_analytics_workspace": "laworkspace.{{variables.la_resourcegroup}}.{{variables.la_name}}",
     "log_analytics_key": "lakey.{{variables.la_resourcegroup}}.{{variables.la_name}}",
     "location": "<NOT-SET>",
-    "lustre_version": "2.12",
+    "lustre_version": "2.12.4",
     "lustre_mount": "/lustre"
   },
   "resources": {
