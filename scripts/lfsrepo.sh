@@ -1,7 +1,7 @@
 #!/bin/bash
 lustre_version=${1-2.10}
 
-if [ "$lustre_version" = "2.10" -o "$lustre_version" = "2.12" ];
+if [ "$lustre_version" = "2.10" -o "$lustre_version" = "2.12" ]; then
     lustre_dir=latest-${lustre_version}-release
 else
     lustre_dir="lustre-$lustre_version"
