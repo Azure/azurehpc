@@ -74,3 +74,9 @@ $ azhpc-build --no-vnet -c beegfs-cluster.json
 ```
 $ azhpc ccbuild -c pbscycle.json
 ```
+
+## Step 7 - Connect to the Active Directory to create users
+
+```
+$ azhpc-connect -c ad.json adnode
+```

@@ -6,15 +6,15 @@
   "variables": {
     "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
     "location": "westeurope",
-    "resource_group": "hugo-cc-beegfs-ad",
+    "resource_group": "<NOT-SET>",
     "vm_type": "Standard_HB60rs",
     "vnet_name": "hpcvnet",
     "vnet_resource_group": "variables.resource_group",
     "key_vault": "hpccatkv",
     "admin_user": "hpcadmin",
     "ad_domain": "MyDomain.local",
-    "win_password": "WindowsPassword@12345",
-    "projectstore": "locker73b76e"
+    "win_password": "<NOT-SET>",
+    "projectstore": ""
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
@@ -59,6 +59,14 @@
               "Order": 10000,
               "Name": "azurehpc:beegfs:1.0.0",
               "Spec": "beegfs",
+              "Project": "azurehpc",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "azurehpc:adjoin:1.0.0": {
+              "Order": 10100,
+              "Name": "azurehpc:adjoin:1.0.0",
+              "Spec": "adjoin",
               "Project": "azurehpc",
               "Version": "1.0.0",
               "Locker": "azure-storage"
