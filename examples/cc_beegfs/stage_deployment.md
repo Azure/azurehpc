@@ -23,9 +23,9 @@ Edit the variables.json to match your environment. Leave the projectstore empty 
 
 ```json
 {
-    "resource_group": "[my resource group]",
-    "location": "westeurope",
-    "key_vault": "[my key vault]",
+    "resource_group": "my resource group",
+    "location": "location",
+    "key_vault": "my key vault",
     "projectstore": ""
   }
 ```
@@ -45,17 +45,7 @@ $ azhpc-build --no-vnet -c cycle-prereqs-managed-identity.json
 $ azhpc-build --no-vnet -c cycle-install-server-managed-identity.json
 ```
 
-## Step 3 - Connect to CycleServer UI
-Retrieve the CycleServer DNS name from the azure portal and browse to it with https.
-Retrieve the Cycle admin password from the logs 
-
-```
-$ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
-```
-
-Connect to the Cycle UI with hpcadmin user and the password retrieved above.
-
-## Step 4 - Deploy the Cycle CLI
+## Step 3 - Deploy the Cycle CLI
 Deploy the Cycle CLI locally and on the jumpbox
 
 ```
@@ -63,13 +53,30 @@ $ azhpc-build --no-vnet -c cycle-cli-local.json
 $ azhpc-build --no-vnet -c cycle-cli-jumpbox.json
 ```
 
-## Step 5 - Now deploy the BeeGFS cluster
+## Step 4 - Now deploy the BeeGFS cluster
 ```
 $ azhpc-build --no-vnet -c beegfs-cluster.json
 ```
 
-## Step 6 - Create the PBS cluster in CycleCloud
+## Step 5 - Create the PBS cluster in CycleCloud
 
 ```
 $ azhpc ccbuild -c pbscycle.json
 ```
+
+## Step 6 - Connect to CycleServer UI
+Retrieve the CycleServer DNS name by connecting with azhpc
+
+```
+$ azhpc-connect -c cycle-install-server-managed-identity.json cycleserver
+[2020-06-10 08:28:04] logging directly into cycleserver559036.westeurope.cloudapp.azure.com
+$ [hpcadmin@cycleserver ~]$ exit
+```
+
+Retrieve the Cycle admin password from the logs 
+
+```
+$ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
+```
+
+Connect to the Cycle UI with hpcadmin user and the password retrieved above. Check that you have a pbscycle cluster ready and start it

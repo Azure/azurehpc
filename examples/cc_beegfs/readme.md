@@ -4,6 +4,10 @@ Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githu
 
 Outlines the procedure to access a BeeGFS PFS deployed by AzureHPC in CycleCloud.
 
+> ***********************************************************************************
+> NOTE : Please use the updated instructions from [here](stage_deployment.md)
+> ==================================================================================
+
 ## Pre-requisites:
 
 * An installed and setup Azure CycleCloud Application Server (instructions [here](https://docs.microsoft.com/en-us/azure/cyclecloud/quickstart-install-cyclecloud) or using the [azurehpc script](https://github.com/Azure/azurehpc/tree/master/examples/cycleserver))
