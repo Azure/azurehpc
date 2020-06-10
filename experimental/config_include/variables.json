@@ -8,5 +8,6 @@
     "beegfs_disk_type": "nvme",
     "beegfs_node_type": "both",
     "beegfs_pools": "false",
-    "beegfs_pools_restart": "false"
+    "beegfs_pools_restart": "false",
+    "foo": "<NOT-SET>"
 }
