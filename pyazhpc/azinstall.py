@@ -265,7 +265,27 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
             sys.exit(1)
         
         for script in [ step["script"] ] + step.get("deps", []):
+<<<<<<< HEAD
             __copy_script(script, f"{tmpdir}/scripts")
+=======
+            if os.path.exists(f"scripts/{script}"):
+                if os.path.isdir(f"scripts/{script}"):
+                    log.debug(f"using dir from this project ({script})")
+                    shutil.copytree(f"scripts/{script}", f"{tmpdir}/scripts/{script}")
+                else:
+                    log.debug(f"using script from this project ({script})")
+                    shutil.copy(f"scripts/{script}", tmpdir+"/scripts")
+            elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
+                if os.path.isdir(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
+                    log.debug(f"using azhpc dir ({script})")
+                    shutil.copytree(f"{os.getenv('azhpc_dir')}/scripts/{script}", f"{tmpdir}/scripts/{script}")
+                else:
+                    log.debug(f"using azhpc script ({script})")
+                    shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{script}", tmpdir+"/scripts")
+            else:
+                log.error(f"cannot find script/dir ({script})")
+                sys.exit(1)
+>>>>>>> master
 
 def __cyclecloud_upload_project(project_dir):
     cmd = [ "cyclecloud", "project", "default_locker", "azure-storage" ]
