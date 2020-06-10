@@ -10,7 +10,7 @@
         "vnet_resource_group": "variables.resource_group",
         "anf_pool_size_TB": 4, 
         "anf_vol_size_TB": 4, 
-        "anf_mount_point": "/netapps" 
+        "anf_mount_point": "/netapp" 
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -25,7 +25,7 @@
                     "size": "variables.anf_pool_size_TB",
                     "service_level": "Premium",
                     "volumes": {
-                        "anfvol1": {
+                        "anfvol": {
                             "size": "variables.anf_vol_size_TB",
                             "mount": "variables.anf_mount_point"
                         }
