@@ -201,13 +201,13 @@ Order = 20
         Description = Azure NetApp Files (ANF) settings
 
         [[[parameter ANFMountPath]]]
-        Label = ANF Mount Point
+        Label = ANF Mount Path
         Description = ANF Mount Path
         Required = True
         DefaultValue = "10.2.8.4:/raymondanfvol"
         
         [[[parameter ANFMountPoint]]]
-        Label = ANF Mount Path
+        Label = ANF Mount Point
         Description = ANF Mount Point
         Required = True
         DefaultValue = "/netapps"
