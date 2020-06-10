@@ -34,20 +34,7 @@ class ConfigFile:
                 dest = azutil.get_fqdn(self.read_value("resource_group"), f"{install_from}_pip")
         log.debug(f"install_from destination : {dest}")
         return dest
-
-    def get_unset_vars(self):
-        return [ 
-            x 
-            for x in self.data.get("variables", {}).keys() 
-            if self.data["variables"][x] == "<NOT-SET>"
-        ]
-
-    def replace_vars(self, vdict):
-        if "variables" in self.data:
-            for v in vdict.keys():
-                if v in self.data["variables"]:
-                    self.data["variables"][v] = vdict[v]
-
+    
     def __evaluate_dict(self, x):
         ret = {}
         for k in x.keys():

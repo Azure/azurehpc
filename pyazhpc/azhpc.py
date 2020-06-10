@@ -34,9 +34,49 @@ def do_get(args):
 
 def __add_unset_vars(vset, config_file):
     log.debug(f"looking for vars in {config_file}")
-    config = azconfig.ConfigFile()
-    config.open(config_file)
-    vset.update(config.get_unset_vars())
+    file_loc = os.path.dirname(config_file)
+    with open(config_file) as f:
+        data = json.load(f)
+    vars = data.get("variables", {})
+    if type(vars) is str and vars.startswith("@"):
+        fname = vars[1:]
+        if file_loc == "":
+            file_loc = "."
+        log.debug(f"variables are redirected to {file_loc}/{fname}")
+        with open(f"{file_loc}/{fname}") as f:
+            vars = json.load(f)
+    log.debug(vars)
+    vset.update([ 
+        x 
+        for x in vars.keys() 
+        if vars[x] == "<NOT-SET>"
+    ])
+
+def __replace_vars(vset, config_file):
+    log.debug(f"replacing vars in {config_file}")
+    floc = os.path.dirname(config_file)
+    fname = config_file
+    with open(fname) as f:
+        alldata = json.load(f)
+    varsobj = alldata.get("variables", {})
+
+    if type(varsobj) is str and varsobj.startswith("@"):
+        if floc != "": 
+            floc = floc + "/"
+        fname = floc + varsobj[1:]
+        log.debug(f"variables are redirected to {fname}")
+        with open(f"{fname}") as f:
+            alldata = json.load(f)
+            varsobj = alldata
+    
+    log.debug("replacing variables")
+    for v in vset.keys():
+        if v in varsobj:
+            varsobj[v] = vset[v]
+
+    log.debug("saving file ({fname})")
+    with open(fname, "w") as f:
+        json.dump(alldata, f, indent=4)
 
 def do_init(args):
     if not os.path.exists(args.config_file):
@@ -98,10 +138,8 @@ def do_init(args):
             for root, dirs, files in os.walk(args.dir):
                 for name in files:
                     if os.path.splitext(name)[1] == ".json":
-                        config = azconfig.ConfigFile()
-                        config.open(os.path.join(root, name))
-                        config.replace_vars(vset)
-                        config.save(os.path.join(root, name))
+                        fname = os.path.join(root, name)
+                        __replace_vars(vset, os.path.join(root, name))
 
 def do_scp(args):
     log.debug("reading config file ({})".format(args.config_file))
