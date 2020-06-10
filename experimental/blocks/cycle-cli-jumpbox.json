@@ -40,6 +40,14 @@
             "variables.resource_group",
             "sakey.{{variables.projectstore}}"
         ]
-      }
+      },
+      {
+        "type": "local_script",
+        "script": "cc_nsg.sh",
+        "args": [
+            "variables.resource_group",
+            "cycleserver"
+        ]
+      }  
     ]
   }
