@@ -11,12 +11,13 @@
     "resource_group": "<NOT-SET>",
     "vnet_name": "hpcvnet",
     "admin_user": "hpcadmin",
-    "image": "OpenLogic:CentOS:7.7:latest"
+    "image": "OpenLogic:CentOS:7.7:latest",
+    "jb_vm_type": "Standard_D8s_v3"
   },
   "resources": {
     "jumpbox": {
       "type": "vm",
-      "vm_type": "Standard_D8s_v3",
+      "vm_type": "variables.jb_vm_type",
       "accelerated_networking": true,
       "public_ip": true,
       "image": "variables.image",
