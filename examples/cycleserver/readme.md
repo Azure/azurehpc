@@ -45,6 +45,12 @@ Otherwise, if a new SPN should be automatically created by `azhpc`:
 $ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=<region>,resource_group=<rg_name>,key_vault=<keyvault_name>,spn_name=<spn_name>,projectstore=<storage_account_name>,tenantid=<tenant_id>
 ```
 
+The `tenant_id` value for the desired subscription `sub_name` can be retrieved from the Azure CLI with:
+
+```
+$ az account list --query "[?name=='<sub_name>'].tenantId" -o tsv
+```
+
 ## Create the pre-requisites resources
 
 ```
