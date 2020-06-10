@@ -1,5 +1,6 @@
 #!/bin/bash
-anfmountpoint=$(jetpack config anf.mountpoint)
 anfmountpath=$(jetpack config anf.mountpath)
+anfmountpoint=$(jetpack config anf.mountpoint)
 
-. $CYCLECLOUD_PROJECT_PATH/$CYCLECLOUD_SPEC_NAME/files/auto-netappfiles-mount.sh $anfmountpoint $anfmountpath
+
+. $CYCLECLOUD_PROJECT_PATH/$CYCLECLOUD_SPEC_NAME/files/auto-netappfiles-mount.sh $anfmountpath $anfmountpoint
