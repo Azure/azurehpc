@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import sys
 
@@ -9,11 +10,15 @@ log = azlog.getLogger(__name__)
 
 class ConfigFile:
     def __init__(self):
+        self.file_location = '.'
         self.data = {}
         self.regex = re.compile(r'({{([^{}]*)}})')
 
     def open(self, fname):
         log.debug("opening "+fname)
+        self.file_location = os.path.dirname(fname)
+        if self.file_location == "":
+            self.file_location = "."
         with open(fname) as f:
             self.data = json.load(f)
     
@@ -58,7 +63,14 @@ class ConfigFile:
         elif type(input) == list:
             return self.__evaluate_list(input)
         elif type(input) == str:
-            return self.__process_value(input)
+            fname = self.file_location + "/" + input[1:]
+            if input.startswith("@") and os.path.isfile(fname):
+                log.debug(f"loading include {fname}")
+                with open(fname) as f:
+                    input = json.load(f)
+                return self.__evaluate_dict(input)
+            else:
+                return self.__process_value(input)
         else:
             return input
 
@@ -90,6 +102,14 @@ class ConfigFile:
         try:
             it = self.data
             for x in v.split('.'):
+                if type(it) is str:
+                    fname = self.file_location + "/" + it[1:]
+                    if it.startswith("@") and os.path.isfile(fname):
+                        log.debug(f"loading include {fname}")
+                        with open(fname) as f:
+                            it = json.load(f)
+                    else:
+                        log.error("invalid path in config file ({v})")
                 it = it[x]
             
             if type(it) is str:
