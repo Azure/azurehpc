@@ -25,7 +25,7 @@ The required variables you need to set are:
 | key_vault      | The Key Vault name to use. If it doesn't exists it will be created in the same `resource_group`. If it exists, make sure you have read/write access policies to secrets. |
 | spn_name       | Service Principal Name to be used by CycleCloud. If it doesn't exists it will be created, you have to be owner of the subscription. If it exists you need to store its associated secret in the Key Vault `key_vault` under the secret `CycleAdminPassword`. |
 | projectstore   | The name of the Azure Storage Account to be created to store Cycle Project files. |
-| tenandid       | The tenantId in which the SPN referenced in `spn_name` has been generated.  |
+| tenantid       | The tenantId in which the SPN referenced in `spn_name` has been generated.  |
 
 Only if using an already existing SPN, the following optional variable must be set:
 
@@ -36,13 +36,13 @@ Only if using an already existing SPN, the following optional variable must be s
 To initialize a new CycleCloud server deployment project, if using an already existing SPN:
 
 ```
-$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=<region>,resource_group=<rg_name>,key_vault=<keyvault_name>,spn_name=<spn_name>,projectstore=<storage_account_name>,appid=<spn_appId>,tenandid=<tenant_id>
+$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=<region>,resource_group=<rg_name>,key_vault=<keyvault_name>,spn_name=<spn_name>,projectstore=<storage_account_name>,appid=<spn_appId>,tenantid=<tenant_id>
 ```
 
 Otherwise, if a new SPN should be automatically created by `azhpc`:
 
 ```
-$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=<region>,resource_group=<rg_name>,key_vault=<keyvault_name>,spn_name=<spn_name>,projectstore=<storage_account_name>,tenandid=<tenant_id>
+$ azhpc-init -c $azhpc_dir/examples/cycleserver -d cycleserver -v location=<region>,resource_group=<rg_name>,key_vault=<keyvault_name>,spn_name=<spn_name>,projectstore=<storage_account_name>,tenantid=<tenant_id>
 ```
 
 ## Create the pre-requisites resources
