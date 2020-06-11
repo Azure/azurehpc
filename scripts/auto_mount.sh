@@ -1,25 +1,13 @@
 #!/bin/bash
 yum install -y nfs-utils
 
- 
+mountpath = $1
+mountpoint = $2
 
-anfmountpath = $1
-anfmountpoint = $2
-filesystem = "nfs"
+mkdir -p $mountpoint
 
- 
-
-mkdir -p $anfmountpoint
-
- 
-
-
-echo "$anfmountpath $anfmountpoint $filesystem bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0" >>/etc/fstab
-
- 
+echo "$mountpath $mountpoint nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0" >>/etc/fstab
 
 mount -a
 
- 
-
-chmod 777 $anfmountpoint
+chmod 777 $mountpoint
