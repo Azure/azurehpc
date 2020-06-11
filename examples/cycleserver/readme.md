@@ -60,6 +60,24 @@ $ azhpc-build -c 01-prereqs.json
 
 ## Create the CycleSerer VM and install CycleCloud on the CycleServer VM
 
+If the SPN was created by `azhpc`, the corresponding `appID` can be obtained with the following command:
+
+```
+$ az ad sp list --display-name <spn_name> --query [].appId -o tsv
+```
+
+Manually add the ID value in the `appid` field in `02-cycleserver.json`:
+
+```
+"variables": {
+    [...]
+    "appid": "<appId>",
+    [...]
+},
+```
+
+Once completed, or if using an already existing SPN, build and install CycleCloud with:
+
 ```
 $ azhpc-build -c 02-cycleserver.json
 ```
