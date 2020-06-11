@@ -17,29 +17,28 @@ The "azhpc ccbuild" command will use a config file to generate AzureHPC projects
 To start you need to update the `anfcycle.json` file.  Azurehpc provides the `azhpc-init` command that can help here by copying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
 
 ```
-azhpc init -c $azhpc_dir/examples/cc_anf/anfcycle.json -d cc_anf -s
+$ azhpc init -c $azhpc_dir/examples/cc_anf/anfcycle.json -d cc_anf -s
 ```
 
 The variables can be set with the `-v` option where variables are comma separated.  The output from the previous command as a starting point.  The `-d` option is required and will create a new directory name for you.  Please update to whatever `resource_group` you would like to deploy to:
 
 ```
-azhpc-init -c $azhpc_dir/examples/cc_anf/anfcycle.json -d cc_anf -v resource_group=azurehpc-cc
+$ azhpc-init -c $azhpc_dir/examples/cc_anf/anfcycle.json -d cc_anf -v resource_group=azurehpc-cc
 ```
 
-## Create CycleCloud Cluster with AzureHPC GlusterFS
+## Create CycleCloud Cluster with AzureHPC ANF
 
 ```
-cd cc_anf
-azhpc ccbuild -c anfcycle.json
+$ cd cc_anf
+$ azhpc ccbuild -c anfcycle.json
 ```
 >Note : There is also a conifg file for CC SLURM integration (config_slurmcycle.json)
 
 ## Start CycleCloud Cluster
 Go to CycleCloud server, find your CycleCloud Cluster (pbscycle or slurmcycle) and click on start.
 
-## Check that GlusterFS is Mounted on Master and Nodearray resources.
+## Check that ANF is Mounted on Master.
 
 ```
-df -h
+$ df -h
 ```
-
