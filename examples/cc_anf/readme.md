@@ -1,4 +1,4 @@
-# AzureHPC ANF and CycleCloud Integration
+# Azure NetApps Files and CycleCloud Integration
 
 Outlines the procedure to access a Azure NetApp Files deployed by AzureHPC in CycleCloud (PBS or SLURM).
 
