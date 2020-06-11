@@ -20,4 +20,4 @@ for block in $blocks; do
     init_config $azhpc_dir/experimental/blocks/$block
 done
 
-init_config $azhpc_dir/examples/cc_beegfs_ad/pbscycle.json
+init_config $azhpc_dir/experimental/cc_beegfs_ad/pbscycle.json
