@@ -35,34 +35,34 @@ class ConfigFile:
         log.debug(f"install_from destination : {dest}")
         return dest
     
-    def __evaluate_dict(self, x):
+    def __evaluate_dict(self, x, extended):
         ret = {}
         for k in x.keys():
-            ret[k] = self.__evaluate(x[k])
+            ret[k] = self.__evaluate(x[k], extended)
         return ret
 
-    def __evaluate_list(self, x):
-        return [ self.__evaluate(v) for v in x ]
+    def __evaluate_list(self, x, extended):
+        return [ self.__evaluate(v, extended) for v in x ]
 
-    def __evaluate(self, input):
+    def __evaluate(self, input, extended=True):
         if type(input) == dict:
-            return self.__evaluate_dict(input)
+            return self.__evaluate_dict(input, extended)
         elif type(input) == list:
-            return self.__evaluate_list(input)
+            return self.__evaluate_list(input, extended)
         elif type(input) == str:
             fname = self.file_location + "/" + input[1:]
             if input.startswith("@") and os.path.isfile(fname):
                 log.debug(f"loading include {fname}")
                 with open(fname) as f:
                     input = json.load(f)
-                return self.__evaluate_dict(input)
+                return self.__evaluate_dict(input, extended)
             else:
-                return self.__process_value(input)
+                return self.__process_value(input, extended)
         else:
             return input
 
-    def preprocess(self):
-        res = self.__evaluate(self.data)
+    def preprocess(self, extended=True):
+        res = self.__evaluate(self.data, extended)
         return res
 
     def read_keys(self, v):
@@ -111,13 +111,13 @@ class ConfigFile:
 
         return res
 
-    def __process_value(self, v):
-        log.debug("process_value (enter): "+str(v))
+    def __process_value(self, v, extended=True):
+        log.debug(f"process_value (enter): {v} [extended={extended}]")
 
         def repl(match):
-            return str(self.__process_value(match.group()[2:-2]))
+            return str(self.__process_value(match.group()[2:-2], extended))
     
-        v = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2])), v)
+        v = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2]), extended), v)
         
         parts = v.split('.')
         prefix = parts[0]
@@ -126,7 +126,7 @@ class ConfigFile:
             res = self.read_value(v)
         elif prefix == "secret":
             res = azutil.get_keyvault_secret(parts[1], parts[2])
-        elif prefix == "sasurl":
+        elif extended and prefix == "sasurl":
             log.debug(parts)
             url = azutil.get_storage_url(parts[1])
             x = parts[-1].split(",")
@@ -140,21 +140,21 @@ class ConfigFile:
             log.debug(parts)
             path = ".".join(parts[2:])
             res = f"{url}{path}?{saskey}"
-        elif prefix == "fqdn":
+        elif extended and prefix == "fqdn":
             res = azutil.get_fqdn(self.read_value("resource_group"), parts[1]+"_pip")
-        elif prefix == "sakey":
+        elif extended and prefix == "sakey":
             res = azutil.get_storage_key(parts[1])
-        elif prefix == "saskey":
+        elif extended and prefix == "saskey":
             x = parts[2].split(",")
             if len(x) == 1:
                 x.append("r")
             container = x[0].split('/')[0]
             res = azutil.get_storage_saskey(parts[1], container, x[1])
-        elif prefix == "laworkspace":
+        elif extended and prefix == "laworkspace":
             res = azutil.get_log_analytics_workspace(parts[1], parts[2])
-        elif prefix == "lakey":
+        elif extended and prefix == "lakey":
             res = azutil.get_log_analytics_key(parts[1], parts[2])
-        elif prefix == "acrkey":
+        elif extended and prefix == "acrkey":
             res = azutil.get_acr_key(parts[1])
         else:
             res = v

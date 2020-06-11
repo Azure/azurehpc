@@ -590,7 +590,9 @@ def do_build(args):
 
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    config = c.preprocess()
+    log.debug("About to preprocess")
+    config = c.preprocess(extended=False)
+    log.debug("Preprocessed")
 
     adminuser = config["admin_user"]
     private_key_file = adminuser+"_id_rsa"
@@ -631,6 +633,9 @@ def do_build(args):
     log.debug(f"deployment name: {deployname}")
 
     _wait_for_deployment(config["resource_group"], deployname)
+    
+    log.info("re-evaluating the config")
+    config = c.preprocess()
     
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
