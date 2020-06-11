@@ -24,10 +24,14 @@
       "public_ip": true,
       "image": "variables.image",
       "subnet": "admin",
-      "data_disks": [1024, 1024],
+      "data_disks": [
+        1024,
+        1024
+      ],
       "storage_sku": "Premium_LRS",
       "tags": [
-        "jumpbox", "nfsserver"
+        "jumpbox",
+        "nfsserver"
       ]
     }
   },
@@ -45,20 +49,29 @@
     {
       "script": "create_raid0.sh",
       "tag": "nfsserver",
-      "args": ["/dev/md10", "/dev/sd[c-d]"],
+      "args": [
+        "/dev/md10",
+        "/dev/sd[c-d]"
+      ],
       "sudo": true
     },
     {
-        "script": "make_filesystem.sh",
-        "tag": "nfsserver",
-        "args": ["/dev/md10", "xfs", "/share"],
-        "sudo": true
+      "script": "make_filesystem.sh",
+      "tag": "nfsserver",
+      "args": [
+        "/dev/md10",
+        "xfs",
+        "/share"
+      ],
+      "sudo": true
     },
     {
-        "script": "install-nfsserver.sh",
-        "tag": "nfsserver",
-        "args": ["/share"],
-        "sudo": true
+      "script": "install-nfsserver.sh",
+      "tag": "nfsserver",
+      "args": [
+        "/share"
+      ],
+      "sudo": true
     }
-]
+  ]
 }
