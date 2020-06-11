@@ -19,8 +19,8 @@
     },
     "cyclecloud": {
         "clusters": {
-            "anfcycle": {
-                "template": "pbspro_template_1.3.5",
+            "slurm_anf_cycle": {
+                "template": "slurm_template_2.1.0",
                 "parameters": {
                     "MaxExecuteCoreCount": 1000,
                     "MasterMachineType": "Standard_D8s_v3",
