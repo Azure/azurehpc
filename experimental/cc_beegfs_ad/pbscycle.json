@@ -5,16 +5,14 @@
   "admin_user": "hpcadmin",
   "variables": {
     "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
-    "location": "westeurope",
+    "location": "<NOT-SET>",
     "resource_group": "<NOT-SET>",
     "vm_type": "Standard_HB60rs",
     "vnet_name": "hpcvnet",
     "vnet_resource_group": "variables.resource_group",
-    "key_vault": "hpccatkv",
+    "key_vault": "<NOT-SET>",
     "admin_user": "hpcadmin",
-    "ad_domain": "MyDomain.local",
-    "win_password": "<NOT-SET>",
-    "projectstore": ""
+    "ad_domain": "hpc.local"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
@@ -93,7 +91,7 @@
           "args": [
             "variables.ad_domain",
             "variables.admin_user",
-            "variables.win_password",
+            "variables.secret.{{variables.key_vault}}.DomainAdminPassword",
             "adnode"
           ]
         }

@@ -23,9 +23,9 @@ Edit the variables.json to match your environment. Leave the projectstore empty 
 
 ```json
 {
-    "resource_group": "[my resource group]",
+    "resource_group": "my resource group",
     "location": "westeurope",
-    "key_vault": "[my key vault]",
+    "key_vault": "my key vault",
     "projectstore": ""
   }
 ```
