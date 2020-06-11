@@ -1,8 +1,8 @@
 #!/bin/bash
 yum install -y nfs-utils
 
-mountpath = $1
-mountpoint = $2
+mountpath=$1
+mountpoint=$2
 
 mkdir -p $mountpoint
 
