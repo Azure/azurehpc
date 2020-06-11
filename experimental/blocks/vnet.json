@@ -3,8 +3,15 @@
     "resource_group": "variables.resource_group",
     "install_from": "",
     "admin_user": "variables.admin_user",
+    "variables": {
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vnet_resource_group": "variables.resource_group",
+        "vnet_name": "hpcvnet",
+        "admin_user": "hpcadmin"
+    },
     "vnet": {
-        "resource_group": "variables.resource_group",
+        "resource_group": "variables.vnet_resource_group",
         "name": "variables.vnet_name",
         "address_prefix": "10.2.0.0/20",
         "subnets": {
@@ -14,12 +21,6 @@
             "viz": "10.2.4.0/24",
             "compute": "10.2.8.0/22"
         }
-    },
-    "variables": {
-        "location": "<NOT-SET>",
-        "resource_group": "<NOT-SET>",
-        "vnet_name": "hpcvnet",
-        "admin_user": "hpcadmin"
     },
     "resources": {},
     "install": []

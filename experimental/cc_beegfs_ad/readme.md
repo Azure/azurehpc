@@ -1,5 +1,5 @@
 # Building the infrastructure
-Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER and BEEGFS by using building blocks. These blocks are stored into the experimental/blocks directory.
+Here we will explain how to deploy a full system with a VNET, JUMPBOX, Active Directory, CYCLESERVER and BEEGFS by using building blocks. These blocks are stored into the experimental/blocks directory.
 
 ## Step 1 - install azhpc
 after cloning azhpc, source the install.sh script
@@ -12,11 +12,11 @@ $ mkdir cluster
 $ cd cluster
 ```
 
-Then copy the init.sh and variables.json from examples/cc_beegfs to your working directory.
+Then copy the init.sh and variables.json from experimental/cc_beegfs_ad to your working directory.
 
 ```
-$ cp $azhpc_dir/examples/cc_beegfs/init.sh .
-$ cp $azhpc_dir/examples/cc_beegfs/variables.json .
+$ cp $azhpc_dir/experimental/cc_beegfs_ad/init.sh .
+$ cp $azhpc_dir/experimental/cc_beegfs_ad/variables.json .
 ```
 
 Edit the variables.json to match your environment. Leave the projectstore empty as it will be filled up with a random value by the init script. An existing keyvault should be referenced as it won't be created for you.
@@ -24,7 +24,7 @@ Edit the variables.json to match your environment. Leave the projectstore empty 
 ```json
 {
     "resource_group": "my resource group",
-    "location": "location",
+    "location": "westeurope",
     "key_vault": "my key vault",
     "projectstore": ""
   }
@@ -41,11 +41,22 @@ $ ./init.sh
 ```
 $ azhpc-build -c vnet.json
 $ azhpc-build --no-vnet -c jumpbox.json
+$ azhpc-build --no-vnet -c ad.json
 $ azhpc-build --no-vnet -c cycle-prereqs-managed-identity.json
 $ azhpc-build --no-vnet -c cycle-install-server-managed-identity.json
 ```
 
-## Step 3 - Deploy the Cycle CLI
+## Step 3 - Connect to CycleServer UI
+Retrieve the CycleServer DNS name from the azure portal and browse to it with https.
+Retrieve the Cycle admin password from the logs 
+
+```
+$ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
+```
+
+Connect to the Cycle UI with hpcadmin user and the password retrieved above.
+
+## Step 4 - Deploy the Cycle CLI
 Deploy the Cycle CLI locally and on the jumpbox
 
 ```
@@ -53,30 +64,19 @@ $ azhpc-build --no-vnet -c cycle-cli-local.json
 $ azhpc-build --no-vnet -c cycle-cli-jumpbox.json
 ```
 
-## Step 4 - Now deploy the BeeGFS cluster
+## Step 5 - Now deploy the BeeGFS cluster
 ```
 $ azhpc-build --no-vnet -c beegfs-cluster.json
 ```
 
-## Step 5 - Create the PBS cluster in CycleCloud
+## Step 6 - Create the PBS cluster in CycleCloud
 
 ```
 $ azhpc ccbuild -c pbscycle.json
 ```
 
-## Step 6 - Connect to CycleServer UI
-Retrieve the CycleServer DNS name by connecting with azhpc
+## Step 7 - Connect to the Active Directory to create users
 
 ```
-$ azhpc-connect -c cycle-install-server-managed-identity.json cycleserver
-[2020-06-10 08:28:04] logging directly into cycleserver559036.westeurope.cloudapp.azure.com
-$ [hpcadmin@cycleserver ~]$ exit
+$ azhpc-connect -c ad.json adnode
 ```
-
-Retrieve the Cycle admin password from the logs 
-
-```
-$ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
-```
-
-Connect to the Cycle UI with hpcadmin user and the password retrieved above. Check that you have a pbscycle cluster ready and start it
