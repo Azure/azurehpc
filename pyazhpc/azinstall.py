@@ -28,6 +28,11 @@ cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 tag=linux
 
+if [ ! -f "hostlists/$tag" ]; then
+    echo "no hostlist ($tag), exiting"
+    exit 0
+fi
+
 # wait for DNS to update for all hostnames
 for h in $(<hostlists/$tag); do
     until host $h >/dev/null 2>&1; do
