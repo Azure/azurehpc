@@ -27,7 +27,7 @@
             "vm_type": "variables.lustre_vm_type",
             "instances": "variables.lustre_instances",
             "accelerated_networking": true,
-            "image": "variables.lustreimage",
+            "image": "variables.lustre_image",
             "subnet": "storage",
             "tags": [
                 "cndefault",
