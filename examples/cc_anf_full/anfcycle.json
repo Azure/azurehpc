@@ -64,7 +64,7 @@
                              "variables.anf_mount_host",
                              "variables.anf_mount_point"
                             ]
-                }
+                },
                 {
                     "script": "replace_nfs_with_anf.sh",
                     "args": [ "variables.anf_mount_point" ]
