@@ -20,7 +20,7 @@
     "cyclecloud": {
         "clusters": {
             "anfcycle": {
-                "template": "anf_cycle_template",
+                "template": "pbspro_template_1.3.5",
                 "parameters": {
                     "MaxExecuteCoreCount": 1000,
                     "MasterMachineType": "Standard_D8s_v3",
