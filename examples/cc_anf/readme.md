@@ -12,9 +12,9 @@ Outlines the procedure to access a Azure NetApp Files deployed by AzureHPC in Cy
 
 The "azhpc ccbuild" command will use a config file to generate AzureHPC projects/Specs and upload them to your default CycleCloud locker. A CycleCloud template parameter file will also be generated based on the parameters you specify in the config file. A default CycleCloud template (PBS or SLURM) (i.e no editing the CC template) will be used to start a CycleCloud cluster using the generated template parameter json file.
 
-## Initialize the AzureHPC project (e.g for PBS, similar procedure for SLURM using other config file)
+## Update the `anfcycle.json` file
 
-To start you need to update the `anfcycle.json` file.  Azurehpc provides the `azhpc-init` command that can help here by copying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
+Azurehpc provides the `azhpc-init` command that can help here by copying the directory and substituting the unset variables. First run with the `-s` parameter to see which variables need to be set:
 
 ```
 $ azhpc init -c $azhpc_dir/examples/cc_anf/anfcycle.json -d cc_anf -s
