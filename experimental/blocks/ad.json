@@ -23,7 +23,7 @@
     "adnode": {
       "type": "vm",
       "public_ip": false,
-      "password": "variables.win_password",
+      "password": "secret.{{variables.key_vault}}.DomainAdminPassword",
       "vm_type": "variables.ad_vm_type",
       "os_storage_sku": "StandardSSD_LRS",
       "os_disk_size": 127,
@@ -41,7 +41,7 @@
              "adnode",
              "variables.ad_domain",
              "variables.admin_user",
-             "variables.secret.{{variables.key_vault}}.DomainAdminPassword"
+             "secret.{{variables.key_vault}}.DomainAdminPassword"
            ]
        }
      ]

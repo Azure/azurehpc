@@ -91,7 +91,7 @@
           "args": [
             "variables.ad_domain",
             "variables.admin_user",
-            "variables.secret.{{variables.key_vault}}.DomainAdminPassword",
+            "secret.{{variables.key_vault}}.DomainAdminPassword",
             "adnode"
           ]
         }
