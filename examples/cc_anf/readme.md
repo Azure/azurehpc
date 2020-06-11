@@ -37,8 +37,30 @@ $ azhpc ccbuild -c anfcycle.json
 ## Start CycleCloud Cluster
 Go to CycleCloud server, find your CycleCloud Cluster (pbscycle or slurmcycle) and click on start.
 
-## Check that ANF is Mounted on Master.
+## Connect to the master node of your cluster, and then check that ANF is mounted.
 
 ```
-$ df -h
+[hpcadmin@jumpbox examples]$ cyclecloud connect master -c anfcycle
+Connecting to hpcadmin@10.2.4.9 (anfcycle master) using SSH
+Last login: Thu Jun 11 09:16:37 2020 from 10.22.1.4
+
+ __        __  |    ___       __  |    __         __|
+(___ (__| (___ |_, (__/_     (___ |_, (__) (__(_ (__|
+        |
+
+Cluster: anfcycle
+Version: 7.9.5
+Run List: recipe[cyclecloud], role[pbspro_master_role], recipe[cluster_init]
+[hpcadmin@ip-0A020409 ~]$ df -h
+Filesystem               Size  Used Avail Use% Mounted on
+devtmpfs                  16G     0   16G   0% /dev
+tmpfs                     16G     0   16G   0% /dev/shm
+tmpfs                     16G  9.1M   16G   1% /run
+tmpfs                     16G     0   16G   0% /sys/fs/cgroup
+/dev/sda2                 30G  9.8G   20G  34% /
+/dev/sda1                494M   65M  430M  13% /boot
+/dev/sda15               495M   12M  484M   3% /boot/efi
+/dev/sdb1                 63G   53M   60G   1% /mnt/resource
+10.2.8.4:/raymondanfvol  100T  448K  100T   1% /netapps
+tmpfs                    3.2G     0  3.2G   0% /run/user/20003
 ```
