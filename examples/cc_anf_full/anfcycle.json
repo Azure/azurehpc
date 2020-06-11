@@ -20,7 +20,7 @@
     "cyclecloud": {
         "clusters": {
             "anfcycle": {
-                "template": "anf_cycle_template",
+                "template": "pbspro_template_1.3.5",
                 "parameters": {
                     "MaxExecuteCoreCount": 1000,
                     "MasterMachineType": "Standard_D8s_v3",
@@ -64,7 +64,7 @@
                              "variables.anf_mount_host",
                              "variables.anf_mount_point"
                             ]
-                }
+                },
                 {
                     "script": "replace_nfs_with_anf.sh",
                     "args": [ "variables.anf_mount_point" ]
