@@ -19,7 +19,7 @@
     },
     "cyclecloud": {
         "clusters": {
-            "anfcycle": {
+            "pbs_anf_cycle": {
                 "template": "pbspro_template_1.3.5",
                 "parameters": {
                     "MaxExecuteCoreCount": 1000,
