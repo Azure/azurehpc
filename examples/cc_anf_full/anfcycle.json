@@ -32,7 +32,7 @@
                     "ReturnProxy": false,
                     "Region": "variables.location",
                     "MasterClusterInitSpecs": {
-                        "azurehpc:beegfs:1.0.0": {
+                        "azurehpc:anf:1.0.0": {
                             "Order": 10000,
                             "Name": "azurehpc:anf:1.0.0",
                             "Spec": "anf",
@@ -44,7 +44,7 @@
                     "ExecuteMachineType": "variables.vm_type",
                     "ImageName": "variables.hpc_image",
                     "ExecuteClusterInitSpecs": {
-                        "azurehpc:beegfs:1.0.0": {
+                        "azurehpc:anf:1.0.0": {
                             "Order": 10000,
                             "Name": "azurehpc:anf:1.0.0",
                             "Spec": "anf",
@@ -57,7 +57,14 @@
             }
         },
         "projects": {
-            "azurehpc:beegfs:1.0.0": [
+            "azurehpc:anf:1.0.0": [
+                {
+                    "script": "auto_mount.sh",
+                    "args": [ 
+                             "variables.anf_mount_host",
+                             "variables.anf_mount_point"
+                            ]
+                }
                 {
                     "script": "replace_nfs_with_anf.sh",
                     "args": [ "variables.anf_mount_point" ]
