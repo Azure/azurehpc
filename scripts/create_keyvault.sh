@@ -8,5 +8,5 @@ az keyvault show -n $key_vault --output table 2>/dev/null
 if [ "$?" = "0" ]; then
     echo "keyvault $key_vault already exists"
 else
-    az keyvault create --name $key_vault --resource-group $resource_group --output table
+    az keyvault create --name $key_vault --resource-group $resource_group  --enable-soft-delete false --output table
 fi
