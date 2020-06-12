@@ -18,14 +18,31 @@
         "lustre_instances": 2,
         "lustre_storage_account": "<NOT-SET>",
         "lustre_storage_container": "hsm",
-        "lustre_version": "2.12.4",
-        "lustre_mount": "/lustre"
+        "lustre_version": "<NOT-SET>",
+        "lustre_mount": "/lustre",
+        "lustre_avset": "{{variables.resource_group}}avset"
     },
     "resources": {
+        "lustremaster": {
+            "type": "vm",
+            "vm_type": "variables.lustre_vm_type",
+            "availability_set": "variables.lustre_avset",
+            "accelerated_networking": true,
+            "image": "variables.lustre_image",
+            "subnet": "storage",
+            "tags": [
+                "cndefault",
+                "lustremaster",
+                "lustre",
+                "lfsrepo",
+                "disable-selinux"
+            ]
+        },
         "lustre": {
             "type": "vmss",
             "vm_type": "variables.lustre_vm_type",
             "instances": "variables.lustre_instances",
+            "availability_set": "variables.lustre_avset",
             "accelerated_networking": true,
             "image": "variables.lustre_image",
             "subnet": "storage",
@@ -72,7 +89,7 @@
         },
         {
             "script": "lfsmaster.sh",
-            "tag": "lustre",
+            "tag": "lustremaster",
             "args": [
                 "/dev/sdb"
             ],
@@ -81,7 +98,7 @@
         {
             "script": "lfsoss.sh",
             "args": [
-                "$(head -n1 hostlists/tags/lustre)",
+                "lustremaster",
                 "/dev/md10"
             ],
             "tag": "lustre",
@@ -90,7 +107,7 @@
         {
             "script": "lfshsm.sh",
             "args": [
-                "$(head -n1 hostlists/tags/lustre)",
+                "lustremaster",
                 "variables.lustre_storage_account",
                 "sakey.{{variables.lustre_storage_account}}",
                 "variables.lustre_storage_container",
