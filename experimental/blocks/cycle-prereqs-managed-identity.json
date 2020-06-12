@@ -8,9 +8,9 @@
     "resource_group": "<NOT-SET>",
     "vnet_resource_group": "variables.resource_group",
     "key_vault": "<NOT-SET>",
-    "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
-    "vnet_name": "hpcvnet"
+    "vnet_name": "hpcvnet",
+    "cc_password_secret_name": "CycleAdminPassword"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
@@ -31,7 +31,7 @@
       "script": "create_password_in_keyvault.sh",
       "args": [
         "variables.key_vault",
-        "CycleAdminPassword"
+        "variables.cc_password_secret_name"
       ]
     }
   ]
