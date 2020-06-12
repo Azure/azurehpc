@@ -18,7 +18,7 @@ python cyclecloud_install.py \
     --publickey "$key" \
     --password ${password} \
     --storageAccount $projectstore
-if [ "$?" -ne "0" ]; then
+if [ $? -ne 0 ]; then
     echo "Error : Error installing Cycle Cloud"
     exit 1
 fi

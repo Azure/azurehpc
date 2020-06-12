@@ -9,6 +9,8 @@ echo $1 $2 $3 $4
 
 yum install sssd realmd oddjob oddjob-mkhomedir adcli samba-common samba-common-tools krb5-workstation openldap-clients policycoreutils-python -y
 
+semodule -i ../files/mkhomedir.pp
+
 systemctl restart dbus
 systemctl restart systemd-logind
 

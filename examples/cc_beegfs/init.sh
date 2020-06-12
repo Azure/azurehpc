@@ -20,5 +20,6 @@ for block in $blocks; do
     init_config $azhpc_dir/experimental/blocks/$block
 done
 
+sed -i "s/#projectstore#/$locker/g" cycle-install-server-managed-identity.json
 init_config $azhpc_dir/examples/cc_beegfs/pbscycle.json
 init_config $azhpc_dir/examples/cc_beegfs/slurmcycle.json
