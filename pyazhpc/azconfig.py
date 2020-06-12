@@ -117,7 +117,7 @@ class ConfigFile:
         def repl(match):
             return str(self.__process_value(match.group()[2:-2], extended))
     
-        v = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2]), extended), v)
+        v = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2], extended)), v)
         
         parts = v.split('.')
         prefix = parts[0]
