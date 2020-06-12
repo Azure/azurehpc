@@ -20,11 +20,18 @@
   "install": [
     {
       "type": "local_script",
-      "script": "cc_prereqs_managed_identity.sh",
+      "script": "create_keyvault.sh",
       "args": [
         "variables.resource_group",
+        "variables.key_vault"
+      ]
+    },
+    {
+      "type": "local_script",
+      "script": "create_password_in_keyvault.sh",
+      "args": [
         "variables.key_vault",
-        "variables.projectstore"
+        "CycleAdminPassword"
       ]
     }
   ]
