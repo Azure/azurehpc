@@ -60,11 +60,20 @@ $ azhpc-build --no-vnet -c beegfs-cluster.json
 
 ## Step 5 - Create the PBS cluster in CycleCloud
 
+To create a PBS cluster attached to BeeGFS:
+
 ```
 $ azhpc ccbuild -c pbscycle.json
 ```
 
+Similarly, for a Slurm cluster:
+
+```
+$ azhpc ccbuild -c slurmcycle.json
+```
+
 ## Step 6 - Connect to CycleServer UI
+
 Retrieve the CycleServer DNS name by connecting with azhpc
 
 ```
@@ -79,4 +88,4 @@ Retrieve the Cycle admin password from the logs
 $ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
 ```
 
-Connect to the Cycle UI with hpcadmin user and the password retrieved above. Check that you have a pbscycle cluster ready and start it
+Connect to the Cycle UI with hpcadmin user and the password retrieved above. Check that you have a pbscycle cluster ready and start it.
