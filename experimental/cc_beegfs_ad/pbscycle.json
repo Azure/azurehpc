@@ -87,13 +87,14 @@
       ],
       "azurehpc:adjoin:1.0.0": [
         {
-          "script": "join_domain.sh",
+          "script": "join_domain_simple.sh",
           "args": [
             "variables.ad_domain",
             "variables.admin_user",
             "secret.{{variables.key_vault}}.DomainAdminPassword",
             "adnode"
-          ]
+          ],
+        "deps": [ "mkhomedir.pp" ]
         }
       ]
     }
