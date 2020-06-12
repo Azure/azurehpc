@@ -5,12 +5,12 @@
     "admin_user": "hpcadmin",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
-        "location": "southcentralus",
-        "resource_group": "raymond_rg",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
         "vm_type": "Standard_HB60rs",
-        "vnet_name": "hpcvnet",
+        "vnet_name": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
-        "anf_mount_host": "10.2.8.4:/raymondanfvol",
+        "anf_mount_host": "<NOT-SET>",
         "anf_mount_point": "/netapps"
     },
     "vnet": {
@@ -19,8 +19,8 @@
     },
     "cyclecloud": {
         "clusters": {
-            "anfcycle": {
-                "template": "pbspro_template_1.3.5",
+            "slurm_anf_cycle": {
+                "template": "slurm_template_2.1.0",
                 "parameters": {
                     "MaxExecuteCoreCount": 1000,
                     "MasterMachineType": "Standard_D8s_v3",

@@ -305,6 +305,38 @@ class ArmTemplate:
                     ]
                 self.resources.append(netapp_volume)
 
+    def _add_azurestorage(self, cfg, name):
+        loc = cfg["location"]
+        
+        res = {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": name,
+            "location": loc,
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "accessTier": "Hot"
+            },
+            "resources": []
+        }
+
+        for container in cfg["storage"][name].get("containers", []):
+            res["resources"].append(
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2019-06-01",
+                    "name": f"default/{container}",
+                    "dependsOn": [
+                        name
+                    ]
+                }
+            )
+        
+        self.resources.append(res)
+
     def _add_proximity_group(self, cfg):
         ppg = cfg.get("proximity_placement_group_name", None)
         if ppg:
@@ -816,6 +848,8 @@ class ArmTemplate:
             stype = cfg["storage"][s]["type"]
             if stype == "anf":
                 self._add_netapp(cfg, s, deploy_network)
+            elif stype == "azurestorage":
+                self._add_azurestorage(cfg, s)
             else:
                 log.error("unrecognised storage type ({}) for {}".format(stype, s))
         
