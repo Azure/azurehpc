@@ -37,7 +37,7 @@
                 "variables.simple_variable", "value",
                 "variables.use_variable", "value",
                 "variables.double_curly_braces", "simple_variable=value",
-                "secret.{{variables.key_vault}}.{{variables.secret_name}}", "secretvalue",
+                "secret.{{variables.key_vault}}.secret", "secretvalue",
                 "laworkspace.{{variables.resource_group}}.{{variables.la_workspace}}", "laworkspace.{{variables.resource_group}}.{{variables.la_workspace}}",
                 "lakey.{{variables.resource_group}}.{{variables.la_workspace}}", "lakey.{{variables.resource_group}}.{{variables.la_workspace}}",
                 "acrkey.{{variables.uuidname}}", "acrkey.{{variables.uuidname}}"
