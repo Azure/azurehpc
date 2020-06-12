@@ -74,7 +74,6 @@
         "lustremaster": {
             "type": "vm",
             "vm_type": "variables.lustre_sku",
-            "instances": "variables.lustre_instances",
             "availability_set": "variables.lustre_avset",
             "accelerated_networking": true,
             "image": "variables.lustreimage",
