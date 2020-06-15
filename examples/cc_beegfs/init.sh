@@ -34,6 +34,7 @@ sed -i "s/#projectstore#/$locker/g" config.json
 
 # Init cycle config file
 init_config $azhpc_dir/examples/cc_beegfs/pbscycle.json
+init_config $azhpc_dir/examples/cc_beegfs/slurmcycle.json
 
 # Concatenate install array into a single one
 jq -s '[.[].install[]]' $blocks > install.json
@@ -46,3 +47,6 @@ cp temp.json config.json
 # Merge variables file into config file
 cp config.json temp.json
 jq '.variables+=$variables' --argjson variables "$(cat variables.json)" temp.json > config.json
+
+cp cycle-prereqs-managed-identity.json temp.json
+jq '.variables+=$variables' --argjson variables "$(cat variables.json)" temp.json > cycle-prereqs-managed-identity.json

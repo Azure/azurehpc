@@ -39,26 +39,11 @@ $ ./init.sh
 ## Step 2 - Build the system
 
 ```
-$ azhpc-build -c vnet.json
-$ azhpc-build --no-vnet -c jumpbox.json
 $ azhpc-build --no-vnet -c cycle-prereqs-managed-identity.json
-$ azhpc-build --no-vnet -c cycle-install-server-managed-identity.json
+$ azhpc-build 
 ```
 
-## Step 3 - Deploy the Cycle CLI
-Deploy the Cycle CLI locally and on the jumpbox
-
-```
-$ azhpc-build --no-vnet -c cycle-cli-local.json
-$ azhpc-build --no-vnet -c cycle-cli-jumpbox.json
-```
-
-## Step 4 - Now deploy the BeeGFS cluster
-```
-$ azhpc-build --no-vnet -c beegfs-cluster.json
-```
-
-## Step 5 - Create the PBS cluster in CycleCloud
+## Step 3 - Create the PBS cluster in CycleCloud
 
 To create a PBS cluster attached to BeeGFS:
 
@@ -72,12 +57,12 @@ Similarly, for a Slurm cluster:
 $ azhpc ccbuild -c slurmcycle.json
 ```
 
-## Step 6 - Connect to CycleServer UI
+## Step 4 - Connect to CycleServer UI
 
 Retrieve the CycleServer DNS name by connecting with azhpc
 
 ```
-$ azhpc-connect -c cycle-install-server-managed-identity.json cycleserver
+$ azhpc-connect cycleserver
 [2020-06-10 08:28:04] logging directly into cycleserver559036.westeurope.cloudapp.azure.com
 $ [hpcadmin@cycleserver ~]$ exit
 ```
@@ -85,7 +70,7 @@ $ [hpcadmin@cycleserver ~]$ exit
 Retrieve the Cycle admin password from the logs 
 
 ```
-$ grep password azhpc_install_cycle-install-server-managed-identity/install/*.log
+$ grep password azhpc_install_config/install/*.log
 ```
 
 Connect to the Cycle UI with hpcadmin user and the password retrieved above. Check that you have a pbscycle cluster ready and start it.
