@@ -1,7 +1,6 @@
 {
     "location": "variables.location",
     "resource_group": "variables.resource_group",
-    "install_from": "",
     "admin_user": "hpcadmin",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",

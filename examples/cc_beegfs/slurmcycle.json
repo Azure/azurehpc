@@ -1,19 +1,16 @@
 {
   "location": "variables.location",
   "resource_group": "variables.resource_group",
-  "install_from": "",
   "admin_user": "hpcadmin",
   "variables": {
     "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
     "hpc_vm_type": "Standard_HB60rs",
-    "htc_vm_type": "Standard_D32s_v3",    
+    "htc_vm_type": "Standard_D16s_v3",
     "location": "<NOT-SET>",
     "resource_group": "<NOT-SET>",
     "vm_type": "Standard_HB60rs",
     "vnet_name": "hpcvnet",
-    "vnet_resource_group": "variables.resource_group",
-    "key_vault": "dv-azhpckv",
-    "projectstore": "locker99113d"
+    "vnet_resource_group": "variables.resource_group"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
@@ -32,7 +29,7 @@
           "HPCMachineType": "variables.hpc_vm_type",
           "MasterImageName": "variables.htc_image",
           "HTCImageName": "variables.htc_image",
-          "HPCImageName": "variables.hpc_image",          
+          "HPCImageName": "variables.hpc_image",
           "Credentials": "azure",
           "Autoscale": true,
           "SubnetId": "{{variables.resource_group}}/hpcvnet/compute",
