@@ -1,11 +1,10 @@
 {
     "location": "variables.location",
     "resource_group": "variables.resource_group",
-    "install_from": "variables.jumpbox",
+    "install_from": "jumpbox",
     "admin_user": "variables.admin_user",
     "variables": {
         "location": "<NOT-SET>",
-        "jumpbox": "fqdn.jumpbox",
         "resource_group": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
         "vnet_name": "hpcvnet",
