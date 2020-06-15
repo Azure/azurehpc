@@ -30,22 +30,20 @@
             "image": "variables.lustre_image",
             "subnet": "storage",
             "tags": [
-                "cndefault",
                 "lustre",
-                "lfsrepo",
-                "disable-selinux"
+                "lfsrepo"
             ]
         }
     },
     "install": [
         {
             "script": "disable-selinux.sh",
-            "tag": "disable-selinux",
+            "tag": "lustre",
             "sudo": true
         },
         {
             "script": "cndefault.sh",
-            "tag": "cndefault",
+            "tag": "lustre",
             "sudo": true
         },
         {

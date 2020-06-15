@@ -38,7 +38,6 @@
         "scope": "resource_group"
     }, 
     "tags": [
-        "disable-selinux",
         "cycle"
       ]
     }
@@ -46,7 +45,7 @@
   "install": [
     {
       "script": "disable-selinux.sh",
-      "tag": "disable-selinux",
+      "tag": "cycle",
       "sudo": true
     },
     {
