@@ -8,8 +8,8 @@
     "name": "variables.vnet_name"
   },
   "variables": {
-    "resource_group": "narcycle",
-    "location": "southcentralus",
+    "resource_group": "<NOT-SET>",
+    "location": "<NOT-SET>",
     "vnet_name": "hpcvnet",
     "jumpbox": "fqdn.jumpbox",
     "vnet_resource_group": "variables.resource_group",
@@ -20,8 +20,8 @@
     "lustre_storage_container": "hsm",
     "lustre_version": "2.12.4",
     "lustre_mount": "/lustre",
-    "key_vault": "hpccatkv",
-    "projectstore": "locker2fd97b"
+    "key_vault": "<NOT-SET>",
+    "projectstore": "<NOT-SET>"
   },
   "resources": {
     "lustre": {

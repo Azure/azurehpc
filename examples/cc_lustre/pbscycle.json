@@ -1,17 +1,16 @@
 {
   "location": "variables.location",
   "resource_group": "variables.resource_group",
-  "install_from": "",
   "admin_user": "hpcadmin",
   "variables": {
     "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
-    "location": "southcentralus",
-    "resource_group": "narcycle",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
     "vm_type": "Standard_HB60rs",
     "vnet_name": "hpcvnet",
     "vnet_resource_group": "variables.resource_group",
-    "key_vault": "hpccatkv",
-    "projectstore": "lockerd5b40b"
+    "key_vault": "<NOT-SET>",
+    "projectstore": "<NOT-SET>"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
@@ -32,7 +31,7 @@
           "ReturnProxy": false,
           "Region": "variables.location",
           "MasterClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:lustre:1.0.0": {
               "Order": 10000,
               "Name": "azurehpc:lustre:1.0.0",
               "Spec": "lustre",
