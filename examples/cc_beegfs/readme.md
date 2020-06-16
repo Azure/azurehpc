@@ -39,7 +39,7 @@ $ ./init.sh
 ## Step 2 - Build the system
 
 ```
-$ azhpc-build --no-vnet -c cycle-prereqs-managed-identity.json
+$ azhpc-build --no-vnet -c prereqs.json
 $ azhpc-build 
 ```
 
@@ -49,23 +49,19 @@ To create a PBS cluster attached to BeeGFS:
 
 ```
 $ azhpc ccbuild -c pbscycle.json
+$ cyclecloud start_cluster pbscycle
 ```
 
 Similarly, for a Slurm cluster:
 
 ```
 $ azhpc ccbuild -c slurmcycle.json
+$ cyclecloud start_cluster slurmcycle
 ```
 
 ## Step 4 - Connect to CycleServer UI
 
-Retrieve the CycleServer DNS name by connecting with azhpc
-
-```
-$ azhpc-connect cycleserver
-[2020-06-10 08:28:04] logging directly into cycleserver559036.westeurope.cloudapp.azure.com
-$ [hpcadmin@cycleserver ~]$ exit
-```
+Retrieve the CycleServer DNS name from the azure portal
 
 Retrieve the Cycle admin password from the logs 
 

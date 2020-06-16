@@ -9,46 +9,14 @@ locker="locker$uuid_str"
 jq '.projectstore=$locker' --arg locker $locker $AZHPC_VARIABLES > temp.json
 cp temp.json $AZHPC_VARIABLES
 
-cat <<EOF >$AZHPC_CONFIG
-{}
-EOF
+blocks="$block_dir/vnet.json $block_dir/jumpbox.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json $block_dir/beegfs-cluster.json $azhpc_dir/examples/cc_beegfs/pbscycle.json"
 
-function init_and_merge_config()
-{
-    local config=$1
-    azhpc-init -d . -c $config
-    config_file=${config##*/}
+# Initialize config file
+echo "{}" >$AZHPC_CONFIG
+$azhpc_dir/init_and_merge.sh "$blocks" $AZHPC_CONFIG $AZHPC_VARIABLES
 
-    # Merge config files
-    cp $AZHPC_CONFIG temp.json
-    jq -s '.[0] * .[1]' temp.json $config_file > $AZHPC_CONFIG
-}
-
-blocks="vnet.json jumpbox.json cycle-prereqs-managed-identity.json cycle-install-server-managed-identity.json cycle-cli-local.json cycle-cli-jumpbox.json beegfs-cluster.json"
-
-for block in $blocks; do
-    echo "initializing config for $block"
-    init_and_merge_config $block_dir/$block
-done
-
-# Concatenate install array into a single one
-jq -s '[.[].install[]]' $blocks > install.json
-
-# Replace the install array into the final config file
-items=$(cat install.json)
-jq '.install=$items' --argjson items "$items" $AZHPC_CONFIG > temp.json
-cp temp.json $AZHPC_CONFIG
-
-# Init cycle config file
-init_and_merge_config $azhpc_dir/examples/cc_beegfs/pbscycle.json
-init_and_merge_config $azhpc_dir/examples/cc_beegfs/slurmcycle.json
-
-# Merge variables file into config file
-cp $AZHPC_CONFIG temp.json
-jq '.variables+=$variables' --argjson variables "$(cat $AZHPC_VARIABLES)" temp.json > $AZHPC_CONFIG
-
-cp cycle-prereqs-managed-identity.json temp.json
-jq '.variables+=$variables' --argjson variables "$(cat $AZHPC_VARIABLES)" temp.json > cycle-prereqs-managed-identity.json
+prereqs="$block_dir/cycle-prereqs-managed-identity.json"
+$azhpc_dir/init_and_merge.sh $prereqs prereqs.json $AZHPC_VARIABLES
 
 # Update locker name
 sed -i "s/#projectstore#/$locker/g" $AZHPC_CONFIG
