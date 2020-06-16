@@ -43,7 +43,7 @@
           "ExecuteMachineType": "variables.vm_type",
           "ImageName": "variables.hpc_image",
           "ExecuteClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:lustre:1.0.0": {
               "Order": 10000,
               "Name": "azurehpc:lustre:1.0.0",
               "Spec": "lustre",
