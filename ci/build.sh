@@ -51,7 +51,7 @@ config_file=$(basename $AZHPC_CONFIG)
 # clean up project dir
 if [ -d $PROJECT_DIR ]; then
     ls -al $PROJECT_DIR
-    rm -rf $PROJECT_DIR 
+#    rm -rf $PROJECT_DIR 
 fi
 
 echo "Calling azhpc-init"
