@@ -54,9 +54,9 @@ steps:
         azhpc-build $AZHPC_OPTION --no-vnet -c prereqs.json
 
         # Override AZHPC_CONFIG so that the build command executed by the job pipeline will use this config config_file
-        export AZHPC_CONFIG=$(pwd)/config.json
-        echo "##vso[task.setvariable variable=azhpc.config]$AZHPC_CONFIG"
+        export AZHPC_CONFIG=$conf_dir/config.json
         echo $AZHPC_CONFIG
+        echo "##vso[task.setvariable variable=azhpc.config]$AZHPC_CONFIG"
       failOnStandardError: false
     continueOnError: false
 
