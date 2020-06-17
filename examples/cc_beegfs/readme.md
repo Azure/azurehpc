@@ -19,15 +19,16 @@ $ cp $azhpc_dir/examples/cc_beegfs/init.sh .
 $ cp $azhpc_dir/examples/cc_beegfs/variables.json .
 ```
 
-Edit the variables.json to match your environment. Give a unique value to `projectstore`. An existing keyvault should be referenced as it won't be created for you.
+Edit the variables.json to match your environment. Give a unique value to `uuid`. An existing keyvault should be referenced as it won't be created for you.
 
 ```json
 {
   "variables": {
     "resource_group": "my resource group",
-    "location": "location",
+    "location": "my location",
     "key_vault": "my key vault",
-    "projectstore": "unique value"
+    "uuid": "unique value",
+    "projectstore": "locker{{variables.uuid}}"
   }
 }
 ```

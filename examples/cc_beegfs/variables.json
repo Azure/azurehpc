@@ -3,6 +3,7 @@
     "resource_group": "my resource group",
     "location": "my location",
     "key_vault": "my key vault",
-    "projectstore": "unique value"
+    "uuid": "unique value",
+    "projectstore": "locker{{variables.uuid}}"
   }
 }
