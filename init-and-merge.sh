@@ -30,13 +30,14 @@ for config in $config_list; do
 done
 
 # Concatenate install array into a single one
-jq -s '[.[].install[]]' $config_list > install.json
+install_list=$(jq -s '[.[].install[]]' $config_list)
 
 # Replace the install array into the final config file
-items=$(cat install.json)
-jq '.install=$items' --argjson items "$items" $AZHPC_CONFIG > temp.json
+jq '.install=$items' --argjson items "$install_list" $AZHPC_CONFIG > temp.json
 cp temp.json $AZHPC_CONFIG
 
 # Merge variables file into config file
 cp $AZHPC_CONFIG temp.json
 jq '.variables+=$variables' --argjson variables "$(jq '.variables' $AZHPC_VARIABLES)" temp.json > $AZHPC_CONFIG
+
+rm temp.json

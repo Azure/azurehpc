@@ -51,10 +51,11 @@ steps:
         echo "Content of variables.json"
         jq '.' variables.json
 
-        azhpc-build --no-vnet -c prereqs.json
+        azhpc-build $AZHPC_OPTION --no-vnet -c prereqs.json
 
         # Override AZHPC_CONFIG so that the build command executed by the job pipeline will use this config config_file
         export AZHPC_CONFIG=$(pwd)/config.json
+        echo "##vso[task.setvariable variable=azhpc.config]$AZHPC_CONFIG"
         echo $AZHPC_CONFIG
       failOnStandardError: false
     continueOnError: false
