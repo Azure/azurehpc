@@ -40,10 +40,10 @@ steps:
         cp $BUILD_REPOSITORY_LOCALPATH/$conf_dir/init.sh .
 
         ./init.sh
+        jq '.' prereqs.json
 
         azhpc-build --no-vnet -c prereqs.json
 
-        jq prereqs.json
 
       failOnStandardError: false
     continueOnError: false
