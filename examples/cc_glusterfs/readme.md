@@ -33,7 +33,8 @@ The glusterfs_mount_host variable may be taken by running ' head -n1 azhpc_insta
 
 ```
 cd cc_pbs_glusterfs
-azhpc ccbuild -c config_pbscycle.json
+azhpc-build -c config_pbscycle.json --no-vnet
+#azhpc ccbuild -c config_pbscycle.json
 ```
 >Note : There is also a conifg file for CC SLURM integration (config_slurmcycle.json)
 
