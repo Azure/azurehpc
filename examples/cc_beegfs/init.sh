@@ -13,10 +13,11 @@ blocks="$block_dir/vnet.json $block_dir/jumpbox.json $block_dir/cycle-install-se
 
 # Initialize config file
 echo "{}" >$AZHPC_CONFIG
-$azhpc_dir/init_and_merge.sh "$blocks" $AZHPC_CONFIG $AZHPC_VARIABLES
+$azhpc_dir/init-and-merge.sh "$blocks" $AZHPC_CONFIG $AZHPC_VARIABLES
 
+echo "{}" >prereqs.json
 prereqs="$block_dir/cycle-prereqs-managed-identity.json"
-$azhpc_dir/init_and_merge.sh $prereqs prereqs.json $AZHPC_VARIABLES
+$azhpc_dir/init-and-merge.sh $prereqs prereqs.json $AZHPC_VARIABLES
 
 # Update locker name
 sed -i "s/#projectstore#/$locker/g" $AZHPC_CONFIG
