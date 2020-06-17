@@ -39,4 +39,4 @@ cp temp.json $AZHPC_CONFIG
 
 # Merge variables file into config file
 cp $AZHPC_CONFIG temp.json
-jq '.variables+=$variables' --argjson variables "$(cat $AZHPC_VARIABLES)" temp.json > $AZHPC_CONFIG
+jq '.variables+=$variables' --argjson variables "$(jq '.variables' $AZHPC_VARIABLES)" temp.json > $AZHPC_CONFIG
