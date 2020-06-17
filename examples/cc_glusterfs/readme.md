@@ -26,6 +26,9 @@ The variables can be set with the `-v` option where variables are comma separate
 azhpc-init -c $azhpc_dir/examples/cc_glusterfs/config_pbscycle.json -d cc_pbs_glusterfs -v resource_group=azurehpc-cc
 ```
 
+The glusterfs_mount_host variable may be taken by running ' head -n1 azhpc_install_config/hostlists/glusterfs' in the directory the gluster file system was built in.
+
+
 ## Create CycleCloud Cluster with AzureHPC GlusterFS
 
 ```
