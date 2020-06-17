@@ -21,7 +21,7 @@
   },
   "storage": {
     "#projectstore#": {
-      "type": "azurestorage",
+      "type": "storageaccount",
       "sku": "Standard_LRS"
     }
   },

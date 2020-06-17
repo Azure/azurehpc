@@ -305,7 +305,7 @@ class ArmTemplate:
                     ]
                 self.resources.append(netapp_volume)
 
-    def _add_azurestorage(self, cfg, name):
+    def _add_storageaccount(self, cfg, name):
         loc = cfg["location"]
         
         res = {
@@ -848,8 +848,8 @@ class ArmTemplate:
             stype = cfg["storage"][s]["type"]
             if stype == "anf":
                 self._add_netapp(cfg, s, deploy_network)
-            elif stype == "azurestorage":
-                self._add_azurestorage(cfg, s)
+            elif stype == "storageaccount":
+                self._add_storageaccount(cfg, s)
             else:
                 log.error("unrecognised storage type ({}) for {}".format(stype, s))
         

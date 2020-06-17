@@ -16,7 +16,7 @@
   },
   "storage": {
     "uniquestoragename": {
-      "type": "azurestorage",
+      "type": "storageaccount",
       "sku": "Standard_LRS",
       "containers": [
         "mycontainer1",
