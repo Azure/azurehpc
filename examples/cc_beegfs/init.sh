@@ -14,5 +14,5 @@ prereqs="$block_dir/cycle-prereqs-managed-identity.json"
 $azhpc_dir/init-and-merge.sh $prereqs prereqs.json $AZHPC_VARIABLES
 
 # Update locker name
-locker=$(jq -r '.variables.projectstore' $AZHPC_VARIABLES)
+locker=$(azhpc-get -c $AZHPC_VARIABLES variables.projectstore | cut -d '=' -f2 | xargs)
 sed -i "s/#projectstore#/$locker/g" $AZHPC_CONFIG
