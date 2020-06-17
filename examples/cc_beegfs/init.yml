@@ -16,6 +16,9 @@ steps:
         echo "********************************************************************"
         # AZHPC_UUID is set when creating the RG unique name when starting the pipeline
         export AZHPC_VARIABLES_UUID=${AZHPC_UUID-azhpc}
+
+        export AZHPC_VARIABLES_LOCKER="locker$AZHPC_UUID"
+
         azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
         init_variables="-v resource_group=$AZHPC_RESOURCEGROUP"
         for item in $azhpc_variables; do
@@ -44,6 +47,8 @@ steps:
 
         azhpc-build --no-vnet -c prereqs.json
 
+        # Override AZHPC_CONFIG so that the build command executed by the job pipeline will use this config config_file
+        export AZHPC_CONFIG=$(pwd)\config.json
 
       failOnStandardError: false
     continueOnError: false
