@@ -28,6 +28,7 @@ module load gcc-9.2.0
 export HDF5=$(spack location -i hdf5^openmpi)
 export NETCDF=$(spack location -i netcdf-fortran^openmpi)
 export WRF_DIR=${SHARED_APP}/${SKU_TYPE}/wrf-openmpi/WRF-${WRF_VERSION}
+export MPI_LIB=""
 
 cd WPS-${APP_VERSION}
 ./configure << EOF
