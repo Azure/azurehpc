@@ -4,13 +4,14 @@
   "admin_user": "hpcadmin",
   "variables": {
     "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
-    "location": "<NOT-SET>",
-    "resource_group": "<NOT-SET>",
+    "location": "southcentralus",
+    "resource_group": "narcycle1",
     "vm_type": "Standard_HB60rs",
     "vnet_name": "hpcvnet",
     "vnet_resource_group": "variables.resource_group",
-    "key_vault": "<NOT-SET>",
-    "projectstore": "<NOT-SET>"
+    "key_vault": "hpccatkv",
+    "lustre_version": "2.12.4",
+    "projectstore": "locker1a5c9c"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
@@ -43,7 +44,7 @@
           "ExecuteMachineType": "variables.vm_type",
           "ImageName": "variables.hpc_image",
           "ExecuteClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:lustre:1.0.0": {
               "Order": 10000,
               "Name": "azurehpc:lustre:1.0.0",
               "Spec": "lustre",
@@ -57,14 +58,19 @@
     },
     "projects": {
       "azurehpc:lustre:1.0.0": [
+	{
+	  "script": "lfsrepo.sh",
+	  "args": [
+	  "variables.lustre_version"
+	  ]
+	},
         {
           "script": "lfspkgs.sh"
         },
         {
           "script": "lfsclient.sh",
           "args": [
-            "lustremaster",
-            "/lustre"
+            "lustremaster"
           ]
         }
       ]
