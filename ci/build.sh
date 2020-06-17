@@ -64,6 +64,7 @@ echo "********************************************************************"
 echo "*                  BUILD RESOURCES                                 *"
 echo "********************************************************************"
 echo "Calling azhpc-build"
+export PATH=$PATH:$HOME/bin # add that path for any CycleCloud calls
 azhpc-build -c $config_file $AZHPC_OPTION
 return_code=$?
 cat deploy*.json
