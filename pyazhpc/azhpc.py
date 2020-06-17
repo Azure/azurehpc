@@ -647,18 +647,6 @@ def do_build(args):
     log.debug(f"running script from : {fqdn}")
     azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
-def do_cycle(args):
-    log.debug(f"reading config file ({args.config_file})")
-    tmpdir = "azhpc_ccinstall_" + os.path.basename(args.config_file)[:-5]
-    log.debug(f"tmpdir = {tmpdir}")
-    if os.path.isdir(tmpdir):
-        log.debug("removing existing tmp directory")
-        shutil.rmtree(tmpdir)
-    
-    c = azconfig.ConfigFile()
-    c.open(args.config_file)
-    config = c.preprocess()
-
     if "cyclecloud" in config:
         if "projects" in config["cyclecloud"]:
             log.info("creating cyclecloud projects")
@@ -703,15 +691,6 @@ if __name__ == "__main__":
     )
 
     subparsers = azhpc_parser.add_subparsers(help="actions")
-
-    ccbuild_parser = subparsers.add_parser(
-        "ccbuild", 
-        parents=[gopt_parser],
-        add_help=False,
-        description="upload cycle projects and deploy clusters",
-        help="upload cycle projects and deploy clusters"
-    )
-    ccbuild_parser.set_defaults(func=do_cycle)
 
     build_parser = subparsers.add_parser(
         "build", 
