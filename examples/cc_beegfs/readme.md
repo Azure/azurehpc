@@ -19,7 +19,7 @@ $ cp $azhpc_dir/examples/cc_beegfs/init.sh .
 $ cp $azhpc_dir/examples/cc_beegfs/variables.json .
 ```
 
-Edit the variables.json to match your environment. Leave the projectstore empty as it will be filled up with a random value by the init script. An existing keyvault should be referenced as it won't be created for you.
+Edit the variables.json to match your environment. Give a unique value to `projectstore`. An existing keyvault should be referenced as it won't be created for you.
 
 ```json
 {
@@ -27,7 +27,7 @@ Edit the variables.json to match your environment. Leave the projectstore empty 
     "resource_group": "my resource group",
     "location": "location",
     "key_vault": "my key vault",
-    "projectstore": ""
+    "projectstore": "unique value"
   }
 }
 ```
@@ -45,25 +45,24 @@ $ azhpc-build --no-vnet -c prereqs.json
 $ azhpc-build 
 ```
 
-## Step 3 - Create the PBS cluster in CycleCloud
+## Step 3 - Start the PBS cluster in CycleCloud
 
-To create a PBS cluster attached to BeeGFS:
+To Start the PBS cluster attached to BeeGFS:
 
 ```
-$ azhpc ccbuild -c pbscycle.json
 $ cyclecloud start_cluster pbscycle
 ```
 
 Similarly, for a Slurm cluster:
 
 ```
-$ azhpc ccbuild -c slurmcycle.json
 $ cyclecloud start_cluster slurmcycle
 ```
 
 Retrieve the cluster status by running this
 ```
 $ cyclecloud show_cluster pbscycle | grep master | xargs | cut -d ' ' -f 2
+$ cyclecloud show_nodes -c pbscycle --format=json | jq -r '.[0].State'
 ```
 Wait until started
 
@@ -129,7 +128,7 @@ $ cyclecloud delete_cluster pbscycle
 ## Step 8 - Drop all the resources
 
 ```
-$ azhpc-destroy
+$ azhpc-destroy --no-wait
 [2020-06-16 17:25:20] reading config file (config.json)
 [2020-06-16 17:25:20] warning: deleting entire resource group (xps-hack)
 [2020-06-16 17:25:20] you have 10s to change your mind and ctrl-c!
