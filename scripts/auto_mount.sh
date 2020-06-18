@@ -1,5 +1,7 @@
 #!/bin/bash
-yum install -y nfs-utils
+if rpm -q nfs-utils; then
+    yum install -y nfs-utils
+fi
 
 mountpath=$1
 mountpoint=$2
