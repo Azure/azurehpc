@@ -61,7 +61,7 @@ $ azhpc-build --no-vnet -c lustre-cluster.json
 ## Step 5 - Create the PBS cluster in CycleCloud
 
 ```
-$ azhpc ccbuild -c pbscycle.json
+$ azhpc build -c pbscycle.json --no-vnet
 ```
 
 ## Step 6 - Connect to CycleServer UI
