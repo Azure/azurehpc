@@ -16,9 +16,11 @@ chmod 777 /mnt/resource
 # - remove Jetpack convergence
 # - Disable Fail2Ban service
 # - Fix PBS limits
-if [ -e /opt/cycle/jetpack/jetpack ]; then
+if [ -e $CYCLECLOUD_HOME/bin/jetpack ]; then
+    echo "CycleCloud detected"
     # Enable METADATA SERVICE access if blocked. This is the case with CycleCloud 7.x by default
     # Delete all rules regarding 169.254.169.254
+    echo "Allow Metadata Service access"
     iptables -L
     rule=$(iptables -S | grep -E 169.254.169.254 | tail -n1)
     while [ -n "$rule" ]; do
@@ -29,9 +31,11 @@ if [ -e /opt/cycle/jetpack/jetpack ]; then
     iptables -L
 
     # Remove Jetpack converge from the crontab
+    echo "Remove Jetpack converge from crontab"
     crontab -l | grep -v converge | crontab -
 
     # Disable fail2ban
+    echo "Disable fail2ban"
     systemctl stop fail2ban
     systemctl disable fail2ban
 
