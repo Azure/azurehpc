@@ -3,7 +3,7 @@ block_dir=$azhpc_dir/experimental/blocks
 AZHPC_CONFIG=config.json
 AZHPC_VARIABLES=variables.json
 
-blocks="$block_dir/vnet.json $block_dir/jumpbox.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json $block_dir/beegfs-cluster.json $azhpc_dir/examples/cc_beegfs/pbscycle.json"
+blocks="$block_dir/vnet.json $block_dir/jumpbox-nfs.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json $block_dir/beegfs-cluster.json $azhpc_dir/examples/cc_beegfs/pbscycle.json"
 
 # Initialize config file
 echo "{}" >$AZHPC_CONFIG

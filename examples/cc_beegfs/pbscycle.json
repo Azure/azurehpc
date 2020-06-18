@@ -61,6 +61,14 @@
                 {
                     "script": "beegfsc.sh",
                     "args": [ "beegfsm" ]
+                },
+                {
+                    "script": "auto_mount.sh",
+                    "args": [ "jumpbox:/share/apps", "/apps"]
+                },
+                {
+                    "script": "auto_mount.sh",
+                    "args": [ "jumpbox:/share/data", "/data"]
                 }
             ]
         }
