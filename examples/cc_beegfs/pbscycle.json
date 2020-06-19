@@ -56,10 +56,6 @@
         "projects": {
             "azurehpc:beegfs:1.0.0": [
                 {
-                    "script": "cndefault.sh",
-                    "deps": ["azhpc4cycle.sh"]
-                },
-                {
                     "script": "beegfspkgs.sh"
                 },
                 {
@@ -73,6 +69,10 @@
                 {
                     "script": "auto_mount.sh",
                     "args": [ "jumpbox:/share/data", "/data"]
+                },
+                {
+                    "script": "cndefault.sh",
+                    "deps": ["azhpc4cycle.sh"]
                 }
             ]
         }
