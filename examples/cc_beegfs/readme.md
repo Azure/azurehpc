@@ -92,6 +92,8 @@ $ grep password azhpc_install_config/install/*.log
 Connect to the CycleCloud Web Portal `https://fqdn-of-cycleserver` as `hpcadmin` and the password retrieved above. Check that you have a `pbscycle` cluster.
 Check that the pbscycle master is well started or wait until it is started, allow about 12 minutes for the master to start.
 
+Manually add few nodes to the cluster.
+
 # Running applications
 AzureHPC comes with a set of prebuild application scripts which have been copied over the `/apps` share. We will use this to run some examples.
 
@@ -189,7 +191,7 @@ Job id            Name             User              Time Use S Queue
 0.ip-0A020804     build_ior        hpcadmin                 0 H workq
 ```
 Check that a new node is provisioned (unless you have already started one manually). Allow 13 minutes for the node to be ready.
-In the meantime manually add 2 more nodes so we won't be hit by autoscaling
+Output file will be named `build_ior.o*`
 
 After the build check that you have an `ior` module in `/apps/modulefiles` and IOR binaries in `/apps/ior-<version>`
 
@@ -203,6 +205,7 @@ Job id            Name             User              Time Use S Queue
 ----------------  ---------------- ----------------  -------- - -----
 1.ip-0A020804     ior              hpcadmin                 0 Q workq
 ```
+Output file will be named `ior.o*`
 
 
 ## Step 4 - Run latency and bandwidth tests
@@ -212,14 +215,17 @@ Job id            Name             User              Time Use S Queue
 [hpcadmin@ip-0A020804 ~]$ qsub -N allreduce -k oe -j oe -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl -- /apps/imb-mpi/allreduce.sh impi2018
 [hpcadmin@ip-0A020804 ~]$ qsub -N osu -k oe -j oe -l select=2:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/osu/osu_bw.sh
 ```
+Output files will be named `pingpong.o*, allreduce.o*, osu.o*`
 
 ## Step 5 - Build and run HPL
 
+Submit the build, once the job is finish submit the run.
 ```
 [hpcadmin@ip-0A020804 ~] qsub -N build_hpl -k oe -j oe -l select=1:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/linpack/build_hpl.sh
 [hpcadmin@ip-0A020804 ~] qsub -N single_hpl -k oe -j oe -l select=1:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/linpack/single_hpl.sh
 ```
 
+Output files will be named `build_hpl.o*, single_hpl.o*`
 
 
 # Remove all
