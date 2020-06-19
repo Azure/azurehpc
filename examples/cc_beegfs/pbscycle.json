@@ -56,7 +56,8 @@
         "projects": {
             "azurehpc:beegfs:1.0.0": [
                 {
-                    "script": "cndefault.sh"
+                    "script": "cndefault.sh",
+                    "deps": ["azhpc4cycle.sh"]
                 },
                 {
                     "script": "beegfspkgs.sh"
