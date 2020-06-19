@@ -7,7 +7,7 @@ trigger:
     - '*'
   paths:
     include:
-      - examples/lustre_combined/*
+      - examples/lustre_avset/*
       - scripts/lfsrepo.sh
       - scripts/lfspkgs.sh
       - scripts/lfsmaster.sh
@@ -17,16 +17,16 @@ trigger:
       - scripts/lfsimport.sh
       - scripts/lfsloganalytics.sh
     exclude:
-      - examples/lustre_combined/readme.md
+      - examples/lustre_avset/readme.md
 
 pool: Default
 
 variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/lustre_combined/config.json
+  azhpc.config: examples/lustre_avset/config.json
   # pipeline directory
-  azhpc.pipeline_dir: examples/lustre_combined
+  azhpc.pipeline_dir: examples/lustre_avset
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@headnode:.'
 
@@ -48,4 +48,4 @@ variables:
 jobs:
 - template: ../../ci/templates/jobs/build.yml
   parameters:
-    extra_steps: ../../../examples/lustre_combined/test.yml
+    extra_steps: ../../../examples/lustre_avset/test.yml

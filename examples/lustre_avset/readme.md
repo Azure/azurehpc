@@ -1,11 +1,9 @@
 # Lustre Cluster
-![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/lustre_combined?branchName=master)
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/lustre_avset?branchName=master)
 
-Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_combined/config.json)
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_avset/config.json)
 
-This is a Lustre setup where a single VMSS is used.  Each VM in the scaleset 
-performs the function of the OSS and HSM.  THe first VM in the scaleset is also
-used for the MGS/MDS.
+This is a Lustre setup where an Availability Set is used.
 
 Resources:
 
