@@ -4,9 +4,7 @@ if rpm -q epel-release; then
     yum -y install epel-release
 fi
 
-if rpm -q git jq htop; then
-    yum -y install git jq htop
-fi
+yum -y install git jq htop
 
 # change access to resource so that temp jobs can be written there
 chmod 777 /mnt/resource

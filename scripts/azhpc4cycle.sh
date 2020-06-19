@@ -37,12 +37,13 @@ disable_jetpack_converge()
     echo "cyclecloud.maintenance_converge.enabled=$maintenance_converge"
     if [ "$maintenance_converge" == "true" ]; then
         # Check if converge is in the crontab and if so remove it, if not add a cron entry to check it every minute
-        converge=$(crontab -l | grep "jetpack converge")
+        grep_for="jetpack converge --mode=maintenance"
+        converge=$(crontab -l | grep "$grep_for")
         if [ -n "$converge" ]; then
             echo "Dump crontab"
             crontab -l
             echo "Remove Jetpack converge from crontab"
-            crontab -l | grep -v "jetpack converge" | crontab -
+            crontab -l | grep -v "$grep_for" | crontab -
             echo "Remove our crontab entry"
             crontab -l | grep -v "disable_jetpack_converge" | crontab -
             echo "Dump crontab"
