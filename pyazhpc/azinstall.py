@@ -343,7 +343,7 @@ name = {project}
             # create cluster-init script
             args = " ".join([ f'"{arg}"' for arg in step.get("args", []) ])
             script_content = f"""#!/bin/bash
-chmod +x $CYCLECLOUD_SPEC_PATH/files/{script}
+chmod +x $CYCLECLOUD_SPEC_PATH/files/*.sh
 $CYCLECLOUD_SPEC_PATH/files/{script} {args}
 """
             with open(script_file, "w") as f:
