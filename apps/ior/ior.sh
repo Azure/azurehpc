@@ -1,6 +1,6 @@
 #!/bin/bash
-FILESYSTEM=${FILESYSTEM:-/data}
-SHARED_APP=${SHARED_APP:-/apps}
+FILESYSTEM=${1:-/data}
+SHARED_APP=${2:-/apps}
 
 source /etc/profile # so we can load modules
 
