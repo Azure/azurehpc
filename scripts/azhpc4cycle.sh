@@ -14,18 +14,21 @@ enable_metada_access()
     # Enable METADATA SERVICE access if blocked. This is the case with CycleCloud 7.x by default
     # Delete all rules regarding 169.254.169.254
     prevent_metadata_access=$($JETPACK_HOME/bin/jetpack config cyclecloud.node.prevent_metadata_access)
+    prevent_metadata_access=${prevent_metadata_access,,}
     echo "cyclecloud.node.prevent_metadata_access=$prevent_metadata_access"
-    echo "Allow Metadata Service access"
-    echo "Dumping IPTABLES"
-    iptables -L
-    rule=$(iptables -S | grep -E 169.254.169.254 | tail -n1)
-    while [ -n "$rule" ]; do
-        delete_rule=$(sed 's/-A/-D/g' <<< $(echo $rule))
-        iptables $delete_rule
+    if [ "$prevent_metadata_access" == "true" ]; then
+        echo "Allow Metadata Service access"
+        echo "Dumping IPTABLES"
+        iptables -L
         rule=$(iptables -S | grep -E 169.254.169.254 | tail -n1)
-    done
-    echo "Dumping IPTABLES"
-    iptables -L
+        while [ -n "$rule" ]; do
+            delete_rule=$(sed 's/-A/-D/g' <<< $(echo $rule))
+            iptables $delete_rule
+            rule=$(iptables -S | grep -E 169.254.169.254 | tail -n1)
+        done
+        echo "Dumping IPTABLES"
+        iptables -L
+    fi
 }
 
 # Disabling jetpack converge can only be done thru a cron as cluster-init scripts are executed before the crontab is updated with the converge entry
@@ -47,13 +50,17 @@ disable_jetpack_converge()
             crontab -l | grep -v "$grep_for" | crontab -
             echo "Remove our crontab entry"
             crontab -l | grep -v "disable_jetpack_converge" | crontab -
-            echo "Dump crontab"
-            crontab -l
         else
-            echo "*/1 * * * * $0 disable_jetpack_converge >> $JETPACK_HOME/logs/azhpc4cycle.log 2>&1" > crontab-fragment.txt
-            crontab -l | cat - crontab-fragment.txt >crontab.txt 
-            crontab crontab.txt
+            # Add an entry in cron only if no one exists
+            disable_jetpack_converge=$(crontab -l | grep disable_jetpack_converge)
+            if [ -n "$disable_jetpack_converge" ]; then
+                echo "*/1 * * * * $0 disable_jetpack_converge >> $JETPACK_HOME/logs/azhpc4cycle.log 2>&1" > crontab-fragment.txt
+                crontab -l | cat - crontab-fragment.txt >crontab.txt 
+                crontab crontab.txt
+            fi
         fi
+        echo "Dump crontab"
+        crontab -l
     fi
 }
 
