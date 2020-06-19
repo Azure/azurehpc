@@ -188,7 +188,8 @@ Job id            Name             User              Time Use S Queue
 ----------------  ---------------- ----------------  -------- - -----
 0.ip-0A020804     build_ior        hpcadmin                 0 H workq
 ```
-Check that a new node is provisioned (unless you have already started one manually). allow 13 minutes for the node to be ready.
+Check that a new node is provisioned (unless you have already started one manually). Allow 13 minutes for the node to be ready.
+In the meantime manually add 2 more nodes so we won't be hit by autoscaling
 
 After the build check that you have an `ior` module in `/apps/modulefiles` and IOR binaries in `/apps/ior-<version>`
 
@@ -202,7 +203,6 @@ Job id            Name             User              Time Use S Queue
 ----------------  ---------------- ----------------  -------- - -----
 1.ip-0A020804     ior              hpcadmin                 0 Q workq
 ```
-
 
 
 ## Step 4 - Run latency and bandwidth tests
