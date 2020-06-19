@@ -1,8 +1,9 @@
 #!/bin/bash
 # This utility script contains helpers functions called in the azurehpc to CycleCloud integration
 helper=${1,,}
+JETPACK_HOME=/opt/cycle/jetpack
 
-if [ ! -e $CYCLECLOUD_HOME/bin/jetpack ]; then
+if [ ! -e $JETPACK_HOME/bin/jetpack ]; then
     echo "Not running in a CycleCloud environment exiting"
 else
     echo "Running in a CycleCloud environment"
@@ -12,7 +13,7 @@ enable_metada_access()
 {
     # Enable METADATA SERVICE access if blocked. This is the case with CycleCloud 7.x by default
     # Delete all rules regarding 169.254.169.254
-    prevent_metadata_access=$(jetpack config cyclecloud.node.prevent_metadata_access)
+    prevent_metadata_access=$($JETPACK_HOME/bin/jetpack config cyclecloud.node.prevent_metadata_access)
     echo "cyclecloud.node.prevent_metadata_access=$prevent_metadata_access"
     echo "Allow Metadata Service access"
     echo "Dumping IPTABLES"
@@ -32,7 +33,7 @@ enable_metada_access()
 disable_jetpack_converge()
 {
     # Remove Jetpack converge from the crontab
-    maintenance_converge=$(jetpack config cyclecloud.maintenance_converge.enabled)
+    maintenance_converge=$($JETPACK_HOME/bin/jetpack config cyclecloud.maintenance_converge.enabled)
     maintenance_converge=${maintenance_converge,,}
     echo "cyclecloud.maintenance_converge.enabled=$maintenance_converge"
     if [ "$maintenance_converge" == "true" ]; then
@@ -49,7 +50,9 @@ disable_jetpack_converge()
             echo "Dump crontab"
             crontab -l
         else
-            echo "*/1 * * * * $0 disable_jetpack_converge >> /opt/cycle/jetpack/logs/azhpc4cycle.log 2>&1" | crontab -
+            echo "*/1 * * * * $0 disable_jetpack_converge >> $JETPACK_HOME/logs/azhpc4cycle.log 2>&1" > crontab-fragment.txt
+            crontab -l | cat - crontab-fragment.txt >crontab.txt 
+            crontab crontab.txt
         fi
     fi
 }
