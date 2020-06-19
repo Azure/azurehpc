@@ -17,7 +17,7 @@ numactl_options=" numactl --cpunodebind 0"
 hostlist=$(pwd)/hosts.$PBS_JOBID
 sort -u $PBS_NODEFILE > $hostlist
 # remove .internal.cloudapp.net from node names
-sed -i 's/.internal.cloudapp.net//g' $hostlist
+#sed -i 's/.internal.cloudapp.net//g' $hostlist
 BENCH=osu_bw
 
 case $MODE in

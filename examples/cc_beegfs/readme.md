@@ -55,6 +55,7 @@ The second command will buil all the resources and create a PBS cluster.
 $ azhpc-build --no-vnet -c prereqs.json
 $ azhpc-build 
 ```
+The build process should take about 13 minutes.
 
 ## Step 3 - Upload application scripts
 
@@ -89,7 +90,7 @@ $ grep password azhpc_install_config/install/*.log
 ```
 
 Connect to the CycleCloud Web Portal `https://fqdn-of-cycleserver` as `hpcadmin` and the password retrieved above. Check that you have a `pbscycle` cluster.
-Check that the pbscycle master is well started or wait until it is started.
+Check that the pbscycle master is well started or wait until it is started, allow about 12 minutes for the master to start.
 
 # Running applications
 AzureHPC comes with a set of prebuild application scripts which have been copied over the `/apps` share. We will use this to run some examples.
@@ -174,27 +175,52 @@ drwxr-xr-x.  2 cyclecloud cyclecloud 4096 Jun 18 07:59 wrf
 [hpcadmin@ip-0A020804 ~]$
 ```
 
+> NOTE : You should set ownership of the /apps to the hpcadmin user with : `sudo chown -R hpcadmin:hpcadmin /apps`
+
 ## Step 3 - Testing storage with IOR
 Build IOR with the AzureHPC application script. You have to run in sudo mode as it install additional packages on the master in order to build it.
 
 ```
-[hpcadmin@ip-0A020804 ~]$ sudo /apps/ior/build_ior.sh
+[hpcadmin@ip-0A020804 ~]$ qsub -N build_ior -k oe -j oe -l select=1 -- /apps/ior/build_ior.sh
+0.ip-0A020804
+[hpcadmin@ip-0A020804 ~]$ qstat
+Job id            Name             User              Time Use S Queue
+----------------  ---------------- ----------------  -------- - -----
+0.ip-0A020804     build_ior        hpcadmin                 0 H workq
 ```
+Check that a new node is provisioned (unless you have already started one manually). allow 13 minutes for the node to be ready.
 
 After the build check that you have an `ior` module in `/apps/modulefiles` and IOR binaries in `/apps/ior-<version>`
 
 Run IOR from a compute node by submitting a job
 
 ```
-[hpcadmin@ip-0A020804 ~]$ qsub -N IOR -k oe -j oe -l select=1 -- /apps/ior/ior.sh /beegfs
+[hpcadmin@ip-0A020804 ~]$ qsub -N ior -k oe -j oe -l select=1 -- /apps/ior/ior.sh /beegfs
 0.ip-0A020804
 [hpcadmin@ip-0A020804 ~]$ qstat
 Job id            Name             User              Time Use S Queue
 ----------------  ---------------- ----------------  -------- - -----
-0.ip-0A020804     IOR              hpcadmin                 0 Q workq
+1.ip-0A020804     ior              hpcadmin                 0 Q workq
 ```
 
-Check that a new node is provisioned (unless you have already started one manually)
+
+
+## Step 4 - Run latency and bandwidth tests
+
+```
+[hpcadmin@ip-0A020804 ~]$ qsub -N pingpong -k oe -j oe -l select=2:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/imb-mpi/ringpingpong.sh ompi
+[hpcadmin@ip-0A020804 ~]$ qsub -N allreduce -k oe -j oe -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl -- /apps/imb-mpi/allreduce.sh impi2018
+[hpcadmin@ip-0A020804 ~]$ qsub -N osu -k oe -j oe -l select=2:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/osu/osu_bw.sh
+```
+
+## Step 5 - Build and run HPL
+
+```
+[hpcadmin@ip-0A020804 ~] qsub -N build_hpl -k oe -j oe -l select=1:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/linpack/build_hpl.sh
+[hpcadmin@ip-0A020804 ~] qsub -N single_hpl -k oe -j oe -l select=1:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/linpack/single_hpl.sh
+```
+
+
 
 # Remove all
 
