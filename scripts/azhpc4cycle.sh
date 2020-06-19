@@ -53,7 +53,7 @@ disable_jetpack_converge()
         else
             # Add an entry in cron only if no one exists
             disable_jetpack_converge=$(crontab -l | grep disable_jetpack_converge)
-            if [ -n "$disable_jetpack_converge" ]; then
+            if [ -z "$disable_jetpack_converge" ]; then
                 echo "*/1 * * * * $0 disable_jetpack_converge >> $JETPACK_HOME/logs/azhpc4cycle.log 2>&1" > crontab-fragment.txt
                 crontab -l | cat - crontab-fragment.txt >crontab.txt 
                 crontab crontab.txt
