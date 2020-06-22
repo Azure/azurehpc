@@ -282,13 +282,20 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
             __copy_script(script, f"{tmpdir}/scripts")
 
 def __cyclecloud_upload_project(project_dir):
-    cmd = [ "cyclecloud", "project", "default_locker", "azure-storage" ]
+    cyclecloud_exe = shutil.which("cyclecloud")
+    if cyclecloud_exe is None:
+        cyclecloud_exe = os.path.join(os.environ["HOME"], "bin", "cyclecloud")
+        if not os.path.isfile(cyclecloud_exe):
+            log.error("cyclecloud cli not found")
+            sys.exit(1)
+
+    cmd = [ cyclecloud_exe, "project", "default_locker", "azure-storage" ]
     res = subprocess.run(cmd, cwd=project_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
     
-    cmd = [ "cyclecloud", "project", "upload" ]
+    cmd = [ cyclecloud_exe, "project", "upload" ]
     res = subprocess.run(cmd, cwd=project_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
