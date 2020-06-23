@@ -1,4 +1,32 @@
-# azhpc Change log
+# AzureHPC Change log
 
-* 01-Apr-2020 : Added Grafana and Telegraf 
-* 04-Feb-2020 : Added permission option to sasurl variable value. Append ",rw" for read write access. Default is read.
+- [PR 298](https://github.com/Azure/azurehpc/pull/298) : CycleCloud integration
+    - added Cycle 7.9.x project support
+    - added storage account support
+    - re-evaluate variables after resource creation and before executing install scripts
+    - install CycleServer 7.9.x with Managed identity
+    - added building blocks
+    - added init-and-merge.sh script to initialize and merge building blocks to a unique configuration file
+    - allow the whole variables section to be referenced in an external file
+    - full end to end BeeGFS + Cycle 7.9.x + PBS example in examples/cc_beegfs
+    - Lustre cluster deployed using Availability Set in examples/lustre_avset
+- [PR 292](https://github.com/Azure/azurehpc/pull/277) : Fix to allow minor version choice for lustre
+- [PR 277](https://github.com/Azure/azurehpc/pull/277) : Single node health check script example
+- [PR 266](https://github.com/Azure/azurehpc/pull/266) : Add --no-vnet option to not deploy VNETs when chaining deployments
+- [PR 263](https://github.com/Azure/azurehpc/pull/263) : Support symlinks in azhpc-init
+- [PR 255](https://github.com/Azure/azurehpc/pull/255) : Added SLURM
+- [PR 249](https://github.com/Azure/azurehpc/pull/249) : Added GlusterFS
+- [PR 247](https://github.com/Azure/azurehpc/pull/247) : Shearwater Reveal E2E deployment example
+- [PR 245](https://github.com/Azure/azurehpc/pull/245) : Removed bash version and simplified install
+- [PR 241](https://github.com/Azure/azurehpc/pull/241) : better support windows with default rdp on public ip and azhpc-connect 
+- [PR 231](https://github.com/Azure/azurehpc/pull/231) : WRF update (to 4.1.5, previous version 4.1.3) 
+- [PR 230](https://github.com/Azure/azurehpc/pull/230) : Spack update (v0.14.2)
+- [PR 215](https://github.com/Azure/azurehpc/pull/215) : Support custom image
+- [PR 214](https://github.com/Azure/azurehpc/pull/214) : Changed os and data disk defaults to Premium SSD
+- [PR 212](https://github.com/Azure/azurehpc/pull/212) : Add Managed Identity support for VMs
+- [PR 209](https://github.com/Azure/azurehpc/pull/209) : Change OS disk size default
+- [PR 206](https://github.com/Azure/azurehpc/pull/206) : Added availability set support 
+- [PR 203](https://github.com/Azure/azurehpc/pull/203) : Added support for zones 
+- [PR 202](https://github.com/Azure/azurehpc/pull/202) : Updated to add color 
+- [PR 194](https://github.com/Azure/azurehpc/pull/194) : Added Grafana and Telegraf 
+
