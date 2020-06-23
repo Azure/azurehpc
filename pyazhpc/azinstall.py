@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import shutil
@@ -12,6 +13,9 @@ log = azlog.getLogger(__name__)
 
 pssh_threads = 50
 
+def _make_subprocess_error_string(res):
+    return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout.decode("utf-8"), res.stderr.decode("utf-8"))
+
 def create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey):
     scriptfile = f"{tmpdir}/install/00_install_node_setup.sh"
     logfile = "install/00_install_node_setup.log"
@@ -23,6 +27,11 @@ def create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey):
 cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 tag=linux
+
+if [ ! -f "hostlists/$tag" ]; then
+    echo "no hostlist ($tag), exiting"
+    exit 0
+fi
 
 # wait for DNS to update for all hostnames
 for h in $(<hostlists/$tag); do
@@ -224,6 +233,27 @@ def __config_has_netapp(cfg):
             return True
     return False
 
+def __copy_script(name, dest):
+    # this looks for the script locally first, else in $azhpc_dir/scripts
+    if os.path.exists(f"scripts/{name}"):
+        if os.path.isdir(f"scripts/{name}"):
+            log.debug(f"using dir from this project ({name})")
+            shutil.copytree(f"scripts/{name}", f"{dest}/{name}")
+        else:
+            log.debug(f"using script from this project ({name})")
+            shutil.copy(f"scripts/{name}", dest)
+    elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{name}"):
+        if os.path.isdir(f"{os.getenv('azhpc_dir')}/scripts/{name}"):
+            log.debug(f"using azhpc dir ({name})")
+            shutil.copytree(f"{os.getenv('azhpc_dir')}/scripts/{name}", f"{dest}/{name}")
+        else:
+            log.debug(f"using azhpc script ({name})")
+            shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{name}", dest)
+    else:
+        log.error(f"cannot find script/dir ({name})")
+        sys.exit(1)
+
+
 def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     jb = cfg.get("install_from", None)
     os.makedirs(tmpdir+"/install")
@@ -249,27 +279,108 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
             sys.exit(1)
         
         for script in [ step["script"] ] + step.get("deps", []):
-            if os.path.exists(f"scripts/{script}"):
-                if os.path.isdir(f"scripts/{script}"):
-                    log.debug(f"using dir from this project ({script})")
-                    shutil.copytree(f"scripts/{script}", f"{tmpdir}/scripts/{script}")
-                else:
-                    log.debug(f"using script from this project ({script})")
-                    shutil.copy(f"scripts/{script}", tmpdir+"/scripts")
-            elif os.path.exists(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
-                if os.path.isdir(f"{os.getenv('azhpc_dir')}/scripts/{script}"):
-                    log.debug(f"using azhpc dir ({script})")
-                    shutil.copytree(f"{os.getenv('azhpc_dir')}/scripts/{script}", f"{tmpdir}/scripts/{script}")
-                else:
-                    log.debug(f"using azhpc script ({script})")
-                    shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{script}", tmpdir+"/scripts")
-            else:
-                log.error(f"cannot find script/dir ({script})")
-                sys.exit(1)
+            __copy_script(script, f"{tmpdir}/scripts")
 
-def _make_subprocess_error_string(res):
-    return "\n    args={}\n    return code={}\n    stdout={}\n    stderr={}".format(res.args, res.returncode, res.stdout.decode("utf-8"), res.stderr.decode("utf-8"))
+def __cyclecloud_upload_project(project_dir):
+    cyclecloud_exe = shutil.which("cyclecloud")
+    if cyclecloud_exe is None:
+        cyclecloud_exe = os.path.join(os.environ["HOME"], "bin", "cyclecloud")
+        if not os.path.isfile(cyclecloud_exe):
+            log.error("cyclecloud cli not found")
+            sys.exit(1)
 
+    cmd = [ cyclecloud_exe, "project", "default_locker", "azure-storage" ]
+    res = subprocess.run(cmd, cwd=project_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+    
+    cmd = [ cyclecloud_exe, "project", "upload" ]
+    res = subprocess.run(cmd, cwd=project_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+
+def generate_cc_projects(config, tmpdir):
+    # create projects in filesystem with the following structure:
+    #
+    #   <project-name>_<project-version>
+    #   ├── project.ini
+    #   ├── specs
+    #   │   ├── <spec-name>
+    #   │     └── cluster-init
+    #   │        ├── scripts
+    #   │        ├── files 
+    #
+    # Azurehpc scripts will be put in the files directory and the scripts
+    # will be generated to call azurehpc scripts with the correct args.
+    for p in config.get("cyclecloud",{}).get("projects", {}):
+        pl = p.split(":")
+        if len(pl) != 3:
+            log.error(f"cannot parse cyclecloud project name - {p}.  Format should be PROJECT:SPEC:VERSION.")
+            sys.exit(1)
+        project, spec, version = pl
+        project_dir = f"{tmpdir}/{project}_{version}"
+        
+        if not os.path.exists(project_dir):
+            # create directory and project.ini file
+            os.makedirs(project_dir)
+            project_ini = f"""[project]
+version = {version}
+type = application
+name = {project}
+"""
+            with open(f"{project_dir}/project.ini", "w") as f:
+                f.write(project_ini)
+
+        spec_dir = f"{project_dir}/specs/{spec}"
+        scripts_dir = f"{spec_dir}/cluster-init/scripts"
+        files_dir = f"{spec_dir}/cluster-init/files"
+        os.makedirs(scripts_dir)
+        os.makedirs(files_dir)
+
+        for idx, step in enumerate(config["cyclecloud"]["projects"][p]):
+            script = step["script"]
+            script_file = f"{scripts_dir}/{idx:02d}_{script}"
+
+            # copy script file and dependencies into files_dir
+            for s in [ script ] + step.get("deps", []):
+                __copy_script(s, files_dir)
+
+            # create cluster-init script
+            args = " ".join([ f'"{arg}"' for arg in step.get("args", []) ])
+            script_content = f"""#!/bin/bash
+chmod +x $CYCLECLOUD_SPEC_PATH/files/*.sh
+$CYCLECLOUD_SPEC_PATH/files/{script} {args}
+"""
+            with open(script_file, "w") as f:
+                os.chmod(script_file, 0o755)
+                f.write(script_content)
+        
+        log.info(f"uploading project ({project_dir})")
+        __cyclecloud_upload_project(project_dir)
+
+def __cyclecloud_create_cluster(template, name, paramfile):
+    cmd = [
+        "cyclecloud", "create_cluster", template, name,
+        "-p", paramfile, "--force"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+
+def generate_cc_clusters(config, tmpdir):
+    os.makedirs(tmpdir)
+    for cluster_name in config.get("cyclecloud",{}).get("clusters", {}):
+        log.info(f"creating cluster {cluster_name}")
+        cluster_template = config["cyclecloud"]["clusters"][cluster_name]["template"]
+        cluster_params = config["cyclecloud"]["clusters"][cluster_name]["parameters"]
+        cluster_json = f"{tmpdir}/{cluster_name}.json"
+        with open(cluster_json, "w") as f:
+            f.write(json.dumps(cluster_params, indent=4))
+        __cyclecloud_create_cluster(cluster_template, cluster_name, cluster_json)
+        
 def __rsync(sshkey, src, dst):
     cmd = [
         "rsync", "-a", "-e",

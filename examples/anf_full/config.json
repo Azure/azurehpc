@@ -27,7 +27,7 @@
         }
     },
     "storage": {
-        "hpcnetappfull": {
+        "hpccatnetappfull": {
             "type": "anf",
             "subnet": "storage",
             "pools": {

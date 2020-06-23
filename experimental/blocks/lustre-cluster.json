@@ -14,38 +14,53 @@
         "jumpbox": "fqdn.jumpbox",
         "vnet_resource_group": "variables.resource_group",
         "lustre_image": "OpenLogic:CentOS:7.7:latest",
-        "lustre_vm_type": "Standard_L8s_v2",
-        "lustre_instances": 4,
+        "lustre_vm_type": "Standard_L16s_v2",
+        "lustre_instances": 2,
         "lustre_storage_account": "<NOT-SET>",
-        "lustre_storage_container": "<NOT-SET>",
-        "lustre_version": "2.12.4",
-        "lustre_mount": "/lustre"
+        "lustre_storage_container": "hsm",
+        "lustre_version": "<NOT-SET>",
+        "lustre_mount": "/lustre",
+        "lustre_avset": "{{variables.resource_group}}avset"
     },
     "resources": {
+        "lustremaster": {
+            "type": "vm",
+            "vm_type": "variables.lustre_vm_type",
+            "availability_set": "variables.lustre_avset",
+            "accelerated_networking": true,
+            "image": "variables.lustre_image",
+            "subnet": "storage",
+            "tags": [
+                "cndefault",
+                "lustremaster",
+                "lustre",
+                "lfsrepo",
+                "disable-selinux"
+            ]
+        },
         "lustre": {
             "type": "vmss",
             "vm_type": "variables.lustre_vm_type",
             "instances": "variables.lustre_instances",
+            "availability_set": "variables.lustre_avset",
             "accelerated_networking": true,
-            "image": "variables.lustreimage",
+            "image": "variables.lustre_image",
             "subnet": "storage",
             "tags": [
-                "cndefault",
                 "lustre",
-                "lfsrepo",
-                "disable-selinux"
+                "lfsrepo"
             ]
         }
     },
     "install": [
         {
             "script": "disable-selinux.sh",
-            "tag": "disable-selinux",
+            "tag": "lustre",
             "sudo": true
         },
         {
             "script": "cndefault.sh",
-            "tag": "cndefault",
+            "tag": "lustre",
             "sudo": true
         },
         {
@@ -72,7 +87,7 @@
         },
         {
             "script": "lfsmaster.sh",
-            "tag": "lustre",
+            "tag": "lustremaster",
             "args": [
                 "/dev/sdb"
             ],
@@ -81,7 +96,7 @@
         {
             "script": "lfsoss.sh",
             "args": [
-                "$(head -n1 hostlists/tags/lustre)",
+                "lustremaster",
                 "/dev/md10"
             ],
             "tag": "lustre",
@@ -90,7 +105,7 @@
         {
             "script": "lfshsm.sh",
             "args": [
-                "$(head -n1 hostlists/tags/lustre)",
+                "lustremaster",
                 "variables.lustre_storage_account",
                 "sakey.{{variables.lustre_storage_account}}",
                 "variables.lustre_storage_container",

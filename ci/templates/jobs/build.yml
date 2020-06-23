@@ -62,3 +62,13 @@ jobs:
           echo "removing resource group $AZHPC_RESOURCEGROUP"
           az group delete -n $AZHPC_RESOURCEGROUP -y --no-wait
         fi
+        conf_dir=$(dirname $AZHPC_CONFIG)
+        if [ "$PROJECT_DIR" = "" ]; then
+            PROJECT_DIR=${conf_dir##*/}
+        fi
+        # clean up project dir
+        if [ -d $PROJECT_DIR ]; then
+            ls -al $PROJECT_DIR
+            rm -rf $PROJECT_DIR 
+        fi
+

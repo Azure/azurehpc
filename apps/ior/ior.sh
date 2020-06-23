@@ -1,6 +1,6 @@
 #!/bin/bash
-FILESYSTEM=${FILESYSTEM:-/data}
-SHARED_APP=${SHARED_APP:-/apps}
+FILESYSTEM=${1:-/data}
+SHARED_APP=${2:-/apps}
 
 source /etc/profile # so we can load modules
 
@@ -29,10 +29,10 @@ CORES=$(cat $PBS_NODEFILE | wc -l)
 NODES=$(cat $PBS_NODEFILE | sort -u)
 
 # Throughput test (N-N)
-mpirun  -bind-to hwthread -np $CORES --hostfile $PBS_NODEFILE ${SHARED_APP}/ior/bin/ior -a POSIX -v -i 3 -m -d 1 -B -e -F -r -w -t 32m -b 4G -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON
+mpirun  -bind-to hwthread -np $CORES --hostfile $PBS_NODEFILE $IOR_BIN/ior -a POSIX -v -i 3 -m -d 1 -B -e -F -r -w -t 32m -b 4G -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON
 sleep 2
 # Throughput test (N-1)
-mpirun  -bind-to hwthread -np $CORES --hostfile $PBS_NODEFILE ${SHARED_APP}/ior/bin/ior -a POSIX -v -i 3 -m -d 1 -B -e -r -w -t 32m -b 4G -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON
+mpirun  -bind-to hwthread -np $CORES --hostfile $PBS_NODEFILE $IOR_BIN/ior -a POSIX -v -i 3 -m -d 1 -B -e -r -w -t 32m -b 4G -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON
 sleep 2
 # IOPS test
-mpirun -bind-to hwthread -np $CORES --hostfile $PBS_NODEFILE ${SHARED_APP}/ior/bin/ior -a POSIX -v -i 3 -m -d 1 -B -e -F -r -w -t 4k -b 128M -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON
+mpirun -bind-to hwthread -np $CORES --hostfile $PBS_NODEFILE $IOR_BIN/ior -a POSIX -v -i 3 -m -d 1 -B -e -F -r -w -t 4k -b 128M -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON

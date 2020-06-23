@@ -51,7 +51,7 @@ config_file=$(basename $AZHPC_CONFIG)
 # clean up project dir
 if [ -d $PROJECT_DIR ]; then
     ls -al $PROJECT_DIR
-    rm -rf $PROJECT_DIR 
+#    rm -rf $PROJECT_DIR 
 fi
 
 echo "Calling azhpc-init"
@@ -64,6 +64,7 @@ echo "********************************************************************"
 echo "*                  BUILD RESOURCES                                 *"
 echo "********************************************************************"
 echo "Calling azhpc-build"
+export PATH=$PATH:$HOME/bin # add that path for any CycleCloud calls
 azhpc-build -c $config_file $AZHPC_OPTION
 return_code=$?
 cat deploy*.json

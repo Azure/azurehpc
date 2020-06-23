@@ -27,8 +27,10 @@ The JSON file is composed of the following:
 * Variables dictionary
 * Setup information
 * Network dictionary
+* Storage dictionary
 * Resources dictionary
 * Install list
+* CycleCloud dictionary
 
 > Note : for the full config structure file see [config.json](https://github.com/Azure/azurehpc/tree/master/config.json)
 
@@ -37,6 +39,25 @@ The JSON file is composed of the following:
 This allows variables to be created and used throughout the config file (see how this works [here](#macros-in-the-config-file).  This can be used when creating a template for others to use or just when the same value is repeated for many resources, e.g. choosing the OS image.
 
 > When creating templates for others to use the value should be `<NOT-SET>` so the `azhpc-*` commands will notify the user.
+
+To allow a better reuse of variables across several configuration files the variable section can reference a file like this :
+```json
+{
+  "variables": "@variables.json"
+}
+```
+The referenced file should contains variables this way :
+
+```json
+{
+    "image": "OpenLogic:CentOS:7.7:latest",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+    "location": "westeurope",
+    "resource_group": "my resource group",
+    "vm_type": "Standard_HB60rs",
+    "vnet_resource_group": "variables.resource_group",
+}
+```
 
 ### Setup information
 
@@ -111,7 +132,9 @@ This dictionary desribes the storage resources to be created. Today only Azure N
 
 | Name               | Description                                                                        | Required | Default |
 |--------------------|------------------------------------------------------------------------------------|----------|---------|
-| **type**           | Type of storage - has to be set to `anf`                                           |   yes    |         |
+| **type**           | Type of storage - can be `anf, storageaccount`                                     |   yes    |         |
+| **sku**            | Only for `type=storageaccount` can be `Standard_LRS, Standard_GRS, Standard_RAGRS, Standard_ZRS, Premium_LRS, Premium_ZRS, Standard_GZRS, Standard_RAGZRS` |   yes    | |
+| **containers**     | Only for `type=storageaccount`. Array of containers name to create                 |   no     |         |
 | **subnet**         | Subnet name in which to inject ANF NICs                                            |   yes    |         |
 | **joindomain**     | Domain name to join to                                                             |   no     |         |
 | **ad_server**      | Domain Server to connect to                                                        |   no     |         |
@@ -127,7 +150,7 @@ This dictionary describes the ANF pools to be created
 |--------------------|------------------------------------------------------------------------------------|----------|---------|
 | **service_level**  | Service Level - can be `Ultra, Premium, or Standard`                               |   yes    |         |
 | **size**           | Total pool size in TB. From 4 to 100                                               |   yes    |         |
-| **volumes**        | Dictionary of [ANF volumes](anf-volumes-dictionary) in that pool                   |   yes    |         |
+| **volumes**        | Dictionary of [ANF volumes](#anf-volumes-dictionary) in that pool                  |   yes    |         |
 
 
 ##### ANF Volumes dictionary
@@ -187,11 +210,50 @@ This describes the steps to install after all the resources have been provisione
 | **script** | The name of the script to run                                                        |   yes    |         |
 | **tag**    | The tag to select which resources will run this step                                 |   yes    |         |
 | **sudo**   | Boolean flag for whether to run the script with sudo                                 |   no     |  False  |
-| **deps**   | A list of dependent scripts to be copied on the `install_from` VM as well            |   no     |         |
+| **deps**   | A list of dependent files to be copied on the `install_from` VM as well              |   no     |         |
 | **args**   | A list containing the arguments for the script                                       |   no     |         |
 | **copy**   | This is a list of files to copy to each resource from the `install_from` VM and assumes the file will have been downloaded as a previous step |   no     |         |
 
 > Note: the script to run be the path relative to either the `$azhpc_dir/scripts` or a local `scripts` directory for the project.  The local directory will take precedence over the `$azhpc_dir/scripts`.  
+
+### Cycle Cloud dictionary
+
+This describes the CycleCloud clusters configuration and projects to be uploaded to the current CycleCloud installation.
+| Name            | Description                                                                          | Required | Default |
+|-----------------|--------------------------------------------------------------------------------------|----------|---------|
+| **clusters**    | Dictionary of [CycleCloud Clusters](#cyclecloud_cluster_dictionary) parameters                                        |   yes    |         |
+| **projects**    | Dictionary of [CycleCloud projects](#cyclecloud_projects_dictionary) init scripts                                 |   yes    |         |
+
+#### CycleCloud cluster dictionary
+This describes the template and parameters to be applied on a CycleCloud cluster.
+| Name       | Description                                                                          | Required | Default |
+|------------|--------------------------------------------------------------------------------------|----------|---------|
+| **template** | The name of the template used to create the cluster.                                                         |   yes    |         |
+| **parameters** | Dictionary of parameters defined in the template. The parameter list can be retrieved with the [cyclecloud export_parameters](https://docs.microsoft.com/en-us/azure/cyclecloud/cli?view=cyclecloud-7#cyclecloud-export_parameters) command |   yes    |         |
+
+For `ClusterInitSpec`definition use thie following format, and make sure to use the same spec name in the projects dictionary
+```json
+      "xxxClusterInitSpecs": {
+          "projectname:specname:i.j.k": {
+              "Order": 10000,
+              "Name": "projectname:specname:i.j.k",
+              "Spec": "specname",
+              "Project": "projectname",
+              "Version": "i.j.k",
+              "Locker": "azure-storage"
+          }
+      }
+```
+
+#### CycleCloud projects dictionary
+This describes the CycleCloud project containing cluster-init wrapper scripts to be uploaded in the CycleCloud locker. 
+Each project name has to follow the CycleCloud naming convention `projectname:specname:i.j.k` and contains an array of scripts described below :
+
+| Name       | Description                                                                          | Required | Default |
+|------------|--------------------------------------------------------------------------------------|----------|---------|
+| **script** | The name of the script to run                                                        |   yes    |         |
+| **deps**   | A list of dependent files                                                            |   no     |         |
+| **args**   | A list containing the arguments for the script                                       |   no     |         |
 
 
 ### Macros in the config file

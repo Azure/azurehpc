@@ -1,0 +1,30 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "",
+  "admin_user": "hpcadmin",
+  "vnet": {
+    "name": "myvnet",
+    "address_prefix": "10.2.0.0/24",
+    "subnets": {
+        "compute": "10.2.0.0/24"
+    }
+  },
+  "variables": {
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>"
+  },
+  "storage": {
+    "uniquestoragename": {
+      "type": "storageaccount",
+      "sku": "Standard_LRS",
+      "containers": [
+        "mycontainer1",
+        "mycontainer2"
+      ]
+    }
+  },
+  "resources": {
+  },
+  "install": []
+}
