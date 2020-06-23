@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 block_dir=$azhpc_dir/blocks
 AZHPC_CONFIG=config.json
 AZHPC_VARIABLES=variables.json
