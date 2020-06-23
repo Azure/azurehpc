@@ -62,7 +62,7 @@ The build process should take about 13 minutes.
 Upload the AzureHPC application scripts onto the /apps share created on the Jumpbox. These scripts will be used from the master and compute nodes provisioned by CycleCloud.
 
 ```
-$ azhpc-scp -- -r ~/azurehpc/apps/. hpcadmin@jumpbox:/apps
+$ azhpc-scp -- -r $azhpc_dir/apps/. hpcadmin@jumpbox:/apps
 ```
 
 ## Step 4 - Start the PBS cluster in CycleCloud
