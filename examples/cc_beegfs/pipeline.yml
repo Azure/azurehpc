@@ -8,6 +8,13 @@ trigger:
   paths:
     include:
       - examples/cc_beegfs/*
+      - blocks/cycle-install-server-managed-identity.json
+      - blocks/cycle-prereqs-managed-identity.json
+      - blocks/cycle-cli-local.json
+      - blocks/cycle-cli-jumpbox.json
+      - blocks/jumpbox-nfs.json.json
+      - blocks/vnet.json
+      - blocks/beegfs-cluster.json
     exclude:
       - examples/cc_beegfs/readme.md
 

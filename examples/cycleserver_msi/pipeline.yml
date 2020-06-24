@@ -8,6 +8,12 @@ trigger:
   paths:
     include:
       - examples/cycleserver_msi/*
+      - blocks/cycle-install-server-managed-identity.json
+      - blocks/cycle-prereqs-managed-identity.json
+      - blocks/cycle-cli-local.json
+      - blocks/cycle-cli-jumpbox.json
+      - blocks/jumpbox-nfs.json.json
+      - blocks/vnet.json
     exclude:
       - examples/cycleserver_msi/readme.md
 
