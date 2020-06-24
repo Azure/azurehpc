@@ -1,4 +1,6 @@
 # Building the infrastructure
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/cc_beegfs?branchName=master)
+
 Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER and BEEGFS by using building blocks.
 
 ## Step 1 - install azhpc
