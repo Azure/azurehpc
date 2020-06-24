@@ -121,6 +121,8 @@ class ConfigFile:
         
         parts = v.split('.')
         prefix = parts[0]
+        if len(parts) == 1:
+            prefix = ""
 
         if prefix == "variables":
             res = self.read_value(v)
