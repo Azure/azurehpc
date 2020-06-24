@@ -382,6 +382,9 @@ class ArmTemplate:
                 cacheoption = cache
             else:
                 cacheoption = "None"
+            if sku == "UltraSSD_LRS":
+                cacheoption = "None"
+
             datadisks.append({
                 "caching": cacheoption,
                 "managedDisk": {
@@ -651,7 +654,10 @@ class ArmTemplate:
                 vmres["properties"]["proximityPlacementGroup"] = {
                     "id": f"[resourceId('Microsoft.Compute/proximityPlacementGroups','{rppgname}')]"
                 }
-            
+
+            if rstoragesku == "UltraSSD_LRS" :
+                vmres["properties"]["additionalCapabilities"] = { "ultraSSDEnabled": "true" }
+
             if ravset:
                 vmres["properties"]["availabilitySet"] = {
                     "id": f"[resourceId('Microsoft.Compute/availabilitySets','{ravset}')]"
