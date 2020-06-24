@@ -28,14 +28,14 @@ $ cp $azhpc_dir/examples/cycleserver_msi/init.sh .
 $ cp $azhpc_dir/examples/cycleserver_msi/variables.json .
 ```
 
-Edit the variables.json to match your environment. Give a unique value to `uuid`. An existing keyvault should be referenced as it won't be created for you.
+Edit the variables.json to match your environment. Give a unique value to `uuid`. An existing keyvault can be referenced if needed.
 
 ```json
 {
   "variables": {
     "resource_group": "my resource group",
     "location": "my location",
-    "key_vault": "my key vault",
+    "key_vault": "kv{{variables.uuid}}",
     "uuid": "unique value",
     "projectstore": "locker{{variables.uuid}}"
   }
