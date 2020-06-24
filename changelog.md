@@ -1,5 +1,5 @@
 # AzureHPC Change log
-
+- [PR 302](https://github.com/Azure/azurehpc/pull/302) : Support for UltraSSD DataDisk
 - [PR 298](https://github.com/Azure/azurehpc/pull/298) : CycleCloud integration
     - added Cycle 7.9.x project support
     - added storage account support
