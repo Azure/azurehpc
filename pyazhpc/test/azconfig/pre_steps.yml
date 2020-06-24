@@ -30,6 +30,8 @@ steps:
 
         echo "Add a secret"
         az keyvault secret set --vault-name $uuidname --name "secretkey" --value "secretvalue"
+        az keyvault secret set --vault-name $uuidname --name "variables" --value "secretvalue"
+        az keyvault secret set --vault-name $uuidname --name "secret" --value "secretvalue"
 
         # Create Log Analytics Workspace
         az monitor log-analytics workspace create -n $uuidname -g $AZHPC_RESOURCEGROUP
