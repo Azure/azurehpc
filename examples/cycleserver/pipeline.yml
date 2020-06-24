@@ -33,7 +33,7 @@ variables:
   # azhpc.variables.spn_name: spnCycleCloud
   # azhpc.variables.projectstore: azhpccycle
   # azhpc.variables.appid: appId of the SPN
-  # azhpc.variables.tenandid: tenantId
+  # azhpc.variables.tenantid: tenantId
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
