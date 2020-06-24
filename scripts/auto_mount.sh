@@ -1,5 +1,5 @@
 #!/bin/bash
-if rpm -q nfs-utils; then
+if ! rpm -q nfs-utils; then
     yum install -y nfs-utils
 fi
 
