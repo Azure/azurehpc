@@ -76,9 +76,19 @@
         },
         {
           "script": "beegfsc.sh",
-          "args": [
-            "beegfsm"
-          ]
+          "args": [ "beegfsm" ]
+        },
+        {
+          "script": "auto_mount.sh",
+          "args": [ "jumpbox:/share/apps", "/apps"]
+        },
+        {
+          "script": "auto_mount.sh",
+          "args": [ "jumpbox:/share/data", "/data"]
+        },
+        {
+          "script": "cndefault.sh",
+          "deps": ["azhpc4cycle.sh"]
         }
       ]
     }
