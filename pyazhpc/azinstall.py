@@ -289,14 +289,18 @@ def __cyclecloud_upload_project(project_dir):
             log.error("cyclecloud cli not found")
             sys.exit(1)
 
+    env = os.environ.copy()
+    if env.get("PYTHONPATH"):
+        del env["PYTHONPATH"]
+
     cmd = [ cyclecloud_exe, "project", "default_locker", "azure-storage" ]
-    res = subprocess.run(cmd, cwd=project_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    res = subprocess.run(cmd, cwd=project_dir, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
     
     cmd = [ cyclecloud_exe, "project", "upload" ]
-    res = subprocess.run(cmd, cwd=project_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    res = subprocess.run(cmd, cwd=project_dir, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
@@ -365,7 +369,12 @@ def __cyclecloud_create_cluster(template, name, paramfile):
         "cyclecloud", "create_cluster", template, name,
         "-p", paramfile, "--force"
     ]
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    env = os.environ.copy()
+    if env.get("PYTHONPATH"):
+        del env["PYTHONPATH"]
+
+    res = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
