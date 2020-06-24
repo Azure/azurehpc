@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 config_list="$1"
 AZHPC_CONFIG=$2
 AZHPC_VARIABLES=$3
