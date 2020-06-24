@@ -7,25 +7,24 @@ trigger:
     - '*'
   paths:
     include:
-      - examples/cc_beegfs/*
+      - examples/cycleserver_msi/*
       - blocks/cycle-install-server-managed-identity.json
       - blocks/cycle-prereqs-managed-identity.json
       - blocks/cycle-cli-local.json
       - blocks/cycle-cli-jumpbox.json
       - blocks/jumpbox-nfs.json.json
       - blocks/vnet.json
-      - blocks/beegfs-cluster.json
     exclude:
-      - examples/cc_beegfs/readme.md
+      - examples/cycleserver_msi/readme.md
 
 pool: Default
 
 variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/cc_beegfs/variables.json
+  azhpc.config: examples/cycleserver_msi/variables.json
   # pipeline directory
-  azhpc.pipeline_dir: examples/cc_beegfs
+  azhpc.pipeline_dir: examples/cycleserver_msi
   # destination of scripts. Default is hpcuser@headnode:/apps
   azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
 
@@ -39,4 +38,4 @@ variables:
 jobs:
 - template: ../../ci/templates/jobs/build.yml
   parameters:
-    pre_steps: ../../../examples/cc_beegfs/init.yml
+    pre_steps: ../../../examples/cycleserver_msi/init.yml

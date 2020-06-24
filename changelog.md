@@ -1,5 +1,6 @@
 # AzureHPC Change log
 
+- [PR 301](https://github.com/Azure/azurehpc/pull/301) : Deploy CycleServer 7.9 with managed identity
 - [PR 298](https://github.com/Azure/azurehpc/pull/298) : CycleCloud integration
     - added Cycle 7.9.x project support
     - added storage account support
