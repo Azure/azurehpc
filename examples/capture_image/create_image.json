@@ -1,10 +1,11 @@
 {
     "location": "variables.location",
     "resource_group": "variables.resource_group",
-    "install_from": "image-master",
+    "install_from": "jumpbox",
     "admin_user": "hpcadmin",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "image": "OpenLogic:CentOS:7.7:latest",
         "master_image_name": "azhpc_centos_hpc77",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
@@ -16,14 +17,24 @@
         "name": "hpcvnet",
         "address_prefix": "10.2.0.0/20",
         "subnets": {
+            "admin": "10.2.1.0/24",
             "compute": "10.2.4.0/22"
         }
     },
     "resources": {
+        "jumpbox": {
+            "type": "vm",
+            "vm_type": "Standard_D4s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "admin",
+            "tags": []
+        },
         "image-master": {
             "type": "vm",
             "vm_type": "variables.vm_type",
-            "public_ip": true,
+            "public_ip": false,
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
