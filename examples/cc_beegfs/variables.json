@@ -5,6 +5,6 @@
     "key_vault": "my key vault",
     "uuid": "unique value",
     "projectstore": "locker{{variables.uuid}}",
-    "scheduler": "slurm"
+    "scheduler": "pbs or slurm"
   }
 }
