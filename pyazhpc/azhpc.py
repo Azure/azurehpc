@@ -133,6 +133,12 @@ def do_init(args):
         if args.vars:
             for vp in args.vars.split(","):
                 vk, vv = vp.split("=", 1)
+                if vv.isdigit() or vv[0] == "-" and vv[1:].isdigit():
+                    vv = int(vv)
+                if vv == "true":
+                    vv = True
+                elif vv == "false":
+                    vv = False
                 vset[vk] = vv
             
             for root, dirs, files in os.walk(args.dir):
