@@ -14,6 +14,7 @@ trigger:
       - blocks/cycle-cli-jumpbox.json
       - blocks/jumpbox-nfs.json.json
       - blocks/vnet.json
+      - scripts/cc_install_managed_identity.sh
     exclude:
       - examples/cycleserver_msi/readme.md
 

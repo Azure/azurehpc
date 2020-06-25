@@ -29,6 +29,7 @@ $ cp $azhpc_dir/examples/cycleserver_msi/variables.json .
 ```
 
 Edit the variables.json to match your environment. Give a unique value to `uuid`. An existing keyvault can be referenced if needed.
+Choose the CycleCloud version to be installed (7 or 8)
 
 ```json
 {
@@ -37,7 +38,8 @@ Edit the variables.json to match your environment. Give a unique value to `uuid`
     "location": "my location",
     "key_vault": "kv{{variables.uuid}}",
     "uuid": "unique value",
-    "projectstore": "locker{{variables.uuid}}"
+    "projectstore": "locker{{variables.uuid}}",
+    "cc_version": "7"
   }
 }
 ```
