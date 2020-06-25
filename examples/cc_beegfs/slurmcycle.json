@@ -34,6 +34,8 @@
           "Autoscale": true,
           "SubnetId": "{{variables.resource_group}}/hpcvnet/compute",
           "UseLowPrio": false,
+          "UsePublicNetwork": false,
+          "ReturnProxy": false,
           "Region": "{{variables.location}}",
           "configuration_slurm_version" : "19.05.5-1",
           "MasterClusterInitSpecs": {
