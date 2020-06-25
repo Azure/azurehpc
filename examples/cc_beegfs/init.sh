@@ -9,14 +9,20 @@ command -v jq &> /dev/null || { echo -e >&2 "ERROR: Missing requirement: jq\nMak
 blocks="$block_dir/vnet.json $block_dir/jumpbox-nfs.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json $block_dir/beegfs-cluster.json"
 
 # Select scheduler to be installed
-if $(jq '.variables.scheduler == "pbs"' variables.json); then
-  blocks="$blocks $azhpc_dir/examples/cc_beegfs/pbscycle.json"
-elif $(jq '.variables.scheduler == "slurm"' variables.json); then
-  blocks="$blocks $azhpc_dir/examples/cc_beegfs/slurmcycle.json"
-else
-  echo 'ERROR: Unsupported scheduler type'
-  exit 1
-fi
+scheduler=$(jq -r '.variables.scheduler' variables.json)
+
+case "$scheduler" in
+    'pbs')
+      blocks="$blocks $azhpc_dir/examples/cc_beegfs/pbscycle.json"
+      ;;
+    'slurm')
+      blocks="$blocks $azhpc_dir/examples/cc_beegfs/slurmcycle.json"
+      ;;
+    *)
+      echo "ERROR: Unsupported scheduler type: $scheduler"
+      exit 1
+      ;;
+esac
 
 # Initialize config file
 echo "{}" >$AZHPC_CONFIG
