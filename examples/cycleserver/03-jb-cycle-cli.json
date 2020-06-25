@@ -17,7 +17,6 @@
     "resource_group": "<NOT-SET>",
     "key_vault": "<NOT-SET>",
     "spn_name": "<NOT-SET>",
-    "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
     "appid": "",
     "image": "OpenLogic:CentOS:7.7:latest"
@@ -71,8 +70,7 @@
           "fqdn.cycleserver",
           "variables.admin_user",
           "secret.{{variables.key_vault}}.CycleAdminPassword",
-          "variables.resource_group",
-          "sakey.{{variables.projectstore}}"
+          "variables.resource_group"
       ]
     }
   ]

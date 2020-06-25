@@ -6,7 +6,11 @@ projectstore=$4
 cc_version=${5-7}
 
 case "$cc_version" in
-    7 | 8)
+    7)
+        PYTHON=python
+        ;;
+    8)
+        PYTHON=python3
         ;;
     *)
         echo "Version $cc_version not supported"
@@ -20,7 +24,7 @@ wget -q "https://raw.githubusercontent.com/dapolloxp/AzureCycleAKSDeployment/mas
 key=$(cat /home/$admin_user/.ssh/id_rsa.pub)
 
 echo "Setup cyclecloud_install.py for $fqdn"
-python cyclecloud_install.py \
+$PYTHON cyclecloud_install.py \
     --useManagedIdentity \
     --username $admin_user \
     --hostname $fqdn \
@@ -35,3 +39,4 @@ fi
 
 echo "CycleCloud application server installation finished"
 echo "Navigate to https://$fqdn and login using $admin_user"
+
