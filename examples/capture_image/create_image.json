@@ -1,0 +1,61 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "image-master",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "master_image_name": "azhpc_centos_hpc77",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "<NOT-SET>",
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "image-master": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "cndefault",
+                "disable-selinux",
+                "deprovision"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "deprovision.sh",
+            "tag": "deprovision"
+        },
+        {
+            "type": "local_script",
+            "script": "create_image.sh",
+            "args": [
+               "variables.resource_group",
+               "image-master",
+               "variables.master_image_name"
+            ]
+        }
+    ]
+}
