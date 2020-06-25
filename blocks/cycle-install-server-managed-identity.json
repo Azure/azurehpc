@@ -13,7 +13,8 @@
     "admin_user": "hpcadmin",
     "image": "OpenLogic:CentOS:7.7:latest",
     "cc_vm_type": "Standard_D8s_v3",
-    "cc_password_secret_name": "CycleAdminPassword"
+    "cc_password_secret_name": "CycleAdminPassword",
+    "cc_version": "7"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
@@ -56,7 +57,8 @@
           "cycleserver",
           "variables.admin_user",
           "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}",
-          "variables.projectstore"
+          "variables.projectstore",
+          "variables.cc_version"
       ]
     },
     {

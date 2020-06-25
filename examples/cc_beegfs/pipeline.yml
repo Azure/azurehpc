@@ -15,6 +15,7 @@ trigger:
       - blocks/jumpbox-nfs.json.json
       - blocks/vnet.json
       - blocks/beegfs-cluster.json
+      - scripts/cc_install_managed_identity.sh
     exclude:
       - examples/cc_beegfs/readme.md
 
