@@ -27,7 +27,7 @@ $ cp $azhpc_dir/examples/cc_beegfs/init.sh .
 $ cp $azhpc_dir/examples/cc_beegfs/variables.json .
 ```
 
-Edit the `variables.json` to match your environment. Give a unique value to `uuid`. An existing keyvault should be referenced as it won't be created for you.
+Edit the `variables.json` to match your environment. Give a unique value to `uuid`. An existing keyvault can be referenced as it won't be created for you.
 
 ```json
 {
