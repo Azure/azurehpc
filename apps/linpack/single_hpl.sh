@@ -82,4 +82,4 @@ $HPL_NB           swapping threshold
 8            memory alignment in double (> 0)
 EOF
 
-mpirun $mpi_options $HPL_EXE | tee hpl.out
+mpirun $mpi_options $HPL_EXE
