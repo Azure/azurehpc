@@ -69,8 +69,7 @@
       "args": [
           "fqdn.cycleserver",
           "variables.admin_user",
-          "secret.{{variables.key_vault}}.CycleAdminPassword",
-          "variables.resource_group"
+          "secret.{{variables.key_vault}}.CycleAdminPassword"
       ]
     }
   ]
