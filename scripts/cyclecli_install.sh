@@ -34,7 +34,7 @@ install_cli7()
 
 install_cli8()
 {
-    echo "Installing CC CLI 7"
+    echo "Installing CC CLI 8"
     echo "Getting CLI binaries..."
     wget -q --no-check-certificate https://$fqdn/static/tools/cyclecloud-cli.zip 
     unzip -o cyclecloud-cli.zip
