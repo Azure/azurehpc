@@ -11,6 +11,9 @@ case "$cc_version" in
         ;;
     8)
         PYTHON=python3
+        if ! rpm -q python3; then
+            yum install -y python3
+        fi
         ;;
     *)
         echo "Version $cc_version not supported"
