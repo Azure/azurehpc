@@ -12,16 +12,16 @@ blocks="$block_dir/vnet.json $block_dir/jumpbox-nfs.json $block_dir/cycle-instal
 scheduler=$(jq -r '.variables.scheduler' variables.json)
 
 case "$scheduler" in
-    'pbs')
-      blocks="$blocks $azhpc_dir/examples/cc_beegfs/pbscycle.json"
-      ;;
-    'slurm')
-      blocks="$blocks $azhpc_dir/examples/cc_beegfs/slurmcycle.json"
-      ;;
-    *)
-      echo "ERROR: Unsupported scheduler type: $scheduler"
-      exit 1
-      ;;
+  'pbs')
+    blocks="$blocks $azhpc_dir/examples/cc_beegfs/pbscycle.json"
+    ;;
+  'slurm')
+    blocks="$blocks $azhpc_dir/examples/cc_beegfs/slurmcycle.json"
+    ;;
+  *)
+    echo "ERROR: Unsupported scheduler type: $scheduler"
+    exit 1
+    ;;
 esac
 
 # Initialize config file
