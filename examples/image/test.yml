@@ -22,7 +22,8 @@ steps:
         cat azhpc_install_use_image/install/*.log
         if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
           echo "removing resource group $AZHPC_RESOURCEGROUP"
-          azhpc-destroy -c $config_file $options --no-wait
+          # remove the RG in synchronous mode because it locks the image
+          azhpc-destroy -c $config_file $options
           echo "removing image resource group $AZHPC_RESOURCEGROUP"
           img_rg=$(azhpc-get -c $config_file $options variables.image_resource_group | cut -d'=' -f2 | xargs)
           az group delete -n $img_rg -y --no-wait $options
