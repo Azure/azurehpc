@@ -11,7 +11,7 @@
         "location": "<NOT-SET>",
         "resource_group": "builder-{{variables.uuid}}",
         "uuid": "<NOT-SET>",
-        "vm_type": "Standard_DS8s_v3",
+        "vm_type": "Standard_D8s_v3",
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
