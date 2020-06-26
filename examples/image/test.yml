@@ -19,7 +19,7 @@ steps:
         cat $config_file
         azhpc-build -c $config_file $options
         return_code=$?
-        cat azhpc_install_config/install/*.log
+        cat azhpc_install_use_image/install/*.log
         if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
           echo "removing resource group $AZHPC_RESOURCEGROUP"
           azhpc-destroy -c $config_file $options --no-wait
