@@ -44,4 +44,4 @@ if [ -n "$pip" ]; then
 fi
 
 # Get the image id
-az image show -g $rg -n $image_name --query "[id]" -o tsv
+az image show -g $image_rg -n $image_name --query "[id]" -o tsv
