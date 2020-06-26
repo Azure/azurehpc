@@ -9,7 +9,7 @@
         "location": "<NOT-SET>",
         "test_resource_group": "tst-{{variables.uuid}}",
         "uuid": "<NOT-SET>",
-        "image_resource_group": "<NOT-SET>",
+        "image_resource_group": "img-{{variables.uuid}}",
         "vm_type": "Standard_DS8s_v3",
         "compute_instances": 2,
         "low_priority": false,
