@@ -158,6 +158,8 @@ class ConfigFile:
             res = azutil.get_log_analytics_key(parts[1], parts[2])
         elif extended and prefix == "acrkey":
             res = azutil.get_acr_key(parts[1])
+        elif extended and prefix == "image":
+            res = azutil.get_image_id(parts[1], parts[2])
         else:
             res = v
         

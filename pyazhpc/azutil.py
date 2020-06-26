@@ -255,6 +255,24 @@ def get_log_analytics_key(resource_group, name):
     saskey = out[0].decode('utf-8')
     return saskey
 
+# Return the image id of a managed image object stored into the resource group
+def get_image_id(resource_group, name):
+    cmd = [
+        "az", "image", "show", 
+            "--name", name,
+            "--resource-group", resource_group,
+            "--query", "[id]",
+            "--output", "tsv"
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+    out = res.stdout.splitlines()
+    if len(out) != 1:
+        log.error("unexpected output"+_make_subprocess_error_string(res))
+    id = out[0].decode('utf-8')
+    return id
+
 def get_anf_volume_ip(resource_group, account, pool, volume):
     cmd = [ 
         "az", "netappfiles", "list-mount-targets",
