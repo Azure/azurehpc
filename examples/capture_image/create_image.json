@@ -1,14 +1,16 @@
 {
     "location": "variables.location",
     "resource_group": "variables.resource_group",
-    "install_from": "jumpbox",
+    "install_from": "imager",
     "admin_user": "hpcadmin",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "image": "OpenLogic:CentOS:7.7:latest",
-        "master_image_name": "azhpc_centos_hpc77",
+        "image_name": "<NOT-SET>",
+        "image_resource_group": "<NOT-SET>",
         "location": "<NOT-SET>",
-        "resource_group": "<NOT-SET>",
+        "resource_group": "temp-{{variables.uuid}}",
+        "uuid": "<NOT-SET>",
         "vm_type": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group"
     },
@@ -22,7 +24,7 @@
         }
     },
     "resources": {
-        "jumpbox": {
+        "imager": {
             "type": "vm",
             "vm_type": "Standard_D4s_v3",
             "accelerated_networking": true,
@@ -31,7 +33,7 @@
             "subnet": "admin",
             "tags": []
         },
-        "image-master": {
+        "master": {
             "type": "vm",
             "vm_type": "variables.vm_type",
             "public_ip": false,
@@ -57,15 +59,17 @@
         },
         {
             "script": "deprovision.sh",
-            "tag": "deprovision"
+            "tag": "deprovision",
+            "sudo": true
         },
         {
             "type": "local_script",
             "script": "create_image.sh",
             "args": [
                "variables.resource_group",
-               "image-master",
-               "variables.master_image_name"
+               "master",
+               "variables.image_name",
+               "variables.image_resource_group"
             ]
         }
     ]

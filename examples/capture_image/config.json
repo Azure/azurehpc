@@ -4,10 +4,11 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables": {
-        "hpc_image": "image.{{variables.resource_group}}.{{variable.image_name}}",
+        "hpc_image": "image.{{variables.image_resource_group}}.{{variables.image_name}}",
         "image_name": "azhpc_centos_hpc77",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
+        "image_resource_group": "variables.resource_group",
         "vm_type": "<NOT-SET>",
         "compute_instances": 2,
         "low_priority": false,
