@@ -24,8 +24,8 @@ steps:
           echo "removing resource group $AZHPC_RESOURCEGROUP"
           # remove the RG in synchronous mode because it locks the image
           azhpc-destroy -c $config_file $options
-          echo "removing image resource group $AZHPC_RESOURCEGROUP"
           img_rg=$(azhpc-get -c $config_file $options variables.image_resource_group | cut -d'=' -f2 | xargs)
+          echo "removing image resource group $img_rg"
           az group delete -n $img_rg -y --no-wait $options
         fi
         if [ "$return_code" -ne "0" ]; then
