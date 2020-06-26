@@ -262,7 +262,7 @@ Run IOR from a compute node by submitting a job.
 ### PBS
 
 ```
-[hpcadmin@ip-0A020804 ~]$ qsub -N ior -k oe -j oe -l select=1 -- /apps/ior/ior.sh /beegfs
+[hpcadmin@ip-0A020804 ~]$ qsub -N ior -k oe -j oe -l select=1:ncpus=60:mpiprocs=60 -- /apps/ior/ior.sh /beegfs
 0.ip-0A020804
 [hpcadmin@ip-0A020804 ~]$ qstat
 Job id            Name             User              Time Use S Queue
