@@ -72,6 +72,8 @@ $ azhpc-scp -- -r $azhpc_dir/apps/. hpcadmin@jumpbox:/apps
 
 ## Step 4 - Start the cluster in CycleCloud
 
+---
+
 ### PBS
 
 To start the PBS cluster attached to BeeGFS:
@@ -87,6 +89,8 @@ $ cyclecloud show_cluster pbscycle | grep master | xargs | cut -d ' ' -f 2
 $ cyclecloud show_nodes -c pbscycle --format=json | jq -r '.[0].State'
 ```
 
+---
+
 ### Slurm
 
 To start the Slurm cluster attached to BeeGFS:
@@ -101,6 +105,8 @@ Retrieve the cluster status by running:
 $ cyclecloud show_cluster slurmcycle | grep master | xargs | cut -d ' ' -f 2
 $ cyclecloud show_nodes -c slurmcycle --format=json | jq -r '.[0].State'
 ```
+
+---
 
 ## Step 5 - Connect to CycleServer UI
 
@@ -232,26 +238,24 @@ Job id            Name             User              Time Use S Queue
 0.ip-0A020804     build_ior        hpcadmin                 0 H workq
 ```
 
-Output file will be named `build_ior.o<jobid>`
-
 ---
 
 ### Slurm
 
 ```
-[hpcadmin@ip-0A020804 ~]$ sbatch -J build_ior -o build_ior.out /apps/ior/build_ior.sh
+[hpcadmin@ip-0A020804 ~]$ sbatch -J build_ior -o build_ior.o%A /apps/ior/build_ior.sh
 [hpcadmin@ip-0A020804 ~]$ squeue
              JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
                  1       hpc build_io hpcadmin CF       0:00      1 hpc-pg0-1
 ```
 
-Output file will be named `build_ior.out`
-
 ---
+
+The build output file will be named `build_ior.o<jobid>`
 
 After the build check that you have an `ior` module in `/apps/modulefiles` and IOR binaries in `/apps/ior-<version>`
 
-Run IOR from a compute node by submitting a job.
+Run IOR from a compute node by submitting a job. 
 
 ---
 
@@ -266,25 +270,25 @@ Job id            Name             User              Time Use S Queue
 1.ip-0A020804     ior              hpcadmin                 0 Q workq
 ```
 
-Output file will be named `ior.o<jobid>`
-
 ---
 
 ### Slurm
 
 ```
-[hpcadmin@ip-0A020804 ~]$ sbatch /apps/ior/ior.slurm /beegfs
+[hpcadmin@ip-0A020804 ~]$ sbatch -N 1 --exclusive -o ior.o%A -J ior /apps/ior/ior.sh /beegfs
 Submitted batch job 2
 [hpcadmin@ip-0A020804 ~]$ $ squeue
              JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
                  2       hpc     test hpcadmin CF       0:00      1 hpc-pg0-1
 ```
 
-Output file will be named `ior_<jobid>.out`
-
 ---
 
+The test output file will be named `ior.o<jobid>`.
+
 ## Step 4 - Run latency and bandwidth tests
+
+---
 
 ### PBS
 
@@ -294,21 +298,25 @@ Output file will be named `ior_<jobid>.out`
 [hpcadmin@ip-0A020804 ~]$ qsub -N osu -k oe -j oe -l select=2:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/osu/osu_bw.sh
 ```
 
-Output files will be named: `pingpong.o<job_id>`, `allreduce.o<job_ib>`, `osu.o<jobid>`
+---
 
 ### Slurm
 
 ```
-[hpcadmin@ip-0A020804 ~]$ sbatch /apps/imb-mpi/ringpingpong.slurm ompi
-[hpcadmin@ip-0A020804 ~]$ sbatch /apps/imb-mpi/allreduce.slurm impi2018
-[hpcadmin@ip-0A020804 ~]$ sbatch /apps/osu/osu_bw.slurm
+[hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --tasks-per-node=1 -J pingpong -o pingpong.o%A /apps/imb-mpi/ringpingpong.sh ompi
+[hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --exclusive -o allreduce.o%A -J allreduce /apps/imb-mpi/allreduce.sh impi2018
+[hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --tasks-per-node=1 -o osu.o%A -J osu /apps/osu/osu_bw.slurm
 ```
 
-Output files will be named: `pingpong_<job_id>.out`, `allreduce_<job_ib>.out`, `osu_<jobid>.out`
+---
+
+The tests output files will be named: `pingpong.o<job_id>`, `allreduce.o<job_ib>`, `osu.o<jobid>`.
 
 ## Step 5 - Build and run HPL
 
 Submit the build, once the job is finish submit the run.
+
+---
 
 ### PBS
 
@@ -317,16 +325,18 @@ Submit the build, once the job is finish submit the run.
 [hpcadmin@ip-0A020804 ~]$ qsub -N single_hpl -k oe -j oe -l select=1:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/linpack/single_hpl.sh
 ```
 
-Output files will be named `build_hpl.o<jobid>`, `single_hpl.o<jobid>`
+---
 
 ### Slurm
 
 ```
-[hpcadmin@ip-0A020804 ~]$ sbatch -J build_hpl -o build_hpl.out /apps/linpack/build_hpl.sh
-[hpcadmin@ip-0A020804 ~]$ sbatch -N 1 --exclusive -J hpl -o hpl_%A.out /apps/linpack/single_hpl.sh
+[hpcadmin@ip-0A020804 ~]$ sbatch -J build_hpl -o build_hpl.o%A /apps/linpack/build_hpl.sh
+[hpcadmin@ip-0A020804 ~]$ sbatch -N 1 --exclusive -J hpl -o single_hpl.o%A /apps/linpack/single_hpl.sh
 ```
 
-Output files will be named `build_hpl.out`, `single_hpl_<jobid>.out`
+---
+
+Output files will be named `build_hpl.o<jobid>`, `single_hpl.o<jobid>`
 
 # Remove all
 
