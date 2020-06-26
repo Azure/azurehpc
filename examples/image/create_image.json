@@ -1,17 +1,17 @@
 {
     "location": "variables.location",
     "resource_group": "variables.resource_group",
-    "install_from": "imager",
+    "install_from": "builder",
     "admin_user": "hpcadmin",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "image": "OpenLogic:CentOS:7.7:latest",
         "image_name": "<NOT-SET>",
-        "image_resource_group": "<NOT-SET>",
+        "image_resource_group": "img-{{variables.uuid}}",
         "location": "<NOT-SET>",
-        "resource_group": "temp-{{variables.uuid}}",
+        "resource_group": "builder-{{variables.uuid}}",
         "uuid": "<NOT-SET>",
-        "vm_type": "<NOT-SET>",
+        "vm_type": "Standard_DS8s_v3",
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
@@ -24,10 +24,9 @@
         }
     },
     "resources": {
-        "imager": {
+        "builder": {
             "type": "vm",
             "vm_type": "Standard_D4s_v3",
-            "accelerated_networking": true,
             "public_ip": true,
             "image": "variables.image",
             "subnet": "admin",
