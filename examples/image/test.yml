@@ -24,7 +24,7 @@ steps:
           echo "removing resource group $AZHPC_RESOURCEGROUP"
           azhpc-destroy -c $config_file $options --no-wait
           echo "removing image resource group $AZHPC_RESOURCEGROUP"
-          img_rg=$(azhpc-get -c $config_file $options image_resource_group)
+          img_rg=$(azhpc-get -c $config_file $options variables.image_resource_group | cut -d'=' -f2 | xargs)
           az group delete -n $img_rg -y --no-wait $options
         fi
         if [ "$return_code" -ne "0" ]; then
