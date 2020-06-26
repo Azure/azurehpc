@@ -17,7 +17,7 @@ steps:
         fi
         pushd $PROJECT_DIR
         cat $config_file
-        azhpc-build --no-vnet -c $config_file $options
+        azhpc-build -c $config_file $options
         return_code=$?
         cat azhpc_install_config/install/*.log
         if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
