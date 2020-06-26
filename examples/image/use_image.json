@@ -10,8 +10,8 @@
         "test_resource_group": "tst-{{variables.uuid}}",
         "uuid": "<NOT-SET>",
         "image_resource_group": "img-{{variables.uuid}}",
-        "vm_type": "Standard_DS8s_v3",
-        "compute_instances": 2,
+        "vm_type": "Standard_D8s_v3",
+        "compute_instances": 4,
         "low_priority": false,
         "vnet_resource_group": "variables.test_resource_group"
     },
@@ -26,8 +26,7 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "Standard_D8s_v3",
-            "accelerated_networking": true,
+            "vm_type": "variables.vm_type",
             "public_ip": true,
             "image": "variables.hpc_image",
             "subnet": "compute",
