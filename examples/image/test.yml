@@ -1,0 +1,35 @@
+steps:
+  - task : AzureCLI@2
+    displayName: "Test image"
+    inputs:
+      azureSubscription: 'target-subscription'
+      scriptType: 'bash'
+      scriptLocation: inlineScript
+      inlineScript: |
+        if [ "$SYSTEM_DEBUG" = "true" ]; then
+          options=" --debug"
+        fi
+        . install.sh
+        conf_dir=$(dirname $AZHPC_CONFIG)
+        config_file=use_image.json
+        if [ "$PROJECT_DIR" = "" ]; then
+            PROJECT_DIR=${conf_dir##*/}
+        fi
+        pushd $PROJECT_DIR
+        cat $config_file
+        azhpc-build -c $config_file $options
+        return_code=$?
+        cat azhpc_install_use_image/install/*.log
+        if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
+          echo "removing resource group $AZHPC_RESOURCEGROUP"
+          # remove the RG in synchronous mode because it locks the image
+          azhpc-destroy -c $config_file $options
+          img_rg=$(azhpc-get -c $config_file $options variables.image_resource_group | cut -d'=' -f2 | xargs)
+          echo "removing image resource group $img_rg"
+          az group delete -n $img_rg -y --no-wait $options
+        fi
+        if [ "$return_code" -ne "0" ]; then
+          exit $return_code
+        fi
+      failOnStandardError: false
+    continueOnError: false
