@@ -148,7 +148,8 @@ def get_deployment_status(resource_group, deployname):
     cmd = [
         "az", "group", "deployment", "operation", "list",
             "--resource-group", resource_group,
-            "--name", deployname
+            "--name", deployname,
+            "--output", "json"
     ]
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if res.returncode != 0:
