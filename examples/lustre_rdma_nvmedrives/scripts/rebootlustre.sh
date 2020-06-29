@@ -1,3 +1,4 @@
+#reboot lustre nodes
 #!/bin/bash
 vmlist=$1
 ossnum=$2
