@@ -1,0 +1,52 @@
+{
+  "location": "variables.location",
+  "resource_group": "<NOT-SET>",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "image": "OpenLogic:CentOS:7.6:latest",
+    "location": "<NOT-SET>"
+  },
+  "vnet": {
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "compute": "10.2.4.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "public_ip": true,
+      "vm_type": "Standard_D16s_v3",
+      "image": "variables.image",
+      "accelerated_networking": true,
+      "subnet": "compute",
+      "tags": [
+        "cndefault"
+        ]
+   },
+    "disknode": {
+      "type": "vm",
+      "vm_type": "Standard_D16s_v3",
+      "image": "variables.image",
+      "accelerated_networking": true,
+      "subnet": "compute",
+      "availability_zones": "2",
+      "storage_sku": "UltraSSD_LRS",
+      "data_disks": [
+        1024 
+      ],
+      "tags": [
+        "cndefault"
+        ]
+   }
+  },
+  "install": [
+    {
+      "script": "cndefault.sh",
+      "tag": "cndefault",
+      "sudo": true
+    }
+  ]
+}
