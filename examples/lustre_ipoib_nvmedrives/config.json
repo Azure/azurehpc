@@ -32,7 +32,7 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "Standard_HC44rs",
+            "vm_type": "Standard_HB60rs",
             "accelerated_networking": false,
             "public_ip": true,
             "image": "variables.image",
@@ -51,7 +51,7 @@
         },
         "lustre": {
             "type": "vmss",
-            "vm_type": "Standard_HC44rs",
+            "vm_type": "Standard_HB120rs_v2",
             "instances": "9",
             "accelerated_networking": false,
             "image": "variables.lustreimage",
@@ -127,7 +127,7 @@
             "script": "lfsoss.sh",
             "args": [
                 "$(head -n1 hostlists/tags/lustre)",
-                "/dev/sdb"
+                "/dev/nvme0n1"
             ],
             "tag": "lustre",
             "sudo": true
@@ -186,7 +186,7 @@
                 "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsserver",
-            "sudo": false
+            "sudo": true
         },
         {
             "script": "pbsclient.sh",
@@ -197,7 +197,7 @@
                 "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
             ],
             "tag": "lfsclient",
-            "sudo": false
+            "sudo": true
         }
        
     ]

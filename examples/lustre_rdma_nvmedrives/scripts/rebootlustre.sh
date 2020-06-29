@@ -1,7 +1,6 @@
 #!/bin/bash
-groupname=$1
-vmlist=$2
-ossnum=$3
+vmlist=$1
+ossnum=$2
 
 totalcount=$(($ossnum+2))
 index=0

@@ -2,7 +2,7 @@
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_Infiniband/config.json)
 
-This is a deployment of Lustre using the available infiniband network. This solution has been designed to work with either IP over infiniband or true Remote Direct Memory Access(RDMA), although only the IPoIB version has been developed thus far. This particular deployment will use NVMe drives for the OSSes and MDSes.
+This is a deployment of Lustre using the available infiniband network. This solution has been designed to work with either IP over infiniband or true Remote Direct Memory Access(RDMA). This particular deployment will use NVMe drives for the OSSes and MDSes.
 
 This deployment will only function using the Python based AzureHPC (not the BASH libexec).
 
