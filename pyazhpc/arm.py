@@ -656,7 +656,7 @@ class ArmTemplate:
                 }
 
             if rstoragesku == "UltraSSD_LRS" :
-                vmres["properties"]["additionalCapabilities"] = { "ultraSSDEnabled": "true" }
+                vmres["properties"]["additionalCapabilities"] = { "ultraSSDEnabled": true }
 
             if ravset:
                 vmres["properties"]["availabilitySet"] = {
