@@ -78,13 +78,12 @@ function get_node_core_count()
 function submit_job()
 {
     local job_name=$1
-    local pool_name=$2
-    local node_count=$3
-    local ppn=$4
-    local script=$5
+    local node_count=$2
+    local ppn=$3
+    local script=$4
 
     qsub -l walltime=$PBS_MAX_WALLTIME -N $job_name -k oe \
-            -j oe -l select=$node_count:ncpus=$ppn:mpiprocs=$ppn:pool_name=$pool_name,place=scatter:excl \
+            -j oe -l select=$node_count:ncpus=$ppn:mpiprocs=$ppn,place=scatter:excl \
             -- $script
     if [ "$?" -ne "0" ]; then
         echo "Unable to submit job"

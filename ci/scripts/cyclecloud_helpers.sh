@@ -1,4 +1,5 @@
 #!/bin/bash
+PATH=$HOME/bin;$PATH
 
 # Wait a cluster to reach it's target state
 # TODO : Add timeout 
