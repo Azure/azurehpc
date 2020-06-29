@@ -13,6 +13,7 @@ PBS_MAX_WALLTIME="00:20:00"
 make_uuid_str
 job_group=$uuid_str
 
+echo "submit job $job_group on $nodes"
 submit_job $job_group $nodes 1 "/apps/imb-mpi/ringpingpong.sh $mpi $mode"
 
 # Wait for all jobs to be finished
