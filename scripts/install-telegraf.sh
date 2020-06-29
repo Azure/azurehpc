@@ -59,6 +59,9 @@ cat << EOF > /etc/telegraf/telegraf.conf
   collect_cpu_time = false
   report_active = false
 
+[[inputs.interrupts]]
+  cpu_as_tag = false
+
 [[inputs.disk]]
   ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
 
@@ -69,6 +72,9 @@ cat << EOF > /etc/telegraf/telegraf.conf
 [[inputs.swap]]
 [[inputs.system]]
 [[inputs.net]]
+[[inputs.conntrack]]
+  files = ["ip_conntrack_count","ip_conntrack_max",
+        "nf_conntrack_count","nf_conntrack_max"]
 EOF
 
 echo "#### Starting Telegraf services:"

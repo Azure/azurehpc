@@ -14,12 +14,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 bad_node=0
 
 # Retrieve the VM size
-AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize')
+AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
 
 function check_ib_device()
 {
     case $AZHPC_VMSIZE in
-        Standard_H16mr|Standard_H16r)
+        standard_h16mr|standard_h16r)
             ib_device=$(ifconfig | grep eth1 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
             if [ -n "$ib_device" ]; then
                 IB_STATE=$(cat /sys/class/infiniband/*/ports/1/state | awk -F ":" '{print $2}' | xargs)  2>/dev/null
@@ -32,7 +32,7 @@ function check_ib_device()
             fi
         ;;
 
-        Standard_HC44rs|Standard_HB60rs|Standard_HB120rs_v2)
+        standard_hc44rs|standard_hb60rs|standard_hb120rs_v2)
             # Retrieve IB info
             ib_device=$(ifconfig | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
             if [ -n "$ib_device" ]; then

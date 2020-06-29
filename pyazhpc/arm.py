@@ -716,7 +716,7 @@ class ArmTemplate:
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)
-        rfaultdomaincount = res.get("fault_domain_count", None)
+        rfaultdomaincount = res.get("fault_domain_count", 1)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -837,6 +837,9 @@ class ArmTemplate:
                 pass
             else:
                 log.error("unrecognised resource type ({}) for {}".format(rtype, r))
+
+    def has_resources(self):
+        return len(self.resources) > 0
 
     def read(self, cfg, deploy_network):
         rg = cfg["resource_group"]

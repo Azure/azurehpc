@@ -19,7 +19,8 @@
         "blob": "{{variables.uuidname}}.txt",
         "blobpath": "{{variables.container}}/{{variables.blob}}",
         "uuidname": "azhpc{{variables.uuid}}",
-        "secret_name": "secret"
+        "secretkey": "secretkey",
+        "secret": "secret"
     },
     "vnet": {
         "name": "hpcvnet",
@@ -37,6 +38,8 @@
                 "variables.simple_variable", "value",
                 "variables.use_variable", "value",
                 "variables.double_curly_braces", "simple_variable=value",
+                "secret.{{variables.key_vault}}.{{secretkey}}", "secretvalue",
+                "secret.{{variables.key_vault}}.variables", "secretvalue",
                 "secret.{{variables.key_vault}}.secret", "secretvalue",
                 "laworkspace.{{variables.resource_group}}.{{variables.la_workspace}}", "laworkspace.{{variables.resource_group}}.{{variables.la_workspace}}",
                 "lakey.{{variables.resource_group}}.{{variables.la_workspace}}", "lakey.{{variables.resource_group}}.{{variables.la_workspace}}",

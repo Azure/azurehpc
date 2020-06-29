@@ -1,4 +1,6 @@
 # Building the infrastructure
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/cc_beegfs?branchName=master)
+
 Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER and BEEGFS by using building blocks.
 
 ## Step 1 - install azhpc
@@ -26,14 +28,14 @@ $ cp $azhpc_dir/examples/cc_beegfs/init.sh .
 $ cp $azhpc_dir/examples/cc_beegfs/variables.json .
 ```
 
-Edit the variables.json to match your environment. Give a unique value to `uuid`. An existing keyvault should be referenced as it won't be created for you.
+Edit the variables.json to match your environment. Give a unique value to `uuid`. An existing keyvault can be referenced if needed.
 
 ```json
 {
   "variables": {
     "resource_group": "my resource group",
     "location": "my location",
-    "key_vault": "my key vault",
+    "key_vault": "kv{{variables.uuid}}",
     "uuid": "unique value",
     "projectstore": "locker{{variables.uuid}}"
   }

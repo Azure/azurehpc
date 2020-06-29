@@ -1,0 +1,10 @@
+{
+    "CycleCloud7":
+    {
+        "azhpc.variables.cc_version": "7"
+    },
+    "CycleCloud8":
+    {
+        "azhpc.variables.cc_version": "8"
+    }
+}

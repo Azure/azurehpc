@@ -121,6 +121,8 @@ class ConfigFile:
         
         parts = v.split('.')
         prefix = parts[0]
+        if len(parts) == 1:
+            prefix = ""
 
         if prefix == "variables":
             res = self.read_value(v)
@@ -156,6 +158,8 @@ class ConfigFile:
             res = azutil.get_log_analytics_key(parts[1], parts[2])
         elif extended and prefix == "acrkey":
             res = azutil.get_acr_key(parts[1])
+        elif extended and prefix == "image":
+            res = azutil.get_image_id(parts[1], parts[2])
         else:
             res = v
         
