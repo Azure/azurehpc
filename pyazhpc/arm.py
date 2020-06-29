@@ -832,6 +832,9 @@ class ArmTemplate:
             else:
                 log.error("unrecognised resource type ({}) for {}".format(rtype, r))
 
+    def has_resources(self):
+        return len(self.resources) > 0
+
     def read(self, cfg, deploy_network):
         rg = cfg["resource_group"]
         vnetrg = cfg["vnet"].get("resource_group", rg)
