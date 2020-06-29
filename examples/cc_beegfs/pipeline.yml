@@ -28,7 +28,7 @@ variables:
   # pipeline directory
   azhpc.pipeline_dir: examples/cc_beegfs
   # destination of scripts. Default is hpcuser@headnode:/apps
-  azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
+  azhpc.script_remote_dest: 'hpcadmin@jumpbox:/apps'
 
 # Add the variables needed in your configuration file
 # Uncomment and set values below, or leave commented and thru pipeline variables
@@ -41,3 +41,4 @@ jobs:
 - template: ../../ci/templates/jobs/build.yml
   parameters:
     pre_steps: ../../../examples/cc_beegfs/init.yml
+    extra_steps: ../../../examples/cc_beegfs/test.yml

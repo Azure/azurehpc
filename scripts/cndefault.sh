@@ -19,5 +19,8 @@ if [ -e $CYCLECLOUD_HOME/bin/jetpack ]; then
     $DIR/azhpc4cycle.sh enable_metada_access
     $DIR/azhpc4cycle.sh disable_jetpack_converge
     $DIR/azhpc4cycle.sh disable_fail2ban
-    $DIR/azhpc4cycle.sh fix_pbs_limits
+    if [ -e /opt/pbs/bin ]; then
+        $DIR/azhpc4cycle.sh fix_pbs_limits
+        $DIR/azhpc4cycle.sh pbs_enable_job_history
+    fi
 fi

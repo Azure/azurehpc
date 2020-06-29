@@ -91,6 +91,16 @@ fix_pbs_limits()
     fi
 }
 
+# Enable job history only on the master
+pbs_enable_job_history()
+{
+    role=$(jetpack config roles | grep "pbspro_master_role")
+    if [ -n "$role" ]; then
+        /opt/pbs/bin/qmgr -c 's s job_history_enable=t'
+        systemctl restart pbs
+    fi
+}
+
 case $helper in
     enable_metada_access)
         enable_metada_access
@@ -103,6 +113,9 @@ case $helper in
         ;;
     fix_pbs_limits)
         fix_pbs_limits
+        ;;
+    pbs_enable_job_history)
+        pbs_enable_job_history
         ;;
     *)
         echo "unknown function"
