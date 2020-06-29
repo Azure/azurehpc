@@ -15,7 +15,6 @@
 	"resource_group": "<NOT-SET>",
       	"image": "OpenLogic:CentOS:7.6:latest",
 	"lustreimage": "OpenLogic:CentOS:7.6:latest", 
-	"drivenum": 4,
 	"ossnum": 4, 
 	"low_priority": true,
 	"storage_account": "<NOT-SET>",
