@@ -1,5 +1,5 @@
 #!/bin/bash
-PATH=$HOME/bin;$PATH
+PATH=$HOME/bin:$PATH
 
 # Wait a cluster to reach it's target state
 # TODO : Add timeout 
@@ -11,7 +11,7 @@ cluster_wait_targetstate()
     state=$(cyclecloud show_nodes -c $cluster_name --format=json | jq -r --arg master "$master_name" '.[] | select(.Name==$master) | .State')
     target=$(cyclecloud show_nodes -c $cluster_name --format=json | jq -r --arg master "$master_name" '.[] | select(.Name==$master) | .TargetState')
     while [ "$state" != "$target" ]; do
-        echo "Cluster $cluster_name status is $state waiting to reach $target"
+        echo "Cluster '$cluster_name' status is '$state' waiting to reach '$target'"
         sleep 20
         state=$(cyclecloud show_nodes -c $cluster_name --format=json | jq -r --arg master "$master_name" '.[] | select(.Name==$master) | .State')
     done
