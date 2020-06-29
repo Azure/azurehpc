@@ -7,5 +7,5 @@ steps:
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcadmin
-    command: /apps/ci/cycle_run_on_master.sh pbscycle "/apps/ci/submit_pingpong.sh 16"
+    command: /apps/ci/cycle_run_on_master.sh pbscycle /apps/ci/submit_pingpong.sh 16
   
