@@ -1,10 +1,8 @@
-# Lustre Infiniband
+# lustre_rdma_avs
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_Infiniband/config.json)
 
-This is a deployment of Lustre using the available infiniband network. This solution has been designed to work with either IP over infiniband or true Remote Direct Memory Access(RDMA) . The Object Storage Servers are designed to run a raid0 group using 1TB drives. This value can easily be changed inside installdrives.sh.
-
-Please note that installdrives.sh does take some time to complete due to it having to work with only part of a virtual machine scale set (VMSS).
+This is a deployment of Lustre using the available infiniband network. This solution has been designed to work with true Remote Direct Memory Access(RDMA) . 
 
 This deployment will only function using the Python based AzureHPC (not the BASH libexec).
 
@@ -13,8 +11,8 @@ Resources:
 * Head node (headnode)
 * Compute nodes (compute)
 * Lustre
-  * Management/Meta-data server (lfsmds)
-  * Object storage servers (lfsoss)
+  * Management/Meta-data server (lfsmaster)
+  * Object storage servers (lustre)
   * Hierarchical storage management nodes (lfshsm)
   * Lustre client exporting with samba (lfssmb)
 
@@ -24,6 +22,7 @@ The configuration file requires the following variables to be set:
 
 | Variable                | Description                                  |
 |-------------------------|----------------------------------------------|
+| location                | The locaton of the project                   |
 | resource_group          | The resource group for the project           |
 | storage_account         | The storage account for HSM                  |
 | storage_key             | The storage key for HSM                      |
