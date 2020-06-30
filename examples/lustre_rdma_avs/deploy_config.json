@@ -1,0 +1,583 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {},
+    "resources": [
+        {
+            "apiVersion": "2018-10-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "hpcvnet",
+            "location": "southcentralus",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.2.0.0/20"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "compute",
+                        "properties": {
+                            "addressPrefix": "10.2.0.0/22"
+                        }
+                    },
+                    {
+                        "name": "storage",
+                        "properties": {
+                            "addressPrefix": "10.2.4.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2018-01-01",
+            "name": "headnode_pip",
+            "location": "southcentralus",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "headnode27d5d3"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2015-06-15",
+            "name": "headnode_nsg",
+            "location": "southcentralus",
+            "dependsOn": [],
+            "tags": {},
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-ssh",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-09-01",
+            "name": "headnode_nic",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/virtualNetworks/hpcvnet",
+                "Microsoft.Network/publicIpAddresses/headnode_pip",
+                "Microsoft.Network/networkSecurityGroups/headnode_nsg"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "headnode_ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'hpcvnet', 'compute')]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'headnode_pip')]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'headnode_nsg')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "headnode",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/headnode_nic"
+            ],
+            "tags": {},
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_HB60rs"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'headnode_nic')]"
+                        }
+                    ]
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "headnode_osdisk",
+                        "createOption": "fromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS-HPC",
+                        "sku": "7.6",
+                        "version": "latest"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "headnode",
+                    "adminUsername": "hpcadmin",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUkKNVQZwoJg3dEIRHOeOvt7UKGx/4MbfS6W5JeTcj/qd6y2jmAsZ8qJON4da9fm2oUhMADzivXjQCCwhxQcSlpbCTTpAhVROPqQMdu5s/SLVXYRjaxrpybqE9CawUiI4rnvwEu6/9l1r9qtUnV2rWr7W3S23zhNMKuxE6zM3Dy30pzdkafZJjsXnZnye22Y3s4Sx9S2Dorp//kjBslvtTxv/SMXrJYOnOuao3fcEl+tnVVayOzCFuXElnSO4BT+gAHTG07Ooza/BRnL0WZx9E+j9TWAzgNQbWHfuhZaShAuGBRG6ncvO2qryaxdeyeTdmciQxZY0njb183a6LvnVB",
+                                    "path": "/home/hpcadmin/.ssh/authorized_keys"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "nc-testlustre2avset",
+            "type": "Microsoft.Compute/availabilitySets",
+            "apiVersion": "2018-10-01",
+            "location": "southcentralus",
+            "sku": {
+                "name": "Aligned"
+            },
+            "properties": {
+                "platformUpdateDomainCount": 1,
+                "platformFaultDomainCount": 1
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-09-01",
+            "name": "compute0001_nic",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/virtualNetworks/hpcvnet"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "compute0001_ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'hpcvnet', 'storage')]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": false
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "compute0001",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/compute0001_nic",
+                "Microsoft.Compute/availabilitySets/nc-testlustre2avset"
+            ],
+            "tags": {},
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_HB120rs_v2"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'compute0001_nic')]"
+                        }
+                    ]
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "compute0001_osdisk",
+                        "createOption": "fromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS-HPC",
+                        "sku": "7.6",
+                        "version": "latest"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "compute0001",
+                    "adminUsername": "hpcadmin",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUkKNVQZwoJg3dEIRHOeOvt7UKGx/4MbfS6W5JeTcj/qd6y2jmAsZ8qJON4da9fm2oUhMADzivXjQCCwhxQcSlpbCTTpAhVROPqQMdu5s/SLVXYRjaxrpybqE9CawUiI4rnvwEu6/9l1r9qtUnV2rWr7W3S23zhNMKuxE6zM3Dy30pzdkafZJjsXnZnye22Y3s4Sx9S2Dorp//kjBslvtTxv/SMXrJYOnOuao3fcEl+tnVVayOzCFuXElnSO4BT+gAHTG07Ooza/BRnL0WZx9E+j9TWAzgNQbWHfuhZaShAuGBRG6ncvO2qryaxdeyeTdmciQxZY0njb183a6LvnVB",
+                                    "path": "/home/hpcadmin/.ssh/authorized_keys"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets','nc-testlustre2avset')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-09-01",
+            "name": "compute0002_nic",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/virtualNetworks/hpcvnet"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "compute0002_ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'hpcvnet', 'storage')]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": false
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "compute0002",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/compute0002_nic",
+                "Microsoft.Compute/availabilitySets/nc-testlustre2avset"
+            ],
+            "tags": {},
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_HB120rs_v2"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'compute0002_nic')]"
+                        }
+                    ]
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "compute0002_osdisk",
+                        "createOption": "fromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS-HPC",
+                        "sku": "7.6",
+                        "version": "latest"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "compute0002",
+                    "adminUsername": "hpcadmin",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUkKNVQZwoJg3dEIRHOeOvt7UKGx/4MbfS6W5JeTcj/qd6y2jmAsZ8qJON4da9fm2oUhMADzivXjQCCwhxQcSlpbCTTpAhVROPqQMdu5s/SLVXYRjaxrpybqE9CawUiI4rnvwEu6/9l1r9qtUnV2rWr7W3S23zhNMKuxE6zM3Dy30pzdkafZJjsXnZnye22Y3s4Sx9S2Dorp//kjBslvtTxv/SMXrJYOnOuao3fcEl+tnVVayOzCFuXElnSO4BT+gAHTG07Ooza/BRnL0WZx9E+j9TWAzgNQbWHfuhZaShAuGBRG6ncvO2qryaxdeyeTdmciQxZY0njb183a6LvnVB",
+                                    "path": "/home/hpcadmin/.ssh/authorized_keys"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets','nc-testlustre2avset')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-09-01",
+            "name": "lfsmaster_nic",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/virtualNetworks/hpcvnet"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "lfsmaster_ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'hpcvnet', 'storage')]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": false
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "lfsmaster",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/lfsmaster_nic",
+                "Microsoft.Compute/availabilitySets/nc-testlustre2avset"
+            ],
+            "tags": {},
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_HB120rs_v2"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'lfsmaster_nic')]"
+                        }
+                    ]
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "lfsmaster_osdisk",
+                        "createOption": "fromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS",
+                        "sku": "7.6",
+                        "version": "latest"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "lfsmaster",
+                    "adminUsername": "hpcadmin",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUkKNVQZwoJg3dEIRHOeOvt7UKGx/4MbfS6W5JeTcj/qd6y2jmAsZ8qJON4da9fm2oUhMADzivXjQCCwhxQcSlpbCTTpAhVROPqQMdu5s/SLVXYRjaxrpybqE9CawUiI4rnvwEu6/9l1r9qtUnV2rWr7W3S23zhNMKuxE6zM3Dy30pzdkafZJjsXnZnye22Y3s4Sx9S2Dorp//kjBslvtTxv/SMXrJYOnOuao3fcEl+tnVVayOzCFuXElnSO4BT+gAHTG07Ooza/BRnL0WZx9E+j9TWAzgNQbWHfuhZaShAuGBRG6ncvO2qryaxdeyeTdmciQxZY0njb183a6LvnVB",
+                                    "path": "/home/hpcadmin/.ssh/authorized_keys"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets','nc-testlustre2avset')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-09-01",
+            "name": "lustre0001_nic",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/virtualNetworks/hpcvnet"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "lustre0001_ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'hpcvnet', 'storage')]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": false
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "lustre0001",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/lustre0001_nic",
+                "Microsoft.Compute/availabilitySets/nc-testlustre2avset"
+            ],
+            "tags": {},
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_HB120rs_v2"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'lustre0001_nic')]"
+                        }
+                    ]
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "lustre0001_osdisk",
+                        "createOption": "fromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS",
+                        "sku": "7.6",
+                        "version": "latest"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "lustre0001",
+                    "adminUsername": "hpcadmin",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUkKNVQZwoJg3dEIRHOeOvt7UKGx/4MbfS6W5JeTcj/qd6y2jmAsZ8qJON4da9fm2oUhMADzivXjQCCwhxQcSlpbCTTpAhVROPqQMdu5s/SLVXYRjaxrpybqE9CawUiI4rnvwEu6/9l1r9qtUnV2rWr7W3S23zhNMKuxE6zM3Dy30pzdkafZJjsXnZnye22Y3s4Sx9S2Dorp//kjBslvtTxv/SMXrJYOnOuao3fcEl+tnVVayOzCFuXElnSO4BT+gAHTG07Ooza/BRnL0WZx9E+j9TWAzgNQbWHfuhZaShAuGBRG6ncvO2qryaxdeyeTdmciQxZY0njb183a6LvnVB",
+                                    "path": "/home/hpcadmin/.ssh/authorized_keys"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets','nc-testlustre2avset')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2016-09-01",
+            "name": "lustre0002_nic",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/virtualNetworks/hpcvnet"
+            ],
+            "tags": {},
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "lustre0002_ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'hpcvnet', 'storage')]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": false
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "lustre0002",
+            "location": "southcentralus",
+            "dependsOn": [
+                "Microsoft.Network/networkInterfaces/lustre0002_nic",
+                "Microsoft.Compute/availabilitySets/nc-testlustre2avset"
+            ],
+            "tags": {},
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_HB120rs_v2"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'lustre0002_nic')]"
+                        }
+                    ]
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "name": "lustre0002_osdisk",
+                        "createOption": "fromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS",
+                        "sku": "7.6",
+                        "version": "latest"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "lustre0002",
+                    "adminUsername": "hpcadmin",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "keyData": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUkKNVQZwoJg3dEIRHOeOvt7UKGx/4MbfS6W5JeTcj/qd6y2jmAsZ8qJON4da9fm2oUhMADzivXjQCCwhxQcSlpbCTTpAhVROPqQMdu5s/SLVXYRjaxrpybqE9CawUiI4rnvwEu6/9l1r9qtUnV2rWr7W3S23zhNMKuxE6zM3Dy30pzdkafZJjsXnZnye22Y3s4Sx9S2Dorp//kjBslvtTxv/SMXrJYOnOuao3fcEl+tnVVayOzCFuXElnSO4BT+gAHTG07Ooza/BRnL0WZx9E+j9TWAzgNQbWHfuhZaShAuGBRG6ncvO2qryaxdeyeTdmciQxZY0njb183a6LvnVB",
+                                    "path": "/home/hpcadmin/.ssh/authorized_keys"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets','nc-testlustre2avset')]"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

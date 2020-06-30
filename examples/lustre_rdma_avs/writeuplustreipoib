@@ -1,0 +1,11 @@
+- lustre-ipoib - This is a created implementation of Lustre using IP over infiniband (IPoIB)
+
+Changes to files to enable Infiniband functionality:
+lfsmaster.sh
+lfsoss.sh
+lfsclient.sh
+lfsrepo.sh
+
+Addition for correct drives placement of OSSes : instaldrives.sh
+*installdrives.sh takes about 15 minutes to run so please either remote this entity, or wait it out.
+
