@@ -57,7 +57,7 @@ class ConfigFile:
                     input = json.load(f)
                 return self.__evaluate_dict(input, extended)
             else:
-                return self.__process_value(input, extended)
+                return self.process_value(input, extended)
         else:
             return input
 
@@ -100,7 +100,7 @@ class ConfigFile:
                 it = it[x]
             
             if type(it) is str:
-                res = self.__process_value(it)
+                res = self.process_value(it)
             else:
                 res = it
         except KeyError:
@@ -111,13 +111,13 @@ class ConfigFile:
 
         return res
 
-    def __process_value(self, v, extended=True):
+    def process_value(self, v, extended=True):
         log.debug(f"process_value (enter): {v} [extended={extended}]")
 
         def repl(match):
-            return str(self.__process_value(match.group()[2:-2], extended))
+            return str(self.process_value(match.group()[2:-2], extended))
     
-        v = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2], extended)), v)
+        v = self.regex.sub(lambda m: str(self.process_value(m.group()[2:-2], extended)), v)
         
         parts = v.split('.')
         prefix = parts[0]
