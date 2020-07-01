@@ -3,6 +3,8 @@ MPI=${1-impi2018}
 MODE=${2-ring}
 set -o pipefail
 
+[[ -n $PBS_NODEFILE ]] && { ISPBS=true; JOBID=$PBS_JOBID; }
+[[ -n $SLURM_NODELIST ]] && { ISSLURM=true; JOBID=$SLURM_JOBID; }
 
 case $MPI in
     impi2016)
@@ -11,7 +13,7 @@ case $MPI in
         export I_MPI_FALLBACK_DEVICE=0
         export I_MPI_DAPL_PROVIDER=ofa-v2-ib0
         export I_MPI_DEBUG=4
-        mpi_options="-np 2 -ppn 1"
+        [[ "$ISPBS" = true ]] && mpi_options="-np 2 -ppn 1"
         host_option="-hosts"
         if [ -z $MPI_BIN ]; then
             IMB_ROOT=$I_MPI_ROOT/intel64/bin
@@ -27,7 +29,7 @@ case $MPI in
         export I_MPI_FABRICS="shm:ofa"
         export I_MPI_FALLBACK_DEVICE=0
         export I_MPI_DEBUG=4
-        mpi_options="-np 2 -ppn 1"
+        [[ "$ISPBS" = true ]] && mpi_options="-np 2 -ppn 1"
         host_option="-hosts"
         if [ -z $MPI_BIN ]; then
             IMB_ROOT=$I_MPI_ROOT/intel64/bin
@@ -44,7 +46,7 @@ case $MPI in
         #export I_MPI_FALLBACK_DEVICE=0
         export I_MPI_DEBUG=4
         export FI_PROVIDER=verbs
-        mpi_options="-np 2 -ppn 1"
+        [[ "$ISPBS" = true ]] && mpi_options="-np 2 -ppn 1"
         host_option="-hosts"
         if [ -z $MPI_BIN ]; then
             IMB_ROOT=$I_MPI_ROOT/intel64/bin
@@ -59,20 +61,25 @@ case $MPI in
 
         mpi_options=" --map-by core"
         mpi_options+=" -bind-to core"
-        mpi_options+=" -npernode 1 -np 2"
+        [[ "$ISPBS" = true ]] && mpi_options+=" -npernode 1 -np 2"
         host_option="-host"
 
         IMB_ROOT=$HPCX_MPI_TESTS_DIR/imb
     ;;
 esac
+
 # affinity
 numactl_options=" numactl --cpunodebind 0"
 
-hostlist=$(pwd)/hosts.$PBS_JOBID
-
-sort -u $PBS_NODEFILE > $hostlist
-# remove .internal.cloudapp.net from node names
-#sed -i 's/.internal.cloudapp.net//g' $hostlist
+if [[ "$ISPBS" = true ]]; then
+    hostlist=$(pwd)/hosts.$JOBID
+    sort -u $PBS_NODEFILE > $hostlist
+    # remove .internal.cloudapp.net from node names
+    #sed -i 's/.internal.cloudapp.net//g' $hostlist
+elif [[ "$ISSLURM" = true ]]; then
+    scontrol show hostname $SLURM_NODELIST > $(pwd)/hosts.$JOBID
+    hostlist=$(pwd)/hosts.$JOBID
+fi
 
 case $MODE in
     ring) # one to neighbour
@@ -81,30 +88,31 @@ case $MODE in
         for dst in $(<$hostlist); do
             mpirun $host_option $src,$dst \
                 $mpi_options $numactl_options \
-                $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log
+                $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$JOBID.log
             src=$dst
         done
     ;;
     half) # one to each one way
-        cp $hostlist desthosts.$PBS_JOBID
+        cp $hostlist desthosts.$JOBID
         for src in $(<$hostlist); do
             # delete the first line
-            sed -i '1d' desthosts.$PBS_JOBID
-            for dst in $(<desthosts.$PBS_JOBID); do
+            sed -i '1d' desthosts.$JOBID
+            for dst in $(<desthosts.$JOBID); do
                 mpirun $host_option $src,$dst \
                     $mpi_options $numactl_options \
-                    $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$PBS_JOBID.log
+                    $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$JOBID.log
             done
         done
-        rm desthosts.$PBS_JOBID
+        rm desthosts.$JOBID
     ;;
 esac
+
 # clean up
 rm $hostlist
 
 echo "Ring Ping Pong Results (1024 bytes)"
 printf "%-20s %-20s %10s\n" "Source" "Destination" "Time [usec]"
-grep "^         1024 " *_ringpingpong.$PBS_JOBID.log \
+grep "^         1024 " *_ringpingpong.$JOBID.log \
     | tr -s ' ' | cut -d ' ' -f 1,4 \
     | sed 's/_to_/ /g;s/_ringpingpong[^:]*://g' \
     | sort -nk 3 \
