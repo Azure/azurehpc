@@ -1,0 +1,49 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.test_resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "image.{{variables.image_resource_group}}.{{variables.image_name}}",
+        "image_name": "<NOT-SET>",
+        "location": "<NOT-SET>",
+        "test_resource_group": "tst-{{variables.uuid}}",
+        "uuid": "<NOT-SET>",
+        "image_resource_group": "img-{{variables.uuid}}",
+        "vm_type": "Standard_D8s_v3",
+        "compute_instances": 4,
+        "low_priority": false,
+        "vnet_resource_group": "variables.test_resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
+            "low_priority": "variables.low_priority",
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+            ]
+        }
+    },
+    "install": [
+    ]
+}

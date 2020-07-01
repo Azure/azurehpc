@@ -272,6 +272,7 @@ For the most part the configuration is just a standard JSON file although there 
 | `laworkspace.<RESOURCE-GROUP>.<NAME>`                  | Retrieve a [Log Analytics workspace id](#log-analytics-workspace-id)           |
 | `lakey.<RESOURCE-GROUP>.<NAME>`                        | Retrieve a [Log Analytics key](#log-analytics-key)                             |
 | `acrkey.<ACR-REPONAME>`                                | Retrieve an [Azure Container Registry](#acr-key) key                           |
+| `image.<RESOURCE-GROUP>.<NAME>`                        | Retrieve a [Custom Image id](#custom-image-id)           |
 
 
 #### Variables
@@ -338,6 +339,9 @@ The config file allow to retrieve a Log Analytics key. This is the format : `lak
 The config file allow to retrieve an Azure Container Registry key. This is the format : `acrkey.<ACR-REPONAME>`.
 
 > Note : The Azure Container Registry repositery `<ACR-REPONAME>` need to exists
+
+#### Custom Image Id
+The config file allow to retrieve a custom image id. This is the format : `image.<RESOURCE-GROUP>.<NAME>`.
 
 
 #### Referencing variables in variables names

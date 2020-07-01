@@ -9,9 +9,9 @@
       "vnet_resource_group": "variables.resource_group",
       "vnet_name": "hpcvnet",
       "key_vault": "<NOT-SET>",
-      "projectstore": "<NOT-SET>",
       "admin_user": "hpcadmin",
-      "cc_password_secret_name": "CycleAdminPassword"
+      "cc_password_secret_name": "CycleAdminPassword",
+      "cc_version": "7"
     },
     "vnet": {
       "resource_group": "variables.vnet_resource_group",
@@ -27,8 +27,7 @@
             "fqdn.cycleserver",
             "variables.admin_user",
             "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}",
-            "variables.resource_group",
-            "sakey.{{variables.projectstore}}"
+            "variables.cc_version"
         ]
       }
     ]
