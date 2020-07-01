@@ -4,6 +4,10 @@ Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githu
 
 This example will create an HPC cluster ready to run with PBS Pro. Idle instances in VMSS's will be automatically deleted and removed from PBS (To control resource costs). The default idle period is 10 minutes (Can be changed in the config file). The idle period measurement does not start when the HPC cluster first comes up, it starts when a PBS job completes on a VMSS instance. The script to check for idle VMSS instances runs at intervals defined in the crontab (crontab -l). A logfile is also generated at /tmp/azurehpc_delete_idle_vmss.log_$$ to help monitor/track/debug idle VMSS instances and record what instances have been deleted.
 
+## Prerequisites
+
+azcli is installed on the headnode and azcli is authorized to delete/create azure resources in the subscription you are using (e.g az login).
+
 ## Initialise the project
 
 To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by compying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
