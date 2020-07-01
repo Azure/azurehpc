@@ -129,7 +129,7 @@
 	},
 	{
 	     "type": "local_script",
-	     "script": "waitforreboot.sh"
+	     "script": "wait.sh"
 	},
 	{
 	     "script": "installOFED.sh",
