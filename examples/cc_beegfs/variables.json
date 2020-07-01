@@ -4,6 +4,7 @@
     "location": "my location",
     "key_vault": "kv{{variables.uuid}}",
     "uuid": "unique value",
-    "projectstore": "locker{{variables.uuid}}"
+    "projectstore": "locker{{variables.uuid}}",
+    "scheduler": "pbs or slurm"
   }
 }

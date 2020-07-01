@@ -1,6 +1,7 @@
 # AzureHPC Change log
 
 - [PR 310](https://github.com/Azure/azurehpc/pull/310) : Create and use custom image
+- [PR 309](https://github.com/Azure/azurehpc/pull/309) : Added BeeGFS + Cycle 7.9.x + Slurm support
 - [PR 306](https://github.com/Azure/azurehpc/pull/306) : Support for CycleCloud 8 | **BREAKING CHANGE** `cyclecli_install.sh` parameters changed
 - [PR 302](https://github.com/Azure/azurehpc/pull/302) : Support for UltraSSD DataDisk
 - [PR 301](https://github.com/Azure/azurehpc/pull/301) : Deploy CycleServer 7.9 with managed identity

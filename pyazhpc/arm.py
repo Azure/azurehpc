@@ -500,7 +500,7 @@ class ArmTemplate:
                 nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)
                 nicdeps.append("Microsoft.Network/networkSecurityGroups/"+nsgname)
 
-                self.resources.append({
+                pipres = {
                     "type": "Microsoft.Network/publicIPAddresses",
                     "apiVersion": "2018-01-01",
                     "name": pipname,
@@ -512,7 +512,9 @@ class ArmTemplate:
                             "domainNameLabel": dnsname
                         }
                     }
-                })
+                }
+                self.__helper_arm_add_zones(pipres, raz)
+                self.resources.append(pipres)
 
                 if ros[0] == "MicrosoftWindowsServer" or ros[0] == "MicrosoftWindowsDesktop":
                     self.resources.append({
