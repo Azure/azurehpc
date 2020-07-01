@@ -14,13 +14,13 @@
     "variables": {
 	"location": "<NOT-SET>",
 	"resource_group": "<NOT-SET>",
-      	"image": "OpenLogic:CentOS-HPC:7.6:latest",
+      	"image": "OpenLogic:CentOS-HPC:7.6:7.6.201910250",
 	"lustreimage": "OpenLogic:CentOS:7.6:latest", 
-	"hpcimage": "OpenLogic:CentOS-HPC:7.6:latest", 
+	"hpcimage": "OpenLogic:CentOS-HPC:7.6:7.6.201910250", 
 	"compute_instances": 2,
 	"lustre_instances": 2,
 	"low_priority": true,
-	"storage_account": "<NOT_SET>",
+	"storage_account": "<NOT-SET>",
 	"storage_key": "sakey.{{variables.storage_account}}",
 	"storage_container": "<NOT-SET>",
 	"log_analytics_lfs_name": "<NOT-SET>",
@@ -35,7 +35,7 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "Standard_HB60rs",
+            "vm_type": "Standard_HB120rs_v2",
             "accelerated_networking": false,
             "public_ip": true,
             "image": "variables.image",
@@ -165,7 +165,10 @@
 	},
 	{
 	     "type": "local_script",
-	     "script": "waitforreboot.sh"
+	     "script": "wait.sh",
+	     "args": [
+		"180"
+	             ]
 	},
 	{
 	     "script": "installOFED.sh",
