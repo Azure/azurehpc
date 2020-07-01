@@ -562,18 +562,21 @@ def do_slurm_resume(args):
 
     output_template = f"deploy_{args.config_file}_{timestamp}"
 
-    log.info("writing out arm template to " + output_template)
-    with open(output_template, "w") as f:
-        f.write(tpl.to_json())
+    if tpl.has_resources():
+        log.info("writing out arm template to " + output_template)
+        with open(output_template, "w") as f:
+            f.write(tpl.to_json())
 
-    log.info("deploying arm template")
-    deployname = azutil.deploy(
-        config["resource_group"],
-        output_template
-    )
-    log.debug(f"deployment name: {deployname}")
+        log.info("deploying arm template")
+        deployname = azutil.deploy(
+            config["resource_group"],
+            output_template
+        )
+        log.debug(f"deployment name: {deployname}")
 
-    _wait_for_deployment(config["resource_group"], deployname)
+        _wait_for_deployment(config["resource_group"], deployname)
+    else:
+        log.info("no resources to deploy")
     
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
