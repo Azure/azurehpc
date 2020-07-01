@@ -1,0 +1,156 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "image": "OpenLogic:CentOS-HPC:7.7:latest",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "compute_vm_type": "Standard_HB120rs_v2",
+    "vm_type": "Standard_D8s_v3",
+    "vnet_resource_group": "variables.resource_group",
+    "pbs_idle_time_mins": 10,
+    "debug_pbs_idle_time": 1
+  },
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "hpcvnet",
+    "address_prefix": "10.37.0.0/20",
+    "subnets": {
+      "admin": "10.37.1.0/24",
+      "storage": "10.37.3.0/24",
+      "compute": "10.37.4.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "vm_type": "variables.vm_type",
+      "public_ip": true,
+      "image": "variables.image",
+      "data_disks": [2048],
+      "subnet": "compute",
+      "tags": [
+        "cndefault",
+        "nfsserver",
+        "pbsserver",
+        "loginnode",
+        "localuser",
+        "disable-selinux",
+        "azcopy",
+        "azcli",
+        "pbs_delete_idle_vmss"
+      ]
+    },
+    "compute": {
+      "type": "vmss",
+      "vm_type": "variables.compute_vm_type",
+      "instances": 2,
+      "accelerated_networking": false,
+      "low_priority": true,
+      "image": "variables.hpc_image",
+      "subnet": "compute",
+      "tags": [
+        "nfsclient",
+        "pbsclient",
+        "cndefault",
+        "localuser",
+        "disable-selinux"
+      ]
+    },
+    "compute2": {
+      "type": "vmss",
+      "vm_type": "variables.compute_vm_type",
+      "instances": 2,
+      "accelerated_networking": false,
+      "low_priority": true,
+      "image": "variables.hpc_image",
+      "subnet": "compute",
+      "tags": [
+        "nfsclient",
+        "pbsclient",
+        "cndefault",
+        "localuser",
+        "disable-selinux"
+      ]
+    }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "cndefault",
+      "sudo": true
+    },
+    {
+      "script": "nfsserver.sh",
+      "tag": "nfsserver",
+      "sudo": true
+    },
+    {
+      "script": "nfsclient.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "nfsclient",
+      "sudo": true
+    },
+    {
+      "script": "localuser.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "localuser",
+      "sudo": true
+    },
+    {
+      "script": "pbsdownload.sh",
+      "tag": "loginnode",
+      "sudo": false
+    },
+    {
+      "script": "pbsserver.sh",
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsserver",
+      "sudo": true
+    },
+    {
+      "script": "pbsclient.sh",
+      "args": [
+        "$(<hostlists/tags/pbsserver)"
+      ],
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsclient",
+      "sudo": true
+    },
+    {
+      "script": "install-azcopy.sh",
+      "tag": "azcopy",
+      "sudo": true
+    },
+    {
+      "script": "install-azcli.sh",
+      "tag": "azcli",
+      "sudo": true
+    },
+    {
+      "script": "pbs_delete_idle_vmss.sh",
+      "args": [
+        "variables.pbs_idle_time_mins",
+        "variables.debug_pbs_idle_time"
+      ],
+      "tag": "pbs_delete_idle_vmss",
+      "sudo": false
+    }
+  ]
+}
