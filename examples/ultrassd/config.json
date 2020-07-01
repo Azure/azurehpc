@@ -21,6 +21,7 @@
       "type": "vm",
       "vm_type": "Standard_D16s_v3",
       "image": "variables.image",
+      "public_ip": true,
       "accelerated_networking": true,
       "subnet": "compute",
       "availability_zones": "variables.zone",
