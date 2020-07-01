@@ -1,0 +1,35 @@
+pr: none
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+    - '*'
+  paths:
+    include:
+      - examples/ultrassd/*
+    exclude:
+      - examples/ultrassd/readme.md
+
+pool: Default
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  azhpc.config: examples/ultrassd/config.json
+  # pipeline directory
+  azhpc.pipeline_dir: examples/ultrassd
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  azhpc.script_remote_dest: 'azureuser@disknode:.'
+
+# Add the variables needed in your configuration file
+# Uncomment and set values below, or leave commented and thru pipeline variables
+  # azhpc.variables.location: westeurope
+
+  
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../ci/templates/jobs/build.yml
+#  parameters:
+#    extra_steps: ../../../examples/theia/test.yml
