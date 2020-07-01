@@ -24,6 +24,7 @@ The configuration file requires the following variables to be set:
 
 | Variable                | Description                                  |
 |-------------------------|----------------------------------------------|
+| location                | The location (Azure region) for the project  |
 | resource_group          | The resource group for the project           |
 | storage_account         | The storage account for HSM                  |
 | storage_key             | The storage key for HSM                      |
