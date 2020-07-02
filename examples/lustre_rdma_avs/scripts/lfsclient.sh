@@ -4,9 +4,8 @@
 # arg: $2 = mount point (default: /lustre)
 master=$1
 lfs_mount=${2:-/lustre}
-mkdir ~/.ssh
 
-cp -r /share/home/hpcuser/.ssh ~/
+cp -r /share/home/hpcuser/.ssh /root/
 
 #Include the correct rdma options
 cat >/etc/modprobe.d/lustre.conf<<EOF
@@ -39,8 +38,18 @@ else
 
 fi
 
+#modprobe lnet
+#modprobe lustre
+sed -i 's/# OS.EnableRDMA=y/OS.EnableRDMA=y/g' /etc/waagent.conf
+service waagent restart
+service rdma start
 modprobe lnet
+lctl network configure
+lnetctl net add --net o2ib --if ib0 #need this to come up every time
 modprobe lustre
+sleep 5
+
+
 
 mkdir $lfs_mount
 echo "${masterib}@o2ib:/LustreFS $lfs_mount lustre flock,defaults,_netdev 0 0" >> /etc/fstab
