@@ -29,7 +29,16 @@ def do_preprocess(args):
 def do_get(args):
     config = azconfig.ConfigFile()
     config.open(args.config_file)
-    val = config.read_value(args.path)
+    log.debug(f"azhpc get for {args.path}")
+    processed_val = config.process_value(args.path)
+    log.debug(f"processed value is {processed_val}")
+    read_val = config.read_value(processed_val)
+    log.debug(f"read value is {read_val}")
+    if read_val or args.path == processed_val:
+        # use the read value result if valid or if processed value is the same as the original
+        val = read_val
+    else:
+        val = processed_val
     print(f"{args.path} = {val}")
 
 def __add_unset_vars(vset, config_file):
