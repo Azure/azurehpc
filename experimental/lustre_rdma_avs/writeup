@@ -1,0 +1,20 @@
+- lustre-ipoib - This is a created implementation of Lustre using ip over infiniband (IPoIB)
+- lustre-rdma - This is a created implementation of Lustre using native Remote Direct Memory Access (RDMA)
+
+Changes to files to enable Infiniband functionality:
+lfsmaster.sh
+lfsoss.sh
+lfsclient.sh
+lfsrepo.sh
+lfspkgs.sh
+
+Addition for the installation of new Mellanox OFED (MOFED) for the Lustre kernel : installMOFED.sh 
+
+Addition for correct drives placement of OSSes : installdrives.sh
+*installdrives.sh takes about 15 minutes to run so please either remote this entity, or wait it out.
+
+Additions for correct Lustre kernel : 
+lustreinstall1.sh
+lustreinstall2.sh
+
+Addition for pause after MDS/OSS reboot : waitforreboot.sh
