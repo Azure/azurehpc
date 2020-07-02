@@ -1,5 +1,8 @@
 # AzureHPC Change log
 
+- [PR 319](https://github.com/Azure/azurehpc/pull/319) : PBS automatic deletion of idle vmss instances
+- [PR 316](https://github.com/Azure/azurehpc/pull/316) : telegraf.conf modified to report interrupts and conntracks
+- [PR 315](https://github.com/Azure/azurehpc/pull/315) : Support macros in azhpc-get
 - [PR 310](https://github.com/Azure/azurehpc/pull/310) : Create and use custom image
 - [PR 309](https://github.com/Azure/azurehpc/pull/309) : Added BeeGFS + Cycle 7.9.x + Slurm support
 - [PR 306](https://github.com/Azure/azurehpc/pull/306) : Support for CycleCloud 8 | **BREAKING CHANGE** `cyclecli_install.sh` parameters changed
