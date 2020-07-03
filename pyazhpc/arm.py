@@ -445,7 +445,7 @@ class ArmTemplate:
         rmanagedidentity = res.get("managed_identity", None)
         loc = cfg["location"]
         ravset = res.get("availability_set")
-        cloudinit = res["cloud_init_sasurl"]
+        cloudinit = res.get("cloud_init_sasurl", None)
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
         vnetname = cfg["vnet"]["name"]
@@ -731,7 +731,7 @@ class ArmTemplate:
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "Premium_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
-        cloudinit = res["cloud_init_sasurl"]
+        cloudinit = res.get("cloud_init_sasurl", None)
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
