@@ -1,0 +1,40 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "jumpbox",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "vnet_name": "hpcvnet",
+    "vnet_resource_group": "variables.resource_group",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>"
+  },
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "variables.vnet_name"
+  },
+  "storage": {
+    "azhpcanf": {
+      "type": "anf",
+      "subnet": "netapp",
+      "pools": {
+        "projectpool": {
+          "size": 4, 
+          "service_level": "Premium",
+          "volumes": {
+            "azhpcdata": {
+              "size": 2,
+              "mount": "/data"
+            },
+            "azhpcapps": {
+              "size": 2,
+              "mount": "/apps"
+            }
+          }
+        }
+      }
+    }
+  },
+  "resources": {},
+  "install": []
+}
