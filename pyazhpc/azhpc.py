@@ -619,28 +619,29 @@ def do_build(args):
 
     output_template = "deploy_"+args.config_file
 
+    log.info("creating resource group " + config["resource_group"])
+
+    resource_tags = config.get("resource_tags", {})
+    azutil.create_resource_group(
+        config["resource_group"],
+        config["location"],
+        [
+            {
+                "key": "CreatedBy",
+                "value": os.getenv("USER")
+            },
+            {
+                "key": "CreatedOn",
+                "value": datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            }
+        ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
+    )
+
     if tpl.has_resources():
         log.info("writing out arm template to " + output_template)
         with open(output_template, "w") as f:
             f.write(tpl.to_json())
 
-        log.info("creating resource group " + config["resource_group"])
-
-        resource_tags = config.get("resource_tags", {})
-        azutil.create_resource_group(
-            config["resource_group"],
-            config["location"],
-            [
-                {
-                    "key": "CreatedBy",
-                    "value": os.getenv("USER")
-                },
-                {
-                    "key": "CreatedOn",
-                    "value": datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-                }
-            ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
-        )
         log.info("deploying arm template")
         deployname = azutil.deploy(
             config["resource_group"],
