@@ -4,15 +4,18 @@
     "install_from": "",
     "admin_user": "hpcadmin",
     "variables": {
-        "jumpbox_image": "OpenLogic:CentOS:7.7:latest",
+        "jumpbox_image": "OpenLogic:CentOS-CI:7-CI:latest",
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_D4s_v3",
         "low_priority": false,
         "bastion_subnet": "<NOT-SET>",
         "rm_vm_name": "jumpbox",
+        "key_vault": "<NOT-SET>",
+        "storage_acc": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
-        "jumpbox_pw": "<NOT-SET>"
+        "jumpbox_pw": "secret.{{variables.key_vault}}.jumpbox_pw",
+        "cloud_init_sasurl": "sasurl.{{variables.storage_acc}}.data/cloud-init.txt"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -30,6 +33,7 @@
             "public_ip": false,
             "image": "variables.jumpbox_image",
             "accelerated_networking": true,
+            "cloud_init_sasurl": "variables.cloud_init_sasurl",
             "subnet": "compute",
             "tags": []
         }
