@@ -33,7 +33,7 @@
             "public_ip": false,
             "image": "variables.jumpbox_image",
             "accelerated_networking": true,
-            "cloud_init_sasurl": "variables.cloud_init_sasurl",
+            "cloud_init_url": "variables.cloud_init_sasurl",
             "subnet": "compute",
             "tags": []
         }
