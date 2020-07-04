@@ -10,9 +10,6 @@ lfspkgs.sh
 
 Addition for the installation of new Mellanox OFED (MOFED) for the Lustre kernel : installMOFED.sh 
 
-Addition for correct drives placement of OSSes : installdrives.sh
-*installdrives.sh takes about 15 minutes to run so please either remote this entity, or wait it out.
-
 Additions for correct Lustre kernel : 
 lustreinstall1.sh
 lustreinstall2.sh
