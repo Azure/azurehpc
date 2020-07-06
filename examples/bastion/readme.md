@@ -3,7 +3,7 @@
 Visualisation: [config.json](https://azurehpc.azureedge.net/o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/bastion/config.json)
 
 This example will create an HPC cluster wth no public IP, you can log-in using Azure Bastion, from the Portal RDP to a Windows VM or ssh to a linux VM.
->Note: The config_no_pub_ip.json deploys an Azure Bastion, VNET and a jumpbox (no pub IP), then you can login to the jumpbox via the azure bastion and deploy the rest of your azurehpc deployment.
+>Note: The config_no_pub_ip.json deploys an Azure Bastion, VNET and a jumpbox (no pub IP), then you can login to the jumpbox via the azure bastion and deploy the rest of your azurehpc deployment. The config_no_pub_ip.json contains an example of using cloud-init in AzureHPC. The AzureHPC prerequisites are installed on the jumpbox (with no public IP) using a cloud-init script (cloud-init.txt (Installs git, jq, AzureHPC git clone, azcopy and azcli). The Cloud-init script needs to be either uploaded to blob storage in advance or referenced in the config file by @cloud-init.txt (read-in directly).
 
 ## Initialise the project
 
@@ -42,7 +42,7 @@ Locate the VM you want to connect to on the Azure portal and check "Connect".
 
 ![Alt text](/examples/bastion/images/bastion_connect.JPG?raw=true "Azure Bastion connect")
 
-Click the bastion option and login using your private keys or user/password
+Click the bastion option and login using your private keys.
 
 ![Alt text2](/examples/bastion/images/bastion_ssh.JPG?raw=true "Azure Bastion ssh")
 
