@@ -4,7 +4,7 @@
     "install_from": "",
     "admin_user": "hpcadmin",
     "variables": {
-        "jumpbox_image": "OpenLogic:CentOS-CI:7-CI:latest",
+        "jumpbox_image": "OpenLogic:CentOS:7.7:latest",
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_D4s_v3",
