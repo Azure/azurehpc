@@ -166,7 +166,7 @@ class ConfigFile:
             if v.startswith("@") and os.path.isfile(fname):
                 log.debug(f"loading text include {fname}")
                 with open(fname) as f:
-                    res = repr(f.read())
+                    res = f.read()
             else:
                 res = v
         

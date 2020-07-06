@@ -1,6 +1,6 @@
 # AzureHPC Change log
 
-- [PR 320](https://github.com/Azure/azurehpc/pull/320) : Support Cloud-Init in vm/vmss
+- [PR 320](https://github.com/Azure/azurehpc/pull/320) : Support customData to utilize Cloud-Init in vm/vmss
 - [PR 319](https://github.com/Azure/azurehpc/pull/319) : PBS automatic deletion of idle vmss instances
 - [PR 316](https://github.com/Azure/azurehpc/pull/316) : telegraf.conf modified to report interrupts and conntracks
 - [PR 315](https://github.com/Azure/azurehpc/pull/315) : Support macros in azhpc-get

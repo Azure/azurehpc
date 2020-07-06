@@ -183,7 +183,7 @@ This dictionary describes the resources for the project.
 | **os_disk_size**           | OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size|   no     |         |
 | **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
 | **password**               | user admin password to use with Windows                                     |   no     |         |
-| **cloud_init_url**         | URL indicating the location of the cloud-init script                        |   no     |  None   |
+| **custom_data**            | A custom data string to pass in the ARM template (the @ syntax can be used to include a file contents) |   no     |  None   |
 | **proximity_placement_group**| Boolean flag for wether to include the resource in the proximity placement group with the name specified in the global section |   no     |  False  |
 | **public_ip**              | Boolean flag for wether to use a public IP (**vm only**)                    |   no     |  False  |
 | **resource_tags**          | Tags to be assigned to the resources                                        |   no     |         |
@@ -273,7 +273,8 @@ For the most part the configuration is just a standard JSON file although there 
 | `laworkspace.<RESOURCE-GROUP>.<NAME>`                  | Retrieve a [Log Analytics workspace id](#log-analytics-workspace-id)           |
 | `lakey.<RESOURCE-GROUP>.<NAME>`                        | Retrieve a [Log Analytics key](#log-analytics-key)                             |
 | `acrkey.<ACR-REPONAME>`                                | Retrieve an [Azure Container Registry](#acr-key) key                           |
-| `image.<RESOURCE-GROUP>.<NAME>`                        | Retrieve a [Custom Image id](#custom-image-id)           |
+| `image.<RESOURCE-GROUP>.<NAME>`                        | Retrieve a [Custom Image id](#custom-image-id)                                 |
+| `@<FILENAME>`                                          | Embed the file pointed to by FILENAME as a string                              |
 
 
 #### Variables

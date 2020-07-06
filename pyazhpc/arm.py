@@ -348,7 +348,7 @@ class ArmTemplate:
                 "location": loc
             })
 
-    def __helper_arm_create_osprofile(self, rname, rtype, adminuser, adminpass, sshkey, cloudinit):
+    def __helper_arm_create_osprofile(self, rname, rtype, adminuser, adminpass, sshkey, customdata):
         if rtype == "vm":
             name = "computerName"
         else:
@@ -358,8 +358,7 @@ class ArmTemplate:
             name: rname,
             "adminUsername": adminuser
         }
-        if cloudinit:
-           customdata = "#include\n" + cloudinit
+        if customdata:
            osprofile["customData"] = "[base64('" + customdata + "')]"
         if adminpass != "<no-password>":
             osprofile["adminPassword"] = adminpass
@@ -445,7 +444,7 @@ class ArmTemplate:
         rmanagedidentity = res.get("managed_identity", None)
         loc = cfg["location"]
         ravset = res.get("availability_set")
-        cloudinit = res.get("cloud_init_url", None)
+        customdata = res.get("custom_data", None)
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
         vnetname = cfg["vnet"]["name"]
@@ -608,7 +607,7 @@ class ArmTemplate:
                 "properties": nicprops
             })
 
-            osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey, cloudinit)
+            osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey, customdata)
             datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
             imageref = self.__helper_arm_create_image_reference(rimage)
 
@@ -731,7 +730,7 @@ class ArmTemplate:
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "Premium_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
-        cloudinit = res.get("cloud_init_url", None)
+        customdata = res.get("custom_data", None)
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
@@ -752,7 +751,7 @@ class ArmTemplate:
         if rppg:
             deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
 
-        osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey, cloudinit)
+        osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey, customdata)
         datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
         imageref = self.__helper_arm_create_image_reference(rimage)
 

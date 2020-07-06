@@ -15,7 +15,7 @@
         "storage_acc": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
         "jumpbox_pw": "secret.{{variables.key_vault}}.jumpbox_pw",
-        "custom_data": "include\nsasurl.{{variables.storage_acc}}.data/cloud-init.txt"
+        "custom_data": "@cloud-init.txt"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
