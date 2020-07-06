@@ -15,7 +15,7 @@
         "storage_acc": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
         "jumpbox_pw": "secret.{{variables.key_vault}}.jumpbox_pw",
-        "cloud_init_sasurl": "sasurl.{{variables.storage_acc}}.data/cloud-init.txt"
+        "customdata": "sasurl.{{variables.storage_acc}}.data/cloud-init.txt"
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
@@ -33,7 +33,7 @@
             "public_ip": false,
             "image": "variables.jumpbox_image",
             "accelerated_networking": true,
-            "cloud_init_url": "variables.cloud_init_sasurl",
+            "custom_data": "variables.customdata",
             "subnet": "compute",
             "tags": []
         }
@@ -47,16 +47,6 @@
                 "variables.location",
                 "variables.bastion_subnet"
             ]
-        },
-        {
-            "type": "local_script",
-            "script": "reset_headnode_passwd.sh",
-            "args": [
-            "variables.resource_group",
-            "jumpbox",
-            "hpcuser",
-            "variables.jumpbox_pw"
-          ]
         }
     ]
 }

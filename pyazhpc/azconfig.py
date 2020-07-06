@@ -51,7 +51,7 @@ class ConfigFile:
             return self.__evaluate_list(input, extended)
         elif type(input) == str:
             fname = self.file_location + "/" + input[1:]
-            if input.startswith("@") and os.path.isfile(fname):
+            if input.startswith("@") and os.path.isfile(fname) and fname.endswith(".json"):
                 log.debug(f"loading include {fname}")
                 with open(fname) as f:
                     input = json.load(f)
@@ -91,7 +91,7 @@ class ConfigFile:
             for x in v.split('.'):
                 if type(it) is str:
                     fname = self.file_location + "/" + it[1:]
-                    if it.startswith("@") and os.path.isfile(fname):
+                    if it.startswith("@") and os.path.isfile(fname) and fname.endswith(".json"):
                         log.debug(f"loading include {fname}")
                         with open(fname) as f:
                             it = json.load(f)
@@ -161,7 +161,14 @@ class ConfigFile:
         elif extended and prefix == "image":
             res = azutil.get_image_id(parts[1], parts[2])
         else:
-            res = v
+            # test to see if we are including a files contents (e.g. for customData)
+            fname = self.file_location + "/" + v[1:]
+            if v.startswith("@") and os.path.isfile(fname):
+                log.debug(f"loading text include {fname}")
+                with open(fname) as f:
+                    res = f.read()
+            else:
+                res = v
         
         log.debug("process_value (exit): "+str(v)+"="+str(res))
         return res
