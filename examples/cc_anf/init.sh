@@ -3,7 +3,7 @@ block_dir=$azhpc_dir/blocks
 AZHPC_CONFIG=config.json
 AZHPC_VARIABLES=variables.json
 
-blocks="$block_dir/vnet.json blocks/anf.json $block_dir/jumpbox.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json blocks/slurmcycle.json"
+blocks="$block_dir/vnet.json $block_dir/anf.json $block_dir/jumpbox.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json $block_dir/slurmcycle.json"
 
 # Initialize config file
 echo "{}" >$AZHPC_CONFIG
