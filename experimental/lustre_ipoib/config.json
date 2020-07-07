@@ -216,7 +216,7 @@
             "copy": [
                 "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
             ],
-            "tag": "lfsclient",
+            "tag": "pbsclient",
             "sudo": false
         }
        
