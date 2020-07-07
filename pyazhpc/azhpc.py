@@ -571,21 +571,18 @@ def do_slurm_resume(args):
 
     output_template = f"deploy_{args.config_file}_{timestamp}"
 
-    if tpl.has_resources():
-        log.info("writing out arm template to " + output_template)
-        with open(output_template, "w") as f:
-            f.write(tpl.to_json())
+    log.info("writing out arm template to " + output_template)
+    with open(output_template, "w") as f:
+        f.write(tpl.to_json())
 
-        log.info("deploying arm template")
-        deployname = azutil.deploy(
-            config["resource_group"],
-            output_template
-        )
-        log.debug(f"deployment name: {deployname}")
+    log.info("deploying arm template")
+    deployname = azutil.deploy(
+        config["resource_group"],
+        output_template
+    )
+    log.debug(f"deployment name: {deployname}")
 
-        _wait_for_deployment(config["resource_group"], deployname)
-    else:
-        log.info("no resources to deploy")
+    _wait_for_deployment(config["resource_group"], deployname)
     
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
@@ -622,10 +619,6 @@ def do_build(args):
 
     output_template = "deploy_"+args.config_file
 
-    log.info("writing out arm template to " + output_template)
-    with open(output_template, "w") as f:
-        f.write(tpl.to_json())
-
     log.info("creating resource group " + config["resource_group"])
 
     resource_tags = config.get("resource_tags", {})
@@ -643,15 +636,23 @@ def do_build(args):
             }
         ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
     )
-    log.info("deploying arm template")
-    deployname = azutil.deploy(
-        config["resource_group"],
-        output_template
-    )
-    log.debug(f"deployment name: {deployname}")
 
-    _wait_for_deployment(config["resource_group"], deployname)
-    
+    if tpl.has_resources():
+        log.info("writing out arm template to " + output_template)
+        with open(output_template, "w") as f:
+            f.write(tpl.to_json())
+
+        log.info("deploying arm template")
+        deployname = azutil.deploy(
+            config["resource_group"],
+            output_template
+        )
+        log.debug(f"deployment name: {deployname}")
+
+        _wait_for_deployment(config["resource_group"], deployname)
+    else:
+        log.info("no resources to deploy")
+
     log.info("re-evaluating the config")
     config = c.preprocess()
     
