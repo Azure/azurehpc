@@ -48,7 +48,7 @@ else
     do
         if ! sudo yum install -y epel-release > {logfile} 2>&1
         then
-            yum clean metadata
+            sudo yum clean metadata
         fi
     done
     sudo yum install -y pssh nc >> {logfile} 2>&1
