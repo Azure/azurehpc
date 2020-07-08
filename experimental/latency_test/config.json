@@ -47,7 +47,7 @@
     },
     "install": [
         {
-            "script": "setup_kernel_bypass.sh",
+            "script": "setup_vma.sh",
             "tag": "install_sockperf",
             "sudo": true
         },
