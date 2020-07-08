@@ -1,19 +1,12 @@
 #!/bin/bash
 
 # Script to be run on all compute nodes
-i_cnt=0
 while ! rpm -q epel-release
 do
     if ! yum -y install epel-release
     then
         yum clean metadata
     fi
-    if [ "$i_cnt" -eq 10 ]
-    then
-        echo "tried 10 times to no avail. Exiting"
-        exit 1
-    fi  
-    i_cnt=$((i_cnt+1))
 done
 
 yum -y install git jq htop
