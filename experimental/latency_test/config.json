@@ -47,6 +47,24 @@
     },
     "install": [
         {
+            "script": "setup_kernel_bypass.sh",
+            "tag": "install_sockperf",
+            "sudo": true
+        },
+        {
+            "script": "get_ibv_devinfo.sh",
+            "tag": "install_sockperf"
+        },
+        {
+            "script": "get_cpuinfo.sh",
+            "tag": "install_sockperf"
+        },
+        {
+            "script": "install_sockperf.sh",
+            "tag": "install_sockperf",
+            "sudo": true
+        },
+        {
             "script": "remove_waagent.sh",
             "tag": "remove_agents",
             "sudo": true
@@ -57,12 +75,11 @@
             "sudo": true
         },
         {
-            "script": "install_sockperf.sh",
-            "tag": "install_sockperf",
-            "sudo": true
+            "script": "run_sockperf.sh",
+            "tag": "run_sockperf"
         },
         {
-            "script": "run_sockperf.sh",
+            "script": "run_sockperf_vma.sh",
             "tag": "run_sockperf"
         },
         {
