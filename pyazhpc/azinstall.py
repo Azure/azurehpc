@@ -44,7 +44,13 @@ done
 if [ "$1" != "" ]; then
     tag=tags/$1
 else
-    sudo yum install -y epel-release > {logfile} 2>&1
+    while ! rpm -q epel-release
+    do
+        if ! sudo yum install -y epel-release > {logfile} 2>&1
+        then
+            yum clean metadata
+        fi
+    done
     sudo yum install -y pssh nc >> {logfile} 2>&1
 
     # setting up keys
