@@ -1,0 +1,51 @@
+{
+    "location": "westeurope",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "variables.admin_user",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/22",
+            "storage": "10.2.4.0/24"
+        }
+    },
+    "variables": {
+        "resource_group": "paul-ood",
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "admin_user": "hpcadmin",
+        "admin_password": "NOT-SET"
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "azcopy",
+                "open-ondemand"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "install-open-ondemand.sh",
+            "tag": "open-ondemand",
+            "sudo": true,
+            "args": [
+                "variables.admin_user",
+                "variables.admin_password"
+            ]
+        }
+    ]
+}
