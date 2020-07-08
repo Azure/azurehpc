@@ -1,5 +1,25 @@
 #!/bin/bash
 set -e
+
+# Check to see if the node is able to access the network
+i_cnt=0
+wget -q --tries=10 --timeout=20 --spider http://google.com > /dev/null
+while [[ $? != 0 ]]
+do
+        echo "Offline: $i_cnt"
+        if [ "$i_cnt" -eq 10 ]
+        then
+            echo "tried 10 times to no avail. Exiting"
+            exit -1
+        fi  
+        sleep 5
+        wget -q --tries=10 --timeout=20 --spider http://google.com > /dev/null
+        i_cnt=$((i_cnt+1))
+
+done
+echo "Online!!!"
+
+
 admin_user=$(whoami)
 
 if [ "$(rpm -qa pbspro-server)" = "" ];then
