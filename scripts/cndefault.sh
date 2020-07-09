@@ -1,8 +1,13 @@
 #!/bin/bash
+
 # Script to be run on all compute nodes
-if ! rpm -q epel-release; then
-    yum -y install epel-release
-fi
+while ! rpm -q epel-release
+do
+    if ! yum -y install epel-release
+    then
+        yum clean metadata
+    fi
+done
 
 yum -y install git jq htop
 
