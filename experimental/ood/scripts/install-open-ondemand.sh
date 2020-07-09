@@ -14,3 +14,17 @@ iptables-save > /etc/sysconfig/iptables
 systemctl start httpd24-httpd
 
 scl enable ondemand -- htpasswd -b -c /opt/rh/httpd24/root/etc/httpd/.htpasswd $username $password
+
+mkdir -p /etc/ood/config/clusters.d
+
+cat <<EOF >/etc/ood/config/clusters.d/pbscluster.yml
+v2:
+  metadata:
+    title: "PBS Cluster"
+  login:
+    host: "headnode"
+  job:
+    adapter: "pbspro"
+    host: "headnode"
+    exec: "/opt/pbs"
+EOF
