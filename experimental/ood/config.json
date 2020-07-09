@@ -32,6 +32,7 @@
             "image": "variables.image",
             "subnet": "ood",
             "tags": [
+                "cndefault",
                 "disable-selinux",
                 "nfsclient",
                 "localuser",
