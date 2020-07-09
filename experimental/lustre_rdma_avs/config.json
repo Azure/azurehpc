@@ -43,9 +43,6 @@
             "tags": [
                 "disable-selinux",
                 "cndefault",
-                "lfsrepo",
-                "lfsclient",
-                "lfsazimport",
                 "localuser",
                 "pbsserver",
                 "loginnode",

@@ -40,10 +40,7 @@
             "tags": [
                 "disable-selinux",
                 "cndefault",
-                "lfsrepo",
 		"rebootlustre",
-                "lfsclient",
-                "lfsazimport",
                 "localuser",
                 "pbsserver",
 		"allnodes",
@@ -129,14 +126,10 @@
 	},
 	{
 	     "type": "local_script",
-<<<<<<< HEAD
 	     "script": "wait.sh",
 	     "args": [
 		     "180"
 	             ]
-=======
-	     "script": "wait.sh"
->>>>>>> 9aba5d253a4a5a012d9d828c45d3110d9f5164df
 	},
 	{
 	     "script": "installOFED.sh",
