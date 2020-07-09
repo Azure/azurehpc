@@ -3,7 +3,7 @@ block_dir=$azhpc_dir/blocks
 AZHPC_CONFIG=config.json
 AZHPC_VARIABLES=variables.json
 
-blocks="$block_dir/vnet.json blocks/anf.json $block_dir/jumpbox.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json blocks/slurmcycle.json"
+blocks="$block_dir/vnet.json $block_dir/anf.json $block_dir/jumpbox.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json $block_dir/../examples/cc_anf/slurmcycle.json"
 
 # Initialize config file
 echo "{}" >$AZHPC_CONFIG
@@ -16,3 +16,10 @@ $azhpc_dir/init-and-merge.sh $prereqs prereqs.json $AZHPC_VARIABLES
 # Update locker name
 locker=$(azhpc-get -c $AZHPC_VARIABLES variables.projectstore | cut -d '=' -f2 | xargs)
 sed -i "s/#projectstore#/$locker/g" $AZHPC_CONFIG
+
+# Update anf naming
+anfuuid=$(azhpc-get -c $AZHPC_VARIABLES variables.uuid | cut -d '=' -f2 | xargs)
+sed -i "s/#anfaccount#/anf$anfuuid/g" $AZHPC_CONFIG
+sed -i "s/#anfpool#/anfpool$anfuuid/g" $AZHPC_CONFIG
+sed -i "s/#anfappsvolume#/apps$anfuuid/g" $AZHPC_CONFIG
+sed -i "s/#anfdatavolume#/data$anfuuid/g" $AZHPC_CONFIG

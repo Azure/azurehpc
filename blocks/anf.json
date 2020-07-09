@@ -14,19 +14,19 @@
     "name": "variables.vnet_name"
   },
   "storage": {
-    "azhpcanf": {
+    "#anfaccount#": {
       "type": "anf",
       "subnet": "netapp",
       "pools": {
-        "projectpool": {
+        "#anfpool#": {
           "size": 4, 
           "service_level": "Premium",
           "volumes": {
-            "azhpcdata": {
+            "#anfdatavolume#": {
               "size": 2,
               "mount": "/data"
             },
-            "azhpcapps": {
+            "#anfappsvolume#": {
               "size": 2,
               "mount": "/apps"
             }

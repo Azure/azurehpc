@@ -102,26 +102,50 @@ AzureHPC comes with a set of prebuild application scripts which have been copied
 From the machine and directory you have deployed the infrastructure defined above, connec to the master.
 
 ```
+$ azhpc-connect jumpbox
+[2020-07-09 12:55:09] logging directly into jumpbox5f282f.westeurope.cloudapp.azure.com
+Last login: Thu Jul  9 10:45:42 2020 from <home>
+[hpcadmin@jumpbox ~]$ cyclecloud connect master -c slurmcycle
+Connecting to hpcadmin@52.137.45.244 (slurmcycle master) using SSH
+Last login: Thu Jul  9 10:53:45 2020 from <home>
+
+ __        __  |    ___       __  |    __         __|
+(___ (__| (___ |_, (__/_     (___ |_, (__) (__(_ (__|
+        |
+
+Cluster: slurmcycle
+Version: 7.9.6
+Run List: recipe[cyclecloud], role[slurm_master_role], recipe[cluster_init]
+
 ```
 
 ## Step 2 - Check that ANF and NFS shared are mounted
 
 ```
-[hpcadmin@ip-0A020804 ~]$ df
-Filesystem           1K-blocks     Used  Available Use% Mounted on
-devtmpfs              16451984        0   16451984   0% /dev
-tmpfs                 16463856        0   16463856   0% /dev/shm
-tmpfs                 16463856     9264   16454592   1% /run
-tmpfs                 16463856        0   16463856   0% /sys/fs/cgroup
-/dev/sda2             30416376 10572700   19843676  35% /
-/dev/sda1               505580    65552     440028  13% /boot
-/dev/sda15              506608    11328     495280   3% /boot/efi
-/dev/sdb1             65923564    53276   62498516   1% /mnt/resource
-tmpfs                  3292772        0    3292772   0% /run/user/20002
-beegfs_nodev         263958528   651264  263307264   1% /beegfs
-jumpbox:/share/apps 2146156736    62080 2146094656   1% /apps
-jumpbox:/share/data 2146156736    62080 2146094656   1% /data
-[hpcadmin@ip-0A020804 ~]
+[hpcadmin@jumpbox ~]$ cyclecloud connect master -c slurmcycle
+Connecting to hpcadmin@52.137.45.244 (slurmcycle master) using SSH
+
+ __        __  |    ___       __  |    __         __|
+(___ (__| (___ |_, (__/_     (___ |_, (__) (__(_ (__|
+        |
+
+Cluster: slurmcycle
+Version: 7.9.6
+Run List: recipe[cyclecloud], role[slurm_master_role], recipe[cluster_init]
+[hpcadmin@ip-0A020804 ~]$ df -h
+Filesystem             Size  Used Avail Use% Mounted on
+/dev/sda2               30G  9.9G   20G  34% /
+devtmpfs                16G     0   16G   0% /dev
+tmpfs                   16G     0   16G   0% /dev/shm
+tmpfs                   16G  9.2M   16G   1% /run
+tmpfs                   16G     0   16G   0% /sys/fs/cgroup
+/dev/sda1              494M   64M  430M  13% /boot
+/dev/sda15             495M   12M  484M   3% /boot/efi
+/dev/sdb1               63G  2.1G   58G   4% /mnt/resource
+tmpfs                  3.2G     0  3.2G   0% /run/user/1000
+10.2.2.4:/data1232123  100T  256K  100T   1% /data
+10.2.2.4:/apps1232123  100T  256K  100T   1% /apps
+tmpfs                  3.2G     0  3.2G   0% /run/user/20002
 ```
 
 Check that the /apps directory contains all the AzureHPC application scripts
