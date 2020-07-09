@@ -73,6 +73,10 @@
       "azurehpc:anf:1.0.0": [
         {
           "script": "auto_netappfiles_mount.sh"
+        },
+        {
+          "script": "cndefault.sh",
+          "deps": ["azhpc4cycle.sh"]
         }
       ]
     }
