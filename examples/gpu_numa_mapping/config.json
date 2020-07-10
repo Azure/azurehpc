@@ -1,0 +1,129 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "headnode",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "image": "OpenLogic:CentOS-HPC:7.7:latest",
+    "hpc_image": "<NOT-SET>",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "gpu_vm_type": "Standard_ND40rs_v2",
+    "vm_type": "Standard_D8s_v3",
+    "vnet_resource_group": "variables.resource_group"
+  },
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "hpcvnet",
+    "address_prefix": "10.3.0.0/20",
+    "subnets": {
+      "admin": "10.3.1.0/24",
+      "storage": "10.3.3.0/24",
+      "gpu": "10.3.4.0/22"
+    }
+  },
+  "resources": {
+    "headnode": {
+      "type": "vm",
+      "vm_type": "variables.vm_type",
+      "public_ip": true,
+      "image": "variables.image",
+      "data_disks": [2048],
+      "subnet": "compute",
+      "tags": [
+        "cndefault",
+        "nfsserver",
+        "pbsserver",
+        "loginnode",
+        "localuser",
+        "disable-selinux",
+        "azcopy"
+      ]
+    },
+    "gpu": {
+      "type": "vmss",
+      "vm_type": "variables.gpu_vm_type",
+      "instances": 2,
+      "accelerated_networking": false,
+      "low_priority": true,
+      "image": "variables.hpc_image",
+      "subnet": "compute",
+      "tags": [
+        "nfsclient",
+        "pbsclient",
+        "cndefault",
+        "localuser",
+        "disable-selinux",
+        "gpu_numa_mapping"
+      ]
+    }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "disable-selinux",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "cndefault",
+      "sudo": true
+    },
+    {
+      "script": "nfsserver.sh",
+      "tag": "nfsserver",
+      "sudo": true
+    },
+    {
+      "script": "nfsclient.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "nfsclient",
+      "sudo": true
+    },
+    {
+      "script": "localuser.sh",
+      "args": [
+        "$(<hostlists/tags/nfsserver)"
+      ],
+      "tag": "localuser",
+      "sudo": true
+    },
+    {
+      "script": "pbsdownload.sh",
+      "tag": "loginnode",
+      "sudo": false
+    },
+    {
+      "script": "pbsserver.sh",
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsserver",
+      "sudo": true
+    },
+    {
+      "script": "pbsclient.sh",
+      "args": [
+        "$(<hostlists/tags/pbsserver)"
+      ],
+      "copy": [
+        "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+      ],
+      "tag": "pbsclient",
+      "sudo": true
+    },
+    {
+      "script": "install-azcopy.sh",
+      "tag": "azcopy",
+      "sudo": true
+    },
+    {
+      "script": "gpu_numa_mapping.sh",
+      "tag": "gpu_numa_mapping",
+      "sudo": true,
+      "deps": ["gpu_topo.cpp"]
+    }
+  ]
+}
