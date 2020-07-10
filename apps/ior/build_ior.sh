@@ -3,14 +3,11 @@ APP_NAME=ior
 SHARED_APP=${SHARED_APP:-/apps}
 MODULE_DIR=${SHARED_APP}/modulefiles
 MODULE_NAME=${APP_NAME}
-INSTALL_DIR=${SHARED_APP}/${APP_NAME}
 PARALLEL_BUILD=8
 IOR_VERSION=3.2.1
-
-sudo yum install -y jq
+INSTALL_DIR=${SHARED_APP}/${APP_NAME}-$IOR_VERSION
 
 source /etc/profile.d/modules.sh # so we can load modules
-# GCC 8 is no longer provided with CentOS-HPC 7.7 image, it is now 9.2, but is this really needed ?
 module load gcc-9.2.0
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
@@ -36,9 +33,10 @@ function create_modulefile {
 mkdir -p ${MODULE_DIR}
 cat << EOF > ${MODULE_DIR}/${MODULE_NAME}
 #%Module
-prepend-path PATH ${INSTALL_DIR}/bin;
-prepend-path LD_LIBRARY_PATH ${INSTALL_DIR}/lib;
-prepend-path MAN_PATH ${INSTALL_DIR}/share/man;
+prepend-path    PATH            ${INSTALL_DIR}/bin;
+prepend-path    LD_LIBRARY_PATH ${INSTALL_DIR}/lib;
+prepend-path    MAN_PATH        ${INSTALL_DIR}/share/man;
+setenv          IOR_BIN         ${INSTALL_DIR}/bin
 EOF
 }
 

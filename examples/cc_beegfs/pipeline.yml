@@ -1,0 +1,43 @@
+pr: none
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+    - '*'
+  paths:
+    include:
+      - examples/cc_beegfs/*
+      - blocks/cycle-install-server-managed-identity.json
+      - blocks/cycle-prereqs-managed-identity.json
+      - blocks/cycle-cli-local.json
+      - blocks/cycle-cli-jumpbox.json
+      - blocks/jumpbox-nfs.json.json
+      - blocks/vnet.json
+      - blocks/beegfs-cluster.json
+      - scripts/cc_install_managed_identity.sh
+    exclude:
+      - examples/cc_beegfs/readme.md
+
+pool: Default
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  azhpc.config: examples/cc_beegfs/variables.json
+  # pipeline directory
+  azhpc.pipeline_dir: examples/cc_beegfs
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
+
+# Add the variables needed in your configuration file
+# Uncomment and set values below, or leave commented and thru pipeline variables
+  # azhpc.variables.location: westeurope
+
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../ci/templates/jobs/build.yml
+  parameters:
+    pre_steps: ../../../examples/cc_beegfs/init.yml

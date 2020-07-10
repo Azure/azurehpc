@@ -38,7 +38,9 @@
             "ad_username": "User to use to join the domain",
             "joindomain": "Domain name to join to",
             "subnet": "subnet name in which to inject ANF NICs",
-            "type": "anf",
+            "type": "anf, azurestorage",
+            "sku": "Standard_LRS, Standard_GRS, Standard_RAGRS, Standard_ZRS, Premium_LRS, Premium_ZRS, Standard_GZRS, Standard_RAGZRS",
+            "containers": [ "container1", "container2"],
             "pools": {
                 "pool1": {
                     "service_level": "Ultra, Premium, Standard",
@@ -114,5 +116,39 @@
             "sudo": "true, (false)",
             "reboot": "true, (false)"
         }
-    ]
+    ],
+    "cyclecloud": {
+        "clusters": {
+            "clustername": {
+                "template": "templatename",
+                "parameters": {
+                    "parameter1": "value1",
+                    "parameter2": "value2",
+                    "xxxClusterInitSpecs": {
+                        "projectname:specname:i.j.k": {
+                            "Order": 10000,
+                            "Name": "projectname:specname:i.j.k",
+                            "Spec": "specname",
+                            "Project": "projectname",
+                            "Version": "i.j.k",
+                            "Locker": "azure-storage"
+                        }
+                    }
+                }
+            }
+        },
+        "projects": {
+            "projectname:specname:i.j.k": [
+                {
+                    "script": "script1.sh",
+                    "args": [ "arg1", "arg2"],
+                    "deps": ["dep1.data", "dep2.json"]
+                },
+                {
+                    "script": "script2.sh",
+                    "args": [ "arg1", "arg2"]
+                }
+            ]
+        }
+    }
 }

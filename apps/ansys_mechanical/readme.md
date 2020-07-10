@@ -22,17 +22,18 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 
 ### Install Prerequisite Software
 ```
-azhpc-run -u hpcuser -n "headnode compute" ~/apps/ansys_mechanical/scripts/add_pkgs.sh
+azhpc-run -u hpcuser -n headnode apps/ansys_mechanical/scripts/add_pkgs.sh
+azhpc-run -u hpcuser -n compute apps/ansys_mechanical/scripts/add_pkgs.sh
 ```
 
 ### Install Ansys Mechanical
 ```
-azhpc-run -u hpcuser -n headnode ~/apps/ansys_mechanical/install_mechanical.sh \<tar file name\> \<URL to tar file of the installer\>
+azhpc-run -u hpcuser -n headnode apps/ansys_mechanical/install_mechanical.sh \<tar file name\> \<URL to tar file of the installer\>
 ```
 
 Example:
 ```
-azhpc-run -u hpcuser -n headnode ~/apps/ansys_mechanical/install_mechanical.sh STRUCTURES_192_LINX64.tar "https://<storage_url>/apps/ansys-mech-19-2/STRUCTURES_192_LINX64.tar?{SAS_KEY}"
+azhpc-run -u hpcuser -n headnode apps/ansys_mechanical/install_mechanical.sh STRUCTURES_192_LINX64.tar "https://<storage_url>/apps/ansys-mech-19-2/STRUCTURES_192_LINX64.tar?{SAS_KEY}"
 ```
 
 ## Connect To Headnode

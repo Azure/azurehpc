@@ -29,14 +29,63 @@ def do_preprocess(args):
 def do_get(args):
     config = azconfig.ConfigFile()
     config.open(args.config_file)
-    val = config.read_value(args.path)
+    log.debug(f"azhpc get for {args.path}")
+    processed_val = config.process_value(args.path)
+    log.debug(f"processed value is {processed_val}")
+    read_val = config.read_value(processed_val)
+    log.debug(f"read value is {read_val}")
+    if read_val or args.path == processed_val:
+        # use the read value result if valid or if processed value is the same as the original
+        val = read_val
+    else:
+        val = processed_val
     print(f"{args.path} = {val}")
 
 def __add_unset_vars(vset, config_file):
     log.debug(f"looking for vars in {config_file}")
-    config = azconfig.ConfigFile()
-    config.open(config_file)
-    vset.update(config.get_unset_vars())
+    file_loc = os.path.dirname(config_file)
+    with open(config_file) as f:
+        data = json.load(f)
+    vars = data.get("variables", {})
+    if type(vars) is str and vars.startswith("@"):
+        fname = vars[1:]
+        if file_loc == "":
+            file_loc = "."
+        log.debug(f"variables are redirected to {file_loc}/{fname}")
+        with open(f"{file_loc}/{fname}") as f:
+            vars = json.load(f)
+    log.debug(vars)
+    vset.update([ 
+        x 
+        for x in vars.keys() 
+        if vars[x] == "<NOT-SET>"
+    ])
+
+def __replace_vars(vset, config_file):
+    log.debug(f"replacing vars in {config_file}")
+    floc = os.path.dirname(config_file)
+    fname = config_file
+    with open(fname) as f:
+        alldata = json.load(f)
+    varsobj = alldata.get("variables", {})
+
+    if type(varsobj) is str and varsobj.startswith("@"):
+        if floc != "": 
+            floc = floc + "/"
+        fname = floc + varsobj[1:]
+        log.debug(f"variables are redirected to {fname}")
+        with open(f"{fname}") as f:
+            alldata = json.load(f)
+            varsobj = alldata
+    
+    log.debug("replacing variables")
+    for v in vset.keys():
+        if v in varsobj:
+            varsobj[v] = vset[v]
+
+    log.debug("saving file ({fname})")
+    with open(fname, "w") as f:
+        json.dump(alldata, f, indent=4)
 
 def do_init(args):
     if not os.path.exists(args.config_file):
@@ -93,15 +142,19 @@ def do_init(args):
         if args.vars:
             for vp in args.vars.split(","):
                 vk, vv = vp.split("=", 1)
+                if vv.isdigit() or vv[0] == "-" and vv[1:].isdigit():
+                    vv = int(vv)
+                if vv == "true":
+                    vv = True
+                elif vv == "false":
+                    vv = False
                 vset[vk] = vv
             
             for root, dirs, files in os.walk(args.dir):
                 for name in files:
                     if os.path.splitext(name)[1] == ".json":
-                        config = azconfig.ConfigFile()
-                        config.open(os.path.join(root, name))
-                        config.replace_vars(vset)
-                        config.save(os.path.join(root, name))
+                        fname = os.path.join(root, name)
+                        __replace_vars(vset, os.path.join(root, name))
 
 def do_scp(args):
     log.debug("reading config file ({})".format(args.config_file))
@@ -187,7 +240,7 @@ def do_connect(args):
         sys.exit(1)
 
     ros = rimage.split(':')
-    if ros[0] == "MicrosoftWindowsServer":
+    if ros[0] == "MicrosoftWindowsServer" or ros[0] == "MicrosoftWindowsDesktop":
         log.debug(f"os is - {ros[0]} for node {args.resource}")
         fqdn = azutil.get_fqdn(c.read_value("resource_group"), args.resource+"_pip")
         winpassword = c.read_value("variables.win_password")
@@ -294,11 +347,11 @@ def do_run(args):
 
     hosts = []
     if args.nodes:
-        for r in args.nodes.split(" "):
+        for r in args.nodes.split(","):
             rtype = c.read_value(f"resources.{r}.type")
             if not rtype:
-                log.error(f"resource {r} does not exist in config")
-                sys.exit(1)
+                log.debug(f"resource {r} does not exist in config")
+                hosts.append(r)
             if rtype == "vm":
                 instances = c.read_value(f"resources.{r}.instances", 1)
                 if instances == 1:
@@ -387,11 +440,27 @@ def _wait_for_deployment(resource_group, deploy_name):
                         for line in error_message[1:]:
                             print(f"             {line}")
                         if "details" in props["statusMessage"]["error"]:
-                            details_code = props["statusMessage"]["error"]["details"].get("code", "")
-                            details_message = textwrap.TextWrapper(width=60).wrap(text=props["statusMessage"]["error"]["details"].get("message", ""))
-                            print(f"  Details  : {details_code}")
-                            for line in details_message:
-                                print(f"             {line}")
+                            def pretty_print(d, indent=0): 
+                                def wrapped_print(indent, text, max_width=80):
+                                    lines = textwrap.TextWrapper(width=max_width-indent).wrap(text=text)
+                                    for line in lines:
+                                        print(" "*indent + line)
+                                if isinstance(d, list):
+                                    for value in d:
+                                        pretty_print(value, indent)
+                                elif isinstance(d, dict):
+                                    for key, value in d.items(): 
+                                        if isinstance(value, dict): 
+                                            wrapped_print(indent, str(key)) 
+                                            pretty_print(value, indent+4)
+                                        elif isinstance(value, list):
+                                            wrapped_print(indent, str(key))
+                                            pretty_print(value, indent+4)
+                                        else: 
+                                            wrapped_print(indent, f"{key}: {value}")
+                                else:
+                                    wrapped_print(indent, str(d))
+                            pretty_print(props["statusMessage"]["error"]["details"], 13)
 
         sys.exit(1)
 
@@ -536,7 +605,9 @@ def do_build(args):
 
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    config = c.preprocess()
+    log.debug("About to preprocess")
+    config = c.preprocess(extended=False)
+    log.debug("Preprocessed")
 
     adminuser = config["admin_user"]
     private_key_file = adminuser+"_id_rsa"
@@ -544,13 +615,9 @@ def do_build(args):
     _create_private_key(private_key_file, public_key_file)
 
     tpl = arm.ArmTemplate()
-    tpl.read(config)
+    tpl.read(config, not args.no_vnet)
 
     output_template = "deploy_"+args.config_file
-
-    log.info("writing out arm template to " + output_template)
-    with open(output_template, "w") as f:
-        f.write(tpl.to_json())
 
     log.info("creating resource group " + config["resource_group"])
 
@@ -569,27 +636,44 @@ def do_build(args):
             }
         ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
     )
-    log.info("deploying arm template")
-    deployname = azutil.deploy(
-        config["resource_group"],
-        output_template
-    )
-    log.debug(f"deployment name: {deployname}")
 
-    _wait_for_deployment(config["resource_group"], deployname)
+    if tpl.has_resources():
+        log.info("writing out arm template to " + output_template)
+        with open(output_template, "w") as f:
+            f.write(tpl.to_json())
+
+        log.info("deploying arm template")
+        deployname = azutil.deploy(
+            config["resource_group"],
+            output_template
+        )
+        log.debug(f"deployment name: {deployname}")
+
+        _wait_for_deployment(config["resource_group"], deployname)
+    else:
+        log.info("no resources to deploy")
+
+    log.info("re-evaluating the config")
+    config = c.preprocess()
     
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    # TODO : Why is this unused ?
-    jumpbox = c.read_value("install_from")
-    # TODO : Why is this unused ?
     resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
     log.debug(f"running script from : {fqdn}")
     azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
+
+    if "cyclecloud" in config:
+        if "projects" in config["cyclecloud"]:
+            log.info("creating cyclecloud projects")
+            azinstall.generate_cc_projects(config, f"{tmpdir}/projects")
+
+        if "clusters" in config["cyclecloud"]:
+            log.info("creating cyclecloud clusters")
+            azinstall.generate_cc_clusters(config, f"{tmpdir}/clusters")
 
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))
@@ -633,6 +717,12 @@ if __name__ == "__main__":
         add_help=False,
         description="deploy the config",
         help="create an arm template and deploy"
+    )
+    build_parser.add_argument(
+        "--no-vnet", 
+        action="store_true",
+        default=False,
+        help="do not create vnet resources in the arm template"
     )
     build_parser.set_defaults(func=do_build)
 
@@ -751,7 +841,7 @@ if __name__ == "__main__":
         "--nodes", 
         "-n", 
         type=str,
-        help="the resources to run on (space separated for multiple)"
+        help="the resources to run on (comma separated for multiple)"
     )
     run_parser.add_argument(
         'args', 

@@ -1,0 +1,11 @@
+#cloud-config
+
+packages:
+ - git
+ - epel-release
+
+runcmd:
+ - [ yum, "-y", install, "jq" ]
+ - [ su, "-c", "git clone https://github.com/Azure/azurehpc.git", "-", hpcadmin ]
+ - [ sh, "-c", "~hpcadmin/azurehpc/scripts/install-azcopy.sh" ]
+ - [ sh, "-c", "~hpcadmin/azurehpc/scripts/install-azcli.sh" ]

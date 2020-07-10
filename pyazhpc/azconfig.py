@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import sys
 
@@ -9,11 +10,15 @@ log = azlog.getLogger(__name__)
 
 class ConfigFile:
     def __init__(self):
+        self.file_location = '.'
         self.data = {}
         self.regex = re.compile(r'({{([^{}]*)}})')
 
     def open(self, fname):
         log.debug("opening "+fname)
+        self.file_location = os.path.dirname(fname)
+        if self.file_location == "":
+            self.file_location = "."
         with open(fname) as f:
             self.data = json.load(f)
     
@@ -29,41 +34,35 @@ class ConfigFile:
                 dest = azutil.get_fqdn(self.read_value("resource_group"), f"{install_from}_pip")
         log.debug(f"install_from destination : {dest}")
         return dest
-
-    def get_unset_vars(self):
-        return [ 
-            x 
-            for x in self.data.get("variables", {}).keys() 
-            if self.data["variables"][x] == "<NOT-SET>"
-        ]
-
-    def replace_vars(self, vdict):
-        if "variables" in self.data:
-            for v in vdict.keys():
-                if v in self.data["variables"]:
-                    self.data["variables"][v] = vdict[v]
-
-    def __evaluate_dict(self, x):
+    
+    def __evaluate_dict(self, x, extended):
         ret = {}
         for k in x.keys():
-            ret[k] = self.__evaluate(x[k])
+            ret[k] = self.__evaluate(x[k], extended)
         return ret
 
-    def __evaluate_list(self, x):
-        return [ self.__evaluate(v) for v in x ]
+    def __evaluate_list(self, x, extended):
+        return [ self.__evaluate(v, extended) for v in x ]
 
-    def __evaluate(self, input):
+    def __evaluate(self, input, extended=True):
         if type(input) == dict:
-            return self.__evaluate_dict(input)
+            return self.__evaluate_dict(input, extended)
         elif type(input) == list:
-            return self.__evaluate_list(input)
+            return self.__evaluate_list(input, extended)
         elif type(input) == str:
-            return self.__process_value(input)
+            fname = self.file_location + "/" + input[1:]
+            if input.startswith("@") and os.path.isfile(fname) and fname.endswith(".json"):
+                log.debug(f"loading include {fname}")
+                with open(fname) as f:
+                    input = json.load(f)
+                return self.__evaluate_dict(input, extended)
+            else:
+                return self.process_value(input, extended)
         else:
             return input
 
-    def preprocess(self):
-        res = self.__evaluate(self.data)
+    def preprocess(self, extended=True):
+        res = self.__evaluate(self.data, extended)
         return res
 
     def read_keys(self, v):
@@ -90,10 +89,18 @@ class ConfigFile:
         try:
             it = self.data
             for x in v.split('.'):
+                if type(it) is str:
+                    fname = self.file_location + "/" + it[1:]
+                    if it.startswith("@") and os.path.isfile(fname) and fname.endswith(".json"):
+                        log.debug(f"loading include {fname}")
+                        with open(fname) as f:
+                            it = json.load(f)
+                    else:
+                        log.error("invalid path in config file ({v})")
                 it = it[x]
             
             if type(it) is str:
-                res = self.__process_value(it)
+                res = self.process_value(it)
             else:
                 res = it
         except KeyError:
@@ -104,22 +111,24 @@ class ConfigFile:
 
         return res
 
-    def __process_value(self, v):
-        log.debug("process_value (enter): "+str(v))
+    def process_value(self, v, extended=True):
+        log.debug(f"process_value (enter): {v} [extended={extended}]")
 
         def repl(match):
-            return str(self.__process_value(match.group()[2:-2]))
+            return str(self.process_value(match.group()[2:-2], extended))
     
-        v = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2])), v)
+        v = self.regex.sub(lambda m: str(self.process_value(m.group()[2:-2], extended)), v)
         
         parts = v.split('.')
         prefix = parts[0]
+        if len(parts) == 1:
+            prefix = ""
 
         if prefix == "variables":
             res = self.read_value(v)
         elif prefix == "secret":
             res = azutil.get_keyvault_secret(parts[1], parts[2])
-        elif prefix == "sasurl":
+        elif extended and prefix == "sasurl":
             log.debug(parts)
             url = azutil.get_storage_url(parts[1])
             x = parts[-1].split(",")
@@ -133,24 +142,33 @@ class ConfigFile:
             log.debug(parts)
             path = ".".join(parts[2:])
             res = f"{url}{path}?{saskey}"
-        elif prefix == "fqdn":
+        elif extended and prefix == "fqdn":
             res = azutil.get_fqdn(self.read_value("resource_group"), parts[1]+"_pip")
-        elif prefix == "sakey":
+        elif extended and prefix == "sakey":
             res = azutil.get_storage_key(parts[1])
-        elif prefix == "saskey":
+        elif extended and prefix == "saskey":
             x = parts[2].split(",")
             if len(x) == 1:
                 x.append("r")
             container = x[0].split('/')[0]
             res = azutil.get_storage_saskey(parts[1], container, x[1])
-        elif prefix == "laworkspace":
+        elif extended and prefix == "laworkspace":
             res = azutil.get_log_analytics_workspace(parts[1], parts[2])
-        elif prefix == "lakey":
+        elif extended and prefix == "lakey":
             res = azutil.get_log_analytics_key(parts[1], parts[2])
-        elif prefix == "acrkey":
+        elif extended and prefix == "acrkey":
             res = azutil.get_acr_key(parts[1])
+        elif extended and prefix == "image":
+            res = azutil.get_image_id(parts[1], parts[2])
         else:
-            res = v
+            # test to see if we are including a files contents (e.g. for customData)
+            fname = self.file_location + "/" + v[1:]
+            if v.startswith("@") and os.path.isfile(fname):
+                log.debug(f"loading text include {fname}")
+                with open(fname) as f:
+                    res = f.read()
+            else:
+                res = v
         
         log.debug("process_value (exit): "+str(v)+"="+str(res))
         return res

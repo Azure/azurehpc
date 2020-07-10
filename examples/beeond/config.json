@@ -25,7 +25,8 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "variables.vm_type",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
             "public_ip": true,
             "image": "variables.hpc_image",
             "subnet": "compute",
@@ -100,7 +101,7 @@
                 "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsserver",
-            "sudo": false
+            "sudo": true
         },
         {
             "script": "pbsclient.sh",
@@ -111,7 +112,7 @@
                 "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsclient",
-            "sudo": false
+            "sudo": true
         },
         {
             "script": "setupbeeond.sh",

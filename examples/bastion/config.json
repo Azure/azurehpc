@@ -1,0 +1,100 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "jumpbox",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "win_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
+        "win_password": "<NOT-SET>",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "<NOT-SET>",
+        "low_priority": false,
+        "bastion_subnet": "10.2.2.0/27",
+        "rm_vm_name": "jumpbox",
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "jumpbox": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "accelerated_networking": true,
+            "subnet": "compute",
+            "tags": [
+                "cndefault",
+                "localuser",
+                "disable-selinux"
+            ]
+        },
+        "winbox": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "password": "variables.win_password",
+            "public_ip": false,
+            "image": "variables.win_image",
+            "accelerated_networking": true,
+            "subnet": "compute"
+        },
+        "headnode": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": false,
+            "image": "variables.hpc_image",
+            "accelerated_networking": true,
+            "subnet": "compute",
+            "tags": [
+                "cndefault",
+                "localuser",
+                "disable-selinux"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "type": "local_script",
+            "script": "bastion.sh",
+            "args": [
+                "variables.vnet_resource_group",
+                "variables.location",
+                "variables.bastion_subnet"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "remove_vm.sh",
+            "args": [
+                "variables.resource_group",
+                "variables.rm_vm_name"
+            ]
+        }
+    ]
+}

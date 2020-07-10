@@ -1,4 +1,5 @@
 parameters:
+  pre_steps: ''
   extra_steps: ''
 
 jobs:
@@ -25,9 +26,13 @@ jobs:
           echo "Resource Group name is $ResourceGroup"
           # Create pipeline variable
           echo "##vso[task.setvariable variable=azhpc.ResourceGroup]$ResourceGroup"
+          echo "##vso[task.setvariable variable=azhpc.uuid]$UUID_STR"
           mkdir -p $(Pipeline.Workspace)/$(System.JobName)
           echo "$ResourceGroup" > $(Pipeline.Workspace)/$(System.JobName)/azhpc.ResourceGroup
-         
+
+  - ${{ if not(eq(parameters.pre_steps,'')) }}:
+    - template: ${{parameters.pre_steps}}
+
   - task: AzureCLI@2
     displayName: "Build Resources"
     inputs:
@@ -57,3 +62,13 @@ jobs:
           echo "removing resource group $AZHPC_RESOURCEGROUP"
           az group delete -n $AZHPC_RESOURCEGROUP -y --no-wait
         fi
+        conf_dir=$(dirname $AZHPC_CONFIG)
+        if [ "$PROJECT_DIR" = "" ]; then
+            PROJECT_DIR=${conf_dir##*/}
+        fi
+        # clean up project dir
+        if [ -d $PROJECT_DIR ]; then
+            ls -al $PROJECT_DIR
+            rm -rf $PROJECT_DIR 
+        fi
+

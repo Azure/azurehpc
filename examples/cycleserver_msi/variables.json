@@ -1,0 +1,10 @@
+{
+  "variables": {
+    "resource_group": "my resource group",
+    "location": "my location",
+    "key_vault": "kv{{variables.uuid}}",
+    "uuid": "unique value",
+    "projectstore": "locker{{variables.uuid}}",
+    "cc_version": "7 or 8"
+  }
+}

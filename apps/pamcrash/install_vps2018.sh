@@ -1,6 +1,7 @@
 #!/bin/bash
 TAR_SASURL="$1"
 MPM_SASURL="$2"
+# port@ip of the licence server like : 28000@10.1.0.5
 LICENSE_PORT_IP=$3
 DEST=${4-/apps}
 

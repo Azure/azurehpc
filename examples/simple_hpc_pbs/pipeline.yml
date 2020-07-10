@@ -10,6 +10,7 @@ trigger:
       - examples/simple_hpc_pbs/*
       - scripts/create_raid0.sh
       - scripts/make_filesystem.sh
+      - scripts/node_healthchecks.sh
       - scripts/install-nfsserver.sh
       - scripts/nfsclient.sh
       - scripts/localuser.sh

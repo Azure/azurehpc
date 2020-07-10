@@ -9,6 +9,8 @@
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
+        "vm_type": "Standard_HB60rs",
+        "compute_instances": 2,
         "nv_image": "MicrosoftWindowsDesktop:Windows-10:rs5-pron:latest",
         "win_password": "<NOT-SET>"
     },
@@ -25,7 +27,8 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "Standard_HB60rs",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
             "public_ip": true,
             "image": "variables.image",
             "subnet": "compute",
@@ -41,8 +44,8 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HB60rs",
-            "instances": 2,
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
             "image": "variables.hpc_image",
             "subnet": "compute",
             "tags": [
@@ -58,6 +61,7 @@
             "public_ip": "true",
             "password": "variables.win_password",
             "vm_type": "Standard_NV6",
+            "os_storage_sku": "Standard_LRS",
             "image": "variables.nv_image",
             "subnet": "viz",
             "tags": []
@@ -128,7 +132,7 @@
                 "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsserver",
-            "sudo": false
+            "sudo": true
         },
         {
             "script": "pbsclient.sh",
@@ -139,15 +143,16 @@
                 "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsclient",
-            "sudo": false
+            "sudo": true
+        },
+        {
+            "script": "setup_win.sh",
+            "type": "local_script",
+            "args": [
+                "variables.resource_group",
+                "nvnode",
+                "headnode"
+            ]
         }
-    ],
-    "post_install": {
-        "script": "setup_win.sh",
-        "args": [
-            "variables.resource_group",
-            "nvnode",
-            "headnode"
-        ]
-    }
+    ]
 }

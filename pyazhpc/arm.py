@@ -201,7 +201,7 @@ class ArmTemplate:
                 }
             })
 
-    def _add_netapp(self, cfg, name):
+    def _add_netapp(self, cfg, name, deploy_network):
         account = cfg["storage"][name]
         loc = cfg["location"]
         vnet = cfg["vnet"]["name"]
@@ -210,7 +210,7 @@ class ArmTemplate:
 
         rg = cfg["resource_group"]
         vnetrg = cfg["vnet"].get("resource_group", rg)
-        if rg == vnetrg:
+        if (rg == vnetrg) and deploy_network:
             log.debug("adding delegation to subnet")
             rvnet = next((x for x in self.resources if x["name"] == vnet), [])
             rsubnet = next((x for x in rvnet["properties"]["subnets"] if x["name"] == subnet), None)
@@ -305,6 +305,38 @@ class ArmTemplate:
                     ]
                 self.resources.append(netapp_volume)
 
+    def _add_storageaccount(self, cfg, name):
+        loc = cfg["location"]
+        
+        res = {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": name,
+            "location": loc,
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "accessTier": "Hot"
+            },
+            "resources": []
+        }
+
+        for container in cfg["storage"][name].get("containers", []):
+            res["resources"].append(
+                {
+                    "type": "blobServices/containers",
+                    "apiVersion": "2019-06-01",
+                    "name": f"default/{container}",
+                    "dependsOn": [
+                        name
+                    ]
+                }
+            )
+        
+        self.resources.append(res)
+
     def _add_proximity_group(self, cfg):
         ppg = cfg.get("proximity_placement_group_name", None)
         if ppg:
@@ -316,16 +348,20 @@ class ArmTemplate:
                 "location": loc
             })
 
-    def __helper_arm_create_osprofile(self, rname, rtype, adminuser, adminpass, sshkey):
+    def __helper_arm_create_osprofile(self, rname, rtype, adminuser, adminpass, sshkey, customdata):
         if rtype == "vm":
             name = "computerName"
         else:
             name = "computerNamePrefix"
-        
+         
         osprofile = {
             name: rname,
             "adminUsername": adminuser
         }
+        if customdata:
+           if customdata.startswith("http"):
+              customdata = "#include\n" + customdata
+           osprofile["customData"] = "[base64('" + customdata + "')]"
         if adminpass != "<no-password>":
             osprofile["adminPassword"] = adminpass
         else:
@@ -350,6 +386,9 @@ class ArmTemplate:
                 cacheoption = cache
             else:
                 cacheoption = "None"
+            if sku == "UltraSSD_LRS":
+                cacheoption = "None"
+
             datadisks.append({
                 "caching": cacheoption,
                 "managedDisk": {
@@ -407,6 +446,7 @@ class ArmTemplate:
         rmanagedidentity = res.get("managed_identity", None)
         loc = cfg["location"]
         ravset = res.get("availability_set")
+        customdata = res.get("custom_data", None)
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
         vnetname = cfg["vnet"]["name"]
@@ -420,7 +460,7 @@ class ArmTemplate:
             sshkey = f.read().strip()
         
         if ravset and ravset not in self.avsets:
-            self.resources.append({
+            arm_avset = {
                 "name": ravset,
                 "type": "Microsoft.Compute/availabilitySets",
                 "apiVersion": "2018-10-01",
@@ -432,7 +472,15 @@ class ArmTemplate:
                     "platformUpdateDomainCount": 1,
                     "platformFaultDomainCount": 1
                 }
-            })
+            }
+            if rppg:
+                arm_avset["properties"]["proximityPlacementGroup"] = {
+                    "id": f"[resourceId('Microsoft.Compute/proximityPlacementGroups','{rppgname}')]"
+                }
+                arm_avset["dependsOn"] = [
+                    f"Microsoft.Compute/proximityPlacementGroups/{rppgname}"
+                ]
+            self.resources.append(arm_avset)
             self.avsets.add(ravset)
 
         rorig = r
@@ -457,7 +505,7 @@ class ArmTemplate:
                 nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)
                 nicdeps.append("Microsoft.Network/networkSecurityGroups/"+nsgname)
 
-                self.resources.append({
+                pipres = {
                     "type": "Microsoft.Network/publicIPAddresses",
                     "apiVersion": "2018-01-01",
                     "name": pipname,
@@ -469,9 +517,11 @@ class ArmTemplate:
                             "domainNameLabel": dnsname
                         }
                     }
-                })
+                }
+                self.__helper_arm_add_zones(pipres, raz)
+                self.resources.append(pipres)
 
-                if ros[0] == "MicrosoftWindowsServer":
+                if ros[0] == "MicrosoftWindowsServer" or ros[0] == "MicrosoftWindowsDesktop":
                     self.resources.append({
                         "type": "Microsoft.Network/networkSecurityGroups",
                         "apiVersion": "2015-06-15",
@@ -559,7 +609,7 @@ class ArmTemplate:
                 "properties": nicprops
             })
 
-            osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
+            osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey, customdata)
             datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
             imageref = self.__helper_arm_create_image_reference(rimage)
 
@@ -611,7 +661,10 @@ class ArmTemplate:
                 vmres["properties"]["proximityPlacementGroup"] = {
                     "id": f"[resourceId('Microsoft.Compute/proximityPlacementGroups','{rppgname}')]"
                 }
-            
+
+            if rstoragesku == "UltraSSD_LRS" :
+                vmres["properties"]["additionalCapabilities"] = { "ultraSSDEnabled": True }
+
             if ravset:
                 vmres["properties"]["availabilitySet"] = {
                     "id": f"[resourceId('Microsoft.Compute/availabilitySets','{ravset}')]"
@@ -667,12 +720,10 @@ class ArmTemplate:
         rsize = res["vm_type"]
         rimage = res["image"]
         rinstances = res.get("instances")
-        # TODO : Why is this unused ?
-        rpip = res.get("public_ip", False)
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)
-        rfaultdomaincount = cfg.get("fault_domain_count", None)
+        rfaultdomaincount = res.get("fault_domain_count", 1)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -681,6 +732,7 @@ class ArmTemplate:
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "Premium_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
+        customdata = res.get("custom_data", None)
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
@@ -701,7 +753,7 @@ class ArmTemplate:
         if rppg:
             deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
 
-        osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
+        osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey, customdata)
         datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
         imageref = self.__helper_arm_create_image_reference(rimage)
 
@@ -763,7 +815,7 @@ class ArmTemplate:
         }
         
         if rfaultdomaincount:
-            vmssres["properties"]["virtualMachineProfile"]["platformFaultDomainCount"] = rfaultdomaincount
+            vmssres["properties"]["platformFaultDomainCount"] = rfaultdomaincount
 
         if rppg:
             vmssres["properties"]["proximityPlacementGroup"] = {
@@ -794,13 +846,17 @@ class ArmTemplate:
             else:
                 log.error("unrecognised resource type ({}) for {}".format(rtype, r))
 
-    def read(self, cfg):
+    def has_resources(self):
+        return len(self.resources) > 0
+
+    def read(self, cfg, deploy_network):
         rg = cfg["resource_group"]
         vnetrg = cfg["vnet"].get("resource_group", rg)
 
-        vnet_in_deployment = bool(rg == vnetrg)
+        vnet_in_deployment = bool(rg == vnetrg) and deploy_network
         
-        self._add_network(cfg)
+        if deploy_network:
+            self._add_network(cfg)
         self._add_proximity_group(cfg)
         self.read_resources(cfg, vnet_in_deployment)
 
@@ -808,7 +864,9 @@ class ArmTemplate:
         for s in storage.keys():
             stype = cfg["storage"][s]["type"]
             if stype == "anf":
-                self._add_netapp(cfg, s)
+                self._add_netapp(cfg, s, deploy_network)
+            elif stype == "storageaccount":
+                self._add_storageaccount(cfg, s)
             else:
                 log.error("unrecognised storage type ({}) for {}".format(stype, s))
         
