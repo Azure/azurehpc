@@ -37,7 +37,7 @@
           "Region": "{{variables.location}}",
           "configuration_slurm_version" : "19.05.5-1",
           "MasterClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:anf:1.0.0": {
               "Order": 10000,
               "Name": "azurehpc:anf:1.0.0",
               "Spec": "anf",
@@ -47,7 +47,7 @@
             }
           },
           "HPCClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:anf:1.0.0": {
               "Order": 10000,
               "Name": "azurehpc:anf:1.0.0",
               "Spec": "anf",
@@ -57,7 +57,7 @@
             }
           },
           "HTCClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:anf:1.0.0": {
               "Order": 10000,
               "Name": "azurehpc:anf:1.0.0",
               "Spec": "anf",
