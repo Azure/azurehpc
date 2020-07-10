@@ -12,8 +12,8 @@ if rpm -q lustre; then
     # for 2.10 and nothing extra is needed for 2.12
     if [ "$lustre_version" = "2.10" ]; then
 
-        if ! rpm -q kmod-lustre-client; then
-            yum -y install kmod-lustre-client
+        if ! rpm -q lustre-client-dkms; then
+            yum -y install lustre-client-dkms
         fi
 
     fi
@@ -21,8 +21,8 @@ if rpm -q lustre; then
 else
 
     # install the client RPMs if not already installed
-    if ! rpm -q lustre-client kmod-lustre-client; then
-        yum -y install lustre-client kmod-lustre-client
+    if ! rpm -q lustre-client lustre-client-dkms; then
+        yum -y install lustre-client lustre-client-dkms
     fi
     weak-modules --add-kernel $(uname -r)
 
