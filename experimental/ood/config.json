@@ -69,7 +69,8 @@
                 "pbsclient",
                 "cndefault",
                 "localuser",
-                "disable-selinux"
+                "disable-selinux",
+                "interactive-desktop"
             ]
         }
     },
@@ -140,6 +141,11 @@
                 "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
             ],
             "tag": "pbsclient",
+            "sudo": true
+        },
+        {
+            "script": "install-interactive-desktop.sh",
+            "tag": "interactive-desktop",
             "sudo": true
         },
         {
