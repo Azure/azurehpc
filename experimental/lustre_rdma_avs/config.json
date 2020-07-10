@@ -12,7 +12,7 @@
         }
     },
     "variables": {
-        "location": "<NOT-SET",
+        "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "lustreimage": "OpenLogic:CentOS:7.7:7.7.2020042900",
         "hpcimage": "OpenLogic:CentOS:7.7:7.7.2020042900",
