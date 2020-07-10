@@ -48,6 +48,7 @@ node_uri: '/node'
 rnode_uri: '/rnode'
 EOF
 sudo /opt/ood/ood-portal-generator/sbin/update_ood_portal
+systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
 
 # submit desktop session
 mkdir -p /etc/ood/config/apps/bc_desktop
