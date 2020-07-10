@@ -14,8 +14,8 @@
     "variables": {
         "location": "<NOT-SET",
         "resource_group": "<NOT-SET>",
-        "lustreimage": "OpenLogic:CentOS-HPC:7.7:7.7.2020043000",
-        "hpcimage": "OpenLogic:CentOS-HPC:7.7:7.7.2020043000",
+        "lustreimage": "OpenLogic:CentOS:7.7:7.7.2020042900",
+        "hpcimage": "OpenLogic:CentOS:7.7:7.7.2020042900",
         "compute_instances": 2,
         "lustre_instances": 2,
         "low_priority": false,
