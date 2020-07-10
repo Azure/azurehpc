@@ -1,5 +1,6 @@
 # AzureHPC Change log
 
+- [PR 326](https://github.com/Azure/azurehpc/pull/326) : using the dkms lustre client 
 - [PR 320](https://github.com/Azure/azurehpc/pull/320) : Support Custom Data (Cloud-Init) in vm/vmss
 - [PR 319](https://github.com/Azure/azurehpc/pull/319) : PBS automatic deletion of idle vmss instances
 - [PR 316](https://github.com/Azure/azurehpc/pull/316) : telegraf.conf modified to report interrupts and conntracks

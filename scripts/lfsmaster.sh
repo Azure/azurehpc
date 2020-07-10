@@ -6,7 +6,7 @@ device=$1
 # this will only install MDS on first node in a scaleset
 if [ "$PSSH_NODENUM" = "0" ]; then
 
-    mkfs.lustre --fsname=LustreFS --mgs --mdt --mountfsoptions="user_xattr,errors=remount-ro" --backfstype=ldiskfs --reformat $device --index 0
+    mkfs.lustre --fsname=LustreFS --mgs --mdt --mountfsoptions="user_xattr,errors=remount-ro" --backfstype=ldiskfs --reformat $device --index 0 || exit 1
 
     mkdir /mnt/mgsmds
     echo "$device /mnt/mgsmds lustre noatime,nodiratime,nobarrier 0 2" >> /etc/fstab
