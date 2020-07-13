@@ -1,7 +1,7 @@
 #!/bin/bash
 
 num_gpus=$(lspci | grep NVIDIA | wc -l)
-BWTEST_FILE=/tmp/bwtest_file
+BWTEST_FILE=/tmp/gpu_bwtest_file
 GPU_MAP_FILE=/tmp/gpu_map_file
 START=58798080
 END=67186688
