@@ -243,7 +243,7 @@ Output files will be named `pingpong.o<jobid>, allreduce.o<jobid>, osu.o<jobid>`
 Submit the build, once the job is finish submit the run.
 
 ```
-[hpcadmin@ip-0A020804 ~]$ sbatch -J build_hpl -o build_hpl.o%A /apps/linpack/build_hpl.sh
+[hpcadmin@ip-0A020804 ~]$ sbatch -J build_hpl -o build_hpl.o%A --wrap='/apps/linpack/build_hpl.sh'
 [hpcadmin@ip-0A020804 ~]$ sbatch -N 1 --exclusive -J hpl -o single_hpl.o%A /apps/linpack/single_hpl.sh
 ```
 
