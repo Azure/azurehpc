@@ -2,7 +2,7 @@
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/gpu_numa_mapping/config.json)
 
-The ND40rs_v2 vm has 8 v100 GPU's. This example sets up a GPU cluster and calculates the correct GPU mapping (including correct mapping of GPU's to host NUMA domains). This uses nvidia-smi for the GPU topology and the cuda bandwidthTest benchmark to determine the correct GPU to numa mapping. The correct GPU mapping is deposited on each GPU in /tmp/gpu_map_file. 
+The ND40rs_v2 vm has 8 v100 GPU's. This example sets up a GPU cluster and calculates the correct GPU mapping (including correct mapping of GPU's to host NUMA domains). This uses nvidia-smi for the GPU topology and the cuda bandwidthTest benchmark to determine the correct GPU to numa mapping. The correct GPU mapping is deposited on each GPU in /tmp/gpu_map_file. A script (bwtest_gpu_map.sh)  to determine the gpu mapping using only cuda bandwidth test is also include (good sanity test). The script bwtest_gpu_map.sh runs a cuda BW test from each GPU to core 0-1 (Numa domain 0), then sorts the BW results and writes the GPU map to /tmp/gpu_map_file, the BW results are also deposited to /tmp/gpu_bwtest_file.
 
 ## Initialise the project
 
