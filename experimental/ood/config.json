@@ -72,7 +72,23 @@
                 "disable-selinux",
                 "interactive-desktop"
             ]
-        }
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
+            "low_priority": "variables.low_priority",
+            "image": "variables.hpc_image",
+            "subnet": "pbscluster",
+            "tags": [
+                "nfsclient",
+                "pbsclient",
+                "cndefault",
+                "localuser",
+                "disable-selinux",
+                "jupyter-app"
+            ]
+	}
     },
     "install": [
         {
@@ -149,6 +165,11 @@
             "sudo": true
         },
         {
+            "script": "install-jupyter-app.sh",
+            "tag": "jupyter-app",
+            "sudo": true
+        },
+        {
             "script": "install-open-ondemand.sh",
             "tag": "open-ondemand",
             "sudo": true,
@@ -156,6 +177,15 @@
                 "variables.ood_user",
                 "variables.ood_password"
             ]
+        },
+	{
+	    "type": "local_script",
+	    "script": "open_nsg_port.sh",
+	    "args": [
+	        "variables.resource_group",
+	        "ood",
+		"80"
+	    ]
         }
     ]
 }

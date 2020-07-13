@@ -48,6 +48,7 @@ node_uri: '/node'
 rnode_uri: '/rnode'
 EOF
 sudo /opt/ood/ood-portal-generator/sbin/update_ood_portal
+systemctl try-restart httpd24-httpd.service httpd24-htcacheclean.service
 
 # submit desktop session
 mkdir -p /etc/ood/config/apps/bc_desktop
@@ -76,6 +77,46 @@ script:
     - "select=1:ncpus=30"
 EOF
 
+# add jupyter app
+
+mkdir -p /var/www/ood/apps/sys/jupyter 
+
+pushd /var/www/ood/apps/sys/jupyter
+git clone https://github.com/OSC/bc_example_jupyter.git
+cp -r bc_example_jupyter/* .
+SRC="c.NotebookApp.ip = '\*'"
+DST="c.NotebookApp.ip = '0.0.0.0'"
+sed -i "s/$SRC/$DST/g" template/before.sh.erb
+rm -rf bc_example_jupyter
+popd
+
+cat <<EOF >/var/www/ood/apps/sys/jupyter/form.yml
+---
+cluster: "pbscluster"
+attributes:
+  modules: "python"
+  bc_num_hours:
+    value: 1
+  bc_job_name:
+    value: "test"
+form:
+  - modules
+  - extra_jupyter_args
+  - bc_num_hours
+EOF
+
+# custom script
+cat <<EOF >/var/www/ood/apps/sys/jupyter/submit.yml.erb
+---
+batch_connect:
+  template: "basic"
+  extra_jupyter_args: ""
+script:
+  native:
+    - "-l"
+    - "select=1:ncpus=30"
+EOF
+
 # change the branding
 # and fix the qsub issue (https://osc.github.io/ood-documentation/release-1.7/release-notes/v1.7-release-notes.html#support-sanitizing-job-names)
 cat <<EOF >>/etc/ood/config/nginx_stage.yml
@@ -87,3 +128,4 @@ pun_custom_env:
   OOD_JOB_NAME_ILLEGAL_CHARS: "/"
 EOF
 
+echo 'OnDemand Installation Complete'
