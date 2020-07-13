@@ -1,4 +1,4 @@
-# Build a PBS ND40rs_v2 GPU cluster with correct GPU mapping
+# Build a ND40rs_v2 GPU cluster with correct GPU mapping
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/gpu_numa_mapping/config.json)
 
