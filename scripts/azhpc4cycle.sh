@@ -2,14 +2,15 @@
 # This utility script contains helpers functions called in the azurehpc to CycleCloud integration
 helper=${1,,}
 JETPACK_HOME=/opt/cycle/jetpack
+JETPACK_BIN=$JETPACK_HOME/bin
 JETPACK_VERSION=
 
-if [ ! -e $JETPACK_HOME/bin/jetpack ]; then
+if [ ! -e $JETPACK_BIN/jetpack ]; then
     echo "Not running in a CycleCloud environment exiting"
 else
-    JETPACK_VERSION=$(jetpack --version | cut -d'.' -f1)
+    JETPACK_VERSION=$($JETPACK_BIN/jetpack --version | cut -d'.' -f1)
     echo "Running in a CycleCloud environment"
-    jetpack --version
+    $JETPACK_BIN/jetpack --version
 fi
 
 enable_metada_access()
@@ -17,7 +18,7 @@ enable_metada_access()
     if [ $JETPACK_VERSION -eq 7 ]; then
         # Enable METADATA SERVICE access if blocked. This is the case with CycleCloud 7.x by default
         # Delete all rules regarding 169.254.169.254
-        prevent_metadata_access=$($JETPACK_HOME/bin/jetpack config cyclecloud.node.prevent_metadata_access)
+        prevent_metadata_access=$($JETPACK_BIN/jetpack config cyclecloud.node.prevent_metadata_access)
         prevent_metadata_access=${prevent_metadata_access,,}
         echo "cyclecloud.node.prevent_metadata_access=$prevent_metadata_access"
         if [ "$prevent_metadata_access" == "true" ]; then
@@ -42,7 +43,7 @@ disable_jetpack_converge()
 {
     if [ $JETPACK_VERSION -eq 7 ]; then
         # Remove Jetpack converge from the crontab
-        maintenance_converge=$($JETPACK_HOME/bin/jetpack config cyclecloud.maintenance_converge.enabled)
+        maintenance_converge=$($JETPACK_BIN/jetpack config cyclecloud.maintenance_converge.enabled)
         maintenance_converge=${maintenance_converge,,}
         echo "cyclecloud.maintenance_converge.enabled=$maintenance_converge"
         if [ "$maintenance_converge" == "true" ]; then
