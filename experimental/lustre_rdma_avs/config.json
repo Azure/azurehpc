@@ -34,7 +34,7 @@
     "resources": {
         "headnode": {
             "type": "vm",
-            "vm_type": "Standard_HB120rs_v2",
+            "vm_type": "Standard_D8s_v3",
             "accelerated_networking": false,
             "public_ip": true,
             "image": "variables.hpcimage",
