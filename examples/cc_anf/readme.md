@@ -38,7 +38,8 @@ Edit `variables.json` to match your environment. Give a unique value to `uuid`. 
     "location": "my location",
     "key_vault": "kv{{variables.uuid}}",
     "uuid": "unique value",
-    "projectstore": "locker{{variables.uuid}}"
+    "projectstore": "locker{{variables.uuid}}",
+    "scheduler": "pbs or slurm"
   }
 }
 ```
@@ -71,7 +72,28 @@ $ azhpc-scp -- -r $azhpc_dir/apps/. hpcadmin@jumpbox:/apps
 
 ## Step 4 - Start the cluster in CycleCloud
 
-To Start the Slurm cluster attached to ANF:
+---
+
+### PBS
+
+To start the PBS cluster attached to ANF:
+
+```
+$ cyclecloud start_cluster pbscycle
+```
+
+Retrieve the cluster status by running:
+
+```
+$ cyclecloud show_cluster pbscycle | grep master | xargs | cut -d ' ' -f 2
+$ cyclecloud show_nodes -c pbscycle --format=json | jq -r '.[0].State'
+```
+
+---
+
+### Slurm
+
+To start the Slurm cluster attached to ANF:
 
 ```
 $ cyclecloud start_cluster slurmcycle
@@ -84,6 +106,8 @@ $ cyclecloud show_cluster slurmcycle | grep master | xargs | cut -d ' ' -f 2
 $ cyclecloud show_nodes -c slurmcycle --format=json | jq -r '.[0].State'
 ```
 
+---
+
 ## Step 5 - Connect to CycleServer UI
 
 Retrieve the CycleServer DNS name from the azure portal.
@@ -94,7 +118,7 @@ Retrieve the CycleCloud admin password from the logs:
 $ grep password azhpc_install_config/install/*.log
 ```
 
-Connect to the CycleCloud Web Portal `https://fqdn-of-cycleserver` as `hpcadmin` with the password retrieved above. Check that you have a `slurmcycle` cluster.
+Connect to the CycleCloud Web Portal `https://fqdn-of-cycleserver` as `hpcadmin` with the password retrieved above. Check that you have a `pbscycle` or  `slurmcycle` cluster.
 Check that the cluster master is well started or wait until it is started. Allow about 12 minutes for the master to start.
 
 Manually add few nodes to the cluster.
@@ -109,41 +133,33 @@ From the machine and directory you have deployed the infrastructure defined abov
 
 ```
 $ azhpc-connect jumpbox
+[2020-07-09 12:55:09] logging directly into jumpbox5f282f.westeurope.cloudapp.azure.com
+Last login: Thu Jul  9 10:45:42 2020 from <home>
 ```
 
 From the jumpbox, connect to the CycleCloud master:
 
+---
+
+### PBS
+
 ```
-$ azhpc-connect jumpbox
-[2020-07-09 12:55:09] logging directly into jumpbox5f282f.westeurope.cloudapp.azure.com
-Last login: Thu Jul  9 10:45:42 2020 from <home>
+[hpcadmin@jumpbox ~]$ cyclecloud connect master -c pbscycle
+```
+
+---
+
+### Slurm
+
+```
 [hpcadmin@jumpbox ~]$ cyclecloud connect master -c slurmcycle
-Connecting to hpcadmin@52.137.45.244 (slurmcycle master) using SSH
-Last login: Thu Jul  9 10:53:45 2020 from <home>
-
- __        __  |    ___       __  |    __         __|
-(___ (__| (___ |_, (__/_     (___ |_, (__) (__(_ (__|
-        |
-
-Cluster: slurmcycle
-Version: 7.9.6
-Run List: recipe[cyclecloud], role[slurm_master_role], recipe[cluster_init]
-
 ```
+
+---
 
 ## Step 2 - Check that ANF shares are mounted
 
 ```
-[hpcadmin@jumpbox ~]$ cyclecloud connect master -c slurmcycle
-Connecting to hpcadmin@52.137.45.244 (slurmcycle master) using SSH
-
- __        __  |    ___       __  |    __         __|
-(___ (__| (___ |_, (__/_     (___ |_, (__) (__(_ (__|
-        |
-
-Cluster: slurmcycle
-Version: 7.9.6
-Run List: recipe[cyclecloud], role[slurm_master_role], recipe[cluster_init]
 [hpcadmin@ip-0A020804 ~]$ df -h
 Filesystem             Size  Used Avail Use% Mounted on
 /dev/sda2               30G  9.9G   20G  34% /
@@ -207,6 +223,23 @@ Build IOR with the AzureHPC application script. You have to run in sudo mode as 
 
 Check that a new node is provisioned (unless you have already started one manually). Allow 13 minutes for the node to be ready.
 
+---
+
+### PBS
+
+```
+[hpcadmin@ip-0A020804 ~]$ qsub -N build_ior -k oe -j oe -l select=1 -- /apps/ior/build_ior.sh
+0.ip-0A020804
+[hpcadmin@ip-0A020804 ~]$ qstat
+Job id            Name             User              Time Use S Queue
+----------------  ---------------- ----------------  -------- - -----
+0.ip-0A020804     build_ior        hpcadmin                 0 H workq
+```
+
+---
+
+### Slurm
+
 ```
 [hpcadmin@ip-0A020804 ~]$ sbatch -J build_ior -o build_ior.o%A /apps/ior/build_ior.sh
 [hpcadmin@ip-0A020804 ~]$ squeue
@@ -214,21 +247,58 @@ Check that a new node is provisioned (unless you have already started one manual
                  1       hpc build_io hpcadmin CF       0:00      1 hpc-pg0-1
 ```
 
+---
+
 The build output file will be named `build_ior.o<jobid>`
 
 After the build, check that you have an `ior` module in `/apps/modulefiles` and IOR binaries in `/apps/ior-<version>`
 
-Run IOR from a compute node by submitting a job
+Run IOR from a compute node by submitting a job.
+
+---
+
+### PBS
+
+```
+[hpcadmin@ip-0A020804 ~]$ qsub -N ior -k oe -j oe -l select=1:ncpus=60:mpiprocs=60 -- /apps/ior/ior.sh /data
+0.ip-0A020804
+[hpcadmin@ip-0A020804 ~]$ qstat
+Job id            Name             User              Time Use S Queue
+----------------  ---------------- ----------------  -------- - -----
+1.ip-0A020804     ior              hpcadmin                 0 Q workq
+```
+
+---
+
+### Slurm
 
 ```
 [hpcadmin@ip-0A020804 ~]$ sbatch -N 1 --exclusive -o ior.o%A -J ior /apps/ior/ior.sh /data
-[hpcadmin@ip-0A020804 ~]$ squeue
-            JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
-                 2       hpc    ior  hpcadmin CF       0:00      1 hpc-pg0-1
+Submitted batch job 2
+[hpcadmin@ip-0A020804 ~]$ $ squeue
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+                 2       hpc     test hpcadmin CF       0:00      1 hpc-pg0-1
 ```
+
+---
+
 Output file will be named `ior.o<jobid>`
 
 ## Step 4 - Run latency and bandwidth tests
+
+---
+
+### PBS
+
+```
+[hpcadmin@ip-0A020804 ~]$ qsub -N pingpong -k oe -j oe -l select=2:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/imb-mpi/ringpingpong.sh ompi
+[hpcadmin@ip-0A020804 ~]$ qsub -N allreduce -k oe -j oe -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl -- /apps/imb-mpi/allreduce.sh impi2018
+[hpcadmin@ip-0A020804 ~]$ qsub -N osu -k oe -j oe -l select=2:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/osu/osu_bw.sh
+```
+
+---
+
+### Slurm
 
 ```
 [hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --tasks-per-node=1 -J pingpong -o pingpong.o%A /apps/imb-mpi/ringpingpong.sh ompi
@@ -236,16 +306,33 @@ Output file will be named `ior.o<jobid>`
 [hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --tasks-per-node=1 -o osu.o%A -J osu /apps/osu/osu_bw.sh
 ```
 
+---
+
 Output files will be named `pingpong.o<jobid>, allreduce.o<jobid>, osu.o<jobid>`
 
 ## Step 5 - Build and run HPL
 
 Submit the build, once the job is finish submit the run.
 
+---
+
+### PBS
+
+```
+[hpcadmin@ip-0A020804 ~]$ qsub -N build_hpl -k oe -j oe -l select=1:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/linpack/build_hpl.sh
+[hpcadmin@ip-0A020804 ~]$ qsub -N single_hpl -k oe -j oe -l select=1:ncpus=1:mpiprocs=1,place=scatter:excl -- /apps/linpack/single_hpl.sh
+```
+
+---
+
+### Slurm
+
 ```
 [hpcadmin@ip-0A020804 ~]$ sbatch -J build_hpl -o build_hpl.o%A --wrap='/apps/linpack/build_hpl.sh'
 [hpcadmin@ip-0A020804 ~]$ sbatch -N 1 --exclusive -J hpl -o single_hpl.o%A /apps/linpack/single_hpl.sh
 ```
+
+---
 
 Output files will be named `build_hpl.o<jobid>, single_hpl.o<jobid>`
 
@@ -256,8 +343,8 @@ Output files will be named `build_hpl.o<jobid>, single_hpl.o<jobid>`
 From your deployment machine run
 
 ```
-$ cyclecloud terminate_cluster slurmcycle
-$ cyclecloud delete_cluster slurmcycle
+$ cyclecloud terminate_cluster <cluster_name>
+$ cyclecloud delete_cluster <cluster_name>
 ```
 
 ## Step 2 - Drop all the resources
