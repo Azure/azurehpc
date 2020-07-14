@@ -14,7 +14,7 @@ for __oss_vm_type__ in $oss_sku; do
                 name="$prefix-${__oss_instances__}-$(cut -d'_' -f2 <<< $__oss_vm_type__)-${__client_vm_instances__}-$(cut -d'_' -f2 <<< $__client_vm_type__)"
                 run_dir="azhpc_install_$name"
 
-                if [ ! -d $run_dir ]; then
+                if [ -d $run_dir ]; then
                     reads="$(grep "read throughput rate" $run_dir/install/*_rhel_iotest.log | sed 's/ *read throughput rate: *//g;s/ megabytes.*$//g' | tr '\n' ' ')"
                     av_reads=$(echo "($(tr ' ' '+' <<< $reads)0) / $(wc -w <<< $reads )" | bc -l)
                     writes="$(grep "write throughput rate" $run_dir/install/*_rhel_iotest.log | sed 's/ *write throughput rate: *//g;s/ megabytes.*$//g' | tr '\n' ' ')"
