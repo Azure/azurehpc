@@ -63,7 +63,7 @@ java -jar /opt/beegfs/beegfs-admon-gui/beegfs-admon-gui.jar
 ```
 
 ![Alt text](/examples/beegfs/images/beegfs-admon1.JPG?raw=true "Initial configuration")
-
+Login: Username: Administrator, password: admin
 ![Alt text](/examples/beegfs/images/beegfs-admon2.JPG?raw=true "log-in")
 
 ![Alt text](/examples/beegfs/images/beegfs-admon3.JPG?raw=true "Aggregate I/O throughput")
