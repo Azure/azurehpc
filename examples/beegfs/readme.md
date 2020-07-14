@@ -38,6 +38,7 @@ Connect to the headnode and check PBS and BeeGFS (it will be mounted at /beegfs)
 
 ```
 $ azhpc-connect -u hpcuser headnode
+```
 
 Resources:
 
