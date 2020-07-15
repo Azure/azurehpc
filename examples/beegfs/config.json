@@ -73,6 +73,7 @@
             "tags": [
                 "beegfspkgs",
                 "beegfsm",
+                "beegfs-admon",
                 "disable-selinux",
                 "beegfsc"
             ]
@@ -133,6 +134,14 @@
                 "$(<hostlists/tags/beegfsm)"
             ],
             "tag": "beegfsmd",
+            "sudo": true
+        },
+        {
+            "script": "beegfs-admon.sh",
+            "args": [
+                "beegfsm"
+            ],
+            "tag": "beegfs-admon",
             "sudo": true
         },
         {
