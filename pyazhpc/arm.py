@@ -725,6 +725,7 @@ class ArmTemplate:
         raz = res.get("availability_zones", None)
         rfaultdomaincount = res.get("fault_domain_count", 1)
         rsingleplacementgroup = res.get("single_placement_group", True)
+        roverprovision = res.get("overprovision", True)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -772,7 +773,7 @@ class ArmTemplate:
                 "capacity": rinstances
             },
             "properties": {
-                "overprovision": True,
+                "overprovision": roverprovision,
                 "upgradePolicy": {
                     "mode": "manual"
                 },
