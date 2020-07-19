@@ -724,6 +724,7 @@ class ArmTemplate:
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)
         rfaultdomaincount = res.get("fault_domain_count", 1)
+        rsingleplacementgroup = res.get("single_placement_group", true)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -810,7 +811,7 @@ class ArmTemplate:
                         ]
                     }
                 },
-                "singlePlacementGroup": True
+                "singlePlacementGroup": rsingleplacementgroup
             }
         }
         
