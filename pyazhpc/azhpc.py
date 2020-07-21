@@ -581,6 +581,9 @@ def do_slurm_resume(args):
     log.debug(f"deployment name: {deployname}")
 
     _wait_for_deployment(config["resource_group"], deployname)
+
+    # remove local scripts
+    config["install"] = [ step for step in config["install"] if step.get("type", "jumpbox_script") == "jumpbox_script" ]
     
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
