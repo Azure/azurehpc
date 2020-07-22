@@ -14,7 +14,7 @@
     "location": "<NOT-SET>",
     "image": "OpenLogic:CentOS:7.7:latest",
     "glusterfsimage": "OpenLogic:CentOS:7.7:latest",
-    "hpcimage": "OpenLogic:CentOS-HPC:7.7:latest",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
     "compute_vm_type": "Standard_HB60rs",
     "glusterfs_instances": 4,
     "low_priority": false,
