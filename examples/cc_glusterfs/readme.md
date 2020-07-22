@@ -1,7 +1,7 @@
 # Building the infrastructure
 ![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/cc_glusterfs?branchName=master)
 
-Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER and GlusterGFS by using building blocks.
+Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER and GlusterFS by using building blocks.
 
 ## Step 1 - install azhpc
 
