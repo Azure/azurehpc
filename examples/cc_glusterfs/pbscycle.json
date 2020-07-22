@@ -3,7 +3,7 @@
   "resource_group": "variables.resource_group",
   "admin_user": "hpcadmin",
   "variables": {
-    "hpc_image": "<NOT-SET>",
+    "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
     "location": "<NOT-SET>",
     "resource_group": "narcycle",
     "vm_type": "Standard_HB60rs",
