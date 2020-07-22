@@ -74,6 +74,8 @@
             "password": "user admin password to use with Windows",
             "proximity_placement_group": "true, (false)",
             "public_ip": "true, (false)",
+            "dns_name": "The dns name to use.  If this is excluded the resource name with a uuid will be used",
+            "nsg_allow": ["rdp", "ssh", "http", "https"],
             "resource_tags": "TO DOCUMENT",
             "subnet": "subnet name to create the VMs in",
             "storage_cache": "None, (ReadWrite), ReadOnly - Only used for datadisks",
