@@ -18,7 +18,7 @@ build_amd_hpl() {
     export HPL_DIR=$(pwd)
     echo $HPL_DIR
 
-    cp $DIR/Make.Linux_AMD_BLIS .
+    cp $BUILD_DIR/Make.Linux_AMD_BLIS .
     make arch=Linux_AMD_BLIS
     popd
 }
