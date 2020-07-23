@@ -307,7 +307,7 @@ The test output file will be named `ior.o<jobid>`.
 ```
 [hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --tasks-per-node=1 -J pingpong -o pingpong.o%A /apps/imb-mpi/ringpingpong.sh ompi
 [hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --exclusive -o allreduce.o%A -J allreduce /apps/imb-mpi/allreduce.sh impi2018
-[hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --tasks-per-node=1 -o osu.o%A -J osu /apps/osu/osu_bw.slurm
+[hpcadmin@ip-0A020804 ~]$ sbatch -N 2 --tasks-per-node=1 -o osu.o%A -J osu /apps/osu/osu_bw.sh
 ```
 
 ---
