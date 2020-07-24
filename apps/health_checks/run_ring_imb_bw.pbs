@@ -3,6 +3,7 @@ MPI=${1-impi2018}
 MODE=${2-ring}
 set -o pipefail
 
+cd $PBS_O_WORKDIR
 
 case $MPI in
     impi2016)
@@ -56,10 +57,18 @@ esac
 
 # affinity
 numactl_options=" numactl --cpunodebind 0"
+src=`head -n1 $PBS_NODEFILE`
+dst=`tail -n1 $PBS_NODEFILE`
 
+echo "mpirun $host_option $src,$dst $mpi_options $numactl_options $IMB_ROOT/IMB-MPI1 PingPong -msglog 2:3 > ${src}_to_${dst}_impi_latency.log"
 mpirun $host_option $src,$dst \
        $mpi_options $numactl_options \
-       $IMB_ROOT/IMB-MPI1 PingPong  > ${src}_to_${dst}_impi_latency.log
+       $IMB_ROOT/IMB-MPI1 PingPong -msglog 2:3  > ${src}_to_${dst}_impi_latency.log
+echo " mpirun $host_option $src,$dst $mpi_options $numactl_options $IMB_ROOT/IMB-MPI1 Uniband -msglog 21:22 > ${src}_to_${dst}_impi_bw.log"
 mpirun $host_option $src,$dst \
        $mpi_options $numactl_options \
-       $IMB_ROOT/IMB-MPI1 Biband > ${src}_to_${dst}_impi_bibw.log
+       $IMB_ROOT/IMB-MPI1 Uniband -msglog 21:22 > ${src}_to_${dst}_impi_bw.log
+echo " mpirun $host_option $src,$dst $mpi_options $numactl_options $IMB_ROOT/IMB-MPI1 Biband -msglog 21:22 > ${src}_to_${dst}_impi_bibw.log"
+mpirun $host_option $src,$dst \
+       $mpi_options $numactl_options \
+       $IMB_ROOT/IMB-MPI1 Biband -msglog 21:22 > ${src}_to_${dst}_impi_bibw.log
