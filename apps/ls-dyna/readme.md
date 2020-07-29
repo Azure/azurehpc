@@ -18,7 +18,7 @@ azhpc-scp -- -r $azhpc_dir/apps hpcuser@headnode:.
 
 > Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
 
-Next copy the ls-dyna tar.gz file to /mnt/resource on the headnode
+Next copy the ls-dyna tar.gz file to /mnt/resource on the headnode. Note: You will first need to obtain ls-dyna tar.gz file from Ansys and copy it to the the machine that you will run azhpc-scp from.
 ```
 azhpc-scp <ls-dyna_mpp_install_file.tar.gz> hpcuser@headnode:/mnt/resource/.
 azhpc-scp <ls-dyna_hyb_install_file.tar.gz> hpcuser@headnode:/mnt/resource/.
