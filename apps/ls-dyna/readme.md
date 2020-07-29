@@ -34,7 +34,7 @@ The following environment variables can be used to install LS-DYNA:
 
 
 ```
-azhpc-run -u hpcuser  apps/ls-dyna/install_ls-dyna.sh 
+azhpc-run -u hpcuser  apps/ls-dyna/install_lsdyna.sh 
 ```
 
 > Note: This will install into `/apps`.
