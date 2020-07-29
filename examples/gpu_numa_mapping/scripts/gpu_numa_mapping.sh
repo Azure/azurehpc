@@ -76,7 +76,7 @@ bwtest_gpu1=$(taskset -c 0-1 /usr/local/cuda-10.1/extras/demo_suite/bandwidthTes
 echo "`date`: GPU $first_group_gpuid BW to numa domain 0 = $bwtest_gpu1 MB/s"
 echo "`date`: Checking GPU ID=$second_group_gpuid"
 bwtest_gpu2=$(taskset -c 0-1 /usr/local/cuda-10.1/extras/demo_suite/bandwidthTest --device=$second_group_gpuid  --dtoh --mode=range --start=$START --end=$END --increment=$INCREMENT | grep 62992384 | awk '{print $2}')
-echo "`date`: GPU $fourth_group_gpuid to numa domain 0 BW= $bwtest_gpu2 MB/s"
+echo "`date`: GPU $fourth_group_gpuid to numa domain 1 BW= $bwtest_gpu2 MB/s"
 
 if (( $(echo "$bwtest_gpu1 < $bwtest_gpu2"| bc -l) )); then
    echo "`date`: $bwtest_gpu1 is lt $bwtest_gpu2"
