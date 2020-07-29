@@ -68,9 +68,12 @@ directory { local /mnt/scratch_shared}
 Note: You can download other topcrunch benchmarks from https://ftp.lstc.com/anonymous/outgoing/topcrunch/
 
 
-## Running
+## Running LS-Dyna
+### Setup directory to run the jobs
+```
 mkdir -p ~/ls-dyna
 cd ~/ls-dyna
+```
 
 The `run_lsdyna_impi.pbs` script is ready to use.  Below are all the parameters although the only one that is required if you have followed the previous steps is the LICENSE_INFO for LS-DYNA licensing:
 
