@@ -175,11 +175,13 @@ This dictionary describes the resources for the project.
 | **availability_set**       | Name of the availability set and it is created if not existing (**vm only**)|   no     |         |
 | **availability_zones**     | List of integer where the resource need to be created. Can be 1, 2 or 3     |   no     |         |
 | **data_disks**             | Array of data disk size in GB                                               |   no     |         |
-| **fault_domain_count**     | FD count to use for **vmss only**                                           |   no     |         |
+| **dns_name**               | The dns name to use. If this is not set, then the resource name with a uuid will be used (**vm only**) |   no     |  uuid   |
+| **fault_domain_count**     | FD count to use (**vmss only**)                                             |   no     |         |
 | **image**                  | For a public image use format OpenLogic:CentOS:7.7:latest - For a custom image use the imageID of a managed image |   yes    |         |
 | **instances**              | Number of VMs or VMSS instances to create                                   |   yes    |         |
 | **low_priority**           | Boolean flag to se Spot Instance (Eviction = Delete)                        |   no     |  False  |
 | **managed_identity**       | [Managed Identity property](#managed-identity-property) to use (**vm only**)|   no     |         |
+| **nsg_allow**              | Enabled pre-defined NSG rules `ssh`, `rdp`, `http` or `https` (**vm only**) |   no     | ssh/rdp |
 | **os_disk_size**           | OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size|   no     |         |
 | **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
 | **password**               | user admin password to use with Windows                                     |   no     |         |
@@ -189,7 +191,7 @@ This dictionary describes the resources for the project.
 | **resource_tags**          | Tags to be assigned to the resources                                        |   no     |         |
 | **subnet**                 | Subnet name to create the resource in                                       |   yes    |         |
 | **storage_cache**          | Datadisk storage cache mode. Can be `None`, `ReadWrite` or `ReadOnly`       |   no     |ReadWrite|
-| **storage_sku**            | Data Disk Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS` or `UltraSSD_LRS` (which needs availability_zones to be defined)  |   no     |Premium_LRS|
+| **storage_sku**            | Data Disk Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS` or `UltraSSD_LRS` (which needs `availability_zones` to be defined)  |   no     |Premium_LRS|
 | **vm_type**                | VM Size for example `Standard_D16s_v3`                                      |   yes    |         |
 | **tags**                   | Array of tags used to specify which scripts need to be applied on the resource|   no    |         |
 
