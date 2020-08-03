@@ -1,5 +1,9 @@
 # AzureHPC Change log
 
+- [PR 334](https://github.com/Azure/azurehpc/pull/334) : Add option to set pre-defined nsg rules and fix dns name
+- [PR 332](https://github.com/Azure/azurehpc/pull/332) : Added support for BeeGFS native client cache
+- [PR 329](https://github.com/Azure/azurehpc/pull/329) : Added support for BeeGFS Admon (BeeGFS I/O performance monitoring)
+- [PR 327](https://github.com/Azure/azurehpc/pull/327) : ND40rs v2 gpu numa mapping
 - [PR 326](https://github.com/Azure/azurehpc/pull/326) : using the dkms lustre client 
 - [PR 320](https://github.com/Azure/azurehpc/pull/320) : Support Custom Data (Cloud-Init) in vm/vmss
 - [PR 319](https://github.com/Azure/azurehpc/pull/319) : PBS automatic deletion of idle vmss instances
