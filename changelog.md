@@ -1,5 +1,6 @@
 # AzureHPC Change log
 
+- [PR 343](https://github.com/Azure/azurehpc/pull/343) : CycleCloud : use pre-defined NSG
 - [PR 334](https://github.com/Azure/azurehpc/pull/334) : Add option to set pre-defined nsg rules and fix dns name
 - [PR 332](https://github.com/Azure/azurehpc/pull/332) : Added support for BeeGFS native client cache
 - [PR 329](https://github.com/Azure/azurehpc/pull/329) : Added support for BeeGFS Admon (BeeGFS I/O performance monitoring)
