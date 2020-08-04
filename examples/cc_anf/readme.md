@@ -267,7 +267,7 @@ Run IOR from a compute node by submitting a job.
 
 ```
 [hpcadmin@ip-0A020804 ~]$ qsub -N ior -k oe -j oe -l select=1:ncpus=60:mpiprocs=60 -- /apps/ior/ior.sh /data
-0.ip-0A020804
+1.ip-0A020804
 [hpcadmin@ip-0A020804 ~]$ qstat
 Job id            Name             User              Time Use S Queue
 ----------------  ---------------- ----------------  -------- - -----
