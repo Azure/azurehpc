@@ -5,6 +5,7 @@
 - [PR 329](https://github.com/Azure/azurehpc/pull/329) : Added support for BeeGFS Admon (BeeGFS I/O performance monitoring)
 - [PR 327](https://github.com/Azure/azurehpc/pull/327) : ND40rs v2 gpu numa mapping
 - [PR 326](https://github.com/Azure/azurehpc/pull/326) : using the dkms lustre client 
+- [PR 325](https://github.com/Azure/azurehpc/pull/325) : CycleCloud and ANF example 
 - [PR 320](https://github.com/Azure/azurehpc/pull/320) : Support Custom Data (Cloud-Init) in vm/vmss
 - [PR 319](https://github.com/Azure/azurehpc/pull/319) : PBS automatic deletion of idle vmss instances
 - [PR 316](https://github.com/Azure/azurehpc/pull/316) : telegraf.conf modified to report interrupts and conntracks
