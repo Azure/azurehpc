@@ -29,7 +29,7 @@
       "vm_type": "Standard_D8s_v3",
       "accelerated_networking": true,
       "public_ip": true,
-      "nsg_allow": ["ssh", "https"],
+      "nsg_allow": ["https"],
       "image": "variables.image",
       "subnet": "admin",
       "tags": [
