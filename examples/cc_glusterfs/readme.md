@@ -27,7 +27,6 @@ Then copy the `init.sh`,`variables.json`, and scripts directory from `examples/c
 ```
 $ cp $azhpc_dir/examples/cc_glusterfs/init.sh .
 $ cp $azhpc_dir/examples/cc_glusterfs/variables.json .
-$ cp -r $azhpc_dir/examples/cc_glusterfs/scripts .
 ```
 
 Edit the `variables.json` to match your environment. Give a unique value to `uuid`. An existing keyvault can be referenced if needed.
@@ -111,7 +110,11 @@ $ cyclecloud show_nodes -c slurmcycle --format=json | jq -r '.[0].State'
 
 ## Step 5 - Connect to CycleServer UI
 
-Retrieve the CycleServer DNS name from the azure portal.
+Retrieve the CycleServer DNS name by running the `azhpc-get` command
+```
+$ azhpc-get fqdn.cycleserver
+fqdn.cycleserver = cycleserver4295bf.westeurope.cloudapp.azure.com
+```
 
 Retrieve the CycleCloud admin password from the logs:
 
@@ -265,7 +268,7 @@ Run IOR from a compute node by submitting a job.
 
 ```
 [hpcadmin@ip-0A020804 ~]$ qsub -N ior -k oe -j oe -l select=1:ncpus=60:mpiprocs=60 -- /apps/ior/ior.sh /glusterfs
-0.ip-0A020804
+1.ip-0A020804
 [hpcadmin@ip-0A020804 ~]$ qstat
 Job id            Name             User              Time Use S Queue
 ----------------  ---------------- ----------------  -------- - -----
