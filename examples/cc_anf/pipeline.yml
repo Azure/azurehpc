@@ -12,7 +12,7 @@ trigger:
       - blocks/cycle-prereqs-managed-identity.json
       - blocks/cycle-cli-local.json
       - blocks/cycle-cli-jumpbox.json
-      - blocks/jumpbox-anf.json.json
+      - blocks/jumpbox-anf.json
       - blocks/vnet.json
       - blocks/anf.json
     exclude:
