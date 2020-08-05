@@ -89,6 +89,8 @@
             "availability_zones": "1,2,3 - Cannot be empty, can be removed",
             "data_disks": [128, 1024],
             "fault_domain_count": 99,
+            "single_placement_group": "(true), false",
+            "overprovision": "(true), false",
             "image": "For a public image use format OpenLogic:CentOS:7.7:latest ; For a custom image use the imageID of a managed image",
             "instances": "Number of VMs to create in the VMSS",
             "low_priority": "true, (false)",

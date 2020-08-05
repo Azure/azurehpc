@@ -184,11 +184,13 @@ This dictionary describes the resources for the project.
 | **nsg_allow**              | Enabled pre-defined NSG rules `ssh`, `rdp`, `http` or `https` (**vm only**) |   no     | ssh/rdp |
 | **os_disk_size**           | OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size|   no     |         |
 | **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
-| **password**               | user admin password to use with Windows                                     |   no     |         |
+| **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
+| **overprovision**          | Allows a VMSS to provision additional VMs incase some don't start quickly   |   no     |  True   |
 | **custom_data**            | File (@file) or URL indicating the location of the cloud-init script        |   no     |  None   |
 | **proximity_placement_group**| Boolean flag for wether to include the resource in the proximity placement group with the name specified in the global section |   no     |  False  |
 | **public_ip**              | Boolean flag for wether to use a public IP (**vm only**)                    |   no     |  False  |
 | **resource_tags**          | Tags to be assigned to the resources                                        |   no     |         |
+| **single_placement_group** | Used to place all VMs in a single VMSS in the same IB security group        |   no     |  True   |
 | **subnet**                 | Subnet name to create the resource in                                       |   yes    |         |
 | **storage_cache**          | Datadisk storage cache mode. Can be `None`, `ReadWrite` or `ReadOnly`       |   no     |ReadWrite|
 | **storage_sku**            | Data Disk Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS` or `UltraSSD_LRS` (which needs `availability_zones` to be defined)  |   no     |Premium_LRS|

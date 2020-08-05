@@ -1,5 +1,6 @@
 # AzureHPC Change log
 
+- [PR 333](https://github.com/Azure/azurehpc/pull/333) : Added additional options for VMSS resource (single_placement_group and overprovioning) 
 - [PR 343](https://github.com/Azure/azurehpc/pull/343) : CycleCloud : use pre-defined NSG
 - [PR 341](https://github.com/Azure/azurehpc/pull/341) : glusterFS example with CycleCloud
 - [PR 334](https://github.com/Azure/azurehpc/pull/334) : Add option to set pre-defined nsg rules and fix dns name
