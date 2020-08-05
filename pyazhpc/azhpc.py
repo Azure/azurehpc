@@ -473,7 +473,6 @@ def do_slurm_suspend(args):
 
     log.info(f"slurm suspend for {args.nodes}")
     # first get the resource name
-    all_resources = config.get("resources", [])
     resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
     resource_list = []
     if bool(brackets):
@@ -531,7 +530,6 @@ def do_slurm_resume(args):
 
     log.info(f"slurm resume for {args.nodes}")
     # first get the resource name
-    all_resources = config.get("resources", [])
     resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
     resource_list = []
     if bool(brackets):
@@ -551,7 +549,7 @@ def do_slurm_resume(args):
     
     template_resource = config.get("resources", {}).get(resource_name)
     if not template_resource:
-        log.error(f"${res} resource not found in config")
+        log.error(f"{resource_name} resource not found in config")
         sys.exit(1)
     if template_resource.get("type") != "slurm_partition":
         log.error(f"invalid resource type for scaling")
@@ -583,14 +581,15 @@ def do_slurm_resume(args):
     log.debug(f"deployment name: {deployname}")
 
     _wait_for_deployment(config["resource_group"], deployname)
+
+    # remove local scripts
+    config["install"] = [ step for step in config["install"] if step.get("type", "jumpbox_script") == "jumpbox_script" ]
     
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    jumpbox = c.read_value("install_from")
-    resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
     log.debug(f"running script from : {fqdn}")
     azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)

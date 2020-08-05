@@ -27,6 +27,7 @@
       "vm_type": "Standard_D8s_v3",
       "accelerated_networking": true,
       "public_ip": true,
+      "nsg_allow": ["ssh", "https"],
       "image": "variables.image",
       "subnet": "admin",
       "tags": [
@@ -54,14 +55,6 @@
         "script": "cndefault.sh",
         "tag": "jumpbox",
         "sudo": true
-    },
-    {
-      "type": "local_script",
-      "script": "cc_nsg.sh",
-      "args": [
-          "variables.resource_group",
-          "cycleserver"
-      ]
     },
     {
       "script": "cyclecli_install.sh",
