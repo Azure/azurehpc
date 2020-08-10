@@ -1,0 +1,7 @@
+---
+
+- hosts: jumpbox
+  become: true
+  roles:
+  - common
+  - nfs-server

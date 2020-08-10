@@ -1,0 +1,15 @@
+---
+# Contains the common settings - imported from cndefault.sh
+- name: install common packages
+  yum: name={{ item }} state=present
+  with_items:
+   - epel-release
+   - git
+   - jq
+   - htop
+
+- name: change access to resource so that temp jobs can be written there
+  file:
+    path: /mnt/resource
+    mode: '777'
+

@@ -44,7 +44,7 @@
       "sudo": true
     },
     {
-      "script": "cndefault.sh",
+      "script": "install-ansible.sh",
       "tag": "jumpbox",
       "sudo": true
     }
