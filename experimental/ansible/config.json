@@ -57,8 +57,7 @@
       "tag": "jumpbox",
       "args": [
         "hostlists/linux"
-      ],
-      "sudo": true
+      ]
     }
   ]
 }
