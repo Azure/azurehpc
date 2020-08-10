@@ -1,5 +1,16 @@
 #!/bin/bash
-hosts=$1
+inventory=$1
+private_key=$2
+remote_user=$3
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ansible-playbook -i $hosts $DIR/cluster.yml
+
+# Disable SSH host checking to avoid prompting
+export ANSIBLE_HOST_KEY_CHECKING=False
+
+if [ -n "$private_key" ]; then
+    key_options="--private-key $private_key -u $remote_user"
+else
+    key_options=""
+fi
+ansible-playbook $key_options -i $inventory $DIR/cluster.yml
