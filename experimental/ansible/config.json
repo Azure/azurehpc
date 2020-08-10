@@ -49,6 +49,10 @@
       "sudo": true
     },
     {
+      "type": "local_script",
+      "script": "copy-scripts.sh"
+    },
+    {
       "script": "run-playbook.sh",
       "tag": "jumpbox",
       "args": [
