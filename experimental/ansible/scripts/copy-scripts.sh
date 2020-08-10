@@ -1,3 +1,3 @@
 #!/bin/bash
 
-azhpc-scp -- -r scripts/. hpcadmin@jumpbox:./azhpc_install_config/scripts/
+azhpc-scp -c ../config.json -- -r scripts/. hpcadmin@jumpbox:./azhpc_install_config/scripts/
