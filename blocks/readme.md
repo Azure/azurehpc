@@ -6,6 +6,7 @@ This directory contains reusable configuration file building blocks which can be
 
 | Name                                          | Description                                                                                          | Dependency on         |
 |-----------------------------------------------|------------------------------------------------------------------------------------------------------|-----------------------|
+| **anf.json**                                  | Create a Premium 4TB volume with 2x2TB pools `/data` and `/apps`                                     | `vnet`                | 
 | **beegfs-cluster.json**                       | Create BeeGFS cluster                                                                                | `jumpbox`, `vnet`     |
 | **cycle-cli-jumpbox.json**                    | Install the CycleCloud CLI on the jumpbox                                                            | `cycle-prereqs-managed-identity`, `vnet` |
 | **cycle-cli-local.json**                      | Install the CycleCloud CLI locally                                                                   | `cycle-prereqs-managed-identity`, `vnet` |
@@ -13,6 +14,7 @@ This directory contains reusable configuration file building blocks which can be
 | **cycle-prereqs-managed-identity.json**       | Create all pre-requisites for deploying CycleCloud with managed identity                             |                       |
 | **jumpbox.json**                              | Create a jumpbox in the admin subnet                                                                 | Existence of a VNET   |
 | **jumpbox-nfs.json**                          | Create a jumpbox in the admin subnet acting as a 2TB NFS server                                      | Existence of a VNET   |
+| **jumpbox-anf.json**                          | Create a jumpbox in the admin subnet with ANF mounted                                                | `anf`                 |
 | **vnet.json**                                 | Create a vnet named `hpcvnet` 10.2.0.0/20 with subnets admin, compute, netapp, viz and storage       |                       |
 
 

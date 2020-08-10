@@ -1,4 +1,5 @@
 # Building the infrastructure
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/cc_anf?branchName=master)
 
 Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER and ANF by using building blocks.
 
@@ -110,7 +111,12 @@ $ cyclecloud show_nodes -c slurmcycle --format=json | jq -r '.[0].State'
 
 ## Step 5 - Connect to CycleServer UI
 
-Retrieve the CycleServer DNS name from the azure portal.
+Retrieve the CycleServer DNS name with the `azhpc-get` command
+
+```
+$ azhpc-get fqdn.cycleserver
+fqdn.cycleserver = cycleserver4c0e45.westeurope.cloudapp.azure.com
+```
 
 Retrieve the CycleCloud admin password from the logs:
 
@@ -261,7 +267,7 @@ Run IOR from a compute node by submitting a job.
 
 ```
 [hpcadmin@ip-0A020804 ~]$ qsub -N ior -k oe -j oe -l select=1:ncpus=60:mpiprocs=60 -- /apps/ior/ior.sh /data
-0.ip-0A020804
+1.ip-0A020804
 [hpcadmin@ip-0A020804 ~]$ qstat
 Job id            Name             User              Time Use S Queue
 ----------------  ---------------- ----------------  -------- - -----
