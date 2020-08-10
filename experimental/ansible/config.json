@@ -47,6 +47,14 @@
       "script": "install-ansible.sh",
       "tag": "jumpbox",
       "sudo": true
+    },
+    {
+      "script": "run-playbook.sh",
+      "tag": "jumpbox",
+      "args": [
+        "hostlists/linux"
+      ],
+      "sudo": true
     }
   ]
 }
