@@ -128,6 +128,8 @@ class ConfigFile:
             res = self.read_value(v)
         elif prefix == "secret":
             res = azutil.get_keyvault_secret(parts[1], parts[2])
+        elif prefix == "image":
+            res = azutil.get_image_id(parts[1], parts[2])
         elif extended and prefix == "sasurl":
             log.debug(parts)
             url = azutil.get_storage_url(parts[1])
@@ -158,8 +160,6 @@ class ConfigFile:
             res = azutil.get_log_analytics_key(parts[1], parts[2])
         elif extended and prefix == "acrkey":
             res = azutil.get_acr_key(parts[1])
-        elif extended and prefix == "image":
-            res = azutil.get_image_id(parts[1], parts[2])
         else:
             # test to see if we are including a files contents (e.g. for customData)
             fname = self.file_location + "/" + v[1:]
