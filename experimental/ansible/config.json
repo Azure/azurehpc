@@ -33,29 +33,39 @@
       "image": "variables.image",
       "subnet": "admin",
       "tags": [
-        "jumpbox"
+        "all"
+      ]
+    },
+    "node": {
+      "type": "vm",
+      "vm_type": "variables.jb_vm_type",
+      "accelerated_networking": true,
+      "image": "variables.image",
+      "subnet": "compute",
+      "tags": [
+        "all"
       ]
     }
   },
   "install": [
     {
-      "script": "disable-selinux.sh",
-      "tag": "jumpbox",
-      "sudo": true
-    },
-    {
-      "script": "install-ansible.sh",
-      "tag": "jumpbox",
-      "sudo": true
+      "type": "local_script",
+      "script": "configure-ansible.sh",
+      "args": [
+        "../{{variables.admin_user}}_id_rsa", 
+        "variables.admin_user",
+        "fqdn.jumpbox"
+      ]
     },
     {
       "type": "local_script",
       "script": "run-playbook.sh",
       "args": [
-        "ansible_hosts",
-        "../{{variables.admin_user}}_rsa", 
+        "hostlists/linux",
+        "../{{variables.admin_user}}_id_rsa", 
         "variables.admin_user"
-      ]
+      ],
+      "deps": ["cluster.yml"]
     }
   ]
 }

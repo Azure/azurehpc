@@ -13,4 +13,4 @@ if [ -n "$private_key" ]; then
 else
     key_options=""
 fi
-ansible-playbook $key_options -i $inventory $DIR/cluster.yml
+ansible-playbook -v $key_options -i $inventory $DIR/cluster.yml

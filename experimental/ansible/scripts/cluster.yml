@@ -1,7 +1,13 @@
 ---
 
-- hosts: jumpbox
-  become: true
-  roles:
-  - common
-  - nfs-server
+  - hosts: jumpbox
+    become: true
+    roles:
+    - common
+    - nfs-server
+  
+  - hosts: node
+    become: true
+    roles:
+    - common
+  
