@@ -40,3 +40,15 @@ You should see the following output (similar to top)
 ![Alt text1](/examples/lustre_ltop/images/lustre_ltop.JPG?raw=true "ltop")
 
 >Note: if any of the OST's show up in an INACTIVE state in ltop, try remounting the OST.
+
+See the ltop -r and -p to record and replay your I/O session.
+
+```
+ltop -h
+Usage: ltop [OPTIONS]
+   -f,--filesystem NAME      monitor file system NAME [default: first found]
+   -t,--sample-period SECS   change display refresh [default: 1]
+   -r,--record FILE          record session to FILE
+   -p,--play FILE            play session from FILE
+   -s,--stale-secs SECS      ignore data older than SECS [default: 12]
+```
