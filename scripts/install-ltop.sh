@@ -34,9 +34,11 @@ ln -s /usr/local/bin/ltop /usr/bin/ltop
 else
 sed -i 's#^\# cerebrod_listen on#cerebrod_listen off#' /etc/cerebro.conf
 fi
-umount /mnt/oss
 
+umount /mnt/oss
+sleep 2
 mount -a
+
 if [ `hostname` == $MASTER ]; then
 lctl set_param mdt.*-MDT0000.identity_upcall=NONE
 fi
