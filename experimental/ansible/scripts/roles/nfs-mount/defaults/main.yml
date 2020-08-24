@@ -1,3 +1,13 @@
 # List of NFS shares
-nfs_share_mounts: ["path=/apps location=jumpbox:/share/apps"]
+nfs_share_mounts: 
+    - path: /apps
+      location: "{{ nfs_server }}:/share/apps"
+    - path: /data
+      location: "{{ nfs_server }}:/share/data"
+    - path: /scratch
+      location: "{{ nfs_server }}:/mnt/resource/scratch"
+    - path: /share/home
+      location: "{{ nfs_server }}:/share/home"
+
+nfs_server: jumpbox
 nfs_mount_opts: defaults
