@@ -1,0 +1,4 @@
+---
+- name: Ensure NFS utilities are installed.
+  package: name=nfs-utils state=present
+
