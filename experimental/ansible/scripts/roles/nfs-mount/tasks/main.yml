@@ -1,0 +1,19 @@
+---
+- name: Ensure NFS utilities are installed.
+  package: name=nfs-utils state=present
+
+- name: Create mountable dir
+  file: 
+    path: "{{ item.path }}"
+    state: directory
+  with_items: "{{ nfs_share_mounts }}"
+
+- name: Mount Share
+  mount: 
+    fstype: nfs
+    name: "{{ item.path }}"
+    opts: "{{ item.opts | default(nfs_mount_opts) }}"
+    src: "{{ item.location }}"
+    state: mounted
+  with_items: "{{ nfs_share_mounts }}"
+

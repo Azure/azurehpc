@@ -39,6 +39,6 @@
     mode: 0644
   notify: reload nfs
 
-- name: Ensure nfs is running.
+- name: Ensure nfs-server is running.
   service: "name=nfs-server state=started enabled=yes"
   when: nfs_exports|length

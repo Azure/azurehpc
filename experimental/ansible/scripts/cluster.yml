@@ -10,5 +10,5 @@
     become: true
     roles:
     - common
-    - nfs-client
+    - nfs-mount
   

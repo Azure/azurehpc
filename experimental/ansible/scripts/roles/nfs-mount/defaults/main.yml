@@ -1,0 +1,3 @@
+# List of NFS shares
+nfs_share_mounts: ["path=/apps location=jumpbox:/share/apps"]
+nfs_mount_opts: defaults
