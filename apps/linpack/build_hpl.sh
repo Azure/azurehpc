@@ -1,7 +1,6 @@
 #!/bin/bash
 # Prerequisites : OpenMPI 4.0.x + GCC 9.x
 SHARED_APP=${1:-/apps}
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 source /etc/profile
 module use /usr/share/Modules/modulefiles
