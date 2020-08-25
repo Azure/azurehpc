@@ -28,7 +28,7 @@ Example, building and installing osu-micro-benchmarks using different MPI librar
 
 Using mvapich2
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^mvapaich2@2.3.3
+spack install osu-micro-benchmarks%gcc@9.2.0^mvapich2@2.3.3
 ```
 Using openmpi
 ```
