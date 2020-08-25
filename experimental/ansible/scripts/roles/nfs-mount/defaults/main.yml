@@ -9,5 +9,5 @@ nfs_share_mounts:
     - path: /share/home
       location: "{{ nfs_server }}:/share/home"
 
-nfs_server: jumpbox
+nfs_server: nfsserver
 nfs_mount_opts: defaults

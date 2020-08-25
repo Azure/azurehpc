@@ -1,10 +1,12 @@
 {
     "location": "variables.location",
     "resource_group": "variables.resource_group",
-    "install_from": "headnode",
-    "admin_user": "hpcadmin",
+    "install_from": "variables.install_from",
+    "admin_user": "variables.admin_user",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "admin_user": "hpcadmin",
+        "install_from": "headnode",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vm_type": "<NOT-SET>",
@@ -62,7 +64,7 @@
             "args": [
                 "../{{variables.admin_user}}_id_rsa",
                 "variables.admin_user",
-                "fqdn.headnode"
+                "fqdn.{{variables.install_from}}"
             ]
         },
         {
@@ -74,14 +76,19 @@
         },
         {
             "type": "local_script",
+            "script": "add-ansible-variable.sh",
+            "args": [
+                "nfs_server",
+                "headnode"
+            ]
+        },
+        {
+            "type": "local_script",
             "script": "run-playbook.sh",
             "args": [
                 "hostlists/linux",
                 "../{{variables.admin_user}}_id_rsa",
                 "variables.admin_user"
-            ],
-            "deps": [
-                "playbook.yml"
             ]
         }
     ]
