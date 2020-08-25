@@ -46,6 +46,5 @@ echo "" >> $PLAYBOOK
 done
 
 cat <<EOF >> $PLAYBOOK
-
 ...
 EOF

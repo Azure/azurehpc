@@ -17,3 +17,8 @@
     state: mounted
   with_items: "{{ nfs_share_mounts }}"
 
+- name: Set use_nfs_home_dirs flag on and keep it persistent across reboots
+  seboolean:
+    name: use_nfs_home_dirs
+    state: yes
+    persistent: yes
