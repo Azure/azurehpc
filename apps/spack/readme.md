@@ -28,20 +28,20 @@ Example, building and installing osu-micro-benchmarks using different MPI librar
 
 Using mvapich2
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^mvapaich2@2.3.2
+spack install osu-micro-benchmarks%gcc@9.2.0^mvapaich2@2.3.3
 ```
 Using openmpi
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^openmpi@4.0.2
+spack install osu-micro-benchmarks%gcc@9.2.0^openmpi@4.0.3
 ```
 Using hpcx
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@2.5.0
+spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@2.6.0
 ```
 Using intel mpi 
 ```
-source /opt/intel/impi/2019.5.281/intel64/bin/mpivars.sh
-spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2019.5.281
+source /opt/intel/impi/2019.7.217/intel64/bin/mpivars.sh
+spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2020.1.217
 ```
 
 Some example PBS scripts have been provided to show how run the osu-micro-benchmarks.
@@ -58,7 +58,7 @@ First, create a buildcache locally (e.g in home directory) and signed with gpg.
 cd ~hpcuser
 mkdir -p buildcache/${sku_type}
 cd buildcache/${sku_type}
-spack buildcache create -k ${sku_type}_gpg osu-micro-benchmarks%gcc@9.2.0^mvapich2@2.3.2
+spack buildcache create -k ${sku_type}_gpg -m ${sku_type}_buildcache osu-micro-benchmarks%gcc@9.2.0^mvapich2@2.3.2
 ```
 
 To see all available gpg keys
