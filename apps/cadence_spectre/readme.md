@@ -76,4 +76,43 @@ drwxr-xr-x.  2 hpcadmin hpcadmin   74 May  5 02:20 postlayout_flat
 drwxr-xr-x.  4 hpcadmin hpcadmin  120 May  5 02:20 prelayout
 drwxr-xr-x.  2 hpcadmin hpcadmin   23 May  5 02:20 standalone
 ```
+## Configure License Server
+Make necessary modification of the license file you received from Cadence or supplier. EX: modify the SERVER name:
+```
+...
+########################### LICENSE KEYS START HERE ######################
+SERVER Cadence_SERVER 000d3a5f9947 5280
+DAEMON cdslmd ./cdslmd
+# DO NOT REMOVE THE USE_SERVER LINE
+USE_SERVER
+...
+```
+Copy the license file to the VM (EX: headnode), and then execute:
+```
+[your installation directory]/bin/lmgrd -c License_46499_000d3a5f9947_7_2_2020.txt -l license.log
+```
+
+## Run Spectre X
+You can now run a Spectre X job. Below an example to run a post layout dspf simulation with 32 threads:
+```
+[hpcadmin@headnode postlayout_dspf]$ cat run.spectrex
+#!/bin/bash
+
+# TODO: Change to your installation directory
+export MMSIMHOME="/data/spectrex/"
+
+export PATH="$PATH:$MMSIMHOME/tools/bin:$MMSIMHOME/tools/spectre/bin:$MMSIMHOME/tools/ultrasim/bin:$MMSIMHOME/tools/relxpert/bin"
+
+export LD_LIBRARY_PATH="/usr/lib/X11:/usr/X11R6/lib:/usr/lib:/usr/dt/lib/usr/openwin/lib:/usr/ucblib"
+
+export LM_LICENSE_FILE="5280@headnode"
+export CDS_LIC_FILE="$LM_LICENSE_FILE"
+
+export CDS_AUTO_64BIT="ALL"
+
+cd /data/spectrex/spectre_example/postlayout_dspf
+sudo yum -y install ksh
+spectre -64 +preset=cx +mt=32 input.scs -o SPECTREX_cx_32t +lqt 0 -f sst2
+
+```
 
