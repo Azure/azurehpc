@@ -116,4 +116,5 @@ spectre -64 +preset=cx +mt=32 input.scs -o SPECTREX_cx_32t +lqt 0 -f sst2
 
 ```
 Sample result:
+
 ![alt text](https://edarg3diag.blob.core.windows.net/edatools/Cadence/spectre%20screenshot.png "Spectre X result")
