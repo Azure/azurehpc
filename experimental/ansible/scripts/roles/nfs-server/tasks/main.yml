@@ -37,7 +37,9 @@
     owner: root
     group: root
     mode: 0644
-  notify: reload nfs
+
+- name: reload nfs
+  command: 'exportfs -rav'
 
 - name: Ensure nfs-server is running.
   service: "name=nfs-server state=started enabled=yes"
