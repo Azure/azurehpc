@@ -36,8 +36,8 @@
   replace : 
     path: /var/spool/pbs/sched_priv/sched_config
     backup: yes
-    regexp: '^resources: \"ncpus,'
-    replace: 'resources: \"ncpus, pool_name,'
+    regexp: '^resources: "ncpus,'
+    replace: 'resources: "ncpus, pool_name,'
 
 - name: Restart pbs-server 
   service: 
