@@ -1,0 +1,79 @@
+## Cadence Spectre X
+
+Spectre X is a SPICE-class electronic circuit simulator. It provides the basic SPICE analyses and component models. It also supports the Verilog-A modeling language. Spectre comes in enhanced versions that also support RF simulation (SpectreRF) and mixed-signal simulation (AMS Designer).
+
+Spectre X was developed at Cadence Design Systems.
+
+## Prerequisites
+
+Cluster is built with the desired configuration for networking, storage, compute etc. The [simple_hpc_pbs](https://github.com/Azure/azurehpc/tree/eda/examples/simple_hpc_pbs) template in the examples directory is a suitable choice.
+
+After cluster is built, first copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
+
+```
+azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
+```
+
+Then connect to the headnode:
+```
+$ azhpc-connect -u hpcuser headnode
+```
+
+## Installation
+
+cd to the script folder:
+```
+cd /azurehpc/apps/examples/cadence_spectre
+```
+
+Take a look at the 'build_spectre.sh' script, modify the installation directory if needed:
+```
+vim build_spectre.sh
+```
+
+Run the 'build_spectre.sh' script:
+```
+source build_spectre.sh
+```
+The script will do TWO thinkgs, first to install install necessary Spectre X packages, for example:
+```
+    10020:Legato (TM) Reliability Solution
+    32501:Spectre(R) Model Interface Option
+    33580:Spectre(R) RelXpert
+    3500:Spectre Characterization Simulator Option
+    38500:Spectre(R) Classic Simulator
+    38510:Spectre Advanced Simulation Interface Option to Spectre Simulator - L
+    38520:Spectre(R)-RF Option for 38500 and 91050
+    38530:Interactive mode for Spectre(R) using Python/TCL Limited Access
+    90003:Spectre Multi-mode Simulation with AP Simulator
+    90004:Spectre(R) Multi-mode Simulation
+    90005:Spectre(R) Multi-Mode Simulation with AMS
+    90006:MMSIM with Spectre X simulator and Spectre X CPU Acceleration
+    91010:Spectre(R) APS Verification
+    91050:Spectre(R) Accelerated Parallel Simulator
+    91051:Spectre Fault Analysis option to Virtuoso Accelerated Parallel Simulator (91050)
+    91055:Spectre(R) X Simulator
+    91400:Spectre(R) Power Option
+    91500:Spectre(R) CPU Accelerator Option
+    91600:Spectre Extensive Partitioned Simulator
+    91700:Spectre Electromigration and IR Drop Simulator - 3 pack
+```
+Secondly to download ready-to-use examples under *spectre_example* directory.
+```
+[hpcadmin@headnode spectre_example]$ pwd
+/data/spectrex/spectre_example
+[hpcadmin@headnode spectre_example]$ ls -l
+total 24
+-rwxr-xr-x.  1 hpcadmin hpcadmin  581 May  5 02:21 CLEAN
+drwxr-x---. 54 hpcadmin hpcadmin 4096 May  5 02:21 amsPLL
+-rwxr-x---.  1 root     root      386 May  5 02:21 cds.lib
+-rw-r--r--.  1 hpcadmin hpcadmin  711 May  5 02:21 cshrc_spectre
+drwxr-xr-x. 49 hpcadmin hpcadmin 4096 May  5 02:20 gpdk090
+drwxr-x---.  3 hpcadmin hpcadmin   21 May  5 02:21 models
+drwxr-xr-x.  3 hpcadmin hpcadmin   21 May  5 02:20 models_gpdk045
+drwxr-xr-x.  6 hpcadmin hpcadmin 4096 Aug 20 23:50 postlayout_dspf
+drwxr-xr-x.  2 hpcadmin hpcadmin   74 May  5 02:20 postlayout_flat
+drwxr-xr-x.  4 hpcadmin hpcadmin  120 May  5 02:20 prelayout
+drwxr-xr-x.  2 hpcadmin hpcadmin   23 May  5 02:20 standalone
+```
+
