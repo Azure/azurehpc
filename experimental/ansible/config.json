@@ -42,7 +42,8 @@
             "tags": [
                 "common",
                 "nfs-server",
-                "localuser"
+                "localuser",
+                "pbsserver"
             ]
         },
         "compute": {
@@ -80,7 +81,7 @@
             "type": "local_script",
             "script": "add-ansible-variable.sh",
             "args": [
-                "nfs_server",
+                "azhpc_nfs_server",
                 "headnode"
             ]
         },
