@@ -1,10 +1,9 @@
 #!/bin/bash
 
 WORKING_DIR="/mnt/resource"
-INSTALL_DIR="/share"
-CADENCE_TOOLS_BLOB="https://edatools.blob.core.windows.net/cadence/"
-SPECTRE_FILE="SPECTRE191_ISR5.tar.gz"
-EXAMPLE_FILE="spectre_example.tar.gz"
+INSTALL_DIR="/data"
+CADENCE_TOOLS_BLOB="https://edarg3diag.blob.core.windows.net/edatools/Cadence"
+ISCAPE_FILE="IScape04.23-s012lnx86.t.Z"
 
 cd ${WORKING_DIR}
 
@@ -21,53 +20,47 @@ install_required_packages()
         sudo yum -y install mesa-libGLU.i686
         sudo yum -y install motif.i686
         sudo yum -y install redhat-lsb.i686
-        sudo yum -y install redhat-lsb.x86_64
         sudo yum -y install glibc-devel.i686
         sudo yum -y install libXScrnSaver.i686
         sudo yum -y install libXScrnSaver.x86_64
+        sudo yum -y install java-1.8.0-openjdk
 }
 
-get_spectre()
+install_iscape()
 {
-        echo "----------------------getting Spectre_ISR5."
-        if [ ! -f ${SPECTRE_FILE} ]
-        then
-                sudo wget -P ${WORKING_DIR} ${CADENCE_TOOLS_BLOB}${SPECTRE_FILE}
+        echo "----------------------installing IScape."
+        sudo wget ${CADENCE_TOOLS_BLOB}/${ISCAPE_FILE}
+        sudo zcat ${ISCAPE_FILE} | sudo tar -xvf -
+}
 
-        fi
-        sudo wget -P sudo wget -P ${WORKING_DIR} ${CADENCE_TOOLS_BLOB}${EXAMPLE_FILE}
-        sudo mkdir ${INSTALL_DIR}/Spectre_ISR5
-        sudo tar xfz ${SPECTRE_FILE} -C ${INSTALL_DIR}/Spectre_ISR5
-        sudo tar xfz ${EXAMPLE_FILE} -C ${INSTALL_DIR}/Spectre_ISR5
+download_spectrex()
+{
+        echo "----------------------downloading Spectre X."
+        sudo wget -P ${WORKING_DIR}/spectrexarchive/ ${CADENCE_TOOLS_BLOB}/SpectreXArchive.tgz
+        sudo wget -P ${WORKING_DIR}/spectrexarchive/ ${CADENCE_TOOLS_BLOB}/spectre_example.tgz
+        cd ${WORKING_DIR}
+        sudo tar -xzvf ${WORKING_DIR}/spectrexarchive/SpectreXArchive.tgz
+        sudo tar -xzvf ${WORKING_DIR}/spectrexarchive/spectre_example.tgz
+}
+
+install_spectrex()
+{
+        echo "---------------------installing Spectre X."
+        cd ${WORKING_DIR}/iscape.04.23-s012/bin
+        sudo ./iscape.sh -batch majorAction=installfromarchive ArchiveDirectory=${WORKING_DIR}/SpectreXArchive/  InstallDirectory=${INSTALL_DIR}/spectrex/
+
+        # generate configuration scripts
+        sudo ./iscape.sh -batch majorAction=configure InstallDirectory=${INSTALL_DIR}/spectrex/
+
+        # complete configuration
+        sudo /bin/sh ${INSTALL_DIR}/spectrex/installData/SPECTRE191_lnx86/batch_configure.sh
+        # test
+        sudo ./iscape.sh -batch majorAction=test InstallDirectory=${INSTALL_DIR}/spectrex/
 }
 
 install_required_packages
-get_spectre
-
-/bin/csh
-
-
-setenv MMSIMHOME /share/Spectre_ISR5/SPECTRE191_ISR5
-
-set path = (.  ./bin ~/bin /usr/sbin /sbin /usr/dt/bin /usr/openwin/bin \
-            /usr/bin /usr/ccs/bin /usr/local/bin /usr/local /usr/local/netscape /usr/ucb \
-            /bin /usr/5bin /usr/etc /usr/proc/bin /usr/X11R6/bin  /usr/lib /usr/lib64 \
-            $MMSIMHOME/tools/bin \
-            $MMSIMHOME/tools/spectre/bin \
-            $MMSIMHOME/tools/ultrasim/bin \
-            $MMSIMHOME/tools/relxpert/bin )
-
-setenv LD_LIBRARY_PATH /usr/lib/X11:/usr/X11R6/lib:/usr/lib:/usr/dt/lib/usr/openwin/lib:/usr/ucblib
-
-setenv LM_LICENSE_FILE 5280@localhost
-setenv CDS_LIC_FILE $LM_LICENSE_FILE
-
-setenv CDS_AUTO_64BIT ALL
-
-
-setenv SPECTRE_REPORT_NUMBERS 1
-setenv SPECTRE_TRANLOAD_DETAILS 1
-setenv PRINT_LOAD_REPORT 1
-
+install_iscape
+download_spectrex
+install_spectrex
 
 echo "-----------------------DONE."
