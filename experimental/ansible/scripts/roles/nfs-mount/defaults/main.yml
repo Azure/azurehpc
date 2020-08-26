@@ -1,13 +1,13 @@
 # List of NFS shares
-nfs_share_mounts: 
+azhpc_nfs_share_mounts: 
     - path: /apps
-      location: "{{ nfs_server }}:/share/apps"
+      location: "{{ azhpc_nfs_server }}:/share/apps"
     - path: /data
-      location: "{{ nfs_server }}:/share/data"
+      location: "{{ azhpc_nfs_server }}:/share/data"
     - path: /scratch
-      location: "{{ nfs_server }}:/mnt/resource/scratch"
+      location: "{{ azhpc_nfs_server }}:/mnt/resource/scratch"
     - path: /share/home
-      location: "{{ nfs_server }}:/share/home"
+      location: "{{ azhpc_nfs_server }}:/share/home"
 
-nfs_server: nfsserver
-nfs_mount_opts: defaults
+azhpc_nfs_server: nfsserver
+azhpc_nfs_mount_opts: defaults

@@ -28,7 +28,7 @@
 
 - name: Ensure directories to export exist
   file: 'path="{{ item.strip().split()[0] }}" state=directory mode=777'
-  loop: "{{ nfs_exports }}"
+  loop: "{{ azhpc_nfs_exports }}"
 
 - name: Copy exports file.
   template:
@@ -41,4 +41,4 @@
 
 - name: Ensure nfs-server is running.
   service: "name=nfs-server state=started enabled=yes"
-  when: nfs_exports|length
+  when: azhpc_nfs_exports|length

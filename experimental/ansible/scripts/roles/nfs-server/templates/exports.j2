@@ -8,6 +8,6 @@
 # /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
 # /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
 #
-{% for export in nfs_exports %}
+{% for export in azhpc_nfs_exports %}
 {{ export }}
 {% endfor %}
