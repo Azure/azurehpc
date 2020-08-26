@@ -16,7 +16,7 @@ azhpc-scp -u hpcuser -r $azhpc_dir/apps hpcuser@headnode:.
 
 Then connect to the headnode:
 ```
-$ azhpc-connect -u hpcuser headnode
+azhpc-connect -u hpcuser headnode
 ```
 
 ## Installation
@@ -93,7 +93,7 @@ Copy the license file to the VM (EX: headnode), and then execute:
 ```
 
 ## Run Spectre X
-You can now run a Spectre X job. Below an example to run a post layout dspf simulation with 32 threads:
+You can now run a Spectre X job on the cluster. Below is an example to run a post layout dspf simulation with 32 threads (*-mt=32*):
 ```
 [hpcadmin@headnode postlayout_dspf]$ cat run.spectrex
 #!/bin/bash
