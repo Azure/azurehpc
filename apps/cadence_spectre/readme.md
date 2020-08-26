@@ -1,6 +1,7 @@
 ## Cadence Spectre X
 
 The Cadence® Spectre® X Simulator  performs advanced SPICE-accurate simulation, enables you to solve large-scale verification simulation challenges for complex analog, RF, and mixed-signal blocks and subsystems. In addition, the Spectre X Simulator allows you to massively distribute simulation workloads, enabling greater speed and capacity.
+
 [Cadence Spectre Home Page](https://www.cadence.com/ko_KR/home/tools/custom-ic-analog-rf-design/circuit-simulation/spectre-x-simulator.html)
 
 ## Prerequisites
