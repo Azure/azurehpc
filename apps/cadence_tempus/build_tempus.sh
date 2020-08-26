@@ -1,63 +1,68 @@
 #!/bin/bash
 
+# TODO: install directory
+INSTALL_DIR="/data/tempus/"
+
+
 WORKING_DIR="/mnt/resource"
-INSTALL_DIR="/datadrive"
-CADENCE_TOOLS_BLOB="https://edatools.blob.core.windows.net/cadence/"
-SSV_FILE="SSV-19.13-s079_1-lnx86.tar.gz"
-TEMPUS_FILE="Tempus171_RAK.tar.gz"
+CADENCE_TOOLS_BLOB="https://edarg3diag.blob.core.windows.net/edatools/Cadence"
+ISCAPE_FILE="IScape04.23-s012lnx86.t.Z"
 
 cd ${WORKING_DIR}
 
 install_required_packages()
 {
-	echo "----------------------installing required packages."
-	sudo yum -y install ksh
-	sudo yum -y install mesa-libGLU
-	sudo yum -y install motif
-	sudo yum -y redhat-lsb
-	sudo yum -y install glibc.i686
-	sudo yum -y install elfutils-libelf.i686
-	sudo yum -y install mesa-libGL.i686
-	sudo yum -y install mesa-libGLU.i686
-	sudo yum -y install motif.i686
-	sudo yum -y install redhat-lsb.i686
-	sudo yum -y install redhat-lsb.x86_64
-	sudo yum -y install glibc-devel.i686
-	sudo yum -y install libXScrnSaver.i686
-	sudo yum -y install libXScrnSaver.x86_64
+        echo "----------------------installing required packages."
+        sudo yum -y install ksh
+        sudo yum -y install mesa-libGLU
+        sudo yum -y install motif
+        sudo yum -y redhat-lsb
+        sudo yum -y install glibc.i686
+        sudo yum -y install elfutils-libelf.i686
+        sudo yum -y install mesa-libGL.i686
+        sudo yum -y install mesa-libGLU.i686
+        sudo yum -y install motif.i686
+        sudo yum -y install redhat-lsb.i686
+        sudo yum -y install glibc-devel.i686
+        sudo yum -y install libXScrnSaver.i686
+        sudo yum -y install libXScrnSaver.x86_64
+        sudo yum -y install java-1.8.0-openjdk
 }
 
-get_ssv()
+install_iscape()
 {
-	echo "----------------------getting SSV_191."
-	if [ ! -f ${SSV_FILE} ]
-	then
-		sudo wget ${CADENCE_TOOLS_BLOB}${SSV_FILE}
-	fi
-	sudo tar xfz ${SSV_FILE}
-	sudo mv lnx86/ ${INSTALL_DIR}/SSV191
+        echo "----------------------installing IScape."
+        sudo wget ${CADENCE_TOOLS_BLOB}/${ISCAPE_FILE}
+        sudo zcat ${ISCAPE_FILE} | sudo tar -xvf -
 }
 
-get_tempus()
+download_archive()
 {
-	echo "-----------------------getting Tempus_171."
-	if [ ! -f ${TEMPUS_FILE} ] 
-	then
-		sudo wget ${CADENCE_TOOLS_BLOB}${TEMPUS_FILE}
-	fi
-	sudo mkdir ${INSTALL_DIR}/work
-	sudo tar xfz ${TEMPUS_FILE} -C ${INSTALL_DIR}/work
+        echo "----------------------downloading archive."
+        cd ${WORKING_DIR}
+        sudo wget ${CADENCE_TOOLS_BLOB}/SSV201Archive.tgz
+        sudo tar -xzvf SSV201Archive.tgz
+}
+
+install_from_archive()
+{
+        echo "---------------------installing from archive."
+        cd ${WORKING_DIR}/iscape.04.23-s012/bin
+        sudo ./iscape.sh -batch majorAction=installfromarchive ArchiveDirectory=${WORKING_DIR}/SSV201/ InstallDirectory=${INSTALL_DIR}
+
+        # generate configuration scripts
+        sudo ./iscape.sh -batch majorAction=configure InstallDirectory=${INSTALL_DIR}
+
+        # complete configuration
+        sudo /bin/sh /data/tempus/installData/SSV201_lnx86/batch_configure.sh
+        # test
+        sudo ./iscape.sh -batch majorAction=test InstallDirectory=${INSTALL_DIR}
 }
 
 install_required_packages
-get_ssv
-get_tempus
+install_iscape
+download_archive
+install_from_archive
 
-SSV191=${INSTALL_DIR}/SSV191
-export PATH=${SSV191}/bin:${SSV191}/tools.lnx86/bin:$PATH
-cd ~
-sudo ln -s /datadrive/work .
-sudo chown -R ${USER} work/
 echo "-----------------------DONE."
-
 
