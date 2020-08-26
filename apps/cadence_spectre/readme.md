@@ -21,9 +21,9 @@ $ azhpc-connect -u hpcuser headnode
 
 ## Installation
 
-cd to the script folder:
+Change folder to:
 ```
-cd /azurehpc/apps/examples/cadence_spectre
+cd /azurehpc/apps/cadence_spectre
 ```
 
 Take a look at the 'build_spectre.sh' script, modify the installation directory if needed:
@@ -115,4 +115,5 @@ sudo yum -y install ksh
 spectre -64 +preset=cx +mt=32 input.scs -o SPECTREX_cx_32t +lqt 0 -f sst2
 
 ```
-
+Sample result:
+![alt text](https://edarg3diag.blob.core.windows.net/edatools/Cadence/spectre%20screenshot.png "Spectre X result")
