@@ -1,8 +1,7 @@
 ## Cadence Spectre X
 
-Spectre X is a SPICE-class electronic circuit simulator. It provides the basic SPICE analyses and component models. It also supports the Verilog-A modeling language. Spectre comes in enhanced versions that also support RF simulation (SpectreRF) and mixed-signal simulation (AMS Designer).
-
-Spectre X was developed at Cadence Design Systems.
+The Cadence® Spectre® X Simulator  performs advanced SPICE-accurate simulation, enables you to solve large-scale verification simulation challenges for complex analog, RF, and mixed-signal blocks and subsystems. In addition, the Spectre X Simulator allows you to massively distribute simulation workloads, enabling greater speed and capacity.
+[Cadence Spectre Home Page](https://www.cadence.com/ko_KR/home/tools/custom-ic-analog-rf-design/circuit-simulation/spectre-x-simulator.html)
 
 ## Prerequisites
 
