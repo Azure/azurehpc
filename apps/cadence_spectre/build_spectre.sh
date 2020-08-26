@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# TODO: install directory
+INSTALL_DIR="/data/spectrex/"
+
+
 WORKING_DIR="/mnt/resource"
-INSTALL_DIR="/data"
 CADENCE_TOOLS_BLOB="https://edarg3diag.blob.core.windows.net/edatools/Cadence"
 ISCAPE_FILE="IScape04.23-s012lnx86.t.Z"
 
@@ -33,34 +36,37 @@ install_iscape()
         sudo zcat ${ISCAPE_FILE} | sudo tar -xvf -
 }
 
-download_spectrex()
+download_archive()
 {
-        echo "----------------------downloading Spectre X."
+        echo "----------------------downloading archive."
         cd ${WORKING_DIR}
         sudo wget ${CADENCE_TOOLS_BLOB}/SpectreXArchive.tgz
-        sudo wget ${CADENCE_TOOLS_BLOB}/spectre_example.tgz
         sudo tar -xzvf SpectreXArchive.tgz
-        sudo tar -xzvf spectre_example.tgz
 }
 
-install_spectrex()
+install_from_archive()
 {
-        echo "---------------------installing Spectre X."
+        echo "---------------------installing from archive."
         cd ${WORKING_DIR}/iscape.04.23-s012/bin
-        sudo ./iscape.sh -batch majorAction=installfromarchive ArchiveDirectory=${WORKING_DIR}/SpectreXArchive/ InstallDirectory=${INSTALL_DIR}/spectrex/
+        sudo ./iscape.sh -batch majorAction=installfromarchive ArchiveDirectory=${WORKING_DIR}/SpectreXArchive/ InstallDirectory=${INSTALL_DIR}
 
         # generate configuration scripts
-        sudo ./iscape.sh -batch majorAction=configure InstallDirectory=${INSTALL_DIR}/spectrex/
+        sudo ./iscape.sh -batch majorAction=configure InstallDirectory=${INSTALL_DIR}
 
         # complete configuration
         sudo /bin/sh ${INSTALL_DIR}/spectrex/installData/SPECTRE191_lnx86/batch_configure.sh
         # test
-        sudo ./iscape.sh -batch majorAction=test InstallDirectory=${INSTALL_DIR}/spectrex/
+        sudo ./iscape.sh -batch majorAction=test InstallDirectory=${INSTALL_DIR}
+
+        # example
+        cd ${INSTALL_DIR}
+        sudo wget ${CADENCE_TOOLS_BLOB}/spectre_example.tgz
+        sudo tar -xzvf spectre_example.tgz
 }
 
 install_required_packages
 install_iscape
-download_spectrex
-install_spectrex
+download_archive
+install_from_archive
 
 echo "-----------------------DONE."
