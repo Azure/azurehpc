@@ -1,5 +1,0 @@
----
-- name: Restart pbs-server 
-  service: 
-    name: pbs
-    state: restarted

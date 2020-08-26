@@ -56,7 +56,8 @@
             "tags": [
                 "common",
                 "nfs-mount",
-                "localuser"
+                "localuser",
+                "pbsclient"
             ]
         }
     },
@@ -82,6 +83,14 @@
             "script": "add-ansible-variable.sh",
             "args": [
                 "azhpc_nfs_server",
+                "headnode"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "add-ansible-variable.sh",
+            "args": [
+                "azhpc_pbs_server",
                 "headnode"
             ]
         },
