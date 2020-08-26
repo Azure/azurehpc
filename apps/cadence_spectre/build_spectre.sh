@@ -54,7 +54,7 @@ install_from_archive()
         sudo ./iscape.sh -batch majorAction=configure InstallDirectory=${INSTALL_DIR}
 
         # complete configuration
-        sudo /bin/sh ${INSTALL_DIR}/spectrex/installData/SPECTRE191_lnx86/batch_configure.sh
+        sudo /bin/sh ${INSTALL_DIR}installData/SPECTRE191_lnx86/batch_configure.sh
         # test
         sudo ./iscape.sh -batch majorAction=test InstallDirectory=${INSTALL_DIR}
 
