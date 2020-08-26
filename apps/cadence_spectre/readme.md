@@ -35,7 +35,7 @@ Run the 'build_spectre.sh' script:
 ```
 source build_spectre.sh
 ```
-The script will do TWO thinkgs, first to install install necessary Spectre X packages, for example:
+The script will do TWO things, first to install install necessary Spectre X packages, for example:
 ```
     10020:Legato (TM) Reliability Solution
     32501:Spectre(R) Model Interface Option
