@@ -36,18 +36,18 @@ install_iscape()
 download_spectrex()
 {
         echo "----------------------downloading Spectre X."
-        sudo wget -P ${WORKING_DIR}/spectrexarchive/ ${CADENCE_TOOLS_BLOB}/SpectreXArchive.tgz
-        sudo wget -P ${WORKING_DIR}/spectrexarchive/ ${CADENCE_TOOLS_BLOB}/spectre_example.tgz
         cd ${WORKING_DIR}
-        sudo tar -xzvf ${WORKING_DIR}/spectrexarchive/SpectreXArchive.tgz
-        sudo tar -xzvf ${WORKING_DIR}/spectrexarchive/spectre_example.tgz
+        sudo wget ${CADENCE_TOOLS_BLOB}/SpectreXArchive.tgz
+        sudo wget ${CADENCE_TOOLS_BLOB}/spectre_example.tgz
+        sudo tar -xzvf SpectreXArchive.tgz
+        sudo tar -xzvf spectre_example.tgz
 }
 
 install_spectrex()
 {
         echo "---------------------installing Spectre X."
         cd ${WORKING_DIR}/iscape.04.23-s012/bin
-        sudo ./iscape.sh -batch majorAction=installfromarchive ArchiveDirectory=${WORKING_DIR}/SpectreXArchive/  InstallDirectory=${INSTALL_DIR}/spectrex/
+        sudo ./iscape.sh -batch majorAction=installfromarchive ArchiveDirectory=${WORKING_DIR}/SpectreXArchive/ InstallDirectory=${INSTALL_DIR}/spectrex/
 
         # generate configuration scripts
         sudo ./iscape.sh -batch majorAction=configure InstallDirectory=${INSTALL_DIR}/spectrex/
