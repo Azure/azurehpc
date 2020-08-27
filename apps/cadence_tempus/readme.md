@@ -1,8 +1,8 @@
-## Cadence Tempus
+## Cadence Xcelium
 
-The Cadence® Tempus™ Timing Signoff Solution is the static timing analysis (STA) tool for FinFET designs. The Tempus solution is designed to tackle the most advanced timing requirements including full signal integrity (SI) analysis, glitch analysis and propagation, statistical on-chip variation (SOCV), multi-mode and multi-corner (MMMC) analysis, static and dynamic power reduction, and hierarchical timing models.
+Cadence® Xcelium™ Logic Simulation provides core engine performance for SystemVerilog, VHDL, SystemC®, e, UVM, mixed signal, low power, and X-propagation. It leverages both single-core and multi-core simulation technology.
 
-[Cadence Tempus Home Page](https://www.cadence.com/en_US/home/tools/digital-design-and-signoff/silicon-signoff/tempus-timing-signoff-solution.html)
+[Cadence Xcelium Home Page](https://www.cadence.com/ko_KR/home/tools/system-design-and-verification/simulation-and-testbench-verification/xcelium-simulator.html)
 
 ## Prerequisites
 
@@ -23,20 +23,17 @@ azhpc-connect -u hpcuser headnode
 
 Change folder to:
 ```
-cd /azurehpc/apps/cadence_tempus
+cd /azurehpc/apps/cadence_xcelium
 ```
 
-Take a look at the 'build_tempus.sh' script, modify the installation directory if needed:
+Take a look at the 'build_xcelium.sh' script, modify the installation directory if needed:
 ```
-vim build_tempus.sh
+vim build_xcelium.sh
 ```
 
-Run the 'build_tempus.sh' script:
+Run the 'build_xcelium.sh' script:
 ```
-source build_tempus.sh
-```
-Necessary Tempus packages will be installed, for example:
-```
+source build_xcelium.sh
 ```
 ## Configure License Server
 Make necessary modification of the license file you received from Cadence or supplier. EX: modify the SERVER name:
@@ -55,32 +52,4 @@ Copy the license file to the VM (EX: headnode), and then execute:
 ```
 
 ## Run Tempus
-You are able to run your Tempus simulation on the cluster. See *smote_test.sh* for example.
-Below a sample result from *monitor_host.log*:
-```
-Status keys: E excellent, G good, B bad, T terrible.
-Memory values:
-  total = Real memory of host
-  progs = Real memory used by processes, including swappable cache
-  used =  Real memory used by processes, excluding swappable cache
-Started at: 20/04/02 06:35:58
-edaheadnode(0)    TMPDIR is : /tmp/ssv_tmpdir_16886_kBPJJ2
-edaheadnode(1)    TMPDIR is : /tmp/ssv_tmpdir_16998_q3wRi6
-edaheadnode(2)    TMPDIR is : /tmp/ssv_tmpdir_17008_S4dwPb
-edaheadnode(3)    TMPDIR is : /tmp/ssv_tmpdir_17018_QGV719
-
-===============  ========  ========================  ========================
-Host             CPU         Memory (GB)             TMPDIR (GB)      (Mb/s)
-name(id)         util %    total progs used  %used   total    avail    rate
-===============  ========  ===== ===== ===== ======  ========================
-06:35:58
-edaheadnode(0)        4 E    346    21     6    1 E   29.50     0.61 E  N/A
-edaheadnode(1)        4 E    346    21     6    1 E   29.50     0.61 E   15 T
-edaheadnode(2)        4 E    346    21     6    1 E   29.50     0.61 E   10 T
-edaheadnode(3)        4 E    346    21     6    1 E   29.50     0.61 E   10 T
-06:36:58
-edaheadnode(0)        5 E    346    24     9    2 E   29.50     0.38 G   34 T
-edaheadnode(1)        5 E    346    24     9    2 E   29.50     0.38 G   15 T
-edaheadnode(2)        5 E    346    24     9    2 E   29.50     0.38 G   10 T
-edaheadnode(3)        5 E    346    24     9    2 E   29.50     0.38 G   10 T
-```
+Run your Xcelium simulation on the cluster.
