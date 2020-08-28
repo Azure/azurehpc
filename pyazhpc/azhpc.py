@@ -464,15 +464,7 @@ def _wait_for_deployment(resource_group, deploy_name):
 
         sys.exit(1)
 
-def do_slurm_suspend(args):
-    log.debug(f"reading config file ({args.config_file})")
-    
-    c = azconfig.ConfigFile()
-    c.open(args.config_file)
-    config = c.preprocess()
-
-    log.info(f"slurm suspend for {args.nodes}")
-    # first get the resource name
+def _nodelist_expand(nodelist):
     resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
     resource_list = []
     if bool(brackets):
@@ -489,6 +481,18 @@ def do_slurm_suspend(args):
     else:
         resource_list.append(resource_name)
         resource_name = resource_name[:-4]
+    return resource_name, resource_list
+
+def do_slurm_suspend(args):
+    log.debug(f"reading config file ({args.config_file})")
+    
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    config = c.preprocess()
+
+    log.info(f"slurm suspend for {args.nodes}")
+    # first get the resource name
+    _, resource_list = _nodelist_expand(args.nodes)
     
     subscription_id = azutil.get_subscription_id()
     resource_group = config["resource_group"]
@@ -530,23 +534,8 @@ def do_slurm_resume(args):
 
     log.info(f"slurm resume for {args.nodes}")
     # first get the resource name
-    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
-    resource_list = []
-    if bool(brackets):
-        for part in brackets.split(","):
-            if "-" in part:
-                lo, hi = part.split("-")
-                assert len(lo) == 4, "expecting number width of 4"
-                assert len(hi) == 4, "expecting number width of 4"
-                for i in range(int(lo), int(hi) + 1):
-                    resource_list.append(f"{resource_name}{i:04d}")
-            else:
-                assert len(part) == 4, "expecting number width of 4"
-                resource_list.append(f"{resource_name}{part}")
-    else:
-        resource_list.append(resource_name)
-        resource_name = resource_name[:-4]
-    
+    resource_name, resource_list = _nodelist_expand(args.nodes)
+        
     template_resource = config.get("resources", {}).get(resource_name)
     if not template_resource:
         log.error(f"{resource_name} resource not found in config")
