@@ -42,8 +42,9 @@ cp ${APPS_SPACK_DIR}/compilers.yaml ~/.spack
 mkdir -p ${SHARED_APP}/spack/${sku_type}
 
 if [ ! -z $email_address ] && [ ! -z $STORAGE_ENDPOINT ]; then
-sudo pip3 install azure-storage-blob
+pip3 install --user azure-storage-blob
 spack gpg init
 spack gpg create ${sku_type}_gpg $email_address
-spack mirror add ${sku_type}_buildcache ${STORAGE_ENDPOINT}/buildcache/${sku_type}
+AZURE_STORAGE=$(echo $STORAGE_ENDPOINT | sed 's/https/azure/')
+spack mirror add ${sku_type}_buildcache ${AZURE_ENDPOINT}buildcache/${sku_type}
 fi
