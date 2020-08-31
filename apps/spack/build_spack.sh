@@ -15,6 +15,7 @@ CONFIG_YAML=config.yaml
 PACKAGES_YAML=packages.yaml
 
 sudo yum install -y python3
+sudo yum install -y patch
 
 SPACKDIR=${SHARED_APP}/${APP_NAME}/${APP_VERSION}
 mkdir -p $SPACKDIR
