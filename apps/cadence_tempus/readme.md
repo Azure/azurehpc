@@ -52,7 +52,7 @@ Copy the license file to the VM (EX: headnode), and then execute:
 ```
 
 ## Run Tempus
-You are able to run your Tempus simulation on the cluster. See smote_test.sh for example. Below a sample result from monitor_host.log:
+You are able to run your Tempus simulation on the cluster. See *smoke_test.sh* for example. Below a sample result from monitor_host.log:
 ```
 Status keys: E excellent, G good, B bad, T terrible.
 Memory values:
