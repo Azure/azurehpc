@@ -1,0 +1,95 @@
+--- spack/lib/spack/spack/util/web.py_orig	2020-08-31 20:53:57.804660034 +0000
++++ spack/lib/spack/spack/util/web.py	2020-08-31 20:54:22.406112342 +0000
+@@ -40,6 +40,7 @@
+ import spack.url
+ import spack.util.crypto
+ import spack.util.s3 as s3_util
++import spack.util.azure_blob as azure_blob_util
+ import spack.util.url as url_util
+ 
+ from spack.util.compression import ALLOWED_ARCHIVE_TYPES
+@@ -76,6 +77,12 @@
+         if url_util.parse(endpoint_url, scheme='https').scheme == 'https':
+             return True
+ 
++    elif parsed_url.scheme == 'azure':
++         azureblob = azure_blob_util.AzureBlob(parsed_url)
++         if azureblob.is_https():
++            tty.debug("(uses_ssl) Azure blob is https")
++            return True
++
+     return False
+ 
+ 
+@@ -106,8 +113,14 @@
+             # User has explicitly indicated that they do not want SSL
+             # verification.
+             context = ssl._create_unverified_context()
+-
+-    req = Request(url_util.format(url))
++    
++    if url.scheme == 'azure':
++       azureblob = azure_blob_util.AzureBlob(url)
++       azure_url_sas = azureblob.azure_url_sas()
++       tty.debug("(read_from_url) azure_url_sas = {}".format(azure_url_sas))
++       req = Request(azureblob.azure_url_sas())
++    else:
++       req = Request(url_util.format(url))
+     content_type = None
+     is_web_url = url.scheme in ('http', 'https')
+     if accept_content_type and is_web_url:
+@@ -145,7 +158,6 @@
+             content_type or ""))
+ 
+         return None, None, None
+-
+     return response.geturl(), response.headers, response
+ 
+ 
+@@ -196,6 +208,12 @@
+         if not keep_original:
+             os.remove(local_file_path)
+ 
++    elif remote_url.scheme == 'azure':
++        azureblob = azure_blob_util.AzureBlob(remote_url)
++        azureblob.azure_upload_to_blob(local_file_path)
++        if not keep_original:
++            os.remove(local_file_path)
++
+     else:
+         raise NotImplementedError(
+             'Unrecognized URL scheme: {SCHEME}'.format(
+@@ -219,6 +237,10 @@
+                 return False
+             raise err
+ 
++    elif url.scheme == 'azure':
++         azureblob = azure_blob_util.AzureBlob(url)
++         return azureblob.azure_blob_exists()
++            
+     # otherwise, just try to "read" from the URL, and assume that *any*
+     # non-throwing response contains the resource represented by the URL
+     try:
+@@ -241,6 +263,11 @@
+         s3.delete_object(Bucket=url.netloc, Key=url.path)
+         return
+ 
++    elif url.scheme == 'azure':
++        azureblob = azure_blob_util.AzureBlob(url)
++        azureblob.azure_delete_blob()
++        return
++
+     # Don't even try for other URL schemes.
+ 
+ 
+@@ -308,6 +335,10 @@
+             key.split('/', 1)[0]
+             for key in _iter_s3_prefix(s3, url)))
+ 
++    elif url.scheme == 'azure':
++        azureblob = azure_blob_util.AzureBlob(url)
++        return azureblob.azure_list_blobs()
++
+ 
+ def spider(root_urls, depth=0, concurrency=32):
+     """Get web pages from root URLs.
