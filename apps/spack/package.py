@@ -31,7 +31,6 @@ class Hpcx(AutotoolsPackage):
     provides('mpi')
                                                                                                    
     def setup_dependent_environment(self, spack_env, run_env, dependent_spec):
-        self.prefix.bin = "/opt/hpcx-v2.6.0-gcc-MLNX_OFED_LINUX-5.0-1.0.0.0-redhat7.7-x86_64/ompi/bin"
         spack_env.set('MPICC',  join_path(self.prefix.bin, 'mpicc'))
         spack_env.set('MPICXX', join_path(self.prefix.bin, 'mpic++'))
         spack_env.set('MPIF77', join_path(self.prefix.bin, 'mpif77'))
@@ -43,7 +42,8 @@ class Hpcx(AutotoolsPackage):
         spack_env.set('OMPI_F77', spack_f77)
 
     def setup_dependent_package(self, module, dependent_spec):
-        self.prefix.bin = "/opt/hpcx-v2.6.0-gcc-MLNX_OFED_LINUX-5.0-1.0.0.0-redhat7.7-x86_64/ompi/bin"
+        HPCX_MPI_DIR = os.environ['HPCX_MPI_DIR']
+        self.prefix.bin = os.path.join(HPCX_MPI_DIR, "bin")
         self.spec.mpicc = join_path(self.prefix.bin, 'mpicc')
         self.spec.mpicxx = join_path(self.prefix.bin, 'mpic++')
         self.spec.mpifc = join_path(self.prefix.bin, 'mpif90')
