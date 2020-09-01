@@ -73,27 +73,36 @@ class AzureBlob:
            contentsettings = ContentSettings(content_type="application/json")
         else:
            contentsettings = ContentSettings()
-        blob_client = self.blob_service_client.get_blob_client(container=self.container_name, blob=self.blob_path)
-        with open(local_file_path, "rb") as data:
-            blob_client.upload_blob(data, overwrite=True, content_settings=contentsettings)
+        try:
+           blob_client = self.blob_service_client.get_blob_client(container=self.container_name, blob=self.blob_path)
+           with open(local_file_path, "rb") as data:
+               blob_client.upload_blob(data, overwrite=True, content_settings=contentsettings)
+        except Exception as ex:
+           tty.error("{}, Could not upload {} to azure blob storage".format(ex, local_file_path))
 
 
     def azure_list_blobs(self):
-        container_client = self.blob_service_client.get_container_client(self.container_name)
-        blob_gen = container_client.list_blobs()
-        blob_list=[]
-        for blob in blob_gen:
-            p = Path(blob.name)
-            blob_list.append(str(Path(*p.parts[2:])))
-        return blob_list
+        try:
+           container_client = self.blob_service_client.get_container_client(self.container_name)
+           blob_gen = container_client.list_blobs()
+           blob_list=[]
+           for blob in blob_gen:
+               p = Path(blob.name)
+               blob_list.append(str(Path(*p.parts[2:])))
+           return blob_list
+        except Exception as ex:
+           tty.error("{}, Could not get a list of azure blobs".format(ex))            
 
 
     def azure_url_sas(self):
         from azure.storage.blob import ResourceTypes, AccountSasPermissions, generate_account_sas
-        sas_token = generate_account_sas(self.blob_service_client.account_name, 
-                    account_key=self.blob_service_client.credential.account_key, 
-                    resource_types=ResourceTypes(object=True), permission=AccountSasPermissions(read=True), 
-                    expiry=datetime.datetime.utcnow() + datetime.timedelta(minutes=5))
+        try:
+           sas_token = generate_account_sas(self.blob_service_client.account_name, 
+                       account_key=self.blob_service_client.credential.account_key, 
+                       resource_types=ResourceTypes(object=True), permission=AccountSasPermissions(read=True), 
+                       expiry=datetime.datetime.utcnow() + datetime.timedelta(minutes=5))
+        except Exception as ex:
+           tty.error("{}, Could not generate a sas token for Azure blob storage".format(ex))
         url_str = self.url.geturl()
         url_str = url_str.replace('azure', 'https', 1)
         url_sas_str = url_str + '?' + sas_token 
