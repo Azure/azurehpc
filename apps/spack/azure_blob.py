@@ -67,6 +67,17 @@ class AzureBlob:
         return True
 
 
+    def azure_delete_blob(self):
+        try:
+           blob_client = (self.blob_service_client.
+                          get_blob_client(container=self.container_name,
+                                          blob=self.blob_path))
+           blob_client.delete_blob()
+        
+        except Exception as ex:
+           tty.error("{}, Could not delete azure blob {}".format(ex, self.blob_path))
+ 
+
     def azure_upload_to_blob(self, local_file_path):
         from azure.storage.blob import ContentSettings
         if Path(self.blob_path).suffix == '.json':
@@ -87,8 +98,9 @@ class AzureBlob:
            blob_gen = container_client.list_blobs()
            blob_list=[]
            for blob in blob_gen:
-               p = Path(blob.name)
-               blob_list.append(str(Path(*p.parts[2:])))
+               p = blob.name.split('/')
+               build_cache_index = p.index('build_cache')
+               blob_list.append(os.path.join(*p[build_cache_index + 1:]))
            return blob_list
         except Exception as ex:
            tty.error("{}, Could not get a list of azure blobs".format(ex))            
