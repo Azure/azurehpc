@@ -58,7 +58,7 @@ for partspec in $partitions_specs; do
   CoresPerSocket=$(( CPUs / (SocketsPerBoard*Boards*ThreadsPerCore) ))
   
   # Remove "Standard_" from the SKU name to use as node feature
-  NodeFeature=sku[sku.find('_')+1:]
+  NodeFeature=$(echo $sku | cut -f2,3 -d'_')
 
   # Calculate max nodes index
   idx_end=$(printf "%04d" ${instances})
