@@ -68,11 +68,15 @@ class AzureBlob:
 
 
     def azure_delete_blob(self):
-        blob_client = (self.blob_service_client.
-                       get_blob_client(container=self.container_name,
-                                       blob=self.blob_path))
-        blob_client.delete_blob()
-
+        try:
+           blob_client = (self.blob_service_client.
+                          get_blob_client(container=self.container_name,
+                                          blob=self.blob_path))
+           blob_client.delete_blob()
+        
+        except Exception as ex:
+           tty.error("{}, Could not delete azure blob {}".format(ex, self.blob_path))
+ 
 
     def azure_upload_to_blob(self, local_file_path):
         from azure.storage.blob import ContentSettings
