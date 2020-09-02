@@ -535,7 +535,19 @@ def do_slurm_resume(args):
     log.info(f"slurm resume for {args.nodes}")
     # first get the resource name
     resource_name, resource_list = _nodelist_expand(args.nodes)
-        
+
+    # Generate node/sku lookup table from nodes.conf
+    sku_lookup = {}
+    for line in open('/apps/slurm/nodes.conf', 'r'):
+        match = re.search(r'NodeName=([^\s]+).*Feature=([^\s]+)', line)
+        if match:
+            _, cluster_nodes = _nodelist_expand(match.groups(0)[0])
+            #sku = match.groups(0)[1]                                                                                                         
+            #if sku in standard_disk_skus:                                                                                                    
+            #    standard_disk = True                                                                                                         
+            for n in cluster_nodes:
+                sku_lookup[n] = match.groups(0)[1]
+
     template_resource = config.get("resources", {}).get(resource_name)
     if not template_resource:
         log.error(f"{resource_name} resource not found in config")
@@ -551,6 +563,10 @@ def do_slurm_resume(args):
     
     config["resources"] = {}
     for rname in resource_list:
+        # Request the correct SKU for the node                                                                                                 
+        template_resource["vm_type"] = f"Standard_{sku_lookup[rname]}"
+        # Use SKU-dedicated availability set                                                                                                 
+        template_resource["availability_set"] = f"compute_{sku_lookup[rname]}"
         config["resources"][rname] = template_resource
 
     tpl = arm.ArmTemplate()

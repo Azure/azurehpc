@@ -1,26 +1,49 @@
 #!/bin/bash
 
-NAME=$1
-INSTANCES=$2
-SKU=$3
-LOCATION=$4
+config_path=/apps/slurm/azscale/config.json
 
-VM_CAPABILITIES=$(az vm list-skus --location $LOCATION --size $SKU --all | jq '.[0].capabilities')
+# Get region from config.json
+location=$(jq -r '.variables.location' $config_path)
 
-ThreadsPerCore=$(echo $VM_CAPABILITIES | jq -r '.[] | select(.name=="vCPUsPerCore") | .value')
-if [ "$ThreadsPerCore" == "" ]; then
-  ThreadsPerCore=1
-fi
+# Extract compute nodes info from config.json as <partition>:<sku>:<instnaces>
+partitions_specs=$(jq -r '.resources | keys[] as $k | if (.[$k] | .type) == "slurm_partition" then "\($k):\(.[$k] | .vm_type):\(.[$k] | .instances)" else empty end' $config_path)
 
-RealMemory=$(echo $VM_CAPABILITIES | jq -r '.[] | select(.name=="MemoryGB") | .value')
-# MemoryGB can be a floating value
-RealMemory=$(bc <<< "(${RealMemory} * 1024) / 1")
+for partspec in $partitions_specs; do
 
-CPUs=$(echo $VM_CAPABILITIES | jq -r '.[] | select(.name=="vCPUs") | .value')
-Boards=1
-SocketsPerBoard=1
+  partition=$(echo $partspec | cut -f1 -d:)
+  sku=$(echo $partspec | cut -f2 -d:)
+  instances=$(echo $partspec | cut -f3 -d:)
 
-case $SKU in
+  # Get the actual SKU name in case a variable is referenced in the node definition
+  if [[ $sku == *"variables"* ]]; then
+    sku=".${sku}"
+    sku=$(jq -r $sku $config_path);
+  fi
+
+  # Get the actual number of instances in case a variable is referenced in the node definition
+  if [[ $instances == *"variables"* ]]; then
+    instances=".${instances}"
+    instances=$(jq -r $instances $config_path);
+  fi
+
+  vm_capabilities=$(az vm list-skus --location $location --size $sku --all | jq '.[0].capabilities')
+
+  ThreadsPerCore=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUsPerCore") | .value')
+  if [[ "$ThreadsPerCore" == "" ]]; then 
+    ThreadsPerCore=1
+  fi
+
+  RealMemory=$(echo $vm_capabilities | jq -r '.[] | select(.name=="MemoryGB") | .value')
+  # MemoryGB can be a floating value
+  RealMemory=$(bc <<< "(${RealMemory} * 1024) / 1")
+
+  CPUs=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUs") | .value')
+  
+  Boards=1
+  SocketsPerBoard=1
+
+  # Special parameters for specific SKUs
+  case $sku in
   Standard_HB60rs)
     SocketsPerBoard=15
     ;;
@@ -30,23 +53,19 @@ case $SKU in
   Standard_HC44rs)
     SocketsPerBoard=2
     ;;
+  esac
 
-  # Standard_D4s_v3) 
-  #   echo "NodeName=${NAME}[0001-$(printf "%04d" ${INSTANCES})] CPUs=4 Boards=1 SocketsPerBoard=1 CoresPerSocket=2 ThreadsPerCore=2 RealMemory=16028 State=CLOUD" >> /apps/slurm/partition.conf
-  #   ;;
-  # Standard_E4s_v3) 
-  #   echo "NodeName=${NAME}[0001-$(printf "%04d" ${INSTANCES})] CPUs=4 Boards=1 SocketsPerBoard=1 CoresPerSocket=2 ThreadsPerCore=2 RealMemory=32156 State=CLOUD" >> /apps/slurm/partition.conf
-  #   ;;
-  # Standard_HB60rs)
-  #   echo "NodeName=${NAME}[0001-$(printf "%04d" ${INSTANCES})] CPUs=60 Boards=1 SocketsPerBoard=15 CoresPerSocket=4 ThreadsPerCore=1 RealMemory=229728 State=CLOUD" >> /apps/slurm/partition.conf
-  #   ;;
-  # *)
-  #   echo "NodeName=${NAME}[0001-$(printf "%04d" ${INSTANCES})] CPUs=1 RealMemory=1024 State=CLOUD" >> /apps/slurm/partition.conf
-  #   ;;
-esac
-CoresPerSocket=$(( CPUs / (SocketsPerBoard*Boards*ThreadsPerCore)))
-echo "NodeName=${NAME}[0001-$(printf "%04d" ${INSTANCES})] CPUs=$CPUs Boards=$Boards SocketsPerBoard=$SocketsPerBoard CoresPerSocket=$CoresPerSocket ThreadsPerCore=$ThreadsPerCore RealMemory=$RealMemory State=CLOUD" >> /apps/slurm/partition.conf
+  CoresPerSocket=$(( CPUs / (SocketsPerBoard*Boards*ThreadsPerCore) ))
+  
+  # Remove "Standard_" from the SKU name to use as node feature
+  NodeFeature=sku[sku.find('_')+1:]
 
-echo "PartitionName=${NAME} Nodes=${NAME}[0001-$(printf "%04d" ${INSTANCES})] Default=YES MaxTime=INFINITE State=UP" >> /apps/slurm/partition.conf
+  # Calculate max nodes index
+  idx_end=$(printf "%04d" ${instances})
+  
+  echo "NodeName=${partition}[0001-$idx_end] CPUs=$CPUs Boards=$Boards SocketsPerBoard=$SocketsPerBoard CoresPerSocket=$CoresPerSocket ThreadsPerCore=$ThreadsPerCore RealMemory=$RealMemory Feature=$NodeFeature State=CLOUD" >> ./nodes.conf
+  echo "PartitionName=${partition} Nodes=${partition}[0001-$idx_end] Default=NO MaxTime=INFINITE State=UP" >> ./partitions.conf
+  
+  done
 
 systemctl restart slurmctld
