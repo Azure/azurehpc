@@ -94,7 +94,6 @@ class AzureBlob:
            blob_gen = container_client.list_blobs()
            blob_list=[]
            for blob in blob_gen:
-               p = Path(blob.name)
                p = blob.name.split('/')
                build_cache_index = p.index('build_cache')
                blob_list.append(os.path.join(*p[build_cache_index + 1:]))
