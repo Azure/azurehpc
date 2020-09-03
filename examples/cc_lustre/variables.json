@@ -1,0 +1,12 @@
+{
+  "variables": {
+    "resource_group": "my resource group",
+    "location": "my location",
+    "key_vault": "kv{{variables.uuid}}",
+    "uuid": "unique value",
+    "projectstore": "locker{{variables.uuid}}",
+    "scheduler": "pbs or slurm",
+    "lustre_storage_account": "locker{{variables.uuid}}",
+    "lustre_version": "2.12.4"
+  }
+}
