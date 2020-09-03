@@ -40,7 +40,7 @@ for partspec in $partitions_specs; do
   # Rely on lookup table until Azure CLI is fixed
   RealMemory=$(awk "/$sku/"'{print $3}' ./skus_mem.lst)
   if [[ -z "$RealMemory" ]]; then
-    echo "ERROR: SKU not present in memory lookup table (skus_mem.lst)"
+    echo "ERROR: Cannot find $sku in memory lookup table (skus_mem.lst)"
     exit 1
   fi
 
