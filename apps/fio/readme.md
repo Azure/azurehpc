@@ -23,7 +23,7 @@ Build fio from the build script.  This will build and install it in `/apps/fio` 
 Now submit and run:
 
 ```
-     qsub -l select=1:ncpus=60:mpiprocs=8 fio.pbs
+     qsub -l select=1:ncpus=60:mpiprocs=8 -v FILESYSTEM=/mnt/resource fio.pbs
 ```
 > Note: this will run on 1 node, 8 fio processes (fio numjobs). Fio can run on multiple nodes in a client-server mode, this example is designed to run on a single node. You can change the fio numjobs parameter (i.e number of processes) by changing the PBS mpiprocs value. A throughput and IOPS benchmark will be run.
 
