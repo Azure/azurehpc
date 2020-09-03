@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UserIntentions mediaName="CODE\linux_a64\SIMULIA_EstPrd.media" mediaVersion="422">
+  <SetVariable name="DSYWelcomePanel"/>
+  <SetVariable name="TARGET_PATH" value="__TARGET_PATH__"/>
+  <!--Abaqus/Standard Solver-->
+  <SetVariable item="CODE\linux_a64\SIMAQSL_TP.prd" name="SelectProduct" value="true"/>
+  <!--Abaqus/Explicit Solver-->
+  <SetVariable item="CODE\linux_a64\SIMAQXL_TP.prd" name="SelectProduct" value="true"/>
+  <!--Cosimulation Services-->
+  <SetVariable item="CODE\linux_a64\SIMCSS_TP.prd" name="SelectProduct" value="false"/>
+  <!--Abaqus ODB API Services-->
+  <SetVariable item="CODE\linux_a64\SIMODB_TP.prd" name="SelectProduct" value="false"/>
+  <!--Abaqus CAE-->
+  <SetVariable item="CODE\linux_a64\SIMCAE_TP.prd" name="SelectProduct" value="false"/>
+  <!--Abaqus Samples-->
+  <SetVariable item="CODE\linux_a64\SIMSAMP_TP.prd" name="SelectProduct" value="true"/>
+  <!--Tosca Structure-->
+  <SetVariable item="CODE\linux_a64\SIMTOSE_TP.prd" name="SelectProduct" value="false"/>
+  <!--Tosca Fluid-->
+  <SetVariable item="CODE\linux_a64\SIMTOFE_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe-->
+  <SetVariable item="CODE\linux_a64\SIMFESD_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe interface to Abaqus 2019 ODBs-->
+  <SetVariable item="CODE\linux_a64\SIMFS19_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe interface to Abaqus 2018 ODBs-->
+  <SetVariable item="CODE\linux_a64\SIMFS18_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe interface to Abaqus 2017 ODBs-->
+  <SetVariable item="CODE\linux_a64\SIMFS17_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe interface to Abaqus 2016 ODBs-->
+  <SetVariable item="CODE\linux_a64\SIMFS16_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe materials and surface finish specifications-->
+  <SetVariable item="CODE\linux_a64\SIMFSMD_TP.prd" name="SelectProduct" value="false"/>
+  <!--Material database server for fe-safe-->
+  <SetVariable item="CODE\linux_a64\SIMFSMS_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe tutorial and sample data-->
+  <SetVariable item="CODE\linux_a64\SIMFSTD_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe tutorial models for Abaqus-->
+  <SetVariable item="CODE\linux_a64\SIMFSAD_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe tutorial models for I-DEAS-->
+  <SetVariable item="CODE\linux_a64\SIMFSID_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe tutorial models for Ansys-->
+  <SetVariable item="CODE\linux_a64\SIMFSRD_TP.prd" name="SelectProduct" value="false"/>
+  <!--fe-safe tutorial models for NASTRAN-->
+  <SetVariable item="CODE\linux_a64\SIMFSND_TP.prd" name="SelectProduct" value="false"/>
+  <!--Abaqus/CFD Solver-->
+  <SetVariable item="CODE\linux_a64\SIMAQF_TP.prd" name="SelectProduct" value="false"/>
+  <SetVariable name="FinishPanel"/>
+</UserIntentions>

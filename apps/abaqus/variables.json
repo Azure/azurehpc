@@ -1,0 +1,8 @@
+{
+  "variables": {
+    "resource_group": "my resource group",
+    "location": "my location",
+    "vm_type": "Standard_HB60rs",
+    "license_server": "x.x.x.x"
+  }
+}
