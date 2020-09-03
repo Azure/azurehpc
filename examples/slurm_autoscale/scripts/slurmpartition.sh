@@ -36,14 +36,24 @@ for partspec in $partitions_specs; do
     ThreadsPerCore=1
   fi
 
-  RealMemory=$(echo $vm_capabilities | jq -r '.[] | select(.name=="MemoryGB") | .value')
-  # MemoryGB can be a floating value
-  RealMemory=$(bc <<< "(${RealMemory} * 1024) / 1")
+  # Azure CLI is not reporting reliable values for the actual SKU memory
+  # Rely on lookup table until Azure CLI is fixed
+  RealMemory=$(awk "/$sku/"'{print $3}' ./skus_mem.lst)
+  if [[ -z "$RealMemory" ]]; then
+    echo "ERROR: SKU not present in memory lookup table (skus_mem.lst)"
+    exit 1
+  fi
 
+  #RealMemory=$(echo $vm_capabilities | jq -r '.[] | select(.name=="MemoryGB") | .value')
+  ## MemoryGB can be a floating value
+  #RealMemory=$(bc <<< "(${RealMemory} * 1024) / 1")
+  
   CPUs=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUs") | .value')
   
   Boards=1
   SocketsPerBoard=1
+
+  CoresPerSocket=$(( CPUs / (SocketsPerBoard*Boards*ThreadsPerCore) ))
 
   # Special parameters for specific SKUs
   case $sku in
@@ -57,8 +67,6 @@ for partspec in $partitions_specs; do
     SocketsPerBoard=2
     ;;
   esac
-
-  CoresPerSocket=$(( CPUs / (SocketsPerBoard*Boards*ThreadsPerCore) ))
   
   # Remove "Standard_" from the SKU name to use as node feature
   NodeFeature=$(echo $sku | cut -f2,3 -d'_')
