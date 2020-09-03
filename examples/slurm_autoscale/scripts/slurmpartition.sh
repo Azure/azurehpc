@@ -2,6 +2,9 @@
 
 config_path=/apps/slurm/azscale/config.json
 
+# Initialize Azure CLI
+az login --identity -o table
+
 # Get region from config.json
 location=$(jq -r '.variables.location' $config_path)
 
