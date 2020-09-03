@@ -63,8 +63,8 @@ for partspec in $partitions_specs; do
   # Calculate max nodes index
   idx_end=$(printf "%04d" ${instances})
   
-  echo "NodeName=${partition}[0001-$idx_end] CPUs=$CPUs Boards=$Boards SocketsPerBoard=$SocketsPerBoard CoresPerSocket=$CoresPerSocket ThreadsPerCore=$ThreadsPerCore RealMemory=$RealMemory Feature=$NodeFeature State=CLOUD" >> ./nodes.conf
-  echo "PartitionName=${partition} Nodes=${partition}[0001-$idx_end] Default=NO MaxTime=INFINITE State=UP" >> ./partitions.conf
+  echo "NodeName=${partition}[0001-$idx_end] CPUs=$CPUs Boards=$Boards SocketsPerBoard=$SocketsPerBoard CoresPerSocket=$CoresPerSocket ThreadsPerCore=$ThreadsPerCore RealMemory=$RealMemory Feature=$NodeFeature State=CLOUD" >> /apps/slurm/nodes.conf
+  echo "PartitionName=${partition} Nodes=${partition}[0001-$idx_end] Default=NO MaxTime=INFINITE State=UP" >> /apps/slurm/partitions.conf
   
   done
 
