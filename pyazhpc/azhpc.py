@@ -465,7 +465,7 @@ def _wait_for_deployment(resource_group, deploy_name):
         sys.exit(1)
 
 def _nodelist_expand(nodelist):
-    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
+    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', nodelist).groups(0)
     resource_list = []
     if bool(brackets):
         for part in brackets.split(","):
@@ -542,9 +542,6 @@ def do_slurm_resume(args):
         match = re.search(r'NodeName=([^\s]+).*Feature=([^\s]+)', line)
         if match:
             _, cluster_nodes = _nodelist_expand(match.groups(0)[0])
-            #sku = match.groups(0)[1]                                                                                                         
-            #if sku in standard_disk_skus:                                                                                                    
-            #    standard_disk = True                                                                                                         
             for n in cluster_nodes:
                 sku_lookup[n] = match.groups(0)[1]
 
