@@ -8,7 +8,7 @@ hostlist=`cat $PBS_NODEFILE | sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\
 LICENSE_SERVER="${LICENSE_SERVER_IP}"
 DATA_DIR=${DATA_DIR:-/data}
 MODEL=${MODEL:-e1}
-
+SHARED_APP=/apps
 export mpi_options="-env IMPI_FABRICS=shm:ofa -env I_MPI_FALLBACK_DEVICE=0"
 
 #define hosts in abaqus_v6.env file
@@ -26,15 +26,19 @@ EOF
 # need to unset CCP_NODES otherwise Abaqus think it is running on HPC Pack
 unset CCP_NODES
 
-source /opt/intel/impi/*/bin64/mpivars.sh
-export MPI_ROOT=$I_MPI_ROOT
+source /etc/profile
+module use /usr/share/Modules/modulefiles
+module load mpi/impi
+source $MPI_BIN/mpivars.sh
+
+#export MPI_ROOT=$I_MPI_ROOT
 
 
-ABQ2019="/apps/abaqus/applications/DassaultSystemes/SimulationServices/V6R2019x/linux_a64/code/bin/SMALauncher"
+ABAQUS="$SHARED_APP/SIMULIA/EstProducts/2020/linux_a64/code/bin/SMALauncher"
 JOBNAME=$MODEL-$CORES
 
 start_time=$SECONDS
-$ABQ2019 -j $JOBNAME -input "${DATA_DIR}/$MODEL.inp" -cpus $CORES -interactive 
+$ABAQUS -j $JOBNAME -input "${DATA_DIR}/$MODEL.inp" -cpus $CORES -interactive 
 end_time=$SECONDS
 task_time=$(($end_time - $start_time))
 
@@ -43,9 +47,9 @@ completed=$(grep "THE ANALYSIS HAS COMPLETED SUCCESSFULLY" $JOBNAME.sta)
 if [[ ! -z $completed ]]; then 
     cat <<EOF >$APPLICATION.json
     {
-    "version": "2019.x",
+    "version": "2020.x",
     "model": "$MODEL",
-    "task_time": $task_time    
+    "task_time": $task_time
     }
 EOF
 fi
