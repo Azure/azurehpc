@@ -1,5 +1,6 @@
 # AzureHPC Change log
 
+- [PR 354](https://github.com/Azure/azurehpc/pull/354) : Updates to Abaqus for Abaqus 2020 on IntelMPI 
 - [PR 333](https://github.com/Azure/azurehpc/pull/333) : Added additional options for VMSS resource (single_placement_group and overprovioning) 
 - [PR 343](https://github.com/Azure/azurehpc/pull/343) : CycleCloud : use pre-defined NSG
 - [PR 341](https://github.com/Azure/azurehpc/pull/341) : glusterFS example with CycleCloud
