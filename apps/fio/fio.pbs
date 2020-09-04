@@ -1,4 +1,5 @@
 #!/bin/bash
+FILESYSTEM=${1:-$FILESYSTEM}
 set -o pipefail
 source /etc/profile
 
