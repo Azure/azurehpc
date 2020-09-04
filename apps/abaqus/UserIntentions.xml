@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <UserIntentions mediaName="CODE\linux_a64\SIMULIA_EstPrd.media" mediaVersion="422">
+  <SetVariable item="flex" name="serverType_radioButton" value="true"/>
+  <SetVariable name="flexServer1" value="__LIC_IP__"/>
+  <SetVariable name="flexServer2" value=""/>
+  <SetVariable name="flexServer3" value=""/>
+  <SetVariable name="commandsDir" value="__SHARED_APPS__/DassaultSystemes/SIMULIA/Commands"/>
+  <SetVariable name="pluginsDir" value="__SHARED_APPS__/DassaultSystemes/SIMULIA/CAE/plugins/2020"/>
   <SetVariable name="DSYWelcomePanel"/>
-  <SetVariable name="TARGET_PATH" value="__TARGET_PATH__"/>
+  <SetVariable name="TARGET_PATH" value="__SHARED_APPS__/SIMULIA/EstProducts/2020"/>
   <!--Abaqus/Standard Solver-->
   <SetVariable item="CODE\linux_a64\SIMAQSL_TP.prd" name="SelectProduct" value="true"/>
   <!--Abaqus/Explicit Solver-->
@@ -11,9 +17,9 @@
   <!--Abaqus ODB API Services-->
   <SetVariable item="CODE\linux_a64\SIMODB_TP.prd" name="SelectProduct" value="false"/>
   <!--Abaqus CAE-->
-  <SetVariable item="CODE\linux_a64\SIMCAE_TP.prd" name="SelectProduct" value="false"/>
+  <SetVariable item="CODE\linux_a64\SIMCAE_TP.prd" name="SelectProduct" value="true"/>
   <!--Abaqus Samples-->
-  <SetVariable item="CODE\linux_a64\SIMSAMP_TP.prd" name="SelectProduct" value="true"/>
+  <SetVariable item="CODE\linux_a64\SIMSAMP_TP.prd" name="SelectProduct" value="false"/>
   <!--Tosca Structure-->
   <SetVariable item="CODE\linux_a64\SIMTOSE_TP.prd" name="SelectProduct" value="false"/>
   <!--Tosca Fluid-->

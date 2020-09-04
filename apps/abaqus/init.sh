@@ -9,7 +9,7 @@ blocks="$EXAMPLE_DIR/simple_hpc_pbs/config.json $APP_DIR/app.json"
 
 # Copy required files
 mkdir -p $DIR/scripts
-cp $APP_DIR/*.sh $DIR/scripts
+cp $APP_DIR/install_abaqus.sh $DIR/scripts
 cp $APP_DIR/UserIntentions.xml $DIR/scripts
 
 # Initialize config file

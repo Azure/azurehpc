@@ -1,125 +1,85 @@
-## Install and run abaqus Benchmarks using azurehpc cluster
+# Install and run abaqus Benchmarks using azurehpc cluster
+These instructions will guide you in building a PBS cluster with Abaqus installed on a share.
 
-## Prerequisites
+## Step 1 - install azhpc
 
-Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up.
-
-Dependencies for binary version:
-
-* None
-
-NOTE: Update the license server for abaqus in $azhpc_dir/apps/abaqus/install_abaqus.sh
-
-First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do this:
+Clone the azhpc repository and source the `install.sh` script.
 
 ```
-azhpc-scp -r $azhpc_dir/apps hpcuser@headnode:.
+$ git clone https://github.com/Azure/azurehpc.git
+$ cd azurehpc
+$ . install.sh
+$ cd ..
 ```
 
-> Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
-
-## Installation
-
-You must first obtain the abaqus installer tar files and copy it to the cluster - 2019.AM_SIM_Abaqus_Extend.AllOS.1-5.tar, 2019.AM_SIM_Abaqus_Extend.AllOS.2-5.tar, 2019.AM_SIM_Abaqus_Extend.AllOS.3-5.tar, 2019.AM_SIM_Abaqus_Extend.AllOS.4-5.tar, 2019.AM_SIM_Abaqus_Extend.AllOS.5-5.tar
+## Step 2 - Initialize the configuration files
+Create a working directory from where you will do the deployment and configuration update. Don't work directly from the cloned repo.
 
 ```
-azhpc-scp -r 2019.AM_SIM_Abaqus_Extend.AllOS.*-5.tar hpcuser@headnode:/mnt/resource/.
+$ mkdir abaqus
+$ cd abaqus
 ```
 
-The following environment variables can be used:
-
-| Environment Variable  | Default Value | Description                                                                       |
-|------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| ABAQUS_INSTALLER_DIR   | /mnt/resource                                                      | The path to the '2019.AM_SIM_Abaqus_Extend.AllOS.*-5.tar' installer files     |
-| LICENSE_SERVER_IP      |                                                                    | License server ip address
+Then copy the `init.sh` and `variables.json` from `apps/abaqus` to your working directory.
 
 ```
-azhpc-run -u hpcuser apps/abaqus/install_abaqus.sh 
-
+$ cp $azhpc_dir/apps/abaqus/init.sh .
+$ cp $azhpc_dir/apps/abaqus/variables.json .
 ```
 
-> Note: This will install into `/apps`.
+Edit the `variables.json` to match your environment. The storage variables are those containing the **Abaqus** tar installation files :
+- 2020.AM_SIM_Abaqus_Extend.AllOS.1-4.tar
+- 2020.AM_SIM_Abaqus_Extend.AllOS.2-4.tar
+- 2020.AM_SIM_Abaqus_Extend.AllOS.3-4.tar
+- 2020.AM_SIM_Abaqus_Extend.AllOS.4-4.tar
 
-Next, copy the <model>.inp file to the headnode under /data
+
+```json
+{
+  "variables": {
+    "resource_group": "my resource group",
+    "location": "my location",
+    "vm_type": "Standard_HB60rs",
+    "license_server": "x.x.x.x",
+    "app_storage_account": "<NOT-SET>",
+    "app_container": "<NOT-SET>",
+    "app_folder": "abaqus-2020"
+  }
+}
+```
+
+Run the `init.sh` script which will copy all the config files of the building blocks and initialize the variables by using the `variables.json` updated above.
 
 ```
-azhpc-scp -r <model>.inp hpcuser@headnode:/data/.
+$ ./init.sh
 ```
 
-## Connect to the headnode
+## Step 3 - Build the system
+
+Check that the `abaqus.json` file contains the right settings, eventually edit it and add more instances.
 
 ```
-azhpc-connect -u hpcuser headnode
+$ azhpc-build -c abaqus.json
 ```
 
-## Running
+The build process should take about 13-15 minutes.
 
-NOTE: Update the license server in $azhpc_dir/apps/abaqus/run_abaqus_intelmpi.pbs
+## Step 4 - Copy input data and run scripts
 
-The following environment variables can be used:
-
-| Environment Variable   | Default Value | Description                                                                             |
-|------------------------|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| APP_INSTALL_DIR        | /apps         | The place where abaqus is installed                                                     |
-| DATA_DIR               | /data         | The directory where the inp file is located (relative paths are based on PBS_O_WORKDIR) |
-| MODEL                  | e1            | The model to use                                  									   |
-| LICENSE_SERVER_IP      |               | License server ip address
-
-Now, you can run as follows:
+Next, copy the <model>.inp file to the headnode under `/data`
 
 ```
-qsub -l select=2:ncpus=15:mpiprocs=15,place=scatter:excl apps/abaqus/run_abaqus_intelmpi.pbs
+azhpc-scp -c abaqus.json <model>.inp hpcadmin@headnode:/data/.
+azhpc-scp -c abaqus.json $azhpc_dir/apps/abaqus/abaqus_impi.sh hpcadmin@headnode:/apps/.
 ```
+
+## Step 5 - Run jobs
+Connect to the headnode
+
+```
+azhpc-connect -c abaqus.json headnode
+qsub -l select=2:ncpus=60:mpiprocs=60,place=scatter:excl -- /apps/abaqus_impi.sh
+```
+
 Note: You can pass variables to the script by using -v for e.g. -v "MODEL=<model name>" 
 
-## Install and run abaqus Benchmarks using CycleCloud cluster
-
-## Prerequisites
-
-These steps require a Azure CycleCloud cluster with PBS.  The `cyclecloud_simple_pbs` template in the examples directory a suitable choice. 
-
-NOTE: Update the license server for abaqus in $azhpc_dir/apps/abaqus/install_abaqus.sh
-
-First copy the $azhpc_dir/apps directory to the /mnt/resource.  
-
-
-> Alternatively you can checkout the azurehpc repository but you will need to update the paths according to where you put it.
-
-## Connect to the headnode
-
-```
-    $ cyclecloud connect master -c abaqus
-```
-
-## Installation
-
-You must first obtain the abaqus installer tar files and copy it to the cluster - 2019.AM_SIM_Abaqus_Extend.AllOS.1-5.tar, 2019.AM_SIM_Abaqus_Extend.AllOS.2-5.tar, 2019.AM_SIM_Abaqus_Extend.AllOS.3-5.tar, 2019.AM_SIM_Abaqus_Extend.AllOS.4-5.tar, 2019.AM_SIM_Abaqus_Extend.AllOS.5-5.tar under /mnt/resource
-
-The following environment variables can be used:
-
-| Environment Variable   | Default Value | Description                                        |
-|------------------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| APP_INSTALL_DIR        | /scratch                                                           | The place to install (a a directory will be created here                      |
-| ABAQUS_INSTALLER_DIR   | /mnt/resource                                                      | The path to the '2019.AM_SIM_Abaqus_Extend.AllOS.*-5.tar' installer files     |
-| LICENSE_SERVER         |                                                                    | License server ip address
-
-```
-export APP_INSTALL_DIR=/scratch
-apps/abaqus/install_abaqus.sh 
-
-```
-
-> Note: This will install into `/apps`.
-
-## Running
-
-The model will need to be copied to the cluster. The default model is e1. You can copy the inp file to the headnode under /scratch.
-
-NOTE: Update the license server in $azhpc_dir/apps/abaqus/run_abaqus_intelmpi.pbs
-
-Now, you can run as follows:
-
-```
-qsub -v "MODEL=<model name>" -l select=2:ncpus=15:mpiprocs=15,place=scatter:excl apps/abaqus/run_abaqus_intelmpi.pbs
-
-```
