@@ -162,20 +162,21 @@ From the jumpbox, connect to the cyclecloud master.
 
 ```
 [hpcadmin@ip-0A020804 ~]$ df
-Filesystem           1K-blocks     Used  Available Use% Mounted on
-devtmpfs              16451984        0   16451984   0% /dev
-tmpfs                 16463856        0   16463856   0% /dev/shm
-tmpfs                 16463856     9264   16454592   1% /run
-tmpfs                 16463856        0   16463856   0% /sys/fs/cgroup
-/dev/sda2             30416376 10572700   19843676  35% /
-/dev/sda1               505580    65552     440028  13% /boot
-/dev/sda15              506608    11328     495280   3% /boot/efi
-/dev/sdb1             65923564    53276   62498516   1% /mnt/resource
-tmpfs                  3292772        0    3292772   0% /run/user/20002
-lustre_nodev         263958528   651264  263307264   1% /lustre
-jumpbox:/share/apps 2146156736    62080 2146094656   1% /apps
-jumpbox:/share/data 2146156736    62080 2146094656   1% /data
-[hpcadmin@ip-0A020804 ~]
+Filesystem               1K-blocks     Used   Available Use% Mounted on
+/dev/sda2                 30416376 10879096    19537280  36% /
+devtmpfs                  16452012        0    16452012   0% /dev
+tmpfs                     16463832        0    16463832   0% /dev/shm
+tmpfs                     16463832     9416    16454416   1% /run
+tmpfs                     16463832        0    16463832   0% /sys/fs/cgroup
+/dev/sda1                   505580    64828      440752  13% /boot
+/dev/sda15                  506608    11400      495208   3% /boot/efi
+/dev/sdb1                 65922604  2150432    60400448   4% /mnt/resource
+tmpfs                      3292768        0     3292768   0% /run/user/1000
+10.2.3.4@tcp:/LustreFS 11139565092     3764 10576940200   1% /lustre
+jumpbox:/share/apps     2146156736    36480  2146120256   1% /apps
+jumpbox:/share/data     2146156736    36480  2146120256   1% /data
+tmpfs                      3292768        0     3292768   0% /run/user/20002
+[hpcadmin@ip-0A020804 ~]$
 ```
 
 Check that the `/apps` directory contains all the AzureHPC application scripts.
