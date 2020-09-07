@@ -1,0 +1,5 @@
+steps:  
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/ci/check_pbs_nodes.sh $(azhpc.variables.compute_instances)
