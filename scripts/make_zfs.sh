@@ -8,7 +8,7 @@ shift 2
 # install ZFS
 centos_version=$(sed 's/CentOS Linux release \([[:digit:]]\.[[:digit:]]\).*/\1/' < /etc/redhat-release)
 zfs_release_rpm="http://download.zfsonlinux.org/epel/zfs-release.el${centos_version/./_}.noarch.rpm"
-yum install -y zfs_release_rpm
+yum install -y $zfs_release_rpm
 yum install -y zfs
 modprobe zfs
 
