@@ -57,8 +57,8 @@ do
    else
       TYPE_IO_ARG="-k"
    fi
+sudo bash -c "sync; echo 3 > /proc/sys/vm/drop_caches"
 mpirun  -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a $IO_API -v -i 1 $TYPE_IO_ARG -m -d 1 $IO_API_ARG -w -r -t $TRANSFER_SIZE -b $SIZE -o ${FILESYSTEM}/test -O summaryFormat=$SUMMARY_FORMAT -O summaryFile=ior_${IO_API}_${TYPE_IO}_${TRANSFER_SIZE}_${SIZE}_${HOST}_${NUMPROCS}.out_$$
-rm
 sleep 2
 done
 done
