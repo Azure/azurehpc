@@ -1,7 +1,7 @@
 # Build a PBS compute cluster
-![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/simple_hpc_pbs?branchName=master)
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/simple_hpc_pbs_zfs?branchName=master)
 
-Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/simple_hpc_pbs/config.json)
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/simple_hpc_pbs_zfs/config.json)
 
 This example will create an HPC cluster ready to run with PBS Pro.  The headnode will export a ZFS filesystem for the nodes to use.
 
@@ -10,7 +10,7 @@ This example will create an HPC cluster ready to run with PBS Pro.  The headnode
 To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by compying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -s
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_zfs -d simple_hpc_pbs_zfs -s
 ```
 
 The variables can be set with the `-v` option where variables are comma separated.  The output from the previous command as a starting point.  The `-d` option is required and will create a new directory name for you.  Please update to whatever `resource_group` you would like to deploy to:
@@ -22,13 +22,13 @@ azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v resource_g
 > Note:  You can still update variables even if they are already set.  For example, in the command below we change the region to `westus2` and the SKU to `Standard_HC44rs`:
 
 ```
-azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -v location=westus2,vm_type=Standard_HC44rs,resource_group=azhpc-cluster
+azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs_zfs -d simple_hpc_pbs -v location=westus2,vm_type=Standard_HC44rs,resource_group=azhpc-cluster
 ```
 
 ## Create the cluster 
 
 ```
-cd simple_hpc_pbs
+cd simple_hpc_pbs_zfs
 azhpc-build
 ```
 

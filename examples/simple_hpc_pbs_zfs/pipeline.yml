@@ -8,7 +8,6 @@ trigger:
   paths:
     include:
       - examples/simple_hpc_pbs_zfs/*
-      - pyazhpc/*
       - scripts/make_zfs.sh
       - scripts/node_healthchecks.sh
       - scripts/install-nfsserver.sh
