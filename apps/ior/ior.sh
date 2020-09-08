@@ -1,6 +1,9 @@
 #!/bin/bash
-FILESYSTEM=${1:-/data}
+FILESYSTEM=${1:-$FILESYSTEM}
 SHARED_APP=${2:-/apps}
+SUMMARY_FORMAT=${SUMMARY_FORMAT:-JSON}
+HOST=`hostname`
+NUMPROCS=`cat $PBS_NODEFILE | wc -l`
 
 source /etc/profile # so we can load modules
 
@@ -31,11 +34,33 @@ if [[ -n "$PBS_NODEFILE" ]]; then
     MPI_OPTS="-np $CORES --hostfile $PBS_NODEFILE"
 fi
 
-# Throughput test (N-N)
-mpirun  -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a POSIX -v -i 3 -m -d 1 -B -e -F -r -w -t 32m -b 4G -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON
+cd $PBS_O_WORKDIR
+
+for TRANSFER_SIZE in 32m 4k
+do
+ if [ $TRANSFER_SIZE == "4k" ]; then
+    SIZE=128M
+ else
+    SIZE=2G
+ fi
+ for IO_API in POSIX MPIIO
+ do
+  if [ $IO_API == "POSIX" ]; then
+     IO_API_ARG="-F"
+  else
+     IO_API_ARG=""
+  fi
+  for TYPE_IO in direct_io buffered_io
+  do
+   if [ $TYPE_IO == "direct_io" ]; then
+      TYPE_IO_ARG="-B"
+   else
+      TYPE_IO_ARG="-k"
+   fi
+mpirun  -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a $IO_API -v -i 1 $TYPE_IO_ARG -m -d 1 $IO_API_ARG -w -r -t $TRANSFER_SIZE -b $SIZE -o ${FILESYSTEM}/test -O summaryFormat=$SUMMARY_FORMAT -O summaryFile=ior_${IO_API}_${TYPE_IO}_${TRANSFER_SIZE}_${SIZE}_${HOST}_${NUMPROCS}.out_$$
+rm
 sleep 2
-# Throughput test (N-1)
-mpirun  -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a POSIX -v -i 3 -m -d 1 -B -e -r -w -t 32m -b 4G -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON
-sleep 2
-# IOPS test
-mpirun -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a POSIX -v -i 3 -m -d 1 -B -e -F -r -w -t 4k -b 128M -o ${FILESYSTEM}/test.$(date +"%Y-%m-%d_%H-%M-%S") -O summaryFormat=JSON
+done
+done
+done
+rm ${FILESYSTEM}/test.*
