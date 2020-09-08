@@ -6,9 +6,9 @@
   "variables": {
     "image": "OpenLogic:CentOS:7.7:latest",
     "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
-    "instances": 5,
-    "location": "southcentralus",
-    "resource_group": "dv-autoslurm-1"
+    "instances": 10,
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>"
   },
   "vnet": {
     "name": "hpcvnet",
@@ -55,13 +55,13 @@
          "disable-selinux"
       ]
     },
-    "d64sv3": {
+    "d64dv4": {
       "type": "slurm_partition",
-      "vm_type": "Standard_D64_v4",
+      "vm_type": "Standard_D64d_v4",
       "accelerated_networking": true,
       "os_storage_sku": "Standard_LRS",
       "instances": "variables.instances",
-      "image": "variables.hpc_image",
+      "image": "variables.image",
       "subnet": "hpc",
       "tags": [
         "nfsclient",
