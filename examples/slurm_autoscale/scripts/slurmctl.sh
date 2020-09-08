@@ -91,7 +91,9 @@ chmod 600 /apps/slurm/azscale/*_id_rsa
 chmod 644 /apps/slurm/azscale/*_id_rsa.pub
 cp -r scripts /apps/slurm/azscale/.
 pushd /apps/slurm
-git clone -branch slurm_multisku https://github.com/vanzod/azurehpc.git 
+git clone https://github.com/vanzod/azurehpc.git
+cd azurehpc
+git checkout slurm_multisku
 popd
 
 chown slurm.slurm -R /apps/slurm
