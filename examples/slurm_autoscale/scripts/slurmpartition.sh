@@ -31,14 +31,9 @@ for partspec in $partitions_specs; do
 
   vm_capabilities=$(az vm list-skus --location $location --size $sku --all | jq '.[0].capabilities')
 
-  ThreadsPerCore=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUsPerCore") | .value')
-  if [[ "$ThreadsPerCore" == "" ]]; then 
-    ThreadsPerCore=1
-  fi
-
-  # Azure CLI is not reporting reliable values for the actual SKU memory
-  # Rely on lookup table until Azure CLI is fixed
-  RealMemory=$(awk "/$sku/"'{print $3}' ./skus_mem.lst)
+  # Azure CLI is not reporting accurate values for the SKU memory
+  # Temporarily rely on lookup table until Azure CLI is fixed
+  RealMemory=$(awk "/$sku/"'{print $3}' /share/apps/slurm/azscale/scripts/skus_mem.lst)
   if [[ -z "$RealMemory" ]]; then
     echo "ERROR: Cannot find $sku in memory lookup table (skus_mem.lst)"
     exit 1
@@ -48,33 +43,43 @@ for partspec in $partitions_specs; do
   ## MemoryGB can be a floating value
   #RealMemory=$(bc <<< "(${RealMemory} * 1024) / 1")
   
-  CPUs=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUs") | .value')
-  
-  Boards=1
-  SocketsPerBoard=1
+  # Reserve 5% of VM memory for system up to max 5 GB
+  MemSpecLimit=$(bc <<< "( ${RealMemory} * 0.05 / 1)")
+  if [ $MemSpecLimit -gt 5120 ]; then
+    MemSpecLimit=5120
+  fi
 
-  CoresPerSocket=$(( CPUs / (SocketsPerBoard*Boards*ThreadsPerCore) ))
+  CPUs=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUs") | .value')
+
+  ThreadsPerCore=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUsPerCore") | .value')
+  if [[ "$ThreadsPerCore" == "" ]]; then 
+    ThreadsPerCore=1
+  fi
+
+  Sockets=1
 
   # Special parameters for specific SKUs
   case $sku in
   Standard_HB60rs)
-    SocketsPerBoard=15
+    Sockets=15
     ;;
   Standard_HB120rs_v2)
-    SocketsPerBoard=30
+    Sockets=30
     ;;
   Standard_HC44rs)
-    SocketsPerBoard=2
+    Sockets=2
     ;;
   esac
   
+  CoresPerSocket=$(( CPUs / (Sockets * ThreadsPerCore) ))
+
   # Remove "Standard_" from the SKU name to use as node feature
   NodeFeature=$(echo $sku | cut -f2,3 -d'_')
 
   # Calculate max nodes index
   idx_end=$(printf "%04d" ${instances})
   
-  echo "NodeName=${partition}[0001-$idx_end] CPUs=$CPUs Boards=$Boards SocketsPerBoard=$SocketsPerBoard CoresPerSocket=$CoresPerSocket ThreadsPerCore=$ThreadsPerCore RealMemory=$RealMemory Feature=$NodeFeature State=CLOUD" >> /apps/slurm/nodes.conf
+  echo "NodeName=${partition}[0001-$idx_end] CPUs=$CPUs Sockets=$Sockets CoresPerSocket=$CoresPerSocket ThreadsPerCore=$ThreadsPerCore RealMemory=$RealMemory MemSpecLimit=$MemSpecLimit Feature=$NodeFeature State=CLOUD" >> /apps/slurm/nodes.conf
   echo "PartitionName=${partition} Nodes=${partition}[0001-$idx_end] Default=NO MaxTime=INFINITE State=UP" >> /apps/slurm/partitions.conf
   
   done
