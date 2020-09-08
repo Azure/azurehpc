@@ -26,6 +26,7 @@ mkdir -p /var/log/slurm
 chown slurm /var/log/slurm
 mkdir -p /apps/slurm
 
+# Create slurm.conf
 cat <<EOF > /apps/slurm/slurm.conf
 ClusterName=cluster
 
@@ -40,7 +41,11 @@ StateSaveLocation=/var/spool/slurm/state
 
 AuthType=auth/munge
 
-ProctrackType=proctrack/pgid
+ProctrackType=proctrack/cgroup
+TaskPlugin=task/affinity,task/cgroup
+
+SelectType=select/cons_res
+SelectTypeParameters=CR_CPU_Memory
 
 SchedulerType=sched/backfill
 SchedulerParameters=salloc_wait_nodes
@@ -67,14 +72,27 @@ DebugFlags=PowerSave
 PrivateData=cloud
 ReturnToService=2
 
-SallocDefaultCommand="srun --preserve-env --pty $SHELL"
+SallocDefaultCommand="srun --mem-per-cpu=0 --cpu_bind=no --preserve-env --pty $SHELL"
 
 include /apps/slurm/nodes.conf
 include /apps/slurm/partitions.conf
 
 EOF
 
+# Create cgroup.conf
+cat <<EOF > /apps/slurm/cgroup.conf
+CgroupMountpoint=/sys/fs/cgroup
+CgroupAutomount=yes
+ConstrainCores=yes
+TaskAffinity=no
+ConstrainRAMSpace=yes
+ConstrainSwapSpace=no
+ConstrainDevices=no
+
+EOF
+
 ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
+ln -s /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
 
 mkdir -p /apps/slurm/scripts
 

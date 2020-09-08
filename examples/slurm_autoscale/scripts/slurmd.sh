@@ -12,6 +12,7 @@ mkdir -p /var/log/slurm
 chown slurm /var/log/slurm
 
 ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
+ln -s /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
 
 systemctl enable slurmd
 systemctl start slurmd
