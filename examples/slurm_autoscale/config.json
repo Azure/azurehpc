@@ -59,6 +59,7 @@
       "type": "slurm_partition",
       "vm_type": "Standard_D64_v4",
       "accelerated_networking": true,
+      "os_storage_sku": "Standard_LRS",
       "instances": "variables.instances",
       "image": "variables.hpc_image",
       "subnet": "hpc",
