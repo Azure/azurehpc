@@ -560,9 +560,9 @@ def do_slurm_resume(args):
     
     config["resources"] = {}
     for rname in resource_list:
-        # Request the correct SKU for the node                                                                                                 
+        # Request the correct SKU for the node
         template_resource["vm_type"] = f"Standard_{sku_lookup[rname]}"
-        # Use SKU-dedicated availability set                                                                                                 
+        # Use SKU-dedicated availability set
         template_resource["availability_set"] = f"compute_{sku_lookup[rname]}"
         config["resources"][rname] = template_resource
 
