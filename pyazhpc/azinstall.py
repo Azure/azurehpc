@@ -35,10 +35,13 @@ fi
 
 # wait for DNS to update for all hostnames
 for h in $(<hostlists/$tag); do
-    until ssh $h hostname >/dev/null 2>&1; do
-        echo "Waiting for host - $h (sleeping for 5 seconds)" >> {logfile} 
-        sleep 5
-    done
+    # Do not try to connect to self
+    if [[ $(hostname) != "$h" ]]; then
+        until ssh $h hostname >/dev/null 2>&1; do
+            echo "Waiting for host - $h (sleeping for 5 seconds)" >> {logfile} 
+            sleep 5
+        done
+    fi
 done
 
 if [ "$1" != "" ]; then
