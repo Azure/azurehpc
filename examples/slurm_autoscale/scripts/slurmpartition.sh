@@ -1,6 +1,7 @@
 #!/bin/bash
 
 config_path=/apps/slurm/azscale/config.json
+sku_lookup=/share/apps/slurm/azscale/scripts/skus.lst
 
 # Initialize Azure CLI
 az login --identity -o table
@@ -33,9 +34,9 @@ for partspec in $partitions_specs; do
 
   # Azure CLI is not reporting accurate values for the SKU memory
   # Temporarily rely on lookup table until Azure CLI is fixed
-  RealMemory=$(awk "/$sku/"'{print $3}' /share/apps/slurm/azscale/scripts/skus_mem.lst)
+  RealMemory=$(awk "/$sku/"'{print $3}' $sku_lookup)
   if [[ -z "$RealMemory" ]]; then
-    echo "ERROR: Cannot find $sku in memory lookup table (skus_mem.lst)"
+    echo "ERROR: Cannot find $sku in memory lookup table ($sku_lookup)"
     exit 1
   fi
 
@@ -56,20 +57,8 @@ for partspec in $partitions_specs; do
     ThreadsPerCore=1
   fi
 
-  Sockets=1
-
-  # Special parameters for specific SKUs
-  case $sku in
-  Standard_HB60rs)
-    Sockets=15
-    ;;
-  Standard_HB120rs_v2)
-    Sockets=30
-    ;;
-  Standard_HC44rs)
-    Sockets=2
-    ;;
-  esac
+  # Get number of sockets (NUMA nodes) from lookup table
+  Sockets=$(awk "/$sku/"'{print $3}' $sku_lookup)
   
   CoresPerSocket=$(( numcores / (Sockets * ThreadsPerCore) ))
 
