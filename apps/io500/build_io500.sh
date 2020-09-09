@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_NAME=io-500-app
+APP_NAME=io500-app
 APP_VERSION=io500-isc20_v4
 SHARED_APP=/apps
 MODULE_DIR=${SHARED_APP}/modulefiles
