@@ -34,7 +34,7 @@ for partspec in $partitions_specs; do
 
   # Azure CLI is not reporting accurate values for the SKU memory
   # Temporarily rely on lookup table until Azure CLI is fixed
-  RealMemory=$(awk "/$sku/"'{print $3}' $sku_lookup)
+  RealMemory=$(awk "/$sku/"'{print $2}' $sku_lookup)
   if [[ -z "$RealMemory" ]]; then
     echo "ERROR: Cannot find $sku in memory lookup table ($sku_lookup)"
     exit 1
