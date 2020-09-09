@@ -49,7 +49,7 @@ for partspec in $partitions_specs; do
     MemSpecLimit=5120
   fi
 
-  CPUs=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUs") | .value')
+  numcores=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUs") | .value')
 
   ThreadsPerCore=$(echo $vm_capabilities | jq -r '.[] | select(.name=="vCPUsPerCore") | .value')
   if [[ "$ThreadsPerCore" == "" ]]; then 
@@ -71,7 +71,15 @@ for partspec in $partitions_specs; do
     ;;
   esac
   
-  CoresPerSocket=$(( CPUs / (Sockets * ThreadsPerCore) ))
+  CoresPerSocket=$(( numcores / (Sockets * ThreadsPerCore) ))
+
+  # If hyperthreading is enabled in the SKU, allocate only physical cores
+  # by setting the number of CPUs per node as the number of physical cores
+  if [[ "$ThreadsPerCore" != 1 ]]; then
+    CPUs=$(( numcores / ThreadsPerCore ))
+  else
+    CPUs=$numcores
+  fi
 
   # Remove "Standard_" from the SKU name to use as node feature
   NodeFeature=$(echo $sku | cut -f2,3 -d'_')
