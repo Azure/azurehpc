@@ -77,8 +77,8 @@ for partspec in $partitions_specs; do
   idx_end=$(printf "%04d" ${instances})
   
   echo "NodeName=${partition}[0001-$idx_end] CPUs=$CPUs Sockets=$Sockets CoresPerSocket=$CoresPerSocket ThreadsPerCore=$ThreadsPerCore RealMemory=$RealMemory MemSpecLimit=$MemSpecLimit Feature=$NodeFeature State=CLOUD" >> /apps/slurm/nodes.conf
-  echo "PartitionName=${partition} Nodes=${partition}[0001-$idx_end] Default=NO MaxTime=INFINITE State=UP" >> /apps/slurm/partitions.conf
+  echo "PartitionName=${partition} Nodes=${partition}[0001-$idx_end] Default=NO OverSubscribe=YES DefMemPerCPU=10240 MaxTime=INFINITE State=UP" >> /apps/slurm/partitions.conf
   
-  done
+done
 
 systemctl restart slurmctld
