@@ -39,10 +39,11 @@
         "localuser"
         ]
     },
-    "h60rs": {
+    "hb60rs": {
       "type": "slurm_partition",
       "vm_type": "Standard_HB60rs",
       "accelerated_networking": false,
+      "os_storage_sku": "Premium_LRS",
       "instances": "variables.instances",
       "image": "variables.hpc_image",
       "subnet": "hpc",
