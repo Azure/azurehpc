@@ -1,10 +1,12 @@
 #!/bin/bash
 
 FILESYSTEM=${FILESYSTEM:-/beegfs/datafiles}
+IO500_CONFIG=$(IO500_CONFIG:-config-io500.ini}
 
 source /etc/profile
 set -euo pipefail  # better error handling
 
+export UCX_LOG_LEVEL=error
 export NPROCS=`cat $PBS_NODEFILE | wc -l`
 
 export MODULEPATH=/apps/modulefiles:$MODULEPATH
@@ -12,8 +14,8 @@ module load io500-app
 module load gcc-9.2.0
 module load mpi/openmpi
 
-cat $PBS_O_WORKDIR
+cat $PBS_NODEFILE
 
 cd $PBS_O_WORKDIR
-sed -i "s#^datadir.*#datadir = ${FILESYSTEM}#" ./config-io500.ini
-mpirun -n $NPROCS --hostfile $PBS_NODEFILE `which io500` config-io500.ini
+sed -i "s#^datadir.*#datadir = ${FILESYSTEM}#" $IO500_CONFIG
+mpirun -n $NPROCS --hostfile $PBS_NODEFILE `which io500` $IO500_CONFIG
