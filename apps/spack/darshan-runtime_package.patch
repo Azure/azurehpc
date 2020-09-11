@@ -1,0 +1,31 @@
+--- spack/var/spack/repos/builtin/packages/darshan-runtime/package.py_orig      2020-09-11 23:09:17.189717609 +0000
++++ spack/var/spack/repos/builtin/packages/darshan-runtime/package.py   2020-09-11 23:12:36.099955263 +0000
+@@ -35,6 +35,7 @@
+     variant('slurm', default=False, description='Use Slurm Job ID')
+     variant('cobalt', default=False, description='Use Coblat Job Id')
+     variant('pbs', default=False, description='Use PBS Job Id')
++    variant('mpi', default=True, description='Compile with MPI support')
+
+     def install(self, spec, prefix):
+
+@@ -47,11 +48,15 @@
+             job_id = 'PBS_JOBID'
+
+         # TODO: BG-Q and other platform configure options
+-        options = ['CC=%s' % spec['mpi'].mpicc,
+-                   '--with-mem-align=8',
+-                   '--with-log-path-by-env=DARSHAN_LOG_DIR_PATH',
+-                   '--with-jobid-env=%s' % job_id,
+-                   '--with-zlib=%s' % spec['zlib'].prefix]
++        options = []
++        if '+mpi' in spec:
++            options = ['CC=%s' % spec['mpi'].mpicc]
++        else:
++            options = ['--without-mpi']
++        options.extends = ['--with-mem-align=8',
++                           '--with-log-path-by-env=DARSHAN_LOG_DIR_PATH',
++                           '--with-jobid-env=%s' % job_id,
++                           '--with-zlib=%s' % spec['zlib'].prefix]
+
+         with working_dir('spack-build', create=True):
+             configure = Executable('../darshan-runtime/configure')
