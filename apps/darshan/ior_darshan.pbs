@@ -1,0 +1,54 @@
+#!/bin/bash
+
+FILESYSTEM=${1:-$FILESYSTEM}
+SHARED_APP=${2:-/apps}
+SUMMARY_FORMAT=${SUMMARY_FORMAT:-default}
+HOST=`hostname`
+NUMPROCS=`cat $PBS_NODEFILE | wc -l`
+
+source /etc/profile # so we can load modules
+
+module use ${SHARED_APP}/modulefiles
+module load ior
+
+AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
+AZHPC_VMSIZE='standard_hb60rs'
+export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
+#echo "Running on $AZHPC_VMSIZE"
+if [ "$AZHPC_VMSIZE" = "" ]; then
+    echo "Unable to retrieve VM Size - Exiting"
+    exit 1
+fi
+
+case "$AZHPC_VMSIZE" in
+    standard_hb60rs | standard_hc44rs | standard_hb120rs_v2 )
+        module load mpi/hpcx
+        ;;
+    *)
+        module load mpi/mpich-3.2-x86_64
+        ;;
+esac
+
+if [[ -n "$PBS_NODEFILE" ]]; then
+    CORES=$(cat $PBS_NODEFILE | wc -l)
+    NODES=$(cat $PBS_NODEFILE | sort -u)
+    MPI_OPTS="-np $CORES --hostfile $PBS_NODEFILE"
+fi
+
+spack load darshan-runtime
+DARSHAN_RUNTIME_DIR=$(spack location -i darshan-runtime)
+export LD_PRELOAD=${DARSHAN_RUNTIME_DIR}/lib/libdarshan.so
+export DARSHAN_LOG_DIR_PATH=/share/home/hpcuser/darshan_logs
+mkdir $DARSHAN_LOG_DIR_PATH
+
+TRANSFER_SIZE=32m
+SIZE=2G
+IO_API=POSIX
+IO_API_ARG="-F"
+TYPE_IO="direct_io"
+TYPE_IO_ARG="-B"
+
+cd $PBS_O_WORKDIR
+
+mpirun -x LD_PRELOAD -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a $IO_API -v -i 1 $TYPE_IO_ARG -m -d 1 $IO_API_ARG -w r -t $TRANSFER_SIZE -b $SIZE -o ${FILESYSTEM}/test -O summaryFormat=$SUMMARY_FORMAT -O summaryFile=ior_${IO_API}_${TYPE_IO}_${TRANSFER_SIZE}_${SIZE}_${HOST}_${NUMPROCS}.out_$$
+rm ${FILESYSTEM}/test.*
