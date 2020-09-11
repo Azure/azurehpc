@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import socket
 import sys
 import textwrap
 import time
@@ -601,7 +602,11 @@ def do_slurm_resume(args):
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    fqdn = c.get_install_from_destination()
+    if socket.gethostname() == config["install_from"]:
+        fqdn = config["install_from"]
+    else:
+        fqdn = c.get_install_from_destination()
+
     log.debug(f"running script from : {fqdn}")
     azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
