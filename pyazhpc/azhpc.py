@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import socket
 import sys
 import textwrap
 import time
@@ -464,6 +465,33 @@ def _wait_for_deployment(resource_group, deploy_name):
 
         sys.exit(1)
 
+# create list of nodes from string 
+def _nodelist_expand(nodelist):
+    nodes = []
+    
+    # loop around resource
+    for m in re.finditer(r"(?:,)?([^,^[]*(?:\[[^\]]*\])?)", nodelist):
+        if len(m.groups()) > 0 and m.group(1) != "":
+            nodestr = m.group(1)
+            
+            # expand brackets
+            resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', nodestr).groups(0)
+            if bool(brackets):
+                for part in brackets.split(","):
+                    if "-" in part:
+                        lo, hi = part.split("-")
+                        assert len(lo) == 4, "expecting number width of 4"
+                        assert len(hi) == 4, "expecting number width of 4"
+                        for i in range(int(lo), int(hi) + 1):
+                            nodes.append(f"{resource_name}{i:04d}")
+                    else:
+                        assert len(part) == 4, "expecting number width of 4"
+                        nodes.append(f"{resource_name}{part}")
+            else:
+                nodes.append(resource_name)
+    
+    return nodes
+
 def do_slurm_suspend(args):
     log.debug(f"reading config file ({args.config_file})")
     
@@ -472,24 +500,8 @@ def do_slurm_suspend(args):
     config = c.preprocess()
 
     log.info(f"slurm suspend for {args.nodes}")
-    # first get the resource name
-    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
-    resource_list = []
-    if bool(brackets):
-        for part in brackets.split(","):
-            if "-" in part:
-                lo, hi = part.split("-")
-                assert len(lo) == 4, "expecting number width of 4"
-                assert len(hi) == 4, "expecting number width of 4"
-                for i in range(int(lo), int(hi) + 1):
-                    resource_list.append(f"{resource_name}{i:04d}")
-            else:
-                assert len(part) == 4, "expecting number width of 4"
-                resource_list.append(f"{resource_name}{part}")
-    else:
-        resource_list.append(resource_name)
-        resource_name = resource_name[:-4]
-    
+    resource_list = _nodelist_expand(args.nodes)
+    log.debug("suspend list expanded to: "+",".join(resource_list))    
     subscription_id = azutil.get_subscription_id()
     resource_group = config["resource_group"]
 
@@ -590,7 +602,11 @@ def do_slurm_resume(args):
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    fqdn = c.get_install_from_destination()
+    if socket.gethostname() == config["install_from"]:
+        fqdn = config["install_from"]
+    else:
+        fqdn = c.get_install_from_destination()
+
     log.debug(f"running script from : {fqdn}")
     azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
