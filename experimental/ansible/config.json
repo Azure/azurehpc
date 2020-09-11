@@ -41,7 +41,7 @@
             "storage_sku": "Premium_LRS",
             "tags": [
                 "common",
-                "nfs-server",
+                "nfs_server",
                 "localuser",
                 "pbsserver"
             ]
@@ -55,7 +55,7 @@
             "subnet": "compute",
             "tags": [
                 "common",
-                "nfs-mount",
+                "nfs_mount",
                 "localuser",
                 "pbsclient"
             ]
