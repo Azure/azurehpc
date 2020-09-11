@@ -8,6 +8,7 @@ trigger:
   paths:
     include:
       - examples/slurm_autoscale/*
+      - pyazhpc/*
       - examples/slurm_autoscale/scripts/*
     exclude:
       - examples/slurm_autoscale/readme.md
