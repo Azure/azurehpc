@@ -47,7 +47,7 @@ Run the following IOR PBS script (In this case darshan used LD_PRELOAD to catch 
 qsub -l select=2:ncpus=120:mpiprocs=4 -v FILESYSTEM=/lustre apps/darshan/ior_darshan.pbs
 
 ```
-> Where FILESYSTEM is the location of the filesystem being tested. The environmental variable DARSHAN_LOG_DIR_PATH is the location of the resulting darshan log files.
+> Where FILESYSTEM is the location of the filesystem being tested. The environmental variable DARSHAN_LOG_DIR_PATH is the location of the resulting darshan log files. Scripts are provided to create MPI wrappers which will instrument Darshan at compile/link time.
 
 ## Generate a Darshan graphical summary report.
 
