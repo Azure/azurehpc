@@ -1,7 +1,7 @@
 #!/bin/bash
 
 APP_NAME=spack
-APP_VERSION=0.14.2
+APP_VERSION=0.15.4
 SHARED_APP=${SHARED_APP:-/apps}
 INTEL_MPI_VERSION=${INTEL_MPI_VERSION:-2020.1.217}
 USER=`whoami`
@@ -15,6 +15,7 @@ CONFIG_YAML=config.yaml
 PACKAGES_YAML=packages.yaml
 
 sudo yum install -y python3
+sudo yum install -y patch
 
 SPACKDIR=${SHARED_APP}/${APP_NAME}/${APP_VERSION}
 mkdir -p $SPACKDIR
@@ -42,7 +43,13 @@ cp ${APPS_SPACK_DIR}/compilers.yaml ~/.spack
 mkdir -p ${SHARED_APP}/spack/${sku_type}
 
 if [ ! -z $email_address ] && [ ! -z $STORAGE_ENDPOINT ]; then
+pip3 install --user azure-storage-blob
 spack gpg init
 spack gpg create ${sku_type}_gpg $email_address
-spack mirror add ${sku_type}_buildcache ${STORAGE_ENDPOINT}/buildcache/${sku_type}
+AZURE_STORAGE=$(echo $STORAGE_ENDPOINT | sed 's/https/azure/')
+spack mirror add ${sku_type}_buildcache ${AZURE_STORAGE}buildcache/${sku_type}
 fi
+cp ${APPS_SPACK_DIR}/azure_blob.py ${SPACKDIR}/spack/lib/spack/spack/util
+cd $SPACKDIR
+patch -p0 < ${APPS_SPACK_DIR}/web_azure.patch
+patch -p0 < ${APPS_SPACK_DIR}/fetch_strategy_azure.patch

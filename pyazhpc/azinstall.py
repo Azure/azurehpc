@@ -71,6 +71,14 @@ EOF
 
 fi
 
+# check sshd is up on all nodes
+for h in $(<hostlists/$tag); do
+    until ssh $h hostname >/dev/null 2>&1; do
+        echo "Waiting for sshd on host - $h (sleeping for 5 seconds)"
+        sleep 5
+    done
+done
+
 pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'rpm -q rsync || sudo yum install -y rsync' >> {logfile} 2>&1
 
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/{tmpdir} ~ >> {logfile} 2>&1

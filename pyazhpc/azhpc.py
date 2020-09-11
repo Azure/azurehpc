@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import socket
 import sys
 import textwrap
 import time
@@ -465,23 +466,35 @@ def _wait_for_deployment(resource_group, deploy_name):
         sys.exit(1)
 
 def _nodelist_expand(nodelist):
-    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', nodelist).groups(0)
-    resource_list = []
-    if bool(brackets):
-        for part in brackets.split(","):
-            if "-" in part:
-                lo, hi = part.split("-")
-                assert len(lo) == 4, "expecting number width of 4"
-                assert len(hi) == 4, "expecting number width of 4"
-                for i in range(int(lo), int(hi) + 1):
-                    resource_list.append(f"{resource_name}{i:04d}")
+    """Create list of nodes from string"""
+
+    nodes = []
+    resource_names = []
+    
+    # loop around resource
+    for m in re.finditer(r"(?:,)?([^,^[]*(?:\[[^\]]*\])?)", nodelist):
+        if len(m.groups()) > 0 and m.group(1) != "":
+            nodestr = m.group(1)
+            
+            # expand brackets
+            resource, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', nodestr).groups(0)
+            if bool(brackets):
+                for part in brackets.split(","):
+                    if "-" in part:
+                        lo, hi = part.split("-")
+                        assert len(lo) == 4, "expecting number width of 4"
+                        assert len(hi) == 4, "expecting number width of 4"
+                        for i in range(int(lo), int(hi) + 1):
+                            nodes.append(f"{resource}{i:04d}")
+                    else:
+                        assert len(part) == 4, "expecting number width of 4"
+                        nodes.append(f"{resource}{part}")
+                resource_names.append(resource)
             else:
-                assert len(part) == 4, "expecting number width of 4"
-                resource_list.append(f"{resource_name}{part}")
-    else:
-        resource_list.append(resource_name)
-        resource_name = resource_name[:-4]
-    return resource_name, resource_list
+                nodes.append(resource)
+                resource_names.append(resource[:-4])
+ 
+    return resource_names, nodes
 
 def do_slurm_suspend(args):
     log.debug(f"reading config file ({args.config_file})")
@@ -491,9 +504,8 @@ def do_slurm_suspend(args):
     config = c.preprocess()
 
     log.info(f"slurm suspend for {args.nodes}")
-    # first get the resource name
     _, resource_list = _nodelist_expand(args.nodes)
-    
+    log.debug("suspend list expanded to: "+",".join(resource_list))    
     subscription_id = azutil.get_subscription_id()
     resource_group = config["resource_group"]
 
@@ -534,7 +546,7 @@ def do_slurm_resume(args):
 
     log.info(f"slurm resume for {args.nodes}")
     # first get the resource name
-    resource_name, resource_list = _nodelist_expand(args.nodes)
+    resource_names, resource_list = _nodelist_expand(args.nodes)
 
     # Generate node/sku lookup table from nodes.conf
     sku_lookup = {}
@@ -545,56 +557,64 @@ def do_slurm_resume(args):
             for n in cluster_nodes:
                 sku_lookup[n] = match.groups(0)[1]
 
-    template_resource = config.get("resources", {}).get(resource_name)
-    if not template_resource:
-        log.error(f"{resource_name} resource not found in config")
-        sys.exit(1)
-    if template_resource.get("type") != "slurm_partition":
-        log.error(f"invalid resource type for scaling")
+    # Loop over all resources
+    for resource in resource_names:
+        template_resource = config.get("resources", {}).get(resource)
+        if not template_resource:
+            log.error(f"{resource} resource not found in config")
+            sys.exit(1)
+        if template_resource.get("type") != "slurm_partition":
+            log.error(f"invalid resource type for scaling")
     
-    template_resource["type"] = "vm"
-    del template_resource["instances"]
+        template_resource["type"] = "vm"
+        del template_resource["instances"]
 
-    log.info(f"resource_name= {resource_name}")
-    log.info("resource_list= " + ",".join(resource_list))
+        log.info(f"resource= {resource}")
+        log.info("resource_list= " + ",".join(resource_list))
     
-    config["resources"] = {}
-    for rname in resource_list:
-        # Request the correct SKU for the node
-        template_resource["vm_type"] = f"Standard_{sku_lookup[rname]}"
-        # Use SKU-dedicated availability set
-        template_resource["availability_set"] = f"compute_{sku_lookup[rname]}"
-        config["resources"][rname] = template_resource
+        config["resources"] = {}
 
-    tpl = arm.ArmTemplate()
-    tpl.read_resources(config, False)
+        # Iterate over all nodes which name starts with the resource name
+        for rname in filter(lambda x: x.startswith(resource), resource_list):
+            # Request the correct SKU for the node
+            template_resource["vm_type"] = f"Standard_{sku_lookup[rname]}"
+            # Use SKU-dedicated availability set
+            template_resource["availability_set"] = f"compute_{sku_lookup[rname]}"
+            config["resources"][rname] = template_resource
 
-    output_template = f"deploy_{args.config_file}_{timestamp}"
+        tpl = arm.ArmTemplate()
+        tpl.read_resources(config, False)
 
-    log.info("writing out arm template to " + output_template)
-    with open(output_template, "w") as f:
-        f.write(tpl.to_json())
+        output_template = f"deploy_{args.config_file}_{timestamp}"
 
-    log.info("deploying arm template")
-    deployname = azutil.deploy(
-        config["resource_group"],
-        output_template
-    )
-    log.debug(f"deployment name: {deployname}")
+        log.info("writing out arm template to " + output_template)
+        with open(output_template, "w") as f:
+            f.write(tpl.to_json())
 
-    _wait_for_deployment(config["resource_group"], deployname)
+        log.info("deploying arm template")
+        deployname = azutil.deploy(
+            config["resource_group"],
+            output_template
+        )
+        log.debug(f"deployment name: {deployname}")
 
-    # remove local scripts
-    config["install"] = [ step for step in config["install"] if step.get("type", "jumpbox_script") == "jumpbox_script" ]
-    
-    log.info("building host lists")
-    azinstall.generate_hostlists(config, tmpdir)
-    log.info("building install scripts")
-    azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
-    
-    fqdn = c.get_install_from_destination()
-    log.debug(f"running script from : {fqdn}")
-    azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
+        _wait_for_deployment(config["resource_group"], deployname)
+
+        # remove local scripts
+        config["install"] = [ step for step in config["install"] if step.get("type", "jumpbox_script") == "jumpbox_script" ]
+        
+        log.info("building host lists")
+        azinstall.generate_hostlists(config, tmpdir)
+        log.info("building install scripts")
+        azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
+        
+        if socket.gethostname() == config["install_from"]:
+            fqdn = config["install_from"]
+        else:
+            fqdn = c.get_install_from_destination()
+
+        log.debug(f"running script from : {fqdn}")
+        azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
 def do_build(args):
     log.debug(f"reading config file ({args.config_file})")

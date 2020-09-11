@@ -7,10 +7,8 @@ trigger:
     - '*'
   paths:
     include:
-      - examples/simple_hpc_pbs/*
-      - pyazhpc/*
-      - scripts/create_raid0.sh
-      - scripts/make_filesystem.sh
+      - examples/simple_hpc_pbs_zfs/*
+      - scripts/make_zfs.sh
       - scripts/node_healthchecks.sh
       - scripts/install-nfsserver.sh
       - scripts/nfsclient.sh
@@ -26,9 +24,9 @@ pool: Default
 variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/simple_hpc_pbs/config.json
+  azhpc.config: examples/simple_hpc_pbs_zfs/config.json
   # pipeline directory
-  azhpc.pipeline_dir: examples/simple_hpc_pbs
+  azhpc.pipeline_dir: examples/simple_hpc_pbs_zfs
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
 
@@ -43,4 +41,4 @@ variables:
 jobs:
 - template: ../../ci/templates/jobs/build.yml
   parameters:
-    extra_steps: ../../../examples/simple_hpc_pbs/test.yml
+    extra_steps: ../../../examples/simple_hpc_pbs_zfs/test.yml

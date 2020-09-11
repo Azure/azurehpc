@@ -28,20 +28,20 @@ Example, building and installing osu-micro-benchmarks using different MPI librar
 
 Using mvapich2
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^mvapaich2@2.3.2
+spack install osu-micro-benchmarks%gcc@9.2.0^mvapich2@2.3.3
 ```
 Using openmpi
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^openmpi@4.0.2
+spack install osu-micro-benchmarks%gcc@9.2.0^openmpi@4.0.3
 ```
 Using hpcx
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@2.5.0
+spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@2.6.0
 ```
 Using intel mpi 
 ```
-source /opt/intel/impi/2019.5.281/intel64/bin/mpivars.sh
-spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2019.5.281
+source /opt/intel/impi/2019.7.217/intel64/bin/mpivars.sh
+spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2019.1.217
 ```
 
 Some example PBS scripts have been provided to show how run the osu-micro-benchmarks.
@@ -53,12 +53,23 @@ qsub -l select=2:ncpus=120:mpiprocs=1 osu_bw_openmpi.pbs
 To add the built/installed osu-micro-benchmarks to a buildcache (i.e repository) on Azure blob storage
 for later retrival and installation.
 
-First, create a buildcache locally (e.g in home directory) and signed with gpg.
+First, install the software (See above)
+
+Check that your azure storage blob mirror is set up.
 ```
-cd ~hpcuser
-mkdir -p buildcache/${sku_type}
-cd buildcache/${sku_type}
-spack buildcache create -k ${sku_type}_gpg osu-micro-benchmarks%gcc@9.2.0^mvapich2@2.3.2
+[hpcuser@headnode ~]$ spack mirror list
+spack-public       https://spack-llnl-mirror.s3-us-west-2.amazonaws.com/
+hbv2_buildcache    azure://cgspackstore.blob.core.windows.net/buidcache/hbv2
+```
+
+Create a buildcache in your azure storage blob mirror
+```
+spack buildcache create --rebuild-index -k ${sku_type}_gpg -m ${sku_type}_buildcache osu-micro-benchmarks%gcc@9.2.0^mvapich2@2.3.3
+```
+
+To install software from your azure storage blob buildcache.
+```
+spack buildcache install osu-micro-benchmarks^mvapich2
 ```
 
 To see all available gpg keys
@@ -66,14 +77,9 @@ To see all available gpg keys
 spack gpg list
 ```
 
-Then use azcopy_v10 to upload the buildcache to blob storage.
-```
-azcopy sync "/share/home/hpcuser/buildcache" "<STORAGE_ENDPOINT>/buildcache<SAS_KEY>"
-```
-
 To set-up your blob storage as a buildcache location, you need to add a mirror.
 ```
-spack mirror add ${sku_type}_buildcache ${STORAGE_ENDPOINT}/buildcache/${sku_type} 
+spack mirror add ${sku_type}_buildcache azure://<STORAGE_ACCOUNT_NAME>.blob.core.windows.net/buildcache/${sku_type} 
 ```
 
 To see what software is available for installation from the binary buildcache (blob storage).
