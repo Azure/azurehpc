@@ -1,0 +1,55 @@
+---
+
+- name: Download PBS RPMs
+  unarchive:
+    src: https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip
+    dest: /mnt/resource
+    remote_src: yes
+
+- name: install PBS Client
+  yum: 
+    name:
+      - /mnt/resource/pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm
+    state: present
+
+- name: Configure PBS server name in pbs.conf
+  replace : 
+    path: /etc/pbs.conf
+    regexp: 'CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME'
+    replace: '{{azhpc_pbs_server}}'
+
+- name: Configure PBS server name in mom conf
+  replace : 
+    path: /var/spool/pbs/mom_priv/config
+    regexp: 'CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME'
+    replace: '{{azhpc_pbs_server}}'
+
+- name: Fix limits (if)
+  replace : 
+    path: /opt/pbs/lib/init.d/limits.pbs_mom
+    regexp: '^if '
+    replace: '#if '
+
+- name: Fix limits (fi)
+  replace : 
+    path: /opt/pbs/lib/init.d/limits.pbs_mom
+    regexp: '^fi'
+    replace: '#fi'
+
+- name: Add vmssname as pool name attribute
+  shell: |
+    # Retrieve the VMSS name to be used as the pool name for multiple VMSS support
+    poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
+    /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'" || exit 1
+
+    mkdir -p /tmp/ansible/{{role_name}}
+    touch /tmp/ansible/{{role_name}}/pool_name
+  args:
+    executable: /bin/bash
+    creates: /tmp/ansible/{{role_name}}/pool_name
+
+- name: Ensure pbs is running.
+  service: 
+    name: pbs
+    state: started
+    enabled: yes

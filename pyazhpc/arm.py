@@ -256,7 +256,7 @@ class ArmTemplate:
         self.resources.append({
             "name": name,
             "type": "Microsoft.NetApp/netAppAccounts",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2020-02-01",
             "location": loc,
             "tags": {},
             "properties": props,
@@ -270,7 +270,7 @@ class ArmTemplate:
             self.resources.append({
                 "name": name+"/"+poolname,
                 "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
-                "apiVersion": "2019-07-01",
+                "apiVersion": "2020-02-01",
                 "location": loc,
                 "tags": {},
                 "properties": {
@@ -287,11 +287,11 @@ class ArmTemplate:
                 volsize = vol["size"]
                 voltype = vol.get("type", "nfs")
                 # TODO : Why is this unused ?
-                volmount = vol["mount"]
+                #volmount = vol["mount"]
                 netapp_volume = {
                     "name": name+"/"+poolname+"/"+volname,
                     "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
-                    "apiVersion": "2019-07-01",
+                    "apiVersion": "2020-06-01",
                     "location": loc,
                     "tags": {},
                     "properties": {
@@ -306,9 +306,9 @@ class ArmTemplate:
                     ]
                 }
                 if voltype == "cifs":
-                    netapp_volume["properties"]["protocolTypes"] = [
-                        "CIFS"
-                    ]
+                    netapp_volume["properties"]["protocolTypes"] = ["CIFS"]
+                    netapp_volume["properties"]["kerberosEnabled"] = "false"
+
                 self.resources.append(netapp_volume)
 
     def _add_storageaccount(self, cfg, name):

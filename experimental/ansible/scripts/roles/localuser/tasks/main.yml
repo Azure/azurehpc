@@ -1,0 +1,59 @@
+---
+- name: Create hpcuser
+  user:
+    name: "{{azhpc_user}}"
+    create_home: no
+    home: "{{azhpc_share_home}}/{{azhpc_user}}"
+  when: azhpc_nfs_server != inventory_hostname_short
+
+- name: Create and initialize hpcuser 
+  user:
+    name: "{{azhpc_user}}"
+    generate_ssh_key: yes
+    create_home: yes
+    home: "{{azhpc_share_home}}/{{azhpc_user}}"
+  when: azhpc_nfs_server == inventory_hostname_short
+
+- name: Configure ssh config file
+  blockinfile:
+    path: "{{azhpc_share_home}}/{{azhpc_user}}/.ssh/config"
+    block: |
+      Host *
+        StrictHostKeyChecking no
+        UserKnownHostsFile /dev/null
+        LogLevel ERROR
+    mode: '644'
+    owner: "{{azhpc_user}}"
+    group: "{{azhpc_user}}"
+    create: true
+  when: azhpc_nfs_server == inventory_hostname_short
+
+- name: get public key
+  slurp:
+    src: /share/home/{{azhpc_user}}/.ssh/id_rsa.pub
+  register: azhpc_user_key
+  when: azhpc_nfs_server == inventory_hostname_short
+
+- name: get admin public key
+  slurp:
+    src: /home/hpcadmin/.ssh/id_rsa.pub
+  register: azhpc_admin_key
+  when: azhpc_nfs_server == inventory_hostname_short
+
+- name: Add public keys to authorized_keys
+  blockinfile:
+    block: |
+        {{ azhpc_user_key['content'] | b64decode }}
+        {{ azhpc_admin_key['content'] | b64decode }}
+    dest: "{{azhpc_share_home}}/{{azhpc_user}}/.ssh/authorized_keys"
+    mode: '644'
+    create: true
+    owner: "{{azhpc_user}}"
+    group: "{{azhpc_user}}"
+  when: azhpc_nfs_server == inventory_hostname_short
+
+- name: No password for sudo
+  lineinfile:
+    path: /etc/sudoers
+    line: "{{azhpc_user}} ALL=(ALL) NOPASSWD:      ALL"
+    create: yes
