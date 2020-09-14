@@ -8,6 +8,7 @@ import socket
 import sys
 import textwrap
 import time
+import subprocess
 
 import arm
 import azconfig
@@ -548,15 +549,6 @@ def do_slurm_resume(args):
     # first get the resource name
     resource_names, resource_list = _nodelist_expand(args.nodes)
 
-    # Generate node/sku lookup table from nodes.conf
-    sku_lookup = {}
-    for line in open('/apps/slurm/nodes.conf', 'r'):
-        match = re.search(r'NodeName=([^\s]+).*Feature=([^\s]+)', line)
-        if match:
-            _, cluster_nodes = _nodelist_expand(match.groups(0)[0])
-            for n in cluster_nodes:
-                sku_lookup[n] = match.groups(0)[1]
-
     # Loop over all resources
     for resource in resource_names:
         template_resource = config.get("resources", {}).get(resource)
@@ -576,10 +568,15 @@ def do_slurm_resume(args):
 
         # Iterate over all nodes which name starts with the resource name
         for rname in filter(lambda x: x.startswith(resource), resource_list):
+            # Query Slurm to find the node's SKU
+            node_specs = subprocess.run(['scontrol', 'show', 'node', rname], stdout=subprocess.PIPE)
+            node_specs = node_specs.stdout.decode('utf-8')
+            # The SKU must be the only or the first attribute in the comma separated list of node's features 
+            node_sku = re.search(r"AvailableFeatures=(.*?)[\s,]", node_specs).group(1)
             # Request the correct SKU for the node
-            template_resource["vm_type"] = f"Standard_{sku_lookup[rname]}"
+            template_resource["vm_type"] = f"Standard_{node_sku}"
             # Use SKU-dedicated availability set
-            template_resource["availability_set"] = f"compute_{sku_lookup[rname]}"
+            template_resource["availability_set"] = f"compute_{node_sku}"
             config["resources"][rname] = template_resource
 
         tpl = arm.ArmTemplate()
