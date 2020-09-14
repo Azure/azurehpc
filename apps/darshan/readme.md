@@ -37,6 +37,7 @@ On the compute VM's install Darshan-runtime
 ```
 apps/darshan/install_runtime.sh 
 ```
+>Note: Darshan supports mpi and non-mpi codes, to build darshan to profile non-mpi codes (export NON_MPI=1).
 
 ## Example of Running Darshan to I/O profile an IOR benchmark
 
@@ -47,7 +48,7 @@ Run the following IOR PBS script (In this case darshan used LD_PRELOAD to catch 
 qsub -l select=2:ncpus=120:mpiprocs=4 -v FILESYSTEM=/lustre apps/darshan/ior_darshan.pbs
 
 ```
-> Where FILESYSTEM is the location of the filesystem being tested. The environmental variable DARSHAN_LOG_DIR_PATH is the location of the resulting darshan log files. Scripts are provided to create MPI wrappers which will instrument Darshan at compile/link time.
+> Where FILESYSTEM is the location of the filesystem being tested. The environmental variable DARSHAN_LOG_DIR_PATH is the location of the resulting darshan log files. Scripts are provided to create MPI wrappers which will instrument Darshan at compile/link time. Also, see fio_darshan.pbs to see how to get the I/O profile for a non-mpi code.
 
 ## Generate a Darshan graphical summary report.
 
