@@ -568,8 +568,6 @@ def do_slurm_resume(args):
 
         # Iterate over all nodes which name starts with the resource name
         for rname in filter(lambda x: x.startswith(resource), resource_list):
-            # Use SKU-dedicated availability set
-            template_resource["availability_set"] = f"compute_{node_sku}"
             config["resources"][rname] = template_resource
 
         tpl = arm.ArmTemplate()
