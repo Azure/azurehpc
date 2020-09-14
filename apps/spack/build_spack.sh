@@ -53,3 +53,4 @@ cp ${APPS_SPACK_DIR}/azure_blob.py ${SPACKDIR}/spack/lib/spack/spack/util
 cd $SPACKDIR
 patch -p0 < ${APPS_SPACK_DIR}/web_azure.patch
 patch -p0 < ${APPS_SPACK_DIR}/fetch_strategy_azure.patch
+patch -p0 < ${APPS_SPACK_DIR}/darshan-runtime_package.patch
