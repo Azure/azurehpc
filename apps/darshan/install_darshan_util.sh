@@ -1,16 +1,18 @@
 #!/bin/bash
 
-spack install darshan-util@gcc@9.2.0
+spack install darshan-util%gcc@9.2.0
 
-sudo yum install xauth
+sudo yum install -y xauth
 
-sudo yum install texlive
-sudo yum install texlive-epstopdf
-sudo yum install gnuplot
-sudo yum install texlive-lastpage
-sudo yum install texlive-subfigure
-sudo yum install texlive-multirow
-sudo yum install texlive-threeparttable
-sudo yum install perl-Pod-LaTeX
-sudo yum install perl-HTML-Parser
-sudo yum install ghostscript
+sudo yum install -y texlive
+sudo yum install -y texlive-epstopdf
+sudo yum install -y gnuplot
+sudo yum install -y texlive-lastpage
+sudo yum install -y texlive-subfigure
+sudo yum install -y texlive-multirow
+sudo yum install -y texlive-threeparttable
+sudo yum install -y perl-Pod-LaTeX
+sudo yum install -y perl-HTML-Parser
+sudo yum install -y ghostscript
+
+sudo yum install -y evince
