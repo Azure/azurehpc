@@ -1,0 +1,6 @@
+---
+azhpc_nfs_exports: ["/share/apps *(rw,sync,no_root_squash)", 
+              "/share/data *(rw,sync,no_root_squash)", 
+              "/share/home *(rw,sync,no_root_squash)", 
+              "/mnt/resource/scratch  *(rw,sync,no_root_squash)"]
+

@@ -1,0 +1,26 @@
+---
+
+# Disable SELinux
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+# Contains the common settings - imported from cndefault.sh
+- name: install epel
+  yum: 
+    name:
+      - epel-release
+    state: present
+
+- name: install common packages
+  yum: 
+    name:
+      - git
+      - jq
+      - htop
+    state: present
+
+- name: change access to resource so that temp jobs can be written there
+  file:
+    path: /mnt/resource
+    mode: '777'

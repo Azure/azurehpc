@@ -1,0 +1,3 @@
+azhpc_nfs_server: nfsserver
+azhpc_user: hpcuser 
+azhpc_share_home: /share/home
