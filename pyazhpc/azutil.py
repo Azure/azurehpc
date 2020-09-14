@@ -276,12 +276,12 @@ def get_image_id(resource_group, name):
 
 def get_anf_volume_ip(resource_group, account, pool, volume):
     cmd = [ 
-        "az", "netappfiles", "list-mount-targets",
+        "az", "netappfiles", "volume", "show",
             "--resource-group", resource_group,
             "--account-name", account,
             "--pool-name", pool,
-            "--volume-name", volume,
-            "--query", "[0].ipAddress",
+            "--name", volume,
+            "--query", "mountTargets[0].ipAddress",
             "--output", "tsv"
     ]
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
