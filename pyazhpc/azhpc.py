@@ -495,6 +495,10 @@ def _nodelist_expand(nodelist):
                 nodes.append(resource)
                 resource_names.append(resource[:-4])
 
+    # Remove trailing hyphen if used in node names to separate
+    # resource name from node index
+    resource_names = [x[:-1] if x[-1] == '-' else x for x in resource_names]
+
     return resource_names, nodes
 
 def do_slurm_suspend(args):
