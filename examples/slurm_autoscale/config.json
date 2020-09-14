@@ -42,6 +42,7 @@
     "hb60rs": {
       "type": "slurm_partition",
       "vm_type": "Standard_HB60rs",
+      "availability_set": "hb60rs_as",
       "accelerated_networking": false,
       "os_storage_sku": "Premium_LRS",
       "instances": "variables.instances",
