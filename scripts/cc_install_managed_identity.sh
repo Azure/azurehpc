@@ -26,6 +26,20 @@ wget -q "https://raw.githubusercontent.com/dapolloxp/AzureCycleAKSDeployment/mas
 
 key=$(cat /home/$admin_user/.ssh/id_rsa.pub)
 
+# Retrieve the Azure Cloud environemnt from the metadata
+AZHPC_AZURE_ENVIRONMENT=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.azEnvironment' | tr '[:upper:]' '[:lower:]')
+case "$AZHPC_AZURE_ENVIRONMENT" in
+    azurepubliccloud)
+        azure_environment="public"
+        ;;
+    azureusgovernmentcloud)
+        azure_environment="usgov"
+        ;;
+    *)
+        echo "Unsupported Azure Cloud Environment"
+        ;;
+esac
+
 echo "Setup cyclecloud_install.py for $fqdn"
 $PYTHON cyclecloud_install.py \
     --useManagedIdentity \
@@ -34,6 +48,7 @@ $PYTHON cyclecloud_install.py \
     --acceptTerms  \
     --publickey "$key" \
     --password ${password} \
+    --azureSovereignCloud $azure_environment \
     --storageAccount $projectstore
 if [ $? -ne 0 ]; then
     echo "Error : Error installing Cycle Cloud"
