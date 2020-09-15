@@ -37,6 +37,7 @@ case "$AZHPC_AZURE_ENVIRONMENT" in
         ;;
     *)
         echo "Unsupported Azure Cloud Environment"
+        exit 1
         ;;
 esac
 
@@ -49,11 +50,7 @@ $PYTHON cyclecloud_install.py \
     --publickey "$key" \
     --password ${password} \
     --azureSovereignCloud $azure_environment \
-    --storageAccount $projectstore
-if [ $? -ne 0 ]; then
-    echo "Error : Error installing Cycle Cloud"
-    exit 1
-fi
+    --storageAccount $projectstore || exit 1
 
 echo "CycleCloud application server installation finished"
 echo "Navigate to https://$fqdn and login using $admin_user"
