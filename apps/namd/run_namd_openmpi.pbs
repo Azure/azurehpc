@@ -7,11 +7,9 @@
 
 export MODULEPATH=/apps/modulefiles/${SKU_TYPE}:$MODULEPATH
 
-module load mpi/openmpi-4.0.2
-module unload gcc-9.2.0
-spack load gcc@7.4.0
-spack load tcl@8.5.19%gcc@7.4.0
-module load NAMD/2.13-openmpi-gcc7.4
+module load mpi/openmpi
+spack load fftw@3
+module load NAMD/2.14-openmpi
 
 cat $PBS_NODEFILE
 
