@@ -8,7 +8,6 @@ import socket
 import sys
 import textwrap
 import time
-import subprocess
 
 import arm
 import azconfig
@@ -571,7 +570,9 @@ def do_slurm_resume(args):
         config["resources"] = {}
 
         # Iterate over all nodes which name starts with the resource name
-        for rname in filter(lambda x: x.startswith(resource), resource_list):
+        # NOTE: It is assumed that in the nodename the resource name is separated
+        #       by a hyphen from the node index!
+        for rname in filter(lambda x: x.rsplit('-', 1)[0] == resource, resource_list):
             config["resources"][rname] = template_resource
 
         tpl = arm.ArmTemplate()
