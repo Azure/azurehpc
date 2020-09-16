@@ -3,7 +3,7 @@
 # Relevant environmental variables
 #
 # SKU_TYPE = hb, hc or hbv2 (default hbv2)
-# NAMD_SOURCE_TAR_GZ_LOC, location of NAMD_2.13_Source.tar.gz source code (default hpcuser home dir)
+# NAMD_SOURCE_TAR_GZ_LOC, location of NAMD_2.14_Source.tar.gz source code (default hpcuser home dir)
 # NAMD_SMP, set to "smp" if you want to build the smp version (default build non smp version)
 # NAMD_MEMOPT, set to "--with-memopt" if you want to build memopt enabled version (default : memopt is disabled) 
 #
