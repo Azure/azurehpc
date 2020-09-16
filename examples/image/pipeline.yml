@@ -28,6 +28,7 @@ variables:
 # Uncomment and set values below, or leave commented and thru pipeline variables
   # azhpc.variables.location: westeurope
   # azhpc.variables.image_name: foo
+  azhpc.variables_matrix: examples/image/test_matrix.json
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

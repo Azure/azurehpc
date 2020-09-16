@@ -1,0 +1,10 @@
+{
+    "Gen1":
+    {
+        "azhpc.variables.hpc_image": "OpenLogic:CentOS-HPC:7.7:latest"
+    },
+    "Gen2":
+    {
+        "azhpc.variables.image": "OpenLogic:CentOS-HPC:7_7-gen2:latest"
+    }
+}
