@@ -1,6 +1,7 @@
 # AzureHPC Change log
 
-- [PR 370](https://github.com/Azure/azurehpc/pull/370) : Catch BadRequest and Conflict deployment errors
+- [PR 372](https://github.com/Azure/azurehpc/pull/372) : Catch BadRequest and Conflict deployment errors
+- [PR 370](https://github.com/Azure/azurehpc/pull/370) : Deploy and capture Gen2 VM and Images
 - [PR 369](https://github.com/Azure/azurehpc/pull/369) : Allow installation of CycleCloud in USGov Azure Cloud
 - [PR 363](https://github.com/Azure/azurehpc/pull/363) : Darshan I/O Characterization tool
 - [PR 361](https://github.com/Azure/azurehpc/pull/361) : Azure NetApp File with SMB
