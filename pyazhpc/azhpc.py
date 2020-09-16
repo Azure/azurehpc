@@ -8,6 +8,7 @@ import socket
 import sys
 import textwrap
 import time
+import copy
 
 import arm
 import azconfig
@@ -542,9 +543,9 @@ def do_slurm_resume(args):
 
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    config = c.preprocess()
+    config_orig = c.preprocess()
 
-    adminuser = config["admin_user"]
+    adminuser = config_orig["admin_user"]
     private_key_file = adminuser+"_id_rsa"
     public_key_file = adminuser+"_id_rsa.pub"
 
@@ -552,9 +553,14 @@ def do_slurm_resume(args):
     # first get the resource name
     resource_names, resource_list = _nodelist_expand(args.nodes)
 
+    # Create a copy of the configuration to use as template                                                                 
+    # for the final deployment configuration                                                                                
+    config = copy.deepcopy(config_orig)
+    config["resources"] = {}
+
     # Loop over all resources
     for resource in resource_names:
-        template_resource = config.get("resources", {}).get(resource)
+        template_resource = config_orig.get("resources", {}).get(resource)
         if not template_resource:
             log.error(f"{resource} resource not found in config")
             sys.exit(1)
@@ -567,47 +573,45 @@ def do_slurm_resume(args):
         log.info(f"resource= {resource}")
         log.info("resource_list= " + ",".join(resource_list))
 
-        config["resources"] = {}
-
         # Iterate over all nodes which name starts with the resource name
         # NOTE: It is assumed that in the nodename the resource name is separated
         #       by a hyphen from the node index!
         for rname in filter(lambda x: x.rsplit('-', 1)[0] == resource, resource_list):
             config["resources"][rname] = template_resource
 
-        tpl = arm.ArmTemplate()
-        tpl.read_resources(config, False)
+    tpl = arm.ArmTemplate()
+    tpl.read_resources(config, False)
 
-        output_template = f"deploy_{args.config_file}_{timestamp}"
+    output_template = f"deploy_{args.config_file}_{timestamp}"
 
-        log.info("writing out arm template to " + output_template)
-        with open(output_template, "w") as f:
-            f.write(tpl.to_json())
+    log.info("writing out arm template to " + output_template)
+    with open(output_template, "w") as f:
+        f.write(tpl.to_json())
 
-        log.info("deploying arm template")
-        deployname = azutil.deploy(
-            config["resource_group"],
-            output_template
-        )
-        log.debug(f"deployment name: {deployname}")
+    log.info("deploying arm template")
+    deployname = azutil.deploy(
+        config["resource_group"],
+        output_template
+    )
+    log.debug(f"deployment name: {deployname}")
 
-        _wait_for_deployment(config["resource_group"], deployname)
+    _wait_for_deployment(config["resource_group"], deployname)
 
-        # remove local scripts
-        config["install"] = [ step for step in config["install"] if step.get("type", "jumpbox_script") == "jumpbox_script" ]
+    # remove local scripts
+    config["install"] = [ step for step in config["install"] if step.get("type", "jumpbox_script") == "jumpbox_script" ]
 
-        log.info("building host lists")
-        azinstall.generate_hostlists(config, tmpdir)
-        log.info("building install scripts")
-        azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
+    log.info("building host lists")
+    azinstall.generate_hostlists(config, tmpdir)
+    log.info("building install scripts")
+    azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
 
-        if socket.gethostname() == config["install_from"]:
-            fqdn = config["install_from"]
-        else:
-            fqdn = c.get_install_from_destination()
+    if socket.gethostname() == config["install_from"]:
+        fqdn = config["install_from"]
+    else:
+        fqdn = c.get_install_from_destination()
 
-        log.debug(f"running script from : {fqdn}")
-        azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
+    log.debug(f"running script from : {fqdn}")
+    azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
 def do_build(args):
     log.debug(f"reading config file ({args.config_file})")
