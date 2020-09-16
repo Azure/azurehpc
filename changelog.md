@@ -1,6 +1,17 @@
 # AzureHPC Change log
 
+- [PR 370](https://github.com/Azure/azurehpc/pull/370) : Catch BadRequest and Conflict deployment errors
+- [PR 369](https://github.com/Azure/azurehpc/pull/369) : Allow installation of CycleCloud in USGov Azure Cloud
+- [PR 363](https://github.com/Azure/azurehpc/pull/363) : Darshan I/O Characterization tool
+- [PR 361](https://github.com/Azure/azurehpc/pull/361) : Azure NetApp File with SMB
+- [PR 358](https://github.com/Azure/azurehpc/pull/358) : Add Lustre example with CycleCloud
+- [PR 356](https://github.com/Azure/azurehpc/pull/356) : Added script and example for zfs 
 - [PR 354](https://github.com/Azure/azurehpc/pull/354) : Updates to Abaqus for Abaqus 2020 on IntelMPI 
+- [PR 350](https://github.com/Azure/azurehpc/pull/350) : Update to Spack 0.15.4 and added support azure blob storage as an spack buildcache
+- [PR 349](https://github.com/Azure/azurehpc/pull/349) : EDA Applications
+- [PR 347](https://github.com/Azure/azurehpc/pull/347) : Lustre ltop (Monitor lustre I/O performance)
+- [PR 341](https://github.com/Azure/azurehpc/pull/341) : Add glusterFS example with CycleCloud
+- [PR 334](https://github.com/Azure/azurehpc/pull/334) : Add option to set pre-defined nsg rules and fix dns name 
 - [PR 333](https://github.com/Azure/azurehpc/pull/333) : Added additional options for VMSS resource (single_placement_group and overprovioning) 
 - [PR 343](https://github.com/Azure/azurehpc/pull/343) : CycleCloud : use pre-defined NSG
 - [PR 341](https://github.com/Azure/azurehpc/pull/341) : glusterFS example with CycleCloud
