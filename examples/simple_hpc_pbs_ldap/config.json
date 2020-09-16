@@ -1,0 +1,156 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "variables.admin_user",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "<NOT-SET>",
+        "compute_instances": 2,
+        "low_priority": false,
+        "vnet_resource_group": "variables.resource_group",
+        "admin_user": "hpcadmin"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "data_disks": [1024, 1024],
+            "storage_sku": "Premium_LRS",
+            "tags": [
+                "cndefault",
+                "ldapserver",
+                "nfsserver",
+                "pbsserver",
+                "loginnode",
+                "localuser",
+                "disable-selinux"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
+            "low_priority": "variables.low_priority",
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "nfsclient",
+                "ldapclient",
+                "pbsclient",
+                "cndefault",
+                "localuser",
+                "disable-selinux"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "create_raid0.sh",
+            "tag": "nfsserver",
+            "args": ["/dev/md10", "/dev/sd[c-d]"],
+            "sudo": true
+        },
+        {
+            "script": "make_filesystem.sh",
+            "tag": "nfsserver",
+            "args": ["/dev/md10", "xfs", "/share"],
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "nfsserver",
+            "args": ["/share"],
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "ldap_server.sh",
+            "tag": "ldapserver",
+            "sudo": true
+        },
+        {
+            "script": "ldap_add_user.sh",
+            "tag": "ldapserver",
+            "args": [
+                "--username", "hpcuser",
+                "--user-id", "2000",
+                "--sudo",
+                "--ssh-key", "$(</home/{{variables.admin_user}}/.ssh/id_rsa.pub)"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "ldap_client.sh",
+            "args": [
+                "--ldap-server",
+                "$(<hostlists/tags/ldapserver)"
+            ],
+            "tag": "ldapclient",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": true
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
+            "sudo": true
+        },
+        {
+            "script": "node_healthchecks.sh",
+            "tag": "pbsclient",
+            "sudo": true,
+            "args": [
+            ],
+            "deps" : ["install-azcopy.sh","healthchecks.json"]
+        } 
+    ]
+}
