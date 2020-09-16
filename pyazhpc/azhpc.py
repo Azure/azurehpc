@@ -412,6 +412,10 @@ def _wait_for_deployment(resource_group, deploy_name):
                 resource_type = props["targetResource"]["resourceType"]
                 del_lines += 1
                 print(f"{resource_name:15} {resource_type:47} {status_code:15}")
+                if status_code == "BadRequest" or status_code == "Conflict":
+                    log.info("Abording Deployment")
+                    building = False
+                    success = False
             else:
                 provisioning_state = props["provisioningState"]
                 del_lines += 1
