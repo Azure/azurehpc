@@ -1,9 +1,16 @@
 pr: none
+schedules:
+- cron: "0 0 * * Sun"
+  displayName: Every Sunday midnight build
+  branches:
+    include:
+    - master
+  always: true
+
 trigger:
   batch: true
   branches:
     include:
-    - master
     - '*'
   paths:
     include:
@@ -28,6 +35,7 @@ variables:
 # Uncomment and set values below, or leave commented and thru pipeline variables
   # azhpc.variables.location: westeurope
   # azhpc.variables.image_name: foo
+  azhpc.variables_matrix: examples/image/test_matrix.json
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
