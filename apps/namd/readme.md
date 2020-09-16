@@ -30,7 +30,7 @@ azhpc-connect -u hpcuser headnode
 ```
 apps/namd/install_namd_openmpi.sh 
 ```
-> Note: Set SKU_TYPE environmental to the type of sku you are using (e.h hb, hbv2 or hc). NAMD_SOURE_TAR_GZ_LOC to the location of the namd source code (e.g NAMD_2.13_Source.tar.gz). Set NAMD_SMP to "smp" if you want to build the smp version. Set NAMD_MEMOPT to "--with-memopt" if you want to built the memopt version of namd.
+> Note: Set SKU_TYPE environmental to the type of sku you are using (e.h hb, hbv2 or hc). NAMD_SOURE_TAR_GZ_LOC to the location of the namd source code (e.g NAMD_2.14_Source.tar.gz). Set NAMD_SMP to "smp" if you want to build the smp version. Set NAMD_MEMOPT to "--with-memopt" if you want to built the memopt version of namd.
 
 ## Running
 
