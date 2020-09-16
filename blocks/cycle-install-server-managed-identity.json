@@ -51,6 +51,11 @@
       "sudo": true
     },
     {
+      "script": "cndefault.sh",
+      "tag": "cycle",
+      "sudo": true
+    },
+    {
       "script": "cc_install_managed_identity.sh",
       "tag": "cycle",
       "sudo": true,
