@@ -9,7 +9,7 @@ do
     fi
 done
 
-yum -y install git jq htop
+yum -y install git jq htop python3
 
 # change access to resource so that temp jobs can be written there
 chmod 777 /mnt/resource
