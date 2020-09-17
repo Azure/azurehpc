@@ -34,33 +34,35 @@
           "Autoscale": true,
           "SubnetId": "{{variables.resource_group}}/hpcvnet/compute",
           "UseLowPrio": false,
+          "UsePublicNetwork": false,
+          "ReturnProxy": false,
           "Region": "{{variables.location}}",
           "configuration_slurm_version" : "19.05.5-1",
           "MasterClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:default:1.0.0": {
               "Order": 10000,
-              "Name": "azurehpc:beegfs:1.0.0",
-              "Spec": "beegfs",
+              "Name": "azurehpc:default:1.0.0",
+              "Spec": "default",
               "Project": "azurehpc",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
           },
           "HPCClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:default:1.0.0": {
               "Order": 10000,
-              "Name": "azurehpc:beegfs:1.0.0",
-              "Spec": "beegfs",
+              "Name": "azurehpc:default:1.0.0",
+              "Spec": "default",
               "Project": "azurehpc",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
           },
           "HTCClusterInitSpecs": {
-            "azurehpc:beegfs:1.0.0": {
+            "azurehpc:default:1.0.0": {
               "Order": 10000,
-              "Name": "azurehpc:beegfs:1.0.0",
-              "Spec": "beegfs",
+              "Name": "azurehpc:default:1.0.0",
+              "Spec": "default",
               "Project": "azurehpc",
               "Version": "1.0.0",
               "Locker": "azure-storage"
@@ -70,15 +72,25 @@
       }
     },
     "projects": {
-      "azurehpc:beegfs:1.0.0": [
+      "azurehpc:default:1.0.0": [
         {
           "script": "beegfspkgs.sh"
         },
         {
           "script": "beegfsc.sh",
-          "args": [
-            "beegfsm"
-          ]
+          "args": [ "beegfsm" ]
+        },
+        {
+          "script": "auto_mount.sh",
+          "args": [ "jumpbox:/share/apps", "/apps"]
+        },
+        {
+          "script": "auto_mount.sh",
+          "args": [ "jumpbox:/share/data", "/data"]
+        },
+        {
+          "script": "cndefault.sh",
+          "deps": ["azhpc4cycle.sh"]
         }
       ]
     }

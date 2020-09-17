@@ -1,6 +1,35 @@
 # AzureHPC Change log
 
+- [PR 372](https://github.com/Azure/azurehpc/pull/372) : Catch BadRequest and Conflict deployment errors
+- [PR 370](https://github.com/Azure/azurehpc/pull/370) : Deploy and capture Gen2 VM and Images
+- [PR 369](https://github.com/Azure/azurehpc/pull/369) : Allow installation of CycleCloud in USGov Azure Cloud
+- [PR 363](https://github.com/Azure/azurehpc/pull/363) : Darshan I/O Characterization tool
+- [PR 361](https://github.com/Azure/azurehpc/pull/361) : Azure NetApp File with SMB
+- [PR 358](https://github.com/Azure/azurehpc/pull/358) : Add Lustre example with CycleCloud
+- [PR 356](https://github.com/Azure/azurehpc/pull/356) : Added script and example for zfs 
+- [PR 354](https://github.com/Azure/azurehpc/pull/354) : Updates to Abaqus for Abaqus 2020 on IntelMPI 
+- [PR 350](https://github.com/Azure/azurehpc/pull/350) : Update to Spack 0.15.4 and added support azure blob storage as an spack buildcache
+- [PR 349](https://github.com/Azure/azurehpc/pull/349) : EDA Applications
+- [PR 347](https://github.com/Azure/azurehpc/pull/347) : Lustre ltop (Monitor lustre I/O performance)
+- [PR 341](https://github.com/Azure/azurehpc/pull/341) : Add glusterFS example with CycleCloud
+- [PR 334](https://github.com/Azure/azurehpc/pull/334) : Add option to set pre-defined nsg rules and fix dns name 
+- [PR 333](https://github.com/Azure/azurehpc/pull/333) : Added additional options for VMSS resource (single_placement_group and overprovioning) 
+- [PR 343](https://github.com/Azure/azurehpc/pull/343) : CycleCloud : use pre-defined NSG
+- [PR 341](https://github.com/Azure/azurehpc/pull/341) : glusterFS example with CycleCloud
+- [PR 334](https://github.com/Azure/azurehpc/pull/334) : Add option to set pre-defined nsg rules and fix dns name
+- [PR 332](https://github.com/Azure/azurehpc/pull/332) : Added support for BeeGFS native client cache
+- [PR 329](https://github.com/Azure/azurehpc/pull/329) : Added support for BeeGFS Admon (BeeGFS I/O performance monitoring)
+- [PR 327](https://github.com/Azure/azurehpc/pull/327) : ND40rs v2 gpu numa mapping
+- [PR 326](https://github.com/Azure/azurehpc/pull/326) : using the dkms lustre client 
+- [PR 325](https://github.com/Azure/azurehpc/pull/325) : CycleCloud and ANF example 
+- [PR 320](https://github.com/Azure/azurehpc/pull/320) : Support Custom Data (Cloud-Init) in vm/vmss
+- [PR 319](https://github.com/Azure/azurehpc/pull/319) : PBS automatic deletion of idle vmss instances
+- [PR 316](https://github.com/Azure/azurehpc/pull/316) : telegraf.conf modified to report interrupts and conntracks
+- [PR 315](https://github.com/Azure/azurehpc/pull/315) : Support macros in azhpc-get
+- [PR 310](https://github.com/Azure/azurehpc/pull/310) : Create and use custom image
+- [PR 309](https://github.com/Azure/azurehpc/pull/309) : Added BeeGFS + Cycle 7.9.x + Slurm support
 - [PR 306](https://github.com/Azure/azurehpc/pull/306) : Support for CycleCloud 8 | **BREAKING CHANGE** `cyclecli_install.sh` parameters changed
+- [PR 302](https://github.com/Azure/azurehpc/pull/302) : Support for UltraSSD DataDisk
 - [PR 301](https://github.com/Azure/azurehpc/pull/301) : Deploy CycleServer 7.9 with managed identity
 - [PR 298](https://github.com/Azure/azurehpc/pull/298) : CycleCloud integration
     - added Cycle 7.9.x project support

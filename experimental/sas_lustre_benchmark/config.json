@@ -1,0 +1,172 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "jumpbox",
+    "admin_user": "azureuser",
+    "proximity_placement_group_name": "variables.proximity_placement_group_name",
+    "vnet": {
+        "name": "vnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "infra": "10.2.0.0/24",
+            "storage": "10.2.1.0/24",
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "variables": {
+        "resource_group": "__resource_group__",
+        "client_vm_type": "__client_vm_type__",
+        "client_instances": __client_vm_instances__,
+        "mds_vm_type": "Standard_E32s_v3",
+        "oss_vm_type": "__oss_vm_type__",
+        "oss_instances": __oss_instances__,
+        "oss_storage_sku": "Standard_LRS",
+        "lustre_os_storage_sku": "Standard_LRS",
+        "proximity_placement_group_name": "{{variables.resource_group}}-ppg",
+        "lustre_avset": "{{variables.resource_group}}-avset",
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "lustre_image": "OpenLogic:CentOS:7.7:7.7.20190920",
+        "lustre_os_disk": 64,
+        "location": "westeurope",
+        "lustre_version": "2.13.0",
+        "lustre_mount": "/lustre"
+    },
+    "resources": {
+        "jumpbox": {
+            "type": "vm",
+            "vm_type": "Standard_F4s_v2",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "infra",
+            "tags": [
+                "wait"
+            ]
+        },
+        "mds": {
+            "type": "vm",
+            "vm_type": "variables.mds_vm_type",
+            "proximity_placement_group": true,
+            "accelerated_networking": true,
+            "availabilty_set": "variables.lustre_avset",
+            "image": "variables.lustre_image",
+            "subnet": "storage",
+            "os_disk_size": "variables.lustre_os_disk",
+            "os_storage_sku": "variables.lustre_os_storage_sku",
+            "storage_sku": "Premium_LRS",
+            "data_disks": [
+                1024
+            ],
+            "tags": [
+                "disable-selinux",
+                "lfsmds",
+                "lfsrepo",
+                "lfspkgs"
+            ]
+        },
+        "oss": {
+            "type": "vm",
+            "instances": "variables.oss_instances",
+            "vm_type": "variables.oss_vm_type",
+            "proximity_placement_group": true,
+            "availabilty_set": "variables.lustre_avset",
+            "accelerated_networking": true,
+            "image": "variables.lustre_image",
+            "subnet": "storage",
+            "os_disk_size": "variables.lustre_os_disk",
+            "os_storage_sku": "variables.lustre_os_storage_sku",
+            "storage_sku": "variables.oss_storage_sku",
+            "data_disks": [
+                8192, 8192
+            ],
+            "tags": [
+                "disable-selinux",
+                "lfsoss",
+                "lfsrepo",
+                "lfspkgs"
+            ]
+        },
+        "client": {
+            "type": "vm",
+            "vm_type": "variables.client_vm_type",
+            "proximity_placement_group": true,
+            "instances": "variables.client_instances",
+            "accelerated_networking": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "lfsclient",
+                "lfsrepo"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true,
+            "reboot": true
+        },
+        {
+            "script": "wait.sh",
+            "args": [
+                "60"
+            ],
+            "tag": "wait"
+        },
+        {
+          "script": "lfsrepo.sh",
+          "tag": "lfsrepo",
+          "args": [
+              "variables.lustre_version"
+          ],
+          "sudo": true
+        },
+        {
+          "script": "lfspkgs.sh",
+          "tag": "lfspkgs",
+          "sudo": true
+        },
+        {
+          "script": "lfsmaster.sh",
+          "tag": "lfsmds",
+          "args": [
+            "/dev/sdc"
+          ],
+          "sudo": true
+        },
+        {
+          "script": "lfsoss.sh",
+          "args": [
+            "$(<hostlists/tags/lfsmds)",
+            "/dev/sdc",
+            "/dev/sdd"
+          ],
+          "tag": "lfsoss",
+          "sudo": true
+        },
+        {
+          "script": "lfsclient.sh",
+          "args": [
+            "$(<hostlists/tags/lfsmds)",
+            "variables.lustre_mount"
+          ],
+          "tag": "lfsclient",
+          "sudo": true
+        },
+        {
+          "script": "set_stripe.sh",
+          "tag": "lfsclient",
+          "sudo": true
+        },
+        {
+          "script": "rhel_iotest.sh",
+          "args": [
+            "-t",
+            "/lustre"
+          ],
+          "tag": "lfsclient"
+        }
+    ]
+}

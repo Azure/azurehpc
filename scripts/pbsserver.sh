@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+
 admin_user=$(whoami)
 
 if [ "$(rpm -qa pbspro-server)" = "" ];then

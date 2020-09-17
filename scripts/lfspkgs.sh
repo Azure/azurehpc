@@ -8,4 +8,8 @@ systemctl restart waagent
 
 weak-modules --add-kernel --no-initramfs
 
+if [ -f "/etc/systemd/system/temp-disk-swapfile.service" ]; then
+    systemctl stop temp-disk-swapfile.service
+fi
+
 umount /mnt/resource

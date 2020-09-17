@@ -1,0 +1,46 @@
+---
+- name: Ensure NFS utilities are installed.
+  package: name=nfs-utils state=present
+
+- name: Ensure rpcbind is running.
+  service:
+    name: rpcbind
+    state: started
+    enabled: true
+
+- name: Ensure nfs-lock is running
+  service:
+    name: nfs-lock
+    state: started
+    enabled: true
+
+- name: Ensure nfs-idmap is running
+  service:
+    name: nfs-idmap
+    state: started
+    enabled: true
+
+- name: Ensure nfs is running
+  service:
+    name: nfs
+    state: started
+    enabled: true
+
+- name: Ensure directories to export exist
+  file: 'path="{{ item.strip().split()[0] }}" state=directory mode=777'
+  loop: "{{ azhpc_nfs_exports }}"
+
+- name: Copy exports file.
+  template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: 0644
+
+- name: reload nfs
+  command: 'exportfs -rav'
+
+- name: Ensure nfs-server is running.
+  service: "name=nfs-server state=started enabled=yes"
+  when: azhpc_nfs_exports|length

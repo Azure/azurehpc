@@ -1,5 +1,5 @@
 #!/bin/bash
-FILESYSTEM=$1
+FILESYSTEM=${1:-$FILESYSTEM}
 set -o pipefail
 source /etc/profile
 
@@ -11,12 +11,15 @@ fi
 SHARED_APPS=/apps
 DIRECTORY=${FILESYSTEM}/testing
 RUNTIME=600
+HOSTNAME=`hostname`
 
 export MODULEPATH=${SHARED_APPS}/modulefiles:$MODULEPATH
 module load fio
 
 mkdir $DIRECTORY
 NUMJOBS=`cat $PBS_NODEFILE | wc -l`
+
+cd $PBS_O_WORKDIR
 
 for BS in 4K 4M
 do
@@ -25,13 +28,16 @@ do
    else
       SIZE=2G
    fi
+   for DIRECTIO in 0 1
+   do
    for RW in write read
    do
-      sync
-      fio --name=${RW}_${SIZE} --directory=$DIRECTORY --direct=1 --size=$SIZE --bs=$BS --rw=${RW} --numjobs=$NUMJOBS --group_reporting --runtime=${RUNTIME} --output=fio_direct_${RW}_${SIZE}_${BS}_${NUMJOBS}.out
+      sudo bash -c "sync; echo 3 > /proc/sys/vm/drop_caches" 
+      fio --name=${RW}_${SIZE} --directory=$DIRECTORY --direct=$DIRECTIO --size=$SIZE --bs=$BS --rw=${RW} --numjobs=$NUMJOBS --group_reporting --runtime=${RUNTIME} --output=fio_${HOSTNAME}_${RW}_${SIZE}_${BS}_${NUMJOBS}_${DIRECTIO}.out
       rm ${DIRECTORY}/*
       sync
       sleep 2
+   done
    done
 done
 

@@ -1,0 +1,48 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "",
+    "admin_user": "variables.admin_user",
+    "variables": {
+        "vnet_name": "hpcvnet",
+        "vnet_resource_group": "variables.resource_group",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "key_vault": "<NOT-SET>",
+        "admin_user": "hpcadmin",
+        "ad_server": "adds",
+        "ad_domain": "hpc.local",
+        "anf_service_level": "Premium",
+        "anf_pool_size": 4,
+        "anf_data_volume_size": 4
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "variables.vnet_name"
+    },
+    "storage": {
+        "#anfaccount#": {
+            "type": "anf",
+            "subnet": "netapp",
+            "joindomain": "variables.ad_domain",
+            "ad_server": "variables.ad_server",
+            "ad_password": "secret.{{variables.key_vault}}.DomainAdminPassword",
+            "ad_username": "variables.admin_user",
+            "pools": {
+                "#anfpool#": {
+                    "size": "variables.anf_pool_size",
+                    "service_level": "variables.anf_service_level",
+                    "volumes": {
+                        "#anfdatavolume#": {
+                            "size": "variables.anf_data_volume_size",
+                            "type": "cifs",
+                            "mount": "/data"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "resources": {},
+    "install": []
+}

@@ -1,7 +1,6 @@
 #!/bin/bash
 # Prerequisites : OpenMPI 4.0.x + GCC 9.x
 SHARED_APP=${1:-/apps}
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 set -e
 source /etc/profile
 module use /usr/share/Modules/modulefiles
@@ -18,7 +17,7 @@ build_amd_hpl() {
     export HPL_DIR=$(pwd)
     echo $HPL_DIR
 
-    cp $DIR/Make.Linux_AMD_BLIS .
+    cp $BUILD_DIR/Make.Linux_AMD_BLIS .
     make arch=Linux_AMD_BLIS
     popd
 }

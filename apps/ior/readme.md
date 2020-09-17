@@ -49,7 +49,7 @@ bsub -q <queue> -R "span[ptile=8]" -n 16 -o %J.log -e %J.err -env "all, FILESYST
 
 > Note: this will run on 2 node and 15 processes per node.
 
-The `ior.sh` script runs a throughput (N-N and N-1) and IOPS test.
+The `ior.sh` script runs a throughput and IOPS test (for MPIIO, POSIX, direct I/O and buffered I/O).
 
 A metadata I/O benchmark test can be run using the `mdtest.sh` script.
 

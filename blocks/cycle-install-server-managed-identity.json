@@ -32,13 +32,14 @@
       "vm_type": "variables.cc_vm_type",
       "accelerated_networking": true,
       "public_ip": true,
+      "nsg_allow": ["ssh", "https"],
       "image": "variables.image",
       "subnet": "admin",
       "managed_identity": {
         "role": "contributor",
         "scope": "resource_group"
-    }, 
-    "tags": [
+      },
+      "tags": [
         "cycle"
       ]
     }
@@ -50,23 +51,20 @@
       "sudo": true
     },
     {
+      "script": "cndefault.sh",
+      "tag": "cycle",
+      "sudo": true
+    },
+    {
       "script": "cc_install_managed_identity.sh",
       "tag": "cycle",
       "sudo": true,
       "args": [
-          "cycleserver",
-          "variables.admin_user",
-          "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}",
-          "variables.projectstore",
-          "variables.cc_version"
-      ]
-    },
-    {
-      "type": "local_script",
-      "script": "cc_nsg.sh",
-      "args": [
-          "variables.resource_group",
-          "cycleserver"
+        "cycleserver",
+        "variables.admin_user",
+        "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}",
+        "variables.projectstore",
+        "variables.cc_version"
       ]
     }
   ]

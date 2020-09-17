@@ -2,6 +2,13 @@
 
 my_ip=$(nslookup comp0 | grep ^Address: | tail -n1 | cut -f2 -d' ')
 
-sockperf sr --tcp -i $my_ip -p 12345 &
-ssh comp1 sockperf ping-pong -i $my_ip --tcp -m 350 -t 101 -p 12345 --full-rtt
-kill %1
+sudo sockperf sr --tcp -i $my_ip -p 12345 &
+ssh comp1 "sudo sockperf ping-pong -i $my_ip --tcp -m 350 -t 101 -p 12345 --full-rtt"
+
+while proc_id=$(pgrep -x sockperf); do
+    echo "killing sockperf"
+    sudo kill $proc_id
+    sleep 1
+done
+
+echo "finished script"

@@ -175,23 +175,29 @@ This dictionary describes the resources for the project.
 | **availability_set**       | Name of the availability set and it is created if not existing (**vm only**)|   no     |         |
 | **availability_zones**     | List of integer where the resource need to be created. Can be 1, 2 or 3     |   no     |         |
 | **data_disks**             | Array of data disk size in GB                                               |   no     |         |
-| **fault_domain_count**     | FD count to use for **vmss only**                                           |   no     |         |
+| **dns_name**               | The dns name to use. If this is not set, then the resource name with a uuid will be used (**vm only**) |   no     |  uuid   |
+| **fault_domain_count**     | FD count to use (**vmss only**)                                             |   no     |         |
 | **image**                  | For a public image use format OpenLogic:CentOS:7.7:latest - For a custom image use the imageID of a managed image |   yes    |         |
 | **instances**              | Number of VMs or VMSS instances to create                                   |   yes    |         |
 | **low_priority**           | Boolean flag to se Spot Instance (Eviction = Delete)                        |   no     |  False  |
 | **managed_identity**       | [Managed Identity property](#managed-identity-property) to use (**vm only**)|   no     |         |
+| **nsg_allow**              | Enabled pre-defined NSG rules `ssh`, `rdp`, `http` or `https` (**vm only**) |   no     | ssh/rdp |
 | **os_disk_size**           | OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size|   no     |         |
 | **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
-| **password**               | user admin password to use with Windows                                     |   no     |         |
+| **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
+| **overprovision**          | Allows a VMSS to provision additional VMs incase some don't start quickly   |   no     |  True   |
+| **custom_data**            | File (@file) or URL indicating the location of the cloud-init script        |   no     |  None   |
 | **proximity_placement_group**| Boolean flag for wether to include the resource in the proximity placement group with the name specified in the global section |   no     |  False  |
 | **public_ip**              | Boolean flag for wether to use a public IP (**vm only**)                    |   no     |  False  |
 | **resource_tags**          | Tags to be assigned to the resources                                        |   no     |         |
+| **single_placement_group** | Used to place all VMs in a single VMSS in the same IB security group        |   no     |  True   |
 | **subnet**                 | Subnet name to create the resource in                                       |   yes    |         |
 | **storage_cache**          | Datadisk storage cache mode. Can be `None`, `ReadWrite` or `ReadOnly`       |   no     |ReadWrite|
-| **storage_sku**            | Data Disk Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`   |   no     |Premium_LRS|
+| **storage_sku**            | Data Disk Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS` or `UltraSSD_LRS` (which needs `availability_zones` to be defined)  |   no     |Premium_LRS|
 | **vm_type**                | VM Size for example `Standard_D16s_v3`                                      |   yes    |         |
 | **tags**                   | Array of tags used to specify which scripts need to be applied on the resource|   no    |         |
 
+> NOTE : When using `UltraSSD_LRS` then an Availability Set must be used
 
 #### Managed Identity property
 
@@ -271,6 +277,7 @@ For the most part the configuration is just a standard JSON file although there 
 | `laworkspace.<RESOURCE-GROUP>.<NAME>`                  | Retrieve a [Log Analytics workspace id](#log-analytics-workspace-id)           |
 | `lakey.<RESOURCE-GROUP>.<NAME>`                        | Retrieve a [Log Analytics key](#log-analytics-key)                             |
 | `acrkey.<ACR-REPONAME>`                                | Retrieve an [Azure Container Registry](#acr-key) key                           |
+| `image.<RESOURCE-GROUP>.<NAME>`                        | Retrieve a [Custom Image id](#custom-image-id)           |
 
 
 #### Variables
@@ -337,6 +344,9 @@ The config file allow to retrieve a Log Analytics key. This is the format : `lak
 The config file allow to retrieve an Azure Container Registry key. This is the format : `acrkey.<ACR-REPONAME>`.
 
 > Note : The Azure Container Registry repositery `<ACR-REPONAME>` need to exists
+
+#### Custom Image Id
+The config file allow to retrieve a custom image id. This is the format : `image.<RESOURCE-GROUP>.<NAME>`.
 
 
 #### Referencing variables in variables names

@@ -3,7 +3,26 @@ block_dir=$azhpc_dir/blocks
 AZHPC_CONFIG=config.json
 AZHPC_VARIABLES=variables.json
 
-blocks="$block_dir/vnet.json $block_dir/jumpbox-nfs.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json $block_dir/beegfs-cluster.json $azhpc_dir/examples/cc_beegfs/pbscycle.json"
+# Ensure that jq is installed
+command -v jq &> /dev/null || { echo -e >&2 "ERROR: Missing requirement: jq\nMake sure it is installed and its installation path included in PATH before executing $0"; exit 1; }
+
+blocks="$block_dir/vnet.json $block_dir/jumpbox-nfs.json $block_dir/cycle-install-server-managed-identity.json $block_dir/cycle-cli-local.json $block_dir/cycle-cli-jumpbox.json $block_dir/beegfs-cluster.json"
+
+# Select scheduler to be installed
+scheduler=$(jq -r '.variables.scheduler' variables.json)
+
+case "$scheduler" in
+  'pbs')
+    blocks="$blocks $azhpc_dir/examples/cc_beegfs/pbscycle.json"
+    ;;
+  'slurm')
+    blocks="$blocks $azhpc_dir/examples/cc_beegfs/slurmcycle.json"
+    ;;
+  *)
+    echo "ERROR: Unsupported scheduler type: $scheduler"
+    exit 1
+    ;;
+esac
 
 # Initialize config file
 echo "{}" >$AZHPC_CONFIG

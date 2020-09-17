@@ -1,0 +1,24 @@
+---
+- name: Ensure NFS utilities are installed.
+  package: name=nfs-utils state=present
+
+- name: Create mountable dir
+  file: 
+    path: "{{ item.path }}"
+    state: directory
+  with_items: "{{ azhpc_nfs_share_mounts }}"
+
+- name: Mount Share
+  mount: 
+    fstype: nfs
+    name: "{{ item.path }}"
+    opts: "{{ item.opts | default(azhpc_nfs_mount_opts) }}"
+    src: "{{ item.location }}"
+    state: mounted
+  with_items: "{{ azhpc_nfs_share_mounts }}"
+
+- name: Set use_nfs_home_dirs flag on and keep it persistent across reboots
+  seboolean:
+    name: use_nfs_home_dirs
+    state: yes
+    persistent: yes

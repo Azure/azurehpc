@@ -1,0 +1,37 @@
+#!/bin/bash
+FILESYSTEM=${1:-/lustre}
+set -o pipefail
+source /etc/profile
+
+if [ -z "$FILESYSTEM" ]; then
+   echo "Missing Filesystem parameter"
+   exit 1
+fi
+
+SHARED_APPS=/apps
+DIRECTORY=${FILESYSTEM}/testing
+RUNTIME=600
+HOSTNAME=`hostname`
+
+export MODULEPATH=${SHARED_APPS}/modulefiles:$MODULEPATH
+module load gcc-9.2.0
+module load fio
+
+mkdir $DIRECTORY
+NUMJOBS=`cat $PBS_NODEFILE | wc -l`
+
+spack load darshan-runtime~mpi
+DARSHAN_RUNTIME_DIR=$(spack location -i darshan-runtime)
+export LD_PRELOAD=${DARSHAN_RUNTIME_DIR}/lib/libdarshan.so
+export DARSHAN_LOG_DIR_PATH=/share/home/hpcuser/darshan_logs
+mkdir $DARSHAN_LOG_DIR_PATH
+export DARSHAN_ENABLE_NONMPI=1
+
+cd $PBS_O_WORKDIR
+
+BS=4M
+SIZE=5G
+DIRECTIO=1
+RW=write
+
+fio --ioengine=sync --thread --name=${RW}_${SIZE} --directory=$DIRECTORY --direct=$DIRECTIO --size=$SIZE --bs=$BS --rw=${RW} --numjobs=$NUMJOBS --group_reporting --runtime=${RUNTIME} --output=fio_${HOSTNAME}_${RW}_${SIZE}_${BS}_${NUMJOBS}_${DIRECTIO}.out

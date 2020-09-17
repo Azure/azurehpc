@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import socket
 import sys
 import textwrap
 import time
@@ -29,7 +30,16 @@ def do_preprocess(args):
 def do_get(args):
     config = azconfig.ConfigFile()
     config.open(args.config_file)
-    val = config.read_value(args.path)
+    log.debug(f"azhpc get for {args.path}")
+    processed_val = config.process_value(args.path)
+    log.debug(f"processed value is {processed_val}")
+    read_val = config.read_value(processed_val)
+    log.debug(f"read value is {read_val}")
+    if read_val or args.path == processed_val:
+        # use the read value result if valid or if processed value is the same as the original
+        val = read_val
+    else:
+        val = processed_val
     print(f"{args.path} = {val}")
 
 def __add_unset_vars(vset, config_file):
@@ -402,6 +412,9 @@ def _wait_for_deployment(resource_group, deploy_name):
                 resource_type = props["targetResource"]["resourceType"]
                 del_lines += 1
                 print(f"{resource_name:15} {resource_type:47} {status_code:15}")
+                if status_code == "BadRequest" or status_code == "Conflict":
+                    building = False
+                    success = False
             else:
                 provisioning_state = props["provisioningState"]
                 del_lines += 1
@@ -455,6 +468,33 @@ def _wait_for_deployment(resource_group, deploy_name):
 
         sys.exit(1)
 
+# create list of nodes from string 
+def _nodelist_expand(nodelist):
+    nodes = []
+    
+    # loop around resource
+    for m in re.finditer(r"(?:,)?([^,^[]*(?:\[[^\]]*\])?)", nodelist):
+        if len(m.groups()) > 0 and m.group(1) != "":
+            nodestr = m.group(1)
+            
+            # expand brackets
+            resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', nodestr).groups(0)
+            if bool(brackets):
+                for part in brackets.split(","):
+                    if "-" in part:
+                        lo, hi = part.split("-")
+                        assert len(lo) == 4, "expecting number width of 4"
+                        assert len(hi) == 4, "expecting number width of 4"
+                        for i in range(int(lo), int(hi) + 1):
+                            nodes.append(f"{resource_name}{i:04d}")
+                    else:
+                        assert len(part) == 4, "expecting number width of 4"
+                        nodes.append(f"{resource_name}{part}")
+            else:
+                nodes.append(resource_name)
+    
+    return nodes
+
 def do_slurm_suspend(args):
     log.debug(f"reading config file ({args.config_file})")
     
@@ -463,25 +503,8 @@ def do_slurm_suspend(args):
     config = c.preprocess()
 
     log.info(f"slurm suspend for {args.nodes}")
-    # first get the resource name
-    all_resources = config.get("resources", [])
-    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
-    resource_list = []
-    if bool(brackets):
-        for part in brackets.split(","):
-            if "-" in part:
-                lo, hi = part.split("-")
-                assert len(lo) == 4, "expecting number width of 4"
-                assert len(hi) == 4, "expecting number width of 4"
-                for i in range(int(lo), int(hi) + 1):
-                    resource_list.append(f"{resource_name}{i:04d}")
-            else:
-                assert len(part) == 4, "expecting number width of 4"
-                resource_list.append(f"{resource_name}{part}")
-    else:
-        resource_list.append(resource_name)
-        resource_name = resource_name[:-4]
-    
+    resource_list = _nodelist_expand(args.nodes)
+    log.debug("suspend list expanded to: "+",".join(resource_list))    
     subscription_id = azutil.get_subscription_id()
     resource_group = config["resource_group"]
 
@@ -522,7 +545,6 @@ def do_slurm_resume(args):
 
     log.info(f"slurm resume for {args.nodes}")
     # first get the resource name
-    all_resources = config.get("resources", [])
     resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
     resource_list = []
     if bool(brackets):
@@ -542,7 +564,7 @@ def do_slurm_resume(args):
     
     template_resource = config.get("resources", {}).get(resource_name)
     if not template_resource:
-        log.error(f"${res} resource not found in config")
+        log.error(f"{resource_name} resource not found in config")
         sys.exit(1)
     if template_resource.get("type") != "slurm_partition":
         log.error(f"invalid resource type for scaling")
@@ -574,15 +596,20 @@ def do_slurm_resume(args):
     log.debug(f"deployment name: {deployname}")
 
     _wait_for_deployment(config["resource_group"], deployname)
+
+    # remove local scripts
+    config["install"] = [ step for step in config["install"] if step.get("type", "jumpbox_script") == "jumpbox_script" ]
     
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
     
-    jumpbox = c.read_value("install_from")
-    resource_group = c.read_value("resource_group")
-    fqdn = c.get_install_from_destination()
+    if socket.gethostname() == config["install_from"]:
+        fqdn = config["install_from"]
+    else:
+        fqdn = c.get_install_from_destination()
+
     log.debug(f"running script from : {fqdn}")
     azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn)
 
@@ -610,10 +637,6 @@ def do_build(args):
 
     output_template = "deploy_"+args.config_file
 
-    log.info("writing out arm template to " + output_template)
-    with open(output_template, "w") as f:
-        f.write(tpl.to_json())
-
     log.info("creating resource group " + config["resource_group"])
 
     resource_tags = config.get("resource_tags", {})
@@ -631,15 +654,23 @@ def do_build(args):
             }
         ] + [ { "key": key, "value": resource_tags[key] } for key in resource_tags.keys() ]
     )
-    log.info("deploying arm template")
-    deployname = azutil.deploy(
-        config["resource_group"],
-        output_template
-    )
-    log.debug(f"deployment name: {deployname}")
 
-    _wait_for_deployment(config["resource_group"], deployname)
-    
+    if tpl.has_resources():
+        log.info("writing out arm template to " + output_template)
+        with open(output_template, "w") as f:
+            f.write(tpl.to_json())
+
+        log.info("deploying arm template")
+        deployname = azutil.deploy(
+            config["resource_group"],
+            output_template
+        )
+        log.debug(f"deployment name: {deployname}")
+
+        _wait_for_deployment(config["resource_group"], deployname)
+    else:
+        log.info("no resources to deploy")
+
     log.info("re-evaluating the config")
     config = c.preprocess()
     

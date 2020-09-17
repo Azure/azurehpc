@@ -38,7 +38,7 @@
             "ad_username": "User to use to join the domain",
             "joindomain": "Domain name to join to",
             "subnet": "subnet name in which to inject ANF NICs",
-            "type": "anf, azurestorage",
+            "type": "anf, storageaccount",
             "sku": "Standard_LRS, Standard_GRS, Standard_RAGRS, Standard_ZRS, Premium_LRS, Premium_ZRS, Standard_GZRS, Standard_RAGZRS",
             "containers": [ "container1", "container2"],
             "pools": {
@@ -62,6 +62,7 @@
             "availability_set": "true, (false)",
             "availability_zones": "1,2,3 - Cannot be empty, can be removed",
             "data_disks": [1024, 2048],
+            "dns_name": "The dns name to use.  If this is not set, then the resource name with a uuid will be used",
             "image": "For a public image use format OpenLogic:CentOS:7.7:latest ; For a custom image use the imageID of a managed image",
             "instances": "Number of VMs to create; default is 1",
             "low_priority": "true, (false)",
@@ -69,6 +70,7 @@
                 "role": "reader, contributor, owner",
                 "scope": "resource_group"
             },
+            "nsg_allow": ["rdp", "ssh", "http", "https"],
             "os_disk_size": "OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size",
             "os_storage_sku": "(Premium_LRS), StandardSSD_LRS, Standard_LRS",
             "password": "user admin password to use with Windows",
@@ -87,6 +89,8 @@
             "availability_zones": "1,2,3 - Cannot be empty, can be removed",
             "data_disks": [128, 1024],
             "fault_domain_count": 99,
+            "single_placement_group": "(true), false",
+            "overprovision": "(true), false",
             "image": "For a public image use format OpenLogic:CentOS:7.7:latest ; For a custom image use the imageID of a managed image",
             "instances": "Number of VMs to create in the VMSS",
             "low_priority": "true, (false)",

@@ -1,0 +1,32 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "license_server": "<NOT-SET>",
+        "app_storage_account": "<NOT-SET>",
+        "app_container": "<NOT-SET>",
+        "app_folder": "abaqus-2020"
+    },
+    "vnet": {
+    },
+    "resources": {
+    },
+    "install": [
+        {
+            "script": "install-azcopy.sh",
+            "tag": "pbsserver",
+            "sudo": true
+        },
+        {
+            "script": "install_abaqus.sh",
+            "tag": "pbsserver",
+            "sudo": true,
+            "args": ["variables.license_server", "sasurl.{{variables.app_storage_account}}.{{variables.app_container}},rl", "variables.app_folder"],
+            "deps": ["UserIntentions.xml"]
+        }
+    ]
+}

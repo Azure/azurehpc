@@ -1,13 +1,21 @@
 pr: none
+schedules:
+- cron: "0 0 * * Sun"
+  displayName: Every Sunday midnight build
+  branches:
+    include:
+    - master
+  always: true
+
 trigger:
   batch: true
   branches:
     include:
-    - master
     - '*'
   paths:
     include:
       - examples/slurm_autoscale/*
+      - pyazhpc/*
       - examples/slurm_autoscale/scripts/*
     exclude:
       - examples/slurm_autoscale/readme.md

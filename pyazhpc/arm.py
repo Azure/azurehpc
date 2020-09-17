@@ -7,6 +7,7 @@ import azutil
 
 log = azlog.getLogger(__name__)
 
+
 class ArmTemplate:
     def __init__(self):
         self.parameters = {}
@@ -15,17 +16,17 @@ class ArmTemplate:
         self.outputs = {}
 
         self.avsets = set()
-    
+
     def _add_network(self, cfg):
         resource_group = cfg["resource_group"]
         vnet_resource_group = cfg["vnet"].get("resource_group", resource_group)
         if resource_group != vnet_resource_group:
             log.debug(f"using an existing vnet in {vnet_resource_group}")
             return
-        
+
         location = cfg["location"]
         vnet_name = cfg["vnet"]["name"]
-        address_prefix = cfg["vnet"]["address_prefix"]      
+        address_prefix = cfg["vnet"]["address_prefix"]
         subnet_names = cfg["vnet"]["subnets"]
         subnets = []
         for subnet_name in subnet_names:
@@ -52,7 +53,7 @@ class ArmTemplate:
             }
         }
         self.resources.append(res)
-        
+
         resource_group = cfg["resource_group"]
         for peer_name in cfg["vnet"].get("peer", {}).keys():
             peer_resource_group = cfg["vnet"]["peer"][peer_name]["resource_group"]
@@ -196,7 +197,7 @@ class ArmTemplate:
                 "properties": {
                     "addressPrefix": subnet_address_prefix,
                     "routeTable": {
-                       "id": f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
+                        "id": f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
                     }
                 }
             })
@@ -213,9 +214,11 @@ class ArmTemplate:
         if (rg == vnetrg) and deploy_network:
             log.debug("adding delegation to subnet")
             rvnet = next((x for x in self.resources if x["name"] == vnet), [])
-            rsubnet = next((x for x in rvnet["properties"]["subnets"] if x["name"] == subnet), None)
+            rsubnet = next(
+                (x for x in rvnet["properties"]["subnets"] if x["name"] == subnet), None)
             if not rsubnet:
-                log.error("subnet ({}) for netapp storage ({}) does not exist".format(subnet, name))
+                log.error(
+                    "subnet ({}) for netapp storage ({}) does not exist".format(subnet, name))
                 sys.exit(1)
             if "delegations" not in rsubnet["properties"]:
                 rsubnet["properties"]["delegations"] = []
@@ -227,10 +230,12 @@ class ArmTemplate:
             })
 
             nicdeps.append("Microsoft.Network/virtualNetworks/"+vnet)
-            subnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnet, subnet)
+            subnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(
+                vnet, subnet)
         else:
-            subnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnet, subnet)
-            
+            subnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(
+                vnetrg, vnet, subnet)
+
         addomain = account.get("joindomain", None)
         props = {}
         if addomain:
@@ -251,7 +256,7 @@ class ArmTemplate:
         self.resources.append({
             "name": name,
             "type": "Microsoft.NetApp/netAppAccounts",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2020-02-01",
             "location": loc,
             "tags": {},
             "properties": props,
@@ -265,7 +270,7 @@ class ArmTemplate:
             self.resources.append({
                 "name": name+"/"+poolname,
                 "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
-                "apiVersion": "2019-07-01",
+                "apiVersion": "2020-02-01",
                 "location": loc,
                 "tags": {},
                 "properties": {
@@ -282,11 +287,11 @@ class ArmTemplate:
                 volsize = vol["size"]
                 voltype = vol.get("type", "nfs")
                 # TODO : Why is this unused ?
-                volmount = vol["mount"]
+                #volmount = vol["mount"]
                 netapp_volume = {
                     "name": name+"/"+poolname+"/"+volname,
                     "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
-                    "apiVersion": "2019-07-01",
+                    "apiVersion": "2020-06-01",
                     "location": loc,
                     "tags": {},
                     "properties": {
@@ -296,18 +301,19 @@ class ArmTemplate:
                         "subnetId": subnetid
                     },
                     "dependsOn": [
-                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', '{}', '{}')]".format(name, poolname)
+                        "[resourceId('Microsoft.NetApp/netAppAccounts/capacityPools', '{}', '{}')]".format(
+                            name, poolname)
                     ]
                 }
                 if voltype == "cifs":
-                    netapp_volume["properties"]["protocolTypes"] = [ 
-                        "CIFS"
-                    ]
+                    netapp_volume["properties"]["protocolTypes"] = ["CIFS"]
+                    netapp_volume["properties"]["kerberosEnabled"] = "false"
+
                 self.resources.append(netapp_volume)
 
     def _add_storageaccount(self, cfg, name):
         loc = cfg["location"]
-        
+
         res = {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
@@ -334,7 +340,7 @@ class ArmTemplate:
                     ]
                 }
             )
-        
+
         self.resources.append(res)
 
     def _add_proximity_group(self, cfg):
@@ -348,16 +354,20 @@ class ArmTemplate:
                 "location": loc
             })
 
-    def __helper_arm_create_osprofile(self, rname, rtype, adminuser, adminpass, sshkey):
+    def __helper_arm_create_osprofile(self, rname, rtype, adminuser, adminpass, sshkey, customdata):
         if rtype == "vm":
             name = "computerName"
         else:
             name = "computerNamePrefix"
-        
+
         osprofile = {
             name: rname,
             "adminUsername": adminuser
         }
+        if customdata:
+            if customdata.startswith("http"):
+                customdata = "#include\n" + customdata
+            osprofile["customData"] = "[base64('" + customdata + "')]"
         if adminpass != "<no-password>":
             osprofile["adminPassword"] = adminpass
         else:
@@ -382,6 +392,9 @@ class ArmTemplate:
                 cacheoption = cache
             else:
                 cacheoption = "None"
+            if sku == "UltraSSD_LRS":
+                cacheoption = "None"
+
             datadisks.append({
                 "caching": cacheoption,
                 "managedDisk": {
@@ -395,16 +408,16 @@ class ArmTemplate:
 
     def __helper_arm_create_image_reference(self, refstr):
         if ":" in refstr:
-           return {
-              "publisher": refstr.split(":")[0],
-              "offer": refstr.split(":")[1],
-              "sku": refstr.split(":")[2],
-              "version": refstr.split(":")[3]
-        }
+            return {
+                "publisher": refstr.split(":")[0],
+                "offer": refstr.split(":")[1],
+                "sku": refstr.split(":")[2],
+                "version": refstr.split(":")[3]
+            }
         else:
-           return {
-              "id": refstr
-        }
+            return {
+                "id": refstr
+            }
 
     def __helper_arm_add_zones(self, res, zones):
         strzones = []
@@ -424,6 +437,8 @@ class ArmTemplate:
         ros = rimage.split(':')
         rinstances = res.get("instances", 1)
         rpip = res.get("public_ip", False)
+        rdns = res.get("dns_name", None)
+        rnsgallow = res.get("nsg_allow", None)
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)
@@ -439,18 +454,21 @@ class ArmTemplate:
         rmanagedidentity = res.get("managed_identity", None)
         loc = cfg["location"]
         ravset = res.get("availability_set")
+        customdata = res.get("custom_data", None)
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
         if vnet_in_deployment:
-            rsubnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetname, rsubnet)
+            rsubnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(
+                vnetname, rsubnet)
         else:
-            rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnetname, rsubnet)
+            rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(
+                vnetrg, vnetname, rsubnet)
         rpassword = res.get("password", "<no-password>")
         with open(adminuser+"_id_rsa.pub") as f:
             sshkey = f.read().strip()
-        
+
         if ravset and ravset not in self.avsets:
             arm_avset = {
                 "name": ravset,
@@ -476,7 +494,7 @@ class ArmTemplate:
             self.avsets.add(ravset)
 
         rorig = r
-        for instance in range(1, rinstances+1):    
+        for instance in range(1, rinstances+1):
             if rinstances > 1:
                 r = "{}{:04}".format(rorig, instance)
 
@@ -486,18 +504,22 @@ class ArmTemplate:
 
             if rpip:
                 pipname = r+"_pip"
-                dnsname = azutil.get_dns_label(rrg, pipname, True)
-                if dnsname:
-                    log.debug(f"dns name: {dnsname} (using existing one)")
+                if rdns:
+                    dnsname = rdns
                 else:
-                    dnsname = r+str(uuid.uuid4())[:6]
-                    log.debug(f"dns name: {dnsname}")
+                    dnsname = azutil.get_dns_label(rrg, pipname, True)
+                    if dnsname:
+                        log.debug(f"dns name: {dnsname} (using existing one)")
+                    else:
+                        dnsname = r+str(uuid.uuid4())[:6]
+                        log.debug(f"dns name: {dnsname}")
                 nsgname = r+"_nsg"
 
                 nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)
-                nicdeps.append("Microsoft.Network/networkSecurityGroups/"+nsgname)
+                nicdeps.append(
+                    "Microsoft.Network/networkSecurityGroups/"+nsgname)
 
-                self.resources.append({
+                pipres = {
                     "type": "Microsoft.Network/publicIPAddresses",
                     "apiVersion": "2018-01-01",
                     "name": pipname,
@@ -509,60 +531,84 @@ class ArmTemplate:
                             "domainNameLabel": dnsname
                         }
                     }
-                })
+                }
+                self.__helper_arm_add_zones(pipres, raz)
+                self.resources.append(pipres)
 
-                if ros[0] == "MicrosoftWindowsServer" or ros[0] == "MicrosoftWindowsDesktop":
-                    self.resources.append({
-                        "type": "Microsoft.Network/networkSecurityGroups",
-                        "apiVersion": "2015-06-15",
-                        "name": nsgname,
-                        "location": loc,
-                        "dependsOn": [],
-                        "tags": {},
+                nsg_security_rules = {
+                    "rdp": {
+                        "name": "default-allow-rdp",
                         "properties": {
-                            "securityRules": [
-                                {
-                                    "name": "default-allow-rdp",
-                                    "properties": {
-                                        "protocol": "Tcp",
-                                        "sourcePortRange": "*",
-                                        "destinationPortRange": "3389",
-                                        "sourceAddressPrefix": "*",
-                                        "destinationAddressPrefix": "*",
-                                        "access": "Allow",
-                                        "priority": 1000,
-                                        "direction": "Inbound"
-                                    }
-                                }
-                             ]
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound"
                         }
-                    })
+                    },
+                    "ssh":  {
+                        "name": "default-allow-ssh",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1010,
+                            "direction": "Inbound"
+                        }
+                    },
+                    "http":  {
+                        "name": "default-allow-http",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1020,
+                            "direction": "Inbound"
+                        }
+                    },
+                    "https":  {
+                        "name": "default-allow-https",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1030,
+                            "direction": "Inbound"
+                        }
+                    }
+                }
+
+                if rnsgallow:
+                    nsgrules = [ nsg_security_rules[service] for service in rnsgallow ]
                 else:
-                    self.resources.append({
-                        "type": "Microsoft.Network/networkSecurityGroups",
-                        "apiVersion": "2015-06-15",
-                        "name": nsgname,
-                        "location": loc,
-                        "dependsOn": [],
-                        "tags": {},
-                        "properties": {
-                            "securityRules": [
-                                {
-                                    "name": "default-allow-ssh",
-                                    "properties": {
-                                        "protocol": "Tcp",
-                                        "sourcePortRange": "*",
-                                        "destinationPortRange": "22",
-                                        "sourceAddressPrefix": "*",
-                                        "destinationAddressPrefix": "*",
-                                        "access": "Allow",
-                                        "priority": 1000,
-                                        "direction": "Inbound"
-                                    }
-                                }
-                            ]
-                        }
-                    })
+                    if ros[0] == "MicrosoftWindowsServer" or ros[0] == "MicrosoftWindowsDesktop":
+                        nsgrules = [ nsg_security_rules["rdp"] ]
+                    else:
+                        nsgrules = [ nsg_security_rules["ssh"] ]
+
+                self.resources.append({
+                    "type": "Microsoft.Network/networkSecurityGroups",
+                    "apiVersion": "2015-06-15",
+                    "name": nsgname,
+                    "location": loc,
+                    "dependsOn": [],
+                    "tags": {},
+                    "properties": {
+                            "securityRules": nsgrules
+                    }
+                })
 
             nicname = r+"_nic"
             ipconfigname = r+"_ipconfig"
@@ -599,13 +645,16 @@ class ArmTemplate:
                 "properties": nicprops
             })
 
-            osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
-            datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
+            osprofile = self.__helper_arm_create_osprofile(
+                r, rtype, adminuser, rpassword, sshkey, customdata)
+            datadisks = self.__helper_arm_create_datadisks(
+                rdatadisks, rstoragesku, rstoragecache)
             imageref = self.__helper_arm_create_image_reference(rimage)
 
-            deps = [ f"Microsoft.Network/networkInterfaces/{nicname}" ]
+            deps = [f"Microsoft.Network/networkInterfaces/{nicname}"]
             if rppg:
-                deps.append(f"Microsoft.Compute/proximityPlacementGroups/{rppgname}")
+                deps.append(
+                    f"Microsoft.Compute/proximityPlacementGroups/{rppgname}")
             if ravset:
                 deps.append(f"Microsoft.Compute/availabilitySets/{ravset}")
 
@@ -651,7 +700,11 @@ class ArmTemplate:
                 vmres["properties"]["proximityPlacementGroup"] = {
                     "id": f"[resourceId('Microsoft.Compute/proximityPlacementGroups','{rppgname}')]"
                 }
-            
+
+            if rstoragesku == "UltraSSD_LRS":
+                vmres["properties"]["additionalCapabilities"] = {
+                    "ultraSSDEnabled": True}
+
             if ravset:
                 vmres["properties"]["availabilitySet"] = {
                     "id": f"[resourceId('Microsoft.Compute/availabilitySets','{ravset}')]"
@@ -672,7 +725,8 @@ class ArmTemplate:
                 }
                 role = rmanagedidentity.get("role", "reader")
                 if role not in role_lookup:
-                    log.error(f"{role} is an invalid role for a managed identity (options are: {', '.join(role_lookup.keys())})")
+                    log.error(
+                        f"{role} is an invalid role for a managed identity (options are: {', '.join(role_lookup.keys())})")
                     sys.exit(1)
 
                 scope_lookup = {
@@ -681,7 +735,8 @@ class ArmTemplate:
                 }
                 scope = rmanagedidentity.get("scope", "resource_group")
                 if scope not in scope_lookup:
-                    log.error(f"{scope} is an invalid scope for a managed identity (options are: {', '.join(scope_lookup.keys())})")
+                    log.error(
+                        f"{scope} is an invalid scope for a managed identity (options are: {', '.join(scope_lookup.keys())})")
                     sys.exit(1)
 
                 self.resources.append({
@@ -711,6 +766,8 @@ class ArmTemplate:
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)
         rfaultdomaincount = res.get("fault_domain_count", 1)
+        rsingleplacementgroup = res.get("single_placement_group", True)
+        roverprovision = res.get("overprovision", True)
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
@@ -719,6 +776,7 @@ class ArmTemplate:
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "Premium_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
+        customdata = res.get("custom_data", None)
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
@@ -726,9 +784,11 @@ class ArmTemplate:
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
         if vnet_in_deployment:
-            rsubnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetname, rsubnet)
+            rsubnetid = "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(
+                vnetname, rsubnet)
         else:
-            rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetrg, vnetname, rsubnet)
+            rsubnetid = "[resourceId('{}', 'Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(
+                vnetrg, vnetname, rsubnet)
         rpassword = res.get("password", "<no-password>")
         with open(adminuser+"_id_rsa.pub") as f:
             sshkey = f.read().strip()
@@ -739,8 +799,10 @@ class ArmTemplate:
         if rppg:
             deps.append("Microsoft.Compute/proximityPlacementGroups/"+rppgname)
 
-        osprofile = self.__helper_arm_create_osprofile(r, rtype, adminuser, rpassword, sshkey)
-        datadisks = self.__helper_arm_create_datadisks(rdatadisks, rstoragesku, rstoragecache)
+        osprofile = self.__helper_arm_create_osprofile(
+            r, rtype, adminuser, rpassword, sshkey, customdata)
+        datadisks = self.__helper_arm_create_datadisks(
+            rdatadisks, rstoragesku, rstoragecache)
         imageref = self.__helper_arm_create_image_reference(rimage)
 
         nicname = r+"_nic"
@@ -757,7 +819,7 @@ class ArmTemplate:
                 "capacity": rinstances
             },
             "properties": {
-                "overprovision": True,
+                "overprovision": roverprovision,
                 "upgradePolicy": {
                     "mode": "manual"
                 },
@@ -796,10 +858,10 @@ class ArmTemplate:
                         ]
                     }
                 },
-                "singlePlacementGroup": True
+                "singlePlacementGroup": rsingleplacementgroup
             }
         }
-        
+
         if rfaultdomaincount:
             vmssres["properties"]["platformFaultDomainCount"] = rfaultdomaincount
 
@@ -818,7 +880,6 @@ class ArmTemplate:
         self.__helper_arm_add_zones(vmssres, raz)
         self.resources.append(vmssres)
 
-
     def read_resources(self, cfg, vnet_in_deployment):
         resources = cfg.get("resources", {})
         for r in resources.keys():
@@ -830,14 +891,18 @@ class ArmTemplate:
             elif rtype == "slurm_partition":
                 pass
             else:
-                log.error("unrecognised resource type ({}) for {}".format(rtype, r))
+                log.error(
+                    "unrecognised resource type ({}) for {}".format(rtype, r))
+
+    def has_resources(self):
+        return len(self.resources) > 0
 
     def read(self, cfg, deploy_network):
         rg = cfg["resource_group"]
         vnetrg = cfg["vnet"].get("resource_group", rg)
 
         vnet_in_deployment = bool(rg == vnetrg) and deploy_network
-        
+
         if deploy_network:
             self._add_network(cfg)
         self._add_proximity_group(cfg)
@@ -851,8 +916,9 @@ class ArmTemplate:
             elif stype == "storageaccount":
                 self._add_storageaccount(cfg, s)
             else:
-                log.error("unrecognised storage type ({}) for {}".format(stype, s))
-        
+                log.error(
+                    "unrecognised storage type ({}) for {}".format(stype, s))
+
     def to_json(self):
         return json.dumps({
             "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",

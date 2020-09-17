@@ -1,13 +1,21 @@
 pr: none
+schedules:
+- cron: "0 0 * * Sun"
+  displayName: Every Sunday midnight build
+  branches:
+    include:
+    - master
+  always: true
+
 trigger:
   batch: true
   branches:
     include:
-    - master
     - '*'
   paths:
     include:
       - examples/simple_hpc_pbs/*
+      - pyazhpc/*
       - scripts/create_raid0.sh
       - scripts/make_filesystem.sh
       - scripts/node_healthchecks.sh

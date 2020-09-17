@@ -1,0 +1,45 @@
+---
+
+- name: Download PBS RPMs
+  unarchive:
+    src: https://github.com/PBSPro/pbspro/releases/download/v19.1.1/pbspro_19.1.1.centos7.zip
+    dest: /mnt/resource
+    remote_src: yes
+
+- name: install PBS Server
+  yum: 
+    name:
+      - /mnt/resource/pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm
+    state: present
+
+- name: Ensure pbs-server is running.
+  service: 
+    name: pbs
+    state: started
+    enabled: yes
+
+- name: Configure PBS options
+  shell: |
+    admin_user=$(whoami)
+    /opt/pbs/bin/qmgr -c "s s managers += ${admin_user}@*" || exit 1
+    /opt/pbs/bin/qmgr -c 's s flatuid=t' || exit 1
+    /opt/pbs/bin/qmgr -c 's s job_history_enable=t' || exit 1
+    /opt/pbs/bin/qmgr -c 'c r pool_name type=string,flag=h' || exit 1
+
+    mkdir -p /tmp/ansible/{{role_name}}
+    touch /tmp/ansible/{{role_name}}/qmgr
+  args:
+    executable: /bin/bash
+    creates: /tmp/ansible/{{role_name}}/qmgr
+
+- name: Add pool_name attribute to sched_config
+  replace : 
+    path: /var/spool/pbs/sched_priv/sched_config
+    backup: yes
+    regexp: '^resources: "ncpus,'
+    replace: 'resources: "ncpus, pool_name,'
+
+- name: Restart pbs-server 
+  service: 
+    name: pbs
+    state: restarted

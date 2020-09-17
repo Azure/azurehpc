@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
+
 # arg: $1 = pbs_server
 pbs_server=$1
 
 if [ "$(rpm -qa pbspro-execution)" = "" ];then
+    yum install -y jq
     yum install -y pbspro-execution-19.1.1-0.x86_64.rpm
 
     sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /etc/pbs.conf

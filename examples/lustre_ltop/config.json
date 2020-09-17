@@ -1,0 +1,196 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/22",
+            "storage": "10.2.4.0/24"
+        }
+    },
+    "variables": {
+        "resource_group": "<NOT-SET>",
+        "location": "westeurope",
+        "image": "OpenLogic:CentOS:7_8:latest",
+        "lustreimage": "OpenLogic:CentOS:7_8:latest",
+        "hpcimage": "OpenLogic:CentOS-HPC:7.7:latest",
+        "compute_instances": 2,
+        "lustre_instances": 4,
+        "low_priority": false,
+        "lustre_version": "2.12.5",
+        "lustre_mount": "/lustre"
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "cndefault",
+                "lfsrepo",
+                "lfsclient",
+                "lfsazimport",
+                "localuser",
+                "pbsserver",
+                "loginnode",
+                "nfsserver"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "Standard_D32s_v3",
+            "accelerated_networking": true,
+            "instances": "variables.compute_instances",
+            "low_priority": "variables.low_priority",
+            "image": "variables.hpcimage",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "cndefault",
+                "lfsrepo",
+                "lfsclient",
+                "localuser",
+                "pbsclient",
+                "nfsclient"
+            ]
+        },
+        "lustre": {
+            "type": "vmss",
+            "vm_type": "Standard_L32s_v2",
+            "instances": "variables.lustre_instances",
+            "accelerated_networking": true,
+            "image": "variables.lustreimage",
+            "subnet": "storage",
+            "tags": [
+                "cndefault",
+                "lustre",
+                "lfsrepo",
+                "disable-selinux",
+                "ltop"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "nfsserver",
+            "args": [
+                "/share"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "create_raid0.sh",
+            "args": [
+                "/dev/md10",
+                "/dev/nvme*n1"
+            ],
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfsrepo.sh",
+            "tag": "lfsrepo",
+            "args": [
+                "variables.lustre_version"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "lfspkgs.sh",
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfsmaster.sh",
+            "tag": "lustre",
+            "args": [
+                "/dev/sdb"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "lfsoss.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lustre)",
+                "/dev/md10"
+            ],
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfsclient.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lustre)",
+                "variables.lustre_mount"
+            ],
+            "tag": "lfsclient",
+            "sudo": true
+        },
+        {
+            "script": "install-ltop.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lustre)"
+            ],
+            "tag": "ltop",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": true
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
+            "sudo": true
+        }
+    ]
+}

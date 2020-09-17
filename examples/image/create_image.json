@@ -1,0 +1,75 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "builder",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "image": "OpenLogic:CentOS:7.7:latest",
+        "image_name": "<NOT-SET>",
+        "image_resource_group": "img-{{variables.uuid}}",
+        "location": "<NOT-SET>",
+        "resource_group": "builder-{{variables.uuid}}",
+        "uuid": "<NOT-SET>",
+        "vm_type": "Standard_D8s_v3",
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "admin": "10.2.1.0/24",
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "builder": {
+            "type": "vm",
+            "vm_type": "Standard_D4s_v3",
+            "public_ip": true,
+            "image": "variables.image",
+            "subnet": "admin",
+            "tags": []
+        },
+        "master": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": false,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "cndefault",
+                "disable-selinux",
+                "deprovision"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "deprovision.sh",
+            "tag": "deprovision",
+            "sudo": true
+        },
+        {
+            "type": "local_script",
+            "script": "create_image.sh",
+            "args": [
+               "variables.resource_group",
+               "master",
+               "variables.image_name",
+               "variables.image_resource_group"
+            ]
+        }
+    ]
+}

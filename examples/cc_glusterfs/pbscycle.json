@@ -1,0 +1,85 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_HB60rs",
+        "vnet_name": "hpcvnet",
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "variables.vnet_name"
+    },
+    "cyclecloud": {
+        "clusters": {
+            "pbscycle": {
+                "template": "pbspro_template_1.3.7",
+                "parameters": {
+                    "MaxExecuteCoreCount": 1000,
+                    "MasterMachineType": "Standard_D8s_v3",
+                    "Credentials": "azure",
+                    "Autoscale": true,
+                    "SubnetId": "{{variables.resource_group}}/{{variables.vnet_name}}/compute",
+                    "UseLowPrio": false,
+                    "UsePublicNetwork": false,
+                    "ReturnProxy": false,
+                    "Region": "variables.location",
+                    "MasterClusterInitSpecs": {
+                        "azurehpc:default:1.0.0": {
+                            "Order": 10000,
+                            "Name": "azurehpc:default:1.0.0",
+                            "Spec": "default",
+                            "Project": "azurehpc",
+                            "Version": "1.0.0",
+                            "Locker": "azure-storage"
+                        }
+                    },
+                    "ExecuteMachineType": "variables.vm_type",
+                    "ImageName": "variables.hpc_image",
+                    "ExecuteClusterInitSpecs": {
+                        "azurehpc:default:1.0.0": {
+                            "Order": 10000,
+                            "Name": "azurehpc:default:1.0.0",
+                            "Spec": "default",
+                            "Project": "azurehpc",
+                            "Version": "1.0.0",
+                            "Locker": "azure-storage"
+                        }
+                    }
+                }
+            }
+        },
+        "projects": {
+            "azurehpc:default:1.0.0": [
+                {
+                    "script": "glusterfs_pkgs.sh"
+                },
+                {
+                    "script": "glusterfs_client.sh",
+                    "args": [
+                        "glusterfsmaster",
+                        "/glusterfs"
+                    ]
+                },
+                {
+                    "script": "auto_mount.sh",
+                    "args": [ "jumpbox:/share/apps", "/apps" ]
+                },
+                {
+                    "script": "auto_mount.sh",
+                    "args": [ "jumpbox:/share/data", "/data" ]
+                },
+                {
+                    "script": "cndefault.sh",
+                    "deps": [ "azhpc4cycle.sh" ]
+                }
+            ]
+        }
+    },
+    "resources": {},
+    "install": []
+}

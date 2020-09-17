@@ -51,13 +51,13 @@ class ConfigFile:
             return self.__evaluate_list(input, extended)
         elif type(input) == str:
             fname = self.file_location + "/" + input[1:]
-            if input.startswith("@") and os.path.isfile(fname):
+            if input.startswith("@") and os.path.isfile(fname) and fname.endswith(".json"):
                 log.debug(f"loading include {fname}")
                 with open(fname) as f:
                     input = json.load(f)
                 return self.__evaluate_dict(input, extended)
             else:
-                return self.__process_value(input, extended)
+                return self.process_value(input, extended)
         else:
             return input
 
@@ -91,7 +91,7 @@ class ConfigFile:
             for x in v.split('.'):
                 if type(it) is str:
                     fname = self.file_location + "/" + it[1:]
-                    if it.startswith("@") and os.path.isfile(fname):
+                    if it.startswith("@") and os.path.isfile(fname) and fname.endswith(".json"):
                         log.debug(f"loading include {fname}")
                         with open(fname) as f:
                             it = json.load(f)
@@ -100,7 +100,7 @@ class ConfigFile:
                 it = it[x]
             
             if type(it) is str:
-                res = self.__process_value(it)
+                res = self.process_value(it)
             else:
                 res = it
         except KeyError:
@@ -111,13 +111,13 @@ class ConfigFile:
 
         return res
 
-    def __process_value(self, v, extended=True):
+    def process_value(self, v, extended=True):
         log.debug(f"process_value (enter): {v} [extended={extended}]")
 
         def repl(match):
-            return str(self.__process_value(match.group()[2:-2], extended))
+            return str(self.process_value(match.group()[2:-2], extended))
     
-        v = self.regex.sub(lambda m: str(self.__process_value(m.group()[2:-2], extended)), v)
+        v = self.regex.sub(lambda m: str(self.process_value(m.group()[2:-2], extended)), v)
         
         parts = v.split('.')
         prefix = parts[0]
@@ -128,6 +128,8 @@ class ConfigFile:
             res = self.read_value(v)
         elif prefix == "secret":
             res = azutil.get_keyvault_secret(parts[1], parts[2])
+        elif prefix == "image":
+            res = azutil.get_image_id(parts[1], parts[2])
         elif extended and prefix == "sasurl":
             log.debug(parts)
             url = azutil.get_storage_url(parts[1])
@@ -159,7 +161,14 @@ class ConfigFile:
         elif extended and prefix == "acrkey":
             res = azutil.get_acr_key(parts[1])
         else:
-            res = v
+            # test to see if we are including a files contents (e.g. for customData)
+            fname = self.file_location + "/" + v[1:]
+            if v.startswith("@") and os.path.isfile(fname):
+                log.debug(f"loading text include {fname}")
+                with open(fname) as f:
+                    res = f.read()
+            else:
+                res = v
         
         log.debug("process_value (exit): "+str(v)+"="+str(res))
         return res

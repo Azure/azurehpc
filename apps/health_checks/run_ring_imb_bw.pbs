@@ -1,0 +1,74 @@
+#!/bin/bash
+MPI=${1-impi2016}
+MODE=${2-ring}
+set -o pipefail
+
+cd $PBS_O_WORKDIR
+
+case $MPI in
+    impi2016)
+        source /opt/intel/impi/5.1.3.223/bin64/mpivars.sh
+        export I_MPI_FABRICS="shm:dapl"
+        export I_MPI_FALLBACK_DEVICE=0
+        export I_MPI_DAPL_PROVIDER=ofa-v2-ib0
+        export I_MPI_DEBUG=4
+        mpi_options="-np 2 -ppn 1"
+        host_option="-hosts"
+        if [ -z $MPI_BIN ]; then
+            IMB_ROOT=$I_MPI_ROOT/intel64/bin
+        else
+            IMB_ROOT=$MPI_BIN
+        fi
+    ;;
+    impi2018)
+        source /etc/profile
+        module use /usr/share/Modules/modulefiles
+        module load mpi/impi
+        #source $MPI_BIN/mpivars.sh
+        export I_MPI_FABRICS="shm:ofa"
+        export I_MPI_FALLBACK_DEVICE=0
+        export I_MPI_DEBUG=4
+        mpi_options="-np 2 -ppn 1"
+        host_option="-hosts"
+        if [ -z $MPI_BIN ]; then
+            IMB_ROOT=$I_MPI_ROOT/intel64/bin
+        else
+            IMB_ROOT=$MPI_BIN
+        fi
+    ;;
+    impi2019)
+        source /etc/profile
+        module use /usr/share/Modules/modulefiles
+        module load mpi/impi-2019
+        #source $MPI_BIN/mpivars.sh -ofi_internal
+        export I_MPI_FABRICS="shm:ofi"
+        #export I_MPI_FALLBACK_DEVICE=0
+        export I_MPI_DEBUG=4
+        export FI_PROVIDER=verbs
+        mpi_options="-np 2 -ppn 1"
+        host_option="-hosts"
+        if [ -z $MPI_BIN ]; then
+            IMB_ROOT=$I_MPI_ROOT/intel64/bin
+        else
+            IMB_ROOT=$MPI_BIN
+        fi
+    ;;
+esac
+
+# affinity
+numactl_options=" numactl --cpunodebind 0"
+src=`head -n1 $PBS_NODEFILE`
+dst=`tail -n1 $PBS_NODEFILE`
+
+echo "mpirun $host_option $src,$dst $mpi_options $numactl_options $IMB_ROOT/IMB-MPI1 PingPong -msglog 2:3 > ${src}_to_${dst}_impi_latency.log"
+mpirun $host_option $src,$dst \
+       $mpi_options $numactl_options \
+       $IMB_ROOT/IMB-MPI1 PingPong -msglog 2:3  > ${src}_to_${dst}_impi_latency.log
+echo " mpirun $host_option $src,$dst $mpi_options $numactl_options $IMB_ROOT/IMB-MPI1 Uniband -msglog 21:22 > ${src}_to_${dst}_impi_bw.log"
+mpirun $host_option $src,$dst \
+       $mpi_options $numactl_options \
+       $IMB_ROOT/IMB-MPI1 Uniband -msglog 21:22 > ${src}_to_${dst}_impi_bw.log
+echo " mpirun $host_option $src,$dst $mpi_options $numactl_options $IMB_ROOT/IMB-MPI1 Biband -msglog 21:22 > ${src}_to_${dst}_impi_bibw.log"
+mpirun $host_option $src,$dst \
+       $mpi_options $numactl_options \
+       $IMB_ROOT/IMB-MPI1 Biband -msglog 21:22 > ${src}_to_${dst}_impi_bibw.log

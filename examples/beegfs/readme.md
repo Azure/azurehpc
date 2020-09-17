@@ -1,9 +1,9 @@
-# BeeGFS Cluster
+# BeeGFS Cluster with I/O performance monitoring
 ![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/beegfs?branchName=master)
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/beegfs/config.json)
 
-This will deploy a BeeGFS PFS using ephemeral disks (L8s_v2), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed.
+This will deploy a BeeGFS PFS using ephemeral disks (L8s_v2), a headnode, an NFS server running on the headnode (User accounts shared home directories will be stored here), compute cluster and PBS will be deployed. The BeeGFS admon will be installed on the management vm (beegfsm) and can be used to monitor BeeGFS I/O performance.
 
 >NOTE:
 - MAKE SURE YOU HAVE FOLLOWED THE STEPS IN [prerequisite](../../tutorials/prerequisites.md) before proceeding here
@@ -38,6 +38,7 @@ Connect to the headnode and check PBS and BeeGFS (it will be mounted at /beegfs)
 
 ```
 $ azhpc-connect -u hpcuser headnode
+```
 
 Resources:
 
@@ -49,3 +50,25 @@ Resources:
 
 > Note: The Hb nodes are used for the cluster.  To get best performance nodes with accelerated networking should be used.
 
+## BeeGFS I/O performance monitoring
+
+Log-in to the BeeGFS managment VM (beegfsm) with X-forwarding enabled.
+
+```
+azhpc-connect beegfsm -X
+```
+
+Start BeeGFS Admon
+```
+java -jar /opt/beegfs/beegfs-admon-gui/beegfs-admon-gui.jar
+```
+
+![Alt text1](/examples/beegfs/images/beegfs-admon1.JPG?raw=true "Initial configuration")
+
+Login: Username: Administrator, password: admin
+
+![Alt text2](/examples/beegfs/images/beegfs-admon2.JPG?raw=true "log-in")
+
+![Alt text3](/examples/beegfs/images/beegfs-admon3.JPG?raw=true "Aggregate I/O throughput")
+
+![Alt text3](/examples/beegfs/images/beegfs-admon4.JPG?raw=true "Metadata I/O activity")

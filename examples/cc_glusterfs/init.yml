@@ -1,0 +1,2 @@
+steps:  
+- template: ../../ci/templates/steps/build-config.yml
