@@ -1,5 +1,8 @@
 # Spack
 
+## Prerequisites
+Python3 needs to be installed on all computational resources using spack.
+
 [Spack](https://spack.readthedocs.io/en/latest/) is a package management tool designed to support multiple versions and configurations of software on a wide variety of platforms and environments. It was designed for large supercomputing center, where many users and application teams share common installations of software on clusters.
 
 Spack will build and install software for HB, HBv2 or HC sku's with CentOS-HPC 7.7 (using the provided MPI libraries). See one of the examples for building a Cluster with HB or HC skus and PBS. (e.g. [simple_hpc_pbs](../../examples/simple_hpc_pbs/readme.md))
