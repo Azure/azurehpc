@@ -136,7 +136,7 @@
        "script": "slurmpartition.sh",
        "tag": "slurmserver",
        "deps": [
-          "skus_mem.lst"
+          "skus.lst"
        ],
        "sudo": true
      },
