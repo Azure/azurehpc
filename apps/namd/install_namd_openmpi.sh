@@ -73,7 +73,7 @@ cd ..
 sed -i -e "s#FFTDIR=.*#FFTDIR=$FFTW3_DIR#" arch/Linux-x86_64.fftw
 sed -i -e "s#^TCLDIR=.*#TCLDIR=$TCL_DIR#" arch/Linux-x86_64.tcl
 
-./config  Linux-x86_64-g++  --charm-arch  --with-fftw3 $CHARM_ARCH $NAMD_MEMOPT 2>&1 | tee config.log_$$
+./config  Linux-x86_64-g++  --charm-arch $CHARM_ARCH --with-fftw3 $NAMD_MEMOPT 2>&1 | tee config.log_$$
 cd Linux-x86_64-g++
 make -j 16 2>&1 | tee make.log_$$
 
