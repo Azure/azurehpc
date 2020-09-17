@@ -1,0 +1,22 @@
+# Lookup table for actual available memory on different SKUs
+# Memory values are calculated as: floor(<actual_mem_in_mb>/1024) * 1024
+#
+# SKU                 Memory    Sockets
+#
+Standard_D4s_v3       15360     1
+Standard_D8s_v3       31744     1
+Standard_D64s_v3      257024    2
+Standard_D64_v4       257024    2
+Standard_D64s_v4      257024    2
+Standard_D64d_v4      257024    2
+Standard_D64a_v4      257024    8
+Standard_D96a_v4      386048    12
+Standard_H8           55296     1
+Standard_H8m          112640    1
+Standard_H16          112640    2
+Standard_H16r         112640    2
+Standard_H16m         225280    2
+Standard_H16mr        225280    2
+Standard_HB60rs       229376    15
+Standard_HB120rs_v2   458752    30
+Standard_HC44rs       354304    2

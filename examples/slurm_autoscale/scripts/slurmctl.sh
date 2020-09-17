@@ -19,43 +19,82 @@ yum install -y /apps/rpms/slurm-*
 export SLURMUSER=1002
 groupadd -g $SLURMUSER slurm
 useradd  -m -c "SLURM workload manager" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm
+
 mkdir -p /var/spool/slurm
 chown slurm /var/spool/slurm
 mkdir -p /var/log/slurm
 chown slurm /var/log/slurm
-
 mkdir -p /apps/slurm
-cp /etc/slurm/slurm.conf.example /apps/slurm/slurm.conf
-ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
-sed -i "s/ControlMachine=.*/ControlMachine=`hostname -s`/g" /apps/slurm/slurm.conf
-sed -i "s/SlurmctldLogFile=.*/SlurmctldLogFile=\/var\/log\/slurm\/slurmctld.log/" /apps/slurm/slurm.conf
-sed -i "s/NodeName=linux.*/include \/apps\/slurm\/nodes.conf/g" /apps/slurm/slurm.conf
-echo "# NODES" > /apps/slurm/nodes.conf
-sed -i "s/PartitionName=debug.*/include \/apps\/slurm\/partition.conf/g" /apps/slurm/slurm.conf
-echo "#PARTITIONS" > /apps/slurm/partition.conf
 
-cat <<EOF >> /etc/slurm/slurm.conf
+# Create slurm.conf
+cat <<EOF > /apps/slurm/slurm.conf
+ClusterName=cluster
 
-# POWER SAVE SUPPORT FOR IDLE NODES (optional)
+SlurmctldHost=`hostname -s`
+SlurmUser=slurm
+SlurmctldPort=6817
+SlurmdPort=6818
+SlurmctldPidFile=/var/run/slurmctld.pid
+SlurmdPidFile=/var/run/slurmd.pid
+SlurmdSpoolDir=/var/spool/slurm
+StateSaveLocation=/var/spool/slurm/state
+
+AuthType=auth/munge
+
+ProctrackType=proctrack/cgroup
+TaskPlugin=task/affinity,task/cgroup
+
+SelectType=select/cons_res
+SelectTypeParameters=CR_CPU_Memory
+
+SchedulerType=sched/backfill
+SchedulerParameters=salloc_wait_nodes
+
+SuspendTime=300
+SuspendTimeout=600
+ResumeTimeout=1800
 SuspendProgram=/apps/slurm/scripts/suspend.sh
 ResumeProgram=/apps/slurm/scripts/resume.sh
 ResumeFailProgram=/apps/slurm/scripts/suspend.sh
-SuspendTimeout=1800
-ResumeTimeout=600
-ResumeRate=0
-#SuspendExcNodes=
-#SuspendExcParts=
-SuspendRate=0
-SuspendTime=300
-SchedulerParameters=salloc_wait_nodes
+
+SlurmctldTimeout=300
+SlurmdTimeout=300
+
 SlurmctldParameters=cloud_dns,idle_on_node_suspend
 CommunicationParameters=NoAddrCache
+
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmctldDebug=debug5
+SlurmdLogFile=/var/log/slurm/slurmd.log
+SlurmdDebug=debug5
 DebugFlags=PowerSave
+
+PrivateData=cloud
+ReturnToService=2
+
+SallocDefaultCommand="srun --mem-per-cpu=0 --cpu_bind=no --preserve-env --pty $SHELL"
+
+include /apps/slurm/nodes.conf
+include /apps/slurm/partitions.conf
 
 EOF
 
+# Create cgroup.conf
+cat <<EOF > /apps/slurm/cgroup.conf
+CgroupMountpoint=/sys/fs/cgroup
+CgroupAutomount=yes
+ConstrainCores=yes
+TaskAffinity=no
+ConstrainRAMSpace=yes
+ConstrainSwapSpace=no
+ConstrainDevices=no
+
+EOF
+
+ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
+ln -s /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
+
 mkdir -p /apps/slurm/scripts
-chown slurm /apps/slurm/scripts
 
 cp scripts/suspend.sh /apps/slurm/scripts/
 cp scripts/resume.sh /apps/slurm/scripts/
@@ -72,6 +111,7 @@ cp -r scripts /apps/slurm/azscale/.
 pushd /apps/slurm
 git clone https://github.com/Azure/azurehpc.git
 popd
+
 chown slurm.slurm -R /apps/slurm
 
 systemctl enable slurmctld

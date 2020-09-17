@@ -8,6 +8,7 @@ import socket
 import sys
 import textwrap
 import time
+import copy
 
 import arm
 import azconfig
@@ -56,9 +57,9 @@ def __add_unset_vars(vset, config_file):
         with open(f"{file_loc}/{fname}") as f:
             vars = json.load(f)
     log.debug(vars)
-    vset.update([ 
-        x 
-        for x in vars.keys() 
+    vset.update([
+        x
+        for x in vars.keys()
         if vars[x] == "<NOT-SET>"
     ])
 
@@ -71,14 +72,14 @@ def __replace_vars(vset, config_file):
     varsobj = alldata.get("variables", {})
 
     if type(varsobj) is str and varsobj.startswith("@"):
-        if floc != "": 
+        if floc != "":
             floc = floc + "/"
         fname = floc + varsobj[1:]
         log.debug(f"variables are redirected to {fname}")
         with open(f"{fname}") as f:
             alldata = json.load(f)
             varsobj = alldata
-    
+
     log.debug("replacing variables")
     for v in vset.keys():
         if v in varsobj:
@@ -150,7 +151,7 @@ def do_init(args):
                 elif vv == "false":
                     vv = False
                 vset[vk] = vv
-            
+
             for root, dirs, files in os.walk(args.dir):
                 for name in files:
                     if os.path.splitext(name)[1] == ".json":
@@ -161,7 +162,7 @@ def do_scp(args):
     log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    
+
     adminuser = c.read_value("admin_user")
     sshkey="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
@@ -191,11 +192,11 @@ def do_connect(args):
     log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    
+
     adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
-    
+
     if not args.user:
         sshuser = adminuser
     else:
@@ -208,7 +209,7 @@ def do_connect(args):
 
     resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
- 
+
     log.debug("Getting resource name")
 
     rtype = c.read_value(f"resources.{args.resource}.type", "hostname")
@@ -219,11 +220,11 @@ def do_connect(args):
 
     if rtype == "vm":
         instances = c.read_value(f"resources.{args.resource}.instances", 1)
-        
+
         if instances > 1:
             target = f"{args.resource}{1:04}"
             log.info(f"Multiple instances of {args.resource}, connecting to {target}")
-    
+
     elif rtype == "vmss":
         vmssnodes = azutil.get_vmss_instances(resource_group, args.resource)
         if len(vmssnodes) == 0:
@@ -264,7 +265,7 @@ def do_connect(args):
         log.debug(" ".join(mstsc_args + cmdline))
         os.execvp(mstsc_exe, mstsc_args)
 
-    else: 
+    else:
         ssh_exe = "ssh"
         cmdline = []
         if len(args.args) > 0:
@@ -273,7 +274,7 @@ def do_connect(args):
         if args.resource == jumpbox:
             log.info("logging directly into {}".format(fqdn))
             ssh_args = [
-                "ssh", "-t", "-q", 
+                "ssh", "-t", "-q",
                 "-o", "StrictHostKeyChecking=no",
                 "-o", "UserKnownHostsFile=/dev/null",
                 "-i", ssh_private_key,
@@ -297,7 +298,7 @@ def do_connect(args):
 def _exec_command(fqdn, sshuser, sshkey, cmdline):
     ssh_exe = "ssh"
     ssh_args = [
-        ssh_exe, "-q", 
+        ssh_exe, "-q",
         "-o", "StrictHostKeyChecking=no",
         "-o", "UserKnownHostsFile=/dev/null",
         "-i", sshkey,
@@ -310,7 +311,7 @@ def do_status(args):
     log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    
+
     adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
 
@@ -327,11 +328,11 @@ def do_run(args):
     log.debug("reading config file ({})".format(args.config_file))
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    
+
     adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
-    
+
     if args.user == None:
         sshuser = adminuser
     else:
@@ -358,10 +359,10 @@ def do_run(args):
                 if instances == 1:
                     hosts.append(r)
                 else:
-                    hosts += [ f"{r}{n:04}" for n in range(1, instances+1) ]            
+                    hosts += [ f"{r}{n:04}" for n in range(1, instances+1) ]
             elif rtype == "vmss":
                 hosts += azutil.get_vmss_instances(c.read_value("resource_group"), r)
-        
+
     if not hosts:
         hosts.append(jumpbox)
 
@@ -400,7 +401,7 @@ def _wait_for_deployment(resource_group, deploy_name):
         time.sleep(5)
         res = azutil.get_deployment_status(resource_group, deploy_name)
         log.debug(res)
-        
+
         print("\033[F"*del_lines)
         del_lines = 1
 
@@ -444,7 +445,7 @@ def _wait_for_deployment(resource_group, deploy_name):
                         for line in error_message[1:]:
                             print(f"             {line}")
                         if "details" in props["statusMessage"]["error"]:
-                            def pretty_print(d, indent=0): 
+                            def pretty_print(d, indent=0):
                                 def wrapped_print(indent, text, max_width=80):
                                     lines = textwrap.TextWrapper(width=max_width-indent).wrap(text=text)
                                     for line in lines:
@@ -453,9 +454,9 @@ def _wait_for_deployment(resource_group, deploy_name):
                                     for value in d:
                                         pretty_print(value, indent)
                                 elif isinstance(d, dict):
-                                    for key, value in d.items(): 
-                                        if isinstance(value, dict): 
-                                            wrapped_print(indent, str(key)) 
+                                    for key, value in d.items():
+                                        if isinstance(value, dict):
+                                            wrapped_print(indent, str(key))
                                             pretty_print(value, indent+4)
                                         elif isinstance(value, list):
                                             wrapped_print(indent, str(key))
@@ -468,17 +469,19 @@ def _wait_for_deployment(resource_group, deploy_name):
 
         sys.exit(1)
 
-# create list of nodes from string 
 def _nodelist_expand(nodelist):
+    """Create list of nodes from string"""
+
     nodes = []
-    
+    resource_names = []
+
     # loop around resource
     for m in re.finditer(r"(?:,)?([^,^[]*(?:\[[^\]]*\])?)", nodelist):
         if len(m.groups()) > 0 and m.group(1) != "":
             nodestr = m.group(1)
-            
+
             # expand brackets
-            resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', nodestr).groups(0)
+            resource, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', nodestr).groups(0)
             if bool(brackets):
                 for part in brackets.split(","):
                     if "-" in part:
@@ -486,25 +489,31 @@ def _nodelist_expand(nodelist):
                         assert len(lo) == 4, "expecting number width of 4"
                         assert len(hi) == 4, "expecting number width of 4"
                         for i in range(int(lo), int(hi) + 1):
-                            nodes.append(f"{resource_name}{i:04d}")
+                            nodes.append(f"{resource}{i:04d}")
                     else:
                         assert len(part) == 4, "expecting number width of 4"
-                        nodes.append(f"{resource_name}{part}")
+                        nodes.append(f"{resource}{part}")
+                resource_names.append(resource)
             else:
-                nodes.append(resource_name)
-    
-    return nodes
+                nodes.append(resource)
+                resource_names.append(resource[:-4])
+
+    # Remove trailing hyphen if used in node names to separate
+    # resource name from node index
+    resource_names = [x[:-1] if x[-1] == '-' else x for x in resource_names]
+
+    return resource_names, nodes
 
 def do_slurm_suspend(args):
     log.debug(f"reading config file ({args.config_file})")
-    
+
     c = azconfig.ConfigFile()
     c.open(args.config_file)
     config = c.preprocess()
 
     log.info(f"slurm suspend for {args.nodes}")
-    resource_list = _nodelist_expand(args.nodes)
-    log.debug("suspend list expanded to: "+",".join(resource_list))    
+    _, resource_list = _nodelist_expand(args.nodes)
+    log.debug("suspend list expanded to: "+",".join(resource_list))
     subscription_id = azutil.get_subscription_id()
     resource_group = config["resource_group"]
 
@@ -537,47 +546,41 @@ def do_slurm_resume(args):
 
     c = azconfig.ConfigFile()
     c.open(args.config_file)
-    config = c.preprocess()
+    config_orig = c.preprocess()
 
-    adminuser = config["admin_user"]
+    adminuser = config_orig["admin_user"]
     private_key_file = adminuser+"_id_rsa"
     public_key_file = adminuser+"_id_rsa.pub"
 
     log.info(f"slurm resume for {args.nodes}")
     # first get the resource name
-    resource_name, brackets = re.search(r'([^[]*)\[?([\d\-\,]*)\]?', args.nodes).groups(0)
-    resource_list = []
-    if bool(brackets):
-        for part in brackets.split(","):
-            if "-" in part:
-                lo, hi = part.split("-")
-                assert len(lo) == 4, "expecting number width of 4"
-                assert len(hi) == 4, "expecting number width of 4"
-                for i in range(int(lo), int(hi) + 1):
-                    resource_list.append(f"{resource_name}{i:04d}")
-            else:
-                assert len(part) == 4, "expecting number width of 4"
-                resource_list.append(f"{resource_name}{part}")
-    else:
-        resource_list.append(resource_name)
-        resource_name = resource_name[:-4]
-    
-    template_resource = config.get("resources", {}).get(resource_name)
-    if not template_resource:
-        log.error(f"{resource_name} resource not found in config")
-        sys.exit(1)
-    if template_resource.get("type") != "slurm_partition":
-        log.error(f"invalid resource type for scaling")
-    
-    template_resource["type"] = "vm"
-    del template_resource["instances"]
+    resource_names, resource_list = _nodelist_expand(args.nodes)
 
-    log.info(f"resource_name= {resource_name}")
-    log.info("resource_list= " + ",".join(resource_list))
-    
+    # Create a copy of the configuration to use as template                                                                 
+    # for the final deployment configuration                                                                                
+    config = copy.deepcopy(config_orig)
     config["resources"] = {}
-    for rname in resource_list:
-        config["resources"][rname] = template_resource
+
+    # Loop over all resources
+    for resource in resource_names:
+        template_resource = config_orig.get("resources", {}).get(resource)
+        if not template_resource:
+            log.error(f"{resource} resource not found in config")
+            sys.exit(1)
+        if template_resource.get("type") != "slurm_partition":
+            log.error(f"invalid resource type for scaling")
+
+        template_resource["type"] = "vm"
+        del template_resource["instances"]
+
+        log.info(f"resource= {resource}")
+        log.info("resource_list= " + ",".join(resource_list))
+
+        # Iterate over all nodes which name starts with the resource name
+        # NOTE: It is assumed that in the nodename the resource name is separated
+        #       by a hyphen from the node index!
+        for rname in filter(lambda x: x.rsplit('-', 1)[0] == resource, resource_list):
+            config["resources"][rname] = template_resource
 
     tpl = arm.ArmTemplate()
     tpl.read_resources(config, False)
@@ -599,12 +602,12 @@ def do_slurm_resume(args):
 
     # remove local scripts
     config["install"] = [ step for step in config["install"] if step.get("type", "jumpbox_script") == "jumpbox_script" ]
-    
+
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
-    
+
     if socket.gethostname() == config["install_from"]:
         fqdn = config["install_from"]
     else:
@@ -673,12 +676,12 @@ def do_build(args):
 
     log.info("re-evaluating the config")
     config = c.preprocess()
-    
+
     log.info("building host lists")
     azinstall.generate_hostlists(config, tmpdir)
     log.info("building install scripts")
     azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
-    
+
     resource_group = c.read_value("resource_group")
     fqdn = c.get_install_from_destination()
     log.debug(f"running script from : {fqdn}")
@@ -695,7 +698,7 @@ def do_build(args):
 
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))
-    config = azconfig.ConfigFile()  
+    config = azconfig.ConfigFile()
     config.open(args.config_file)
 
     log.warning("deleting entire resource group ({})".format(config.read_value("resource_group")))
@@ -710,19 +713,19 @@ def do_destroy(args):
 
 if __name__ == "__main__":
     azhpc_parser = argparse.ArgumentParser(prog="azhpc")
-    
+
     gopt_parser = argparse.ArgumentParser()
     gopt_parser.add_argument(
-        "--config-file", "-c", type=str, 
+        "--config-file", "-c", type=str,
         default="config.json", help="config file"
     )
     gopt_parser.add_argument(
-        "--debug", 
+        "--debug",
         help="increase output verbosity",
         action="store_true"
     )
     gopt_parser.add_argument(
-        "--no-color", 
+        "--no-color",
         help="turn off color in output",
         action="store_true"
     )
@@ -730,14 +733,14 @@ if __name__ == "__main__":
     subparsers = azhpc_parser.add_subparsers(help="actions")
 
     build_parser = subparsers.add_parser(
-        "build", 
+        "build",
         parents=[gopt_parser],
         add_help=False,
         description="deploy the config",
         help="create an arm template and deploy"
     )
     build_parser.add_argument(
-        "--no-vnet", 
+        "--no-vnet",
         action="store_true",
         default=False,
         help="do not create vnet resources in the arm template"
@@ -745,7 +748,7 @@ if __name__ == "__main__":
     build_parser.set_defaults(func=do_build)
 
     connect_parser = subparsers.add_parser(
-        "connect", 
+        "connect",
         parents=[gopt_parser],
         add_help=False,
         description="connect to a resource",
@@ -753,24 +756,24 @@ if __name__ == "__main__":
     )
     connect_parser.set_defaults(func=do_connect)
     connect_parser.add_argument(
-        "--user", 
-        "-u", 
+        "--user",
+        "-u",
         type=str,
         help="the user to connect as",
     )
     connect_parser.add_argument(
-        "resource", 
+        "resource",
         type=str,
         help="the resource to connect to"
     )
     connect_parser.add_argument(
-        'args', 
+        'args',
         nargs=argparse.REMAINDER,
         help="additional arguments will be passed to the ssh command"
     )
 
     destroy_parser = subparsers.add_parser(
-        "destroy", 
+        "destroy",
         parents=[gopt_parser],
         add_help=False,
         description="delete the resource group",
@@ -778,18 +781,18 @@ if __name__ == "__main__":
     )
     destroy_parser.set_defaults(func=do_destroy)
     destroy_parser.add_argument(
-        "--force", 
+        "--force",
         action="store_true",
         default=False,
         help="delete resource group immediately"
     )
     destroy_parser.add_argument(
-        "--no-wait", 
+        "--no-wait",
         action="store_true",
         default=False,
         help="do not wait for resources to be deleted"
     )
-    
+
     get_parser = subparsers.add_parser(
         "get",
         parents=[gopt_parser],
@@ -799,7 +802,7 @@ if __name__ == "__main__":
     )
     get_parser.set_defaults(func=do_get)
     get_parser.add_argument(
-        "path", 
+        "path",
         type=str,
         help="the json path to evaluate"
     )
@@ -813,27 +816,27 @@ if __name__ == "__main__":
     )
     init_parser.set_defaults(func=do_init)
     init_parser.add_argument(
-        "--show", 
-        "-s", 
+        "--show",
+        "-s",
         action="store_true",
         default=False,
         help="display all vars that are <NOT-SET>"
     )
     init_parser.add_argument(
-        "--dir", 
-        "-d", 
+        "--dir",
+        "-d",
         type=str,
         help="output directory",
     )
     init_parser.add_argument(
-        "--vars", 
-        "-v", 
+        "--vars",
+        "-v",
         type=str,
         help="variables to replace in format VAR=VAL(,VAR=VAL)*",
     )
 
     preprocess_parser = subparsers.add_parser(
-        "preprocess", 
+        "preprocess",
         parents=[gopt_parser],
         add_help=False,
         description="preprocess the config file",
@@ -850,19 +853,19 @@ if __name__ == "__main__":
     )
     run_parser.set_defaults(func=do_run)
     run_parser.add_argument(
-        "--user", 
-        "-u", 
+        "--user",
+        "-u",
         type=str,
         help="the user to run as"
     )
     run_parser.add_argument(
-        "--nodes", 
-        "-n", 
+        "--nodes",
+        "-n",
         type=str,
         help="the resources to run on (comma separated for multiple)"
     )
     run_parser.add_argument(
-        'args', 
+        'args',
         nargs=argparse.REMAINDER,
         help="the command to run"
     )
@@ -876,13 +879,13 @@ if __name__ == "__main__":
     )
     scp_parser.set_defaults(func=do_scp)
     scp_parser.add_argument(
-        'args', 
+        'args',
         nargs=argparse.REMAINDER,
         help="the arguments passed to scp (use '--' to separate scp arguments)"
     )
 
     status_parser = subparsers.add_parser(
-        "status", 
+        "status",
         parents=[gopt_parser],
         add_help=False,
         description="show status of all the resources",
@@ -925,6 +928,6 @@ if __name__ == "__main__":
         azlog.setColor(False)
 
     log.debug(args)
-    
+
     args.func(args)
 

@@ -35,10 +35,13 @@ fi
 
 # wait for DNS to update for all hostnames
 for h in $(<hostlists/$tag); do
-    until host $h >/dev/null 2>&1; do
-        echo "Waiting for DNS resolution for host - $h (sleeping for 5 seconds)"
-        sleep 5
-    done
+    # Do not try to connect to self
+    if [[ $(hostname) != "$h" ]]; then
+        until ssh $h hostname >/dev/null 2>&1; do
+            echo "Waiting for host - $h (sleeping for 5 seconds)" >> {logfile} 
+            sleep 5
+        done
+    fi
 done
 
 if [ "$1" != "" ]; then
@@ -46,7 +49,7 @@ if [ "$1" != "" ]; then
 else
     while ! rpm -q epel-release
     do
-        if ! sudo yum install -y epel-release > {logfile} 2>&1
+        if ! sudo yum install -y epel-release >> {logfile} 2>&1
         then
             sudo yum clean metadata
         fi
