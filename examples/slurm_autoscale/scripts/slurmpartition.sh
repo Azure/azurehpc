@@ -1,7 +1,7 @@
 #!/bin/bash
 
 config_path=/apps/slurm/azscale/config.json
-sku_lookup=./skus.lst
+sku_lookup=scripts/skus.lst
 
 # Initialize Azure CLI
 az login --identity -o table
