@@ -4,8 +4,8 @@ steps:
     user: hpcadmin
     command: /apps/ci/cycle_start_cluster.sh pbscycle
 
-- template: ../../ci/templates/steps/azhpc-run.yml
-  parameters:
-    user: hpcadmin
-    command: /apps/ci/cycle_run_on_master.sh pbscycle /apps/ci/submit_pingpong.sh 16
+#- template: ../../ci/templates/steps/azhpc-run.yml
+#  parameters:
+#    user: hpcadmin
+#    command: /apps/ci/cycle_run_on_master.sh pbscycle /apps/ci/submit_pingpong.sh 16
   
