@@ -43,8 +43,8 @@ spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@2.6.0
 ```
 Using intel mpi 
 ```
-source /opt/intel/impi/2019.7.217/intel64/bin/mpivars.sh
-spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2019.1.217
+source /opt/intel/compilers_and_libraries_2020.1.217/linux/mpi/intel64/bin/mpivars.sh
+spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2020.1.217
 ```
 
 Some example PBS scripts have been provided to show how run the osu-micro-benchmarks.
