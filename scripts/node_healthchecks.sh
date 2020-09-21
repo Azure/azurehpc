@@ -48,7 +48,7 @@ function check_ib_device()
 
         *)
             echo "uncovered VM Size $AZHPC_VMSIZE"
-            exit 1
+            exit 0
         ;;
     esac
 
