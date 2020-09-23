@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+APP_NAME=nwchem
+SKU_TYPE=${SKU_TYPE:-hbv2}
+SHARED_APPS=${APP_INSTALL_DIR:-/apps}
+
+export MODULEPATH=${SHARED_APPS}/modulefiles/${SKU_TYPE}:$MODULEPATH
+module load mpi/openmpi
+spack load openblas
+module load nwchem_7.0.0
+
+BIN_DIR=${NWCHEMROOT}/bin
+
+cat $PBS_NODEFILE
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+
+ln -s ${SHARED_APPS}/${SKU_TYPE}/${APP_NAME}/data/default.nwchemrc $HOME/.nwchemrc
+
+cd $PBS_O_WORKDIR
+
+cd ${INPUTDIR} .
+NWCHEM_INPUT_NAME=$(ls *.nw)
+NWCHEM_DATA=${NWCHEM_INPUT_NAME%".nw"}
+
+mpirun \
+    -x LD_LIBRARY_PATH \
+    -np $NPROCS \
+    --hostfile $PBS_NODEFILE \
+    --map-by core \
+    --report-bindings \
+     ${BIN_DIR}/nwchem \
+    ./${NWCHEM_DATA}.nw \
+    > ./${NWCHEM_DATA}.out
+
+fname=./${NWCHEM_DATA}.out
+cpu_str=$(grep "Total times" $fname | awk '{print $4}')
+cpu_str_s=${cpu_str::-1}
+cpu_time=$(bc <<< "$cpu_str_s * $CORES")
+wall_str=$(grep "Total times" $fname | awk '{print $6}')
+wall_time=${wall_str::-1}
+memory_heap_MB=$(grep "maximum total M-bytes" $fname | awk '{print $4}')
+memory_stack_MB=$(grep "maximum total M-bytes" $fname | awk '{print $5}')
+memory_MB=$(bc <<< "$memory_heap_MB + $memory_stack_MB")
+
+cat <<EOF >${APP_NAME}.json
+{
+"model": "h2o_freq",
+"cpu_time": "$cpu_time",
+"clock_time": "$wall_time",
+"memory": "$memory_MB"
+}
+EOF
