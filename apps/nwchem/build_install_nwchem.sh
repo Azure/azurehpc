@@ -1,11 +1,12 @@
 #!/bin/bash
 #
 APP_NAME=nwchem
-APP_VERSION=6.8
+APP_VERSION=7.0.0
 SHARED_APP=${APP_INSTALL_DIR:-/apps}
-MODULE_DIR=${SHARED_APP}/modulefiles
+SKU_TYPE=${SKU_TYPE:-hbv2}
+MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}
 MODULE_NAME=${APP_NAME}_${APP_VERSION}
-INSTALL_DIR=${SHARED_APP}/${APP_NAME}
+INSTALL_DIR=${SHARED_APP}/${SKU_TYPE}/${APP_NAME}
 SHARED_DATA=${DATA_DIR:-/data}
 DATA_DIR=${SHARED_DATA}/${APP_NAME}
 DATA_NAME=h2o_freq.nw
@@ -16,8 +17,9 @@ function create_modulefile {
 mkdir -p ${MODULE_DIR}
 cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 #%Module
-prepend-path PATH ${INSTALL_DIR}/bin;
-prepend-path LD_LIBRARY_PATH ${INSTALL_DIR}/lib;
+prepend-path PATH ${INSTALL_DIR}/bin
+prepend-path LD_LIBRARY_PATH ${INSTALL_DIR}/lib
+setenv       NWCHEMROOT   ${INSTALL_DIR}
 EOF
 }
 
@@ -56,9 +58,8 @@ EOF
 }
 
 #
-export NWCHEM_TOP=${INSTALL_DIR}/${APP_NAME}-${APP_VERSION}
+export NWCHEM_TOP=${INSTALL_DIR}/${APP_NAME}-${APP_VERSION}-release
 export NWCHEM_TARGET=LINUX64
-#export ARMCI_NETWORK=MPI-MT
 export USE_MPI=y
 export USE_MPIF=y
 export USE_MPIF4=y
@@ -67,24 +68,33 @@ export LIB_DEFINES="_DDFLT_TOT_MEM=10000000000"
 export USE_PYTHONCONFIG=y
 export PYTHONHOME=/usr
 export PYTHONVERSION=2.7
-export USE_INTERNALBLAS=y
+export USE_INTERNALBLAS=n
+export USE_64TO32=y
+export BLAS_SIZE=4
 #
-mkdir -p ${SHARED_APP}/${APP_NAME}
-pushd ${SHARED_APP}/${APP_NAME}
-wget "https://github.com/nwchemgit/nwchem/releases/download/v6.8-release/nwchem-6.8-release.revision-v6.8-47-gdf6c956-srconly.2017-12-14.tar.bz2" -O - | tar xvj
+mkdir -p ${INSTALL_DIR}
+pushd ${INSTALL_DIR}
+wget "https://github.com/nwchemgit/nwchem/archive/v${APP_VERSION}-release.tar.gz" -O - | tar xvz
 #
-export MODULEPATH=/opt/hpcx-v2.4.1-gcc-MLNX_OFED_LINUX-4.6-1.0.1.1-redhat7.6-x86_64/modulefiles:$MODULEFILE
-module load gcc-8.2.0
-module load hpcx
-which mpif90
-mpif90 -show
+#export MODULEPATH=/opt/hpcx-v2.4.1-gcc-MLNX_OFED_LINUX-4.6-1.0.1.1-redhat7.6-x86_64/modulefiles:$MODULEFILE
+
+spack install openblas%gcc@9.2.0 target=zen2
+source ${SPACK_ROOT}/share/spack/setup-env.sh
+OPENBLAS_DIR=$(spack location -i openblas)
+export BLASOPT="-L${OPENBLAS_DIR}/lib -lopenblas"
+export LAPACK_LIB=$BLASOPT
+
+module load mpi/openmpi
 #
 cd $NWCHEM_TOP/src
 make clean
 echo "start make nwchecm_config, `date`"
-make -j ${PARALLEL_BUILD} nw_chem_config NWCHEM_MODULES="all python"
+make -j ${PARALLEL_BUILD} nwchem_config NWCHEM_MODULES="all python"
 echo "end make nwchem_config, `date`"
 #
+echo "start make 64_to_32, `date`"
+make -j ${PARALLEL_BUILD} 64_to_32 FC=gfortran
+echo "end make 64_to_32, `date`"
 echo "start make, `date`"
 make -j ${PARALLEL_BUILD} FC=gfortran
 echo "end make, `date`"
@@ -92,7 +102,7 @@ echo "end make, `date`"
 mkdir $INSTALL_DIR/bin
 mkdir $INSTALL_DIR/data
 #
-cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}/nwchem $INSTALL_DIR/bin
+cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}/* $INSTALL_DIR/bin
 cd $INSTALL_DIR/bin
 chmod 755 nwchem
 #
