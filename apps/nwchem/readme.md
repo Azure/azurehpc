@@ -34,12 +34,12 @@ azhpc-connect -u hpcuser headnode
 ## Run the NWCHEM h2o_freq scenario
 To run on a single node with 4 cores run
 ```
-qsub -l select=1:ncpus=120:mpiprocs=4 -v INPUTDIR=/data/nwchm run_nwchem.sh
+qsub -l select=1:ncpus=120:mpiprocs=4 -v INPUTDIR=/data/nwchm run_nwchem.pbs
 ```
 
 To run on two HBv2 nodes with 8 total cores (4 cores on each node) run
 ```
-qsub -l select=2:ncpus=120:mpiprocs=4 -v INPUTDIR=/data/nwchm run_nwchem.sh
+qsub -l select=2:ncpus=120:mpiprocs=4 -v INPUTDIR=/data/nwchm run_nwchem.pbs
 ```
 
 ## Install and run nwchem Benchmarks using [Azure CycleCloud](https://docs.microsoft.com/en-us/azure/cyclecloud/) Cluster 
