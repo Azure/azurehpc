@@ -2,9 +2,17 @@
 
 hostfile=$1
 ppn=$2
+metadata_nodes=${3:-1}
 np=$(( $ppn * $(wc -l <$hostfile) ))
 
-sudo beeond start -P -n $hostfile -d /localnvme/beeond -c /beeond
+# Force Beeond to be stopped in case of any leftover daemons
+start_time=$SECONDS
+sudo beeond stop -P -n $hostfile -L -d
+sudo beeond start -F -P -n $hostfile -m $metadata_nodes -d /localnvme/beeond -c /beeond
+end_time=$SECONDS
+start_time=$(($end_time - $start_time))
+echo "BEEOND Started in $start_time"
+
 
 source /etc/profile.d/modules.sh
 export MODULEPATH=$MODULEPATH:/apps/modulefiles
@@ -75,3 +83,9 @@ n = 160000
 EOF
 
 mpirun -np $np -ppn $ppn -hostfile $hostfile io500 config.ini
+
+start_time=$SECONDS
+sudo beeond stop -P -n $hostfile -L -d
+end_time=$SECONDS
+stop_time=$(($end_time - $start_time))
+echo "BEEOND Stopped in $stop_time"

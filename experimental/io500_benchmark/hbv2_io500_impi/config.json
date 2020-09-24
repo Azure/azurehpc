@@ -72,6 +72,14 @@
             "sudo": true
         },
         {
+            "script": "node_healthchecks.sh",
+            "tag": "compute",
+            "sudo": true,
+            "args": [
+            ],
+            "deps" : ["install-azcopy.sh","healthchecks.json"]
+        }, 
+        {
             "script": "make_filesystem.sh",
             "tag": "headnode",
             "args": [
@@ -124,7 +132,8 @@
         },
         {
             "script": "setupbeeond.sh",
-            "tag": "compute"
+            "tag": "compute",
+            "args": ["/localnvme"]
         },
         {
             "script": "run_io500.sh",
