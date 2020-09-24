@@ -62,7 +62,7 @@ curl "http://localhost:8086/query" --data-urlencode "q=GRANT ALL ON monitor to $
 
 echo "Add the administrator"
 # https://grafana.com/docs/grafana/latest/administration/cli/
-grafana-cli admin reset-admin-password "$GRAFANA_PWD"
+grafana-cli admin reset-admin-password "$GRAFANA_PWD" || exit 1
 
 echo "Create the datasource"
 # https://grafana.com/docs/grafana/latest/administration/provisioning/
