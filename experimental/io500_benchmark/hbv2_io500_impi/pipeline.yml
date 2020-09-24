@@ -31,6 +31,7 @@ variables:
 # Uncomment and set values below, or leave commented and thru pipeline variables
   azhpc.variables.location: southcentralus
   azhpc.variables.vm_type: Standard_HB120rs_v2
+  
   azhpc.variables_matrix: experimental/io500_benchmark/hbv2_io500_impi/test_matrix.json
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

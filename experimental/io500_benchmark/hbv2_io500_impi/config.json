@@ -9,7 +9,7 @@
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_HB120rs_v2",
         "compute_instances": "<NOT-SET>",
-        "PPN": "<NOT-SET>",
+        "ppn": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
@@ -129,7 +129,7 @@
         {
             "script": "run_io500.sh",
             "tag": "launch",
-            "args": [ "hostlists/compute", "{{variables.PPN}}" ]
+            "args": [ "hostlists/compute", "{{variables.ppn}}" ]
         }
     ]
 }
