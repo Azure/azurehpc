@@ -1,0 +1,7 @@
+{
+    "8ppn-4n":
+    {
+        "azhpc.variables.compute_instances": 4,
+        "azhpc.variables.PPN": 8
+    }
+}

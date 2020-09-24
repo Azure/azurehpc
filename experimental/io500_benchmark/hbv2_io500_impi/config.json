@@ -5,10 +5,11 @@
     "admin_user": "hpcadmin",
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
-        "location": "southcentralus",
-        "resource_group": "paul-hbv2-io500-16ppn-impi__N__x__PPN__",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
         "vm_type": "Standard_HB120rs_v2",
-        "compute_instances": __N__,
+        "compute_instances": "<NOT-SET>",
+        "PPN": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group"
     },
     "vnet": {
@@ -128,7 +129,7 @@
         {
             "script": "run_io500.sh",
             "tag": "launch",
-            "args": [ "hostlists/compute", "__PPN__" ]
+            "args": [ "hostlists/compute", "{{variables.PPN}}" ]
         }
     ]
 }
