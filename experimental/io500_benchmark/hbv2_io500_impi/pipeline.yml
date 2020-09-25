@@ -37,7 +37,7 @@ variables:
 
 # ================== Telemetry ============================
 # enable telemetry by settings add_telemetry to 1
-azhpc.add_telemetry: 1
+  azhpc.add_telemetry: 1
 # These variables need to be set when creating the pipeline
 # azhpc.variables.telemetry_resource_group
 # azhpc.variables.telemetry_la_workspace_name
