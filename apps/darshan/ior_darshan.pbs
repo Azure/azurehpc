@@ -12,9 +12,8 @@ module use ${SHARED_APP}/modulefiles
 module load ior
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
-AZHPC_VMSIZE='standard_hb60rs'
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
-#echo "Running on $AZHPC_VMSIZE"
+echo "Running on $AZHPC_VMSIZE"
 if [ "$AZHPC_VMSIZE" = "" ]; then
     echo "Unable to retrieve VM Size - Exiting"
     exit 1
@@ -50,5 +49,5 @@ TYPE_IO_ARG="-B"
 
 cd $PBS_O_WORKDIR
 
-mpirun -x LD_PRELOAD -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a $IO_API -v -i 1 $TYPE_IO_ARG -m -d 1 $IO_API_ARG -w r -t $TRANSFER_SIZE -b $SIZE -o ${FILESYSTEM}/test -O summaryFormat=$SUMMARY_FORMAT -O summaryFile=ior_${IO_API}_${TYPE_IO}_${TRANSFER_SIZE}_${SIZE}_${HOST}_${NUMPROCS}.out_$$
+mpirun -x LD_PRELOAD -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a $IO_API -v -i 1 $TYPE_IO_ARG -m -d 1 $IO_API_ARG -w -r -t $TRANSFER_SIZE -b $SIZE -o ${FILESYSTEM}/test -O summaryFormat=$SUMMARY_FORMAT -O summaryFile=ior_${IO_API}_${TYPE_IO}_${TRANSFER_SIZE}_${SIZE}_${HOST}_${NUMPROCS}.out_$$
 rm ${FILESYSTEM}/test.*
