@@ -54,6 +54,11 @@ if [ -d $PROJECT_DIR ]; then
 #    rm -rf $PROJECT_DIR 
 fi
 
+if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
+    echo "copying the telemetry variables so they can be initialized"
+    cp $BUILD_REPOSITORY_LOCALPATH/telemetry/variables.json $BUILD_REPOSITORY_LOCALPATH/$conf_dir
+fi
+
 echo "Calling azhpc-init"
 azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables || exit 1
 pushd $PROJECT_DIR
