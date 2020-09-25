@@ -48,11 +48,6 @@
     },
     "install": [
         {
-            "script": "get_node_info.sh",
-            "tag": "all",
-            "sudo": true
-        },
-        {
             "script": "remove_waagent.sh",
             "tag": "compute",
             "sudo": true
