@@ -15,7 +15,7 @@ NPROCS=`cat $PBS_NODEFILE | wc -l`
 
 cd $PBS_O_WORKDIR
 
-cd ${INPUTDIR} .
+cd ${INPUTDIR}/* .
 QE_INPUT_NAME=$(ls *.in)
 QE_DATA=${QE_INPUT_NAME%".in"}
 
@@ -28,4 +28,3 @@ mpirun \
      ${BIN_DIR}/${EXE_NAME} \
     -i ./${QE_DATA}.in \
     > ./${QE_DATA}.out
-~                                                                                            
