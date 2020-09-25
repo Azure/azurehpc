@@ -85,7 +85,7 @@ if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
 
     # Merge compute_telemetry variables file into config file
     cp $config_file temp.json
-    jq '.variables+=$variables' --argjson variables "$(jq '.variables' $BUILD_REPOSITORY_LOCALPATH/telemetry/variables.json)" temp.json > $AZHPC_CONFIG
+    jq '.variables+=$variables' --argjson variables "$(jq '.variables' $BUILD_REPOSITORY_LOCALPATH/telemetry/variables.json)" temp.json > $config_file
 
 fi
 
