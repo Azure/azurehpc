@@ -58,11 +58,36 @@ echo "Calling azhpc-init"
 azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables || exit 1
 pushd $PROJECT_DIR
 
-jq '.' $config_file
+if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
+    # copy pipelines common scripts to the project scripts
+    mkdir ./scripts
+    cp $BUILD_REPOSITORY_LOCALPATH/telemetry/* ./scripts
+    chmod +x ./scripts/*.sh
+
+    echo "Adding telemetry scripts"
+    # Get cluster ID
+    clusterId="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]')"
+
+    # Add a cluster_id in variable in the config file to be used by telemetry scripts
+    mv $config_file temp.json
+    jq '.variables.cluster_id=$clusterId' --arg clusterId $clusterId temp.json > $config_file
+
+    # merge telemetry scripts
+    echo "Adding telemetry for compute nodes"
+    jdoc=$(cat $BUILD_REPOSITORY_LOCALPATH/telemetry/compute_telemetry.json)
+    mv $config_file temp.json
+    jq '. | .install+=$install' --argjson install "$jdoc" temp.json > $config_file
+
+    # Merge compute_telemetry variables file into config file
+    cp $config_file temp.json
+    jq '.variables+=$variables' --argjson variables "$(jq '.variables' $BUILD_REPOSITORY_LOCALPATH/telemetry/variables.json)" temp.json > $AZHPC_CONFIG
+
+fi
 
 echo "********************************************************************"
 echo "*                  BUILD RESOURCES                                 *"
 echo "********************************************************************"
+jq '.' $config_file
 echo "Calling azhpc-build"
 export PATH=$PATH:$HOME/bin # add that path for any CycleCloud calls
 azhpc-build -c $config_file $AZHPC_OPTION
