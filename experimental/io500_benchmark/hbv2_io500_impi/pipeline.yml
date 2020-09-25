@@ -21,7 +21,7 @@ pool: Default
 variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: experimental/io500_benchmark/hbv2_io500_impi/config.json
+  azhpc.config: experimental/io500_benchmark/hbv2_io500_impi/config-pbs.json
   # pipeline directory
   azhpc.pipeline_dir: experimental/io500_benchmark/hbv2_io500_impi
   # destination of scripts. Default is hpcuser@headnode:/apps
@@ -31,8 +31,9 @@ variables:
 # Uncomment and set values below, or leave commented and thru pipeline variables
   azhpc.variables.location: southcentralus
   azhpc.variables.vm_type: Standard_HB120rs_v2
-
-  azhpc.variables_matrix: experimental/io500_benchmark/hbv2_io500_impi/test_matrix.json
+  azhpc.variables.compute_instances: 4
+  #azhpc.variables_matrix: experimental/io500_benchmark/hbv2_io500_impi/test_matrix.json
+  azhpc.add_telemetry: 1
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 jobs:
