@@ -9,8 +9,8 @@
         "tag": "all",
         "sudo": true,
         "args": [
-            "laworkspace.{{telemetry_resource_group}}.{{telemetry_la_workspace_name}}",
-            "lakey.{{telemetry_resource_group}}.{{telemetry_la_workspace_name}}"
+            "laworkspace.{{variables.telemetry_resource_group}}.{{variables.telemetry_la_workspace_name}}",
+            "lakey.{{variables.telemetry_resource_group}}.{{variables.telemetry_la_workspace_name}}"
         ]
     },
     {
@@ -30,7 +30,7 @@
         "sudo": true,
         "args": [
             "variables.cluster_id",
-            "sasurl.{{telemetry_storage_account}}.{{telemetry_container}},rw"
+            "sasurl.{{variables.telemetry_storage_account}}.{{variables.telemetry_container}},rw"
         ],
         "deps" : ["send_to_loganalytics.sh"]
     }
