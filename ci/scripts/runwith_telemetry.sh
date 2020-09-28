@@ -39,8 +39,8 @@ PARSER=$SCRIPT_DIR/parser_$SCRIPT_NAME.sh
 if [ -s $PARSER ]; then
     echo "calling $PARSER"
     set +e
-    # TODO : how to shift params and pass all of them ?
-    source $PARSER $2 $3 $4 $5 $6
+    shift
+    source $PARSER $@
     parser_exit=$?
     set -e
     if [ "$parser_exit" = "0" ]; then

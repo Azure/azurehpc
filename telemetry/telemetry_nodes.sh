@@ -26,12 +26,13 @@ AZHPC_VMSIZE=$(echo $compute | jq -r '.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 
 os_release=$(cat /etc/centos-release)
+kernel_release=$(uname -a | cut -d' ' -f 3)
 vmssName=$(echo $compute | jq -r '.vmScaleSetName')
 poolId=$cluster_id$vmssName
 
 waagent=$(waagent --version | grep Goal | cut -d':' -f2 | xargs)
 eth0=$(ifconfig | grep eth0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
-maceth0=$(ifconfig | grep eth0 -A3 | grep ether | tr -s ' ' | cut -d' ' -f3 | sed 's/://g' | tr '[:lower:]' '[:upper:]')
+#maceth0=$(ifconfig | grep eth0 -A3 | grep ether | tr -s ' ' | cut -d' ' -f3 | sed 's/://g' | tr '[:lower:]' '[:upper:]')
 hca_data="{}"
 
 case $AZHPC_VMSIZE in
@@ -39,7 +40,7 @@ case $AZHPC_VMSIZE in
         # Retrieve IB info
         ib0=$(ifconfig | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
         # retrieve IB0 MAC address even if IB0 IP is missing, this will help troubleshooting the host
-        macib0=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/network?api-version=$mds_api_version" | jq -r '.interface[1].macAddress')
+        #macib0=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/network?api-version=$mds_api_version" | jq -r '.interface[1].macAddress')
         if [ -n "$ib0" ]; then
             id=$(ibv_devinfo | grep hca_id | cut -d':' -f2 | xargs)
             fw_ver=$(ibv_devinfo | grep fw_ver | cut -d':' -f2 | xargs)
@@ -83,19 +84,23 @@ if [ "$bad_node" == "1" ]; then
     /usr/local/bin/azcopy cp $hostname.json "$uri/$blob?$write_sas"
 fi
 
-jq -n '.clusterId=$cluster_id | .poolid=$poolId | .hostname=$hostname | .waagent=$waagent | . += $compute | .osversion=$os_release | .eth0=$eth0 | .mac_eth0=$maceth0 | .ib0=$ib0 | .mac_ib0=$macib0 | .hca += $hca' \
+echo "Dumping compute info"
+echo $compute
+echo "Dumping HOC info"
+echo $hca_data
+
+jq -n '.clusterId=$cluster_id | .poolid=$poolId | .hostname=$hostname | .waagent=$waagent | . += $compute | .osversion=$os_release | .kernel=$kernel | .eth0=$eth0 | .ib0=$ib0 | .hca += $hca' \
     --argjson compute "$compute" \
     --argjson hca "$hca_data" \
     --arg os_release "$os_release" \
+    --arg kernel "$kernel_release" \
     --arg cluster_id "$cluster_id" \
     --arg poolId "$poolId" \
     --arg hostname "$hostname" \
     --arg waagent "$waagent" \
     --arg ib0 "$ib0" \
-    --arg macib0 "$macib0" \
-    --arg maceth0 "$maceth0" \
     --arg eth0 "$eth0"  > ~/$hostname.json
 
-$DIR/send_to_loganalytics.sh "nodes" ~/$hostname.json
+$DIR/send_to_loganalytics.sh "nodes" ~/$hostname.json || exit 1
 
 exit $bad_node

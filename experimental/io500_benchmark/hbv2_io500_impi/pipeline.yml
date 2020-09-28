@@ -47,5 +47,5 @@ variables:
 
 jobs:
 - template: ../../../ci/templates/jobs/build.yml
-  # parameters:
-  #   extra_steps: ../../../examples/simple_hpc_pbs/test.yml
+  parameters:
+    extra_steps: ../../../experimental/io500_benchmark/test.yml
