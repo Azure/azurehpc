@@ -20,7 +20,7 @@ steps:
         pushd $PROJECT_DIR
 
         if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
-          AZHPC_TELEMETRY_WRAPPER=/apps/ci/runwith_telemetry
+          AZHPC_TELEMETRY_WRAPPER=/apps/ci/runwith_telemetry.sh
           RUN_COMMAND="export AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER;${{ parameters.command }}"
         else
         RUN_COMMAND="${{ parameters.command }}"
