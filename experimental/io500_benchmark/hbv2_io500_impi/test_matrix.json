@@ -1,17 +1,17 @@
 {
-    "8_Nodes":
+    "8":
     {
         "azhpc.variables.compute_instances": 8
     },
-    "16_Nodes":
+    "16":
     {
         "azhpc.variables.compute_instances": 16
     },
-    "32_Nodes":
+    "32":
     {
         "azhpc.variables.compute_instances": 32
     },
-    "64_Nodes":
+    "64":
     {
         "azhpc.variables.compute_instances": 64
     }
