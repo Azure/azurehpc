@@ -21,10 +21,11 @@ steps:
 
         if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
           AZHPC_TELEMETRY_WRAPPER=/apps/ci/runwith_telemetry
-          ${{ parameters.command }}="AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER;${{ parameters.command }}"
-          echo ${{ parameters.command }}
+          RUN_COMMAND="AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER;${{ parameters.command }}"
+        else
+        RUN_COMMAND="${{ parameters.command }}"
         fi
     
-        azhpc-run -c $config_file -u ${{ parameters.user }} ${{ parameters.command }} || exit 1
+        azhpc-run -c $config_file -u ${{ parameters.user }} $RUN_COMMAND || exit 1
       failOnStandardError: false
     continueOnError: ${{ parameters.continueOnError }}
