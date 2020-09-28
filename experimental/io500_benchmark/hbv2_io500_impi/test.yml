@@ -9,4 +9,4 @@ steps:
 - template: ../../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
-    command: /apps/ci/runwith_telemetry.sh /apps/ci/submit_pingpong.sh $(azhpc.variables.compute_instances)
+    command: /apps/ci/submit_pingpong.sh $(azhpc.variables.compute_instances)
