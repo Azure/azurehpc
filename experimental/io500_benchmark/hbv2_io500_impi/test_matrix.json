@@ -1,7 +1,18 @@
 {
-    "8ppn-4n":
+    "8_Nodes":
     {
-        "azhpc.variables.compute_instances": 4,
-        "azhpc.variables.PPN": 8
+        "azhpc.variables.compute_instances": 8
+    },
+    "16_Nodes":
+    {
+        "azhpc.variables.compute_instances": 16
+    },
+    "32_Nodes":
+    {
+        "azhpc.variables.compute_instances": 32
+    },
+    "64_Nodes":
+    {
+        "azhpc.variables.compute_instances": 64
     }
 }
