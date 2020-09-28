@@ -21,7 +21,7 @@ steps:
 
         if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
           AZHPC_TELEMETRY_WRAPPER=/apps/ci/runwith_telemetry
-          RUN_COMMAND="AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER;${{ parameters.command }}"
+          RUN_COMMAND="export AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER;${{ parameters.command }}"
         else
         RUN_COMMAND="${{ parameters.command }}"
         fi
