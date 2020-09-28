@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+APP_NAME=quantum-espresso
+EXE_NAME=${EXE_NAME:-pw.x}
+SKU_TYPE=${SKU_TYPE:-hbv2}
+SHARED_APPS=${APP_INSTALL_DIR:-/apps}
+
+spack load quantum-espresso
+
+QEROOT=$(spack location -i quantum-espresso)
+BIN_DIR=${QEROOT}/bin
+
+cat $PBS_NODEFILE
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+
+cd $PBS_O_WORKDIR
+
+cd ${INPUTDIR}/* .
+QE_INPUT_NAME=$(ls *.in)
+QE_DATA=${QE_INPUT_NAME%".in"}
+
+mpirun \
+    -x LD_LIBRARY_PATH \
+    -np $NPROCS \
+    --hostfile $PBS_NODEFILE \
+    --bind-to numa \
+    --report-bindings \
+     ${BIN_DIR}/${EXE_NAME} \
+    -i ./${QE_DATA}.in \
+    > ./${QE_DATA}.out
