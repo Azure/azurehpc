@@ -20,6 +20,7 @@ cat <<EOF >app.json
     "app": "io500",
     "benchmark": "io500",
     "mpi": "impi",
-    "mpi_version": "$mpi_version"
+    "mpi_version": "$mpi_version",
+    "storage": "beeond"
 }
 EOF

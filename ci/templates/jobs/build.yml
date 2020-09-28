@@ -1,12 +1,13 @@
 parameters:
   pre_steps: ''
   extra_steps: ''
+  timeout: 180
 
 jobs:
 - template : ../jobs/init_matrix.yml
 
 - job: BuildCluster
-  timeoutInMinutes: 180
+  timeoutInMinutes: ${{ parameters.timeout }}
   cancelTimeoutInMinutes: 2
   dependsOn: InitMatrix
   strategy:
