@@ -108,8 +108,28 @@ if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
         echo "Dumping logs"
         echo "============"
         echo ""
-        cat $tmp_dir/install/*.log
-        grep -A4 "\[FAILURE\]" $tmp_dir/install/*.log
+        #cat $tmp_dir/install/*.log
+        grep -A10 "\[FAILURE\]" $tmp_dir/install/*.log
+
+        echo "===================="
+        echo "Upload logs in blobs"
+        echo "===================="
+        echo ""
+        # in case of errors, upload the logs into blobs
+        echo "upload $tmp_dir into blobs"
+        blob="$SYSTEM_DEFINITIONNAME/$SYSTEM_JOBIDENTIFIER/$BUILD_BUILDNUMBER"
+        account="$AZHPC_LOG_ACCOUNT"
+        container="pipelines"
+        saskey=$( \
+            az storage container generate-sas \
+            --account-name $account \
+            --name $container \
+            --permissions "rlw" \
+            --start $(date --utc -d "-2 hours" +%Y-%m-%dT%H:%M:%SZ) \
+            --expiry $(date --utc -d "+1 hour" +%Y-%m-%dT%H:%M:%SZ) \
+            --output tsv
+        )
+        azcopy cp "$tmp_dir" "https://$account.blob.core.windows.net/$container/$blob?$saskey" --recursive=true
     fi
     if [ "$return_code" -ne "0" ]; then
         exit $return_code
