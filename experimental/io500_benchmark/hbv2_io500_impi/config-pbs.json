@@ -161,7 +161,8 @@
             "tag": "beeond",
             "args": [
                 "hostlists/tags/compute",
-                "/localnvme/beeond"
+                "/localnvme/beeond",
+                "variables.compute_instances"
             ]
         }
     ]

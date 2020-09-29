@@ -17,8 +17,8 @@ AZHPC_NODES=$(cat $PBS_NODEFILE | uniq -c | wc -l)
 
 # # Force Beeond to be stopped in case of any leftover daemons
 # start_time=$SECONDS
-# sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d
-# sudo beeond start -F -P -n $(readlink -f $PBS_NODEFILE) -m $AZHPC_NODES -d /localnvme/beeond -c /beeond
+# sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d -c -q
+# sudo beeond start -q -F -P -n $(readlink -f $PBS_NODEFILE) -m $AZHPC_NODES -d /localnvme/beeond -c /beeond
 # end_time=$SECONDS
 # start_time=$(($end_time - $start_time))
 # echo "BEEOND Started in $start_time"
@@ -38,7 +38,7 @@ sed -i "s#^timestamp-resultdir.*#timestamp-resultdir = FALSE#" $AZHPC_JOBDIR/con
 mpirun -np $AZHPC_CORES -ppn $AZHPC_PPN -f $PBS_NODEFILE io500 $AZHPC_JOBDIR/config.ini | tee stdout.log || exit 1
 
 # start_time=$SECONDS
-# sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d
+# sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d -c -q
 # end_time=$SECONDS
 # stop_time=$(($end_time - $start_time))
 # echo "BEEOND Stopped in $stop_time"
