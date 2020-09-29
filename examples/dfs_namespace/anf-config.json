@@ -20,7 +20,7 @@
       "subnet": "netapp",
       "joindomain": "MyDomain.local",
       "ad_server": "adnode",
-      "ad_password": "Microsoft123!",
+      "ad_password": "variables.win_password",
       "ad_username": "hpcadmin",
       "pools": {
         "anfpool": {
