@@ -35,6 +35,11 @@ sed "s#^datadir.*#datadir = ${FILESYSTEM}#" $IO500_CONFIG > $AZHPC_JOBDIR/config
 sed -i "s#^resultdir.*#resultdir = $AZHPC_JOBDIR#" $AZHPC_JOBDIR/config.ini
 sed -i "s#^timestamp-resultdir.*#timestamp-resultdir = FALSE#" $AZHPC_JOBDIR/config.ini
 
+# Compute the BlockSize based on 30% of available space
+avail=$(df /beeond | grep -A1 "beegfs" | cut -d' ' -f 4)
+blocksize=$(( ($avail * 30 / 100) / ($AZHPC_CORES * 1024) ))
+sed -i "s#^blockSize.*#blockSize = ${blocksize}m#" $AZHPC_JOBDIR/config.ini
+
 mpirun -np $AZHPC_CORES -ppn $AZHPC_PPN -f $PBS_NODEFILE io500 $AZHPC_JOBDIR/config.ini | tee stdout.log || exit 1
 
 # start_time=$SECONDS
