@@ -21,7 +21,17 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 bad_node=0
 hostname=$(hostname)
 
-compute=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=$mds_api_version" | jq '. | del(.publicKeys) | del(.plan) | del(.subscriptionId) | del(.azEnvironment) | del(.platformFaultDomain) | del(.platformUpdateDomain)')
+compute=""
+iter=0
+while [[ "$compute" == "" && iter -lt 3 ]]; do
+    compute=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=$mds_api_version" | jq '. | del(.publicKeys) | del(.plan) | del(.subscriptionId) | del(.azEnvironment) | del(.platformFaultDomain) | del(.platformUpdateDomain)')
+    if [ "$compute" == "" ]; then
+        echo "MDS not ready, waiting 20s"
+        sleep 20
+    fi
+    iter=iter+1
+done
+
 AZHPC_VMSIZE=$(echo $compute | jq -r '.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 
