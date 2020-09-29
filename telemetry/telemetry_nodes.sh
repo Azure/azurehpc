@@ -29,7 +29,7 @@ while [[ "$compute" == "" && iter -lt 3 ]]; do
         echo "MDS not ready, waiting 20s"
         sleep 20
     fi
-    iter=iter+1
+    iter=$((iter + 1))
 done
 
 AZHPC_VMSIZE=$(echo $compute | jq -r '.vmSize')
