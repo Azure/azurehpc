@@ -16,7 +16,7 @@ if [ "$(rpm -qa pbspro-execution)" = "" ];then
     systemctl start pbs
 
     # Retrieve the VMSS name to be used as the pool name for multiple VMSS support
-    poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
+    poolName=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
     /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'"
     
 else
