@@ -32,11 +32,18 @@ steps:
   parameters:
     user: hpcuser
     timeout: 180
-    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 16
+    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 10
 
 # Run IO500
 - template: ../../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
     timeout: 180
-    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 32
+    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 12
+
+    # Run IO500
+- template: ../../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    timeout: 180
+    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 16
