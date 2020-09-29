@@ -41,7 +41,7 @@
             "tags": [
                 "all",
                 "compute",
-                "launch[0]",
+                "beeond[0]",
                 "pbsclient"
             ]
         }
@@ -154,6 +154,14 @@
             "tag": "compute",
             "args": [
                 "/localnvme"
+            ]
+        },
+        {
+            "script": "startbeeond.sh",
+            "tag": "beeond",
+            "args": [
+                "hostlists/tags/compute",
+                "/localnvme/beeond"
             ]
         }
     ]
