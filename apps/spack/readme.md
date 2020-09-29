@@ -1,5 +1,8 @@
 # Spack
 
+## Prerequisites
+Python3 needs to be installed on all computational resources using spack.
+
 [Spack](https://spack.readthedocs.io/en/latest/) is a package management tool designed to support multiple versions and configurations of software on a wide variety of platforms and environments. It was designed for large supercomputing center, where many users and application teams share common installations of software on clusters.
 
 Spack will build and install software for HB, HBv2 or HC sku's with CentOS-HPC 7.7 (using the provided MPI libraries). See one of the examples for building a Cluster with HB or HC skus and PBS. (e.g. [simple_hpc_pbs](../../examples/simple_hpc_pbs/readme.md))
@@ -40,8 +43,8 @@ spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@2.6.0
 ```
 Using intel mpi 
 ```
-source /opt/intel/impi/2019.7.217/intel64/bin/mpivars.sh
-spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2019.1.217
+source /opt/intel/compilers_and_libraries_2020.1.217/linux/mpi/intel64/bin/mpivars.sh
+spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2020.1.217
 ```
 
 Some example PBS scripts have been provided to show how run the osu-micro-benchmarks.

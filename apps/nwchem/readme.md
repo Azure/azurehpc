@@ -2,9 +2,7 @@
 
 ## Prerequisites
 
-Dependencies for binary version:
-
-* None
+Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up. Spack is installed (See [here](../spack/readme.md) for details).
 
 ## Installation 
 
@@ -17,7 +15,7 @@ First copy the apps directory to the cluster.  The `azhpc-scp` can be used to do
 
 ### Install from source
 
-For this the headnode needs to be a HB or HC node with CentOS-HPC-7.6 upwards
+For this the headnode needs to be a HBv2, HB or HC node with CentOS-HPC-7.7 upwards (or install on a compute node)
 
 ```
 azhpc-run -u hpcuser $azhpc_dir/apps/nwchem/build_install_nwchem.sh
@@ -36,12 +34,12 @@ azhpc-connect -u hpcuser headnode
 ## Run the NWCHEM h2o_freq scenario
 To run on a single node with 4 cores run
 ```
-qsub -l select=1:ncpus=60:mpiprocs=4 apps/nwchem/run_h2o_freq.sh
+qsub -l select=1:ncpus=120:mpiprocs=4 -v INPUTDIR=/data/nwchm run_nwchem.pbs
 ```
 
-To run on two HB nodes with 8 total cores (4 cores on each node) run
+To run on two HBv2 nodes with 8 total cores (4 cores on each node) run
 ```
-qsub -l select=2:ncpus=60:mpiprocs=4 apps/nwchem/run_h2o_freq.sh
+qsub -l select=2:ncpus=120:mpiprocs=4 -v INPUTDIR=/data/nwchm run_nwchem.pbs
 ```
 
 ## Install and run nwchem Benchmarks using [Azure CycleCloud](https://docs.microsoft.com/en-us/azure/cyclecloud/) Cluster 
@@ -73,7 +71,7 @@ apps/nwchem/build_install_nwchem.sh
 
 Copy apps/nwchem to the cyclecloud master node.
 
-To run on two HB nodes with 8 total cores (4 cores on each node) run (nwchem installation and model are in /scratch)
+To run on two HBv2 nodes with 8 total cores (4 cores on each node) run (nwchem installation and model are in /scratch)
 ```
-qsub -l select=2:ncpus=60:mpiprocs=4 -v APP_INSTALL_DIR=/scratch,DATA_DIR=/scratch apps/nwchem/run_h2o_freq.sh
+qsub -l select=2:ncpus=120:mpiprocs=4 -v APP_INSTALL_DIR=/scratch,INPUTDIR=/scratch/nwchem run_nwchem.pbs
 ```
