@@ -23,7 +23,6 @@ end_time=$SECONDS
 start_time=$(($end_time - $start_time))
 echo "BEEOND Started in $start_time"
 
-
 source /etc/profile.d/modules.sh
 export MODULEPATH=$MODULEPATH:/apps/modulefiles
 
@@ -36,7 +35,7 @@ sed "s#^datadir.*#datadir = ${FILESYSTEM}#" $IO500_CONFIG > $AZHPC_JOBDIR/config
 sed -i "s#^resultdir.*#resultdir = $AZHPC_JOBDIR#" $AZHPC_JOBDIR/config.ini
 sed -i "s#^timestamp-resultdir.*#timestamp-resultdir = FALSE#" $AZHPC_JOBDIR/config.ini
 
-mpirun -np $AZHPC_CORES -ppn $AZHPC_PPN -f $PBS_NODEFILE io500 $AZHPC_JOBDIR/config.ini | tee stdout.log
+mpirun -np $AZHPC_CORES -ppn $AZHPC_PPN -f $PBS_NODEFILE io500 $AZHPC_JOBDIR/config.ini | tee stdout.log || exit 1
 
 start_time=$SECONDS
 sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d
