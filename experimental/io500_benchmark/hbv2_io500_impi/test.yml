@@ -3,12 +3,14 @@ steps:
 - template: ../../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/check_pbs_nodes.sh $(azhpc.variables.compute_instances)
 
 # Run a ring mpi pingpong
 - template: ../../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/submit_pingpong.sh $(azhpc.variables.compute_instances)
 
 # Run IO500
