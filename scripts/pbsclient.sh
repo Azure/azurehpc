@@ -3,7 +3,7 @@
 pbs_server=$1
 set -x
 
-if [ ! rpm -q pbspro-execution ];then
+if ! rpm -q pbspro-execution; then
     if ! rpm -q jq; then
         yum install -y jq
     fi
@@ -20,10 +20,9 @@ if [ ! rpm -q pbspro-execution ];then
     # Retrieve the VMSS name to be used as the pool name for multiple VMSS support
     poolName=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
     if [ "$poolName" != "" ]; then
-        echo "Registring node for poolName $poolName"
+        echo "Registering node for poolName $poolName"
         /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'"
     fi
-    
     
 else
     echo "PBS client was already installed"

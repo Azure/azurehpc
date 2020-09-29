@@ -21,7 +21,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 bad_node=0
 hostname=$(hostname)
 
-compute=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=$mds_api_version" | jq '. | del(.publicKeys) | del(.plan) | del(.subscriptionId) | del(.azEnvironment) | del(.platformFaultDomain) | del(.platformUpdateDomain)')
+compute=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=$mds_api_version" | jq '. | del(.publicKeys) | del(.plan) | del(.subscriptionId) | del(.azEnvironment) | del(.platformFaultDomain) | del(.platformUpdateDomain)')
 AZHPC_VMSIZE=$(echo $compute | jq -r '.vmSize')
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
 
@@ -75,7 +75,7 @@ esac
 
 if [ "$bad_node" == "1" ]; then
     # Upload node metadata in blob storage for bad nodes
-    curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" > $hostname.json
+    curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" > $hostname.json
     d=$(date +"%Y/%m/%d/%H")
     location=$(echo $compute | jq -r '.location')
     blob="badnodes/$d/$location/$AZHPC_VMSIZE/$hostname.json"
@@ -86,7 +86,7 @@ fi
 
 echo "Dumping compute info"
 echo $compute
-echo "Dumping HOC info"
+echo "Dumping HCA info"
 echo $hca_data
 
 jq -n '.clusterId=$cluster_id | .poolid=$poolId | .hostname=$hostname | .waagent=$waagent | . += $compute | .osversion=$os_release | .kernel=$kernel | .eth0=$eth0 | .ib0=$ib0 | .hca += $hca' \
