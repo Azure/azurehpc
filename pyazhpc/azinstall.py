@@ -24,7 +24,7 @@ def create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey):
         os.chmod(scriptfile, 0o755)
         f.write(f"""#!/bin/bash
 
-cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 tag=linux
 
