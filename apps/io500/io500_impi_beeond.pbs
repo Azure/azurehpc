@@ -1,6 +1,6 @@
 #!/bin/bash
 set -o pipefail
-FS_ROOT=${1:/data}
+FS_ROOT=${1:-/data}
 IO500_CONFIG=${2:-/apps/io500/config-io500.ini}
 FILESYSTEM=$FS_ROOT/datafiles
 
