@@ -14,13 +14,21 @@ if [[ $(id -u) -ne 0 ]] ; then
     exit 1
 fi
 
+# Check to see which OS this is running on.
+os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+
 echo "Creating a $filesystem filesystem on device $device mounted on $mount"
 
 case $filesystem in
     xfs)
         mkfs -t $filesystem $device || exit 1
         xfsuuid="UUID=`blkid |grep $device |cut -d " " -f 2 |cut -c 7-42`"
-        echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nobarrier,nofail 0 2" >> /etc/fstab
+        if [ "$os_release" == "centos" ];then
+            echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nobarrier,nofail 0 2" >> /etc/fstab
+        elif [ "$os_release" == "ubuntu" ]
+            echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nofail 0 2" >> /etc/fstab
+        fi
     ;;
 
     ext4)
@@ -28,7 +36,11 @@ case $filesystem in
         sleep 5
         tune2fs -o user_xattr $device
         ext4uuid="UUID=`blkid |grep $device |cut -d " " -f 2 |cut -c 7-42`"
-        echo "$ext4uuid $mount $filesystem noatime,nodiratime,nobarrier,nofail 0 2" >> /etc/fstab
+        if [ "$os_release" == "centos" ];then
+            echo "$ext4uuid $mount $filesystem noatime,nodiratime,nobarrier,nofail 0 2" >> /etc/fstab
+        elif [ "$os_release" == "ubuntu" ]
+            echo "$ext4uuid $mount $filesystem noatime,nodiratime,nofail 0 2" >> /etc/fstab
+        fi 
     ;;
 
     *)
