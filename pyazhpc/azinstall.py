@@ -81,7 +81,13 @@ for h in $(<hostlists/$tag); do
     done
 done
 
-pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'rpm -q rsync || sudo yum install -y rsync' >> {logfile} 2>&1
+if [ "$os_release" == "centos" ];then
+    pssh -p 50 -t 0 -i -h hostlists/$tag 'rpm -q rsync || sudo yum install -y rsync' >> install/00_install_node_setup.log 2>&1
+elif [ "$os_release" == "ubuntu" ];then
+    pssh -p 50 -t 0 -i -h hostlists/$tag 'dpkg -l rsync || sudo apt install -y rsync' >> install/00_install_node_setup.log 2>&1
+else
+    echo "Unsupporte OS release: $os_release"
+fi
 
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/{tmpdir} ~ >> {logfile} 2>&1
 prsync -p {pssh_threads} -a -h hostlists/$tag ~/.ssh ~ >> {logfile} 2>&1
