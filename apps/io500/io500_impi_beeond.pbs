@@ -1,7 +1,9 @@
 #!/bin/bash
 set -o pipefail
+FS_ROOT=${1:/data}
+IO500_CONFIG=${2:-/apps/io500/config-io500.ini}
+FILESYSTEM=$FS_ROOT/datafiles
 
-FILESYSTEM=/beeond/datafiles
 SHARED_ROOT=/
 AZHPC_DATA=${SHARED_ROOT}data
 AZHPC_APPS=${SHARED_ROOT}apps
@@ -15,14 +17,6 @@ AZHPC_PPN=$(cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }')
 AZHPC_CORES=$(cat $PBS_NODEFILE | wc -l)
 AZHPC_NODES=$(cat $PBS_NODEFILE | uniq -c | wc -l)
 
-# # Force Beeond to be stopped in case of any leftover daemons
-# start_time=$SECONDS
-# sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d -c -q
-# sudo beeond start -q -F -P -n $(readlink -f $PBS_NODEFILE) -m $AZHPC_NODES -d /localnvme/beeond -c /beeond
-# end_time=$SECONDS
-# start_time=$(($end_time - $start_time))
-# echo "BEEOND Started in $start_time"
-
 source /etc/profile.d/modules.sh
 export MODULEPATH=$MODULEPATH:/apps/modulefiles
 
@@ -30,20 +24,14 @@ module load gcc-9.2.0
 module load mpi/impi_2018.4.274
 module load io500-app
 
-IO500_CONFIG=$AZHPC_APPS/io500/config-io500.ini
 sed "s#^datadir.*#datadir = ${FILESYSTEM}#" $IO500_CONFIG > $AZHPC_JOBDIR/config.ini
 sed -i "s#^resultdir.*#resultdir = $AZHPC_JOBDIR#" $AZHPC_JOBDIR/config.ini
 sed -i "s#^timestamp-resultdir.*#timestamp-resultdir = FALSE#" $AZHPC_JOBDIR/config.ini
 
 # Compute the BlockSize based on 30% of available space
-avail=$(df /beeond | grep -A1 "beegfs" | cut -d' ' -f 4)
+avail=$(df $FS_ROOT | grep -A1 "beegfs" | cut -d' ' -f 4)
 blocksize=$(( ($avail * 30 / 100) / ($AZHPC_CORES * 1024) ))
 sed -i "s#^blockSize.*#blockSize = ${blocksize}m#" $AZHPC_JOBDIR/config.ini
 
 mpirun -np $AZHPC_CORES -ppn $AZHPC_PPN -f $PBS_NODEFILE io500 $AZHPC_JOBDIR/config.ini | tee stdout.log || exit 1
 
-# start_time=$SECONDS
-# sudo beeond stop -P -n $(readlink -f $PBS_NODEFILE) -L -d -c -q
-# end_time=$SECONDS
-# stop_time=$(($end_time - $start_time))
-# echo "BEEOND Stopped in $stop_time"
