@@ -112,7 +112,7 @@ if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
         grep -A10 "\[FAILURE\]" $tmp_dir/install/*.log
 
         # If a logging storage account is set, upload logs into blobs
-        if [ -n "$AZHPC_LOG_ACCOUNT"]; then
+        if [ -n "$AZHPC_LOG_ACCOUNT" ]; then
             echo "===================="
             echo "Upload logs in blobs"
             echo "===================="
