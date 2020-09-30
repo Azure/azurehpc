@@ -28,6 +28,13 @@ cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
 tag=linux
 
+# Check to see which OS this is running on.
+os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+echo "OS Release: $os_release"
+echo "OS Major Version: $os_maj_ver"
+
+
 if [ ! -f "hostlists/$tag" ]; then
     echo "no hostlist ($tag), exiting"
     exit 0
@@ -36,14 +43,20 @@ fi
 if [ "$1" != "" ]; then
     tag=tags/$1
 else
-    while ! rpm -q epel-release
-    do
-        if ! sudo yum install -y epel-release >> {logfile} 2>&1
-        then
-            sudo yum clean metadata
-        fi
-    done
-    sudo yum install -y pssh nc >> {logfile} 2>&1
+    if [ "$os_release" == "centos" ];then
+        while ! rpm -q epel-release
+        do
+            if ! sudo yum install -y epel-release >> install/00_install_node_setup.log 2>&1
+            then
+                sudo yum clean metadata
+            fi
+        done
+        sudo yum install -y pssh nc >> install/00_install_node_setup.log 2>&1
+    elif [ "$os_release" == "ubuntu" ];then
+        sudo apt install -y pssh netcat >> install/00_install_node_setup.log 2>&1
+    else
+        echo "Unsupported OS release: $os_release"
+    fi
 
     # setting up keys
     cat <<EOF > ~/.ssh/config
