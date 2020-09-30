@@ -3,6 +3,12 @@
 # arg: $1 = raid_device (e.g. /dev/md10)
 # arg: $* = devices to use (can use globbing)
 
+# Check to see if this script was already run
+if [ -f "/etc/mdadm.conf" ];then
+    echo "Script does not need to be rerun. Exiting"
+    exit 0
+fi
+
 raid_device=$1
 shift
 

@@ -1,20 +1,33 @@
 #!/bin/bash
-
+  
 # arg: $1 = nfsserver
 nfs_server=$1
 new_user=hpcuser
 home_root=/share/home
 
-if [ "$(hostname)" = "$nfs_server" ]; then
-    CREATE_HOME="--create-home"
-else
-    CREATE_HOME="--no-create-home"
+# Check to see which OS this is running on.
+os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+
+# Script to be run on all compute nodes
+if [ "$os_release" == "centos" ];then
+   if [ "$(hostname)" = "$nfs_server" ]; then
+       CREATE_HOME="--create-home"
+   else
+       CREATE_HOME="--no-create-home"
+   fi
+   adduser \
+       $CREATE_HOME \
+       --home-dir $home_root/$new_user \
+       $new_user
+elif [ "$os_release" == "ubuntu" ];then
+   if [ "$(hostname)" = "$nfs_server" ]; then
+       CREATE_HOME=""
+   else
+       CREATE_HOME="--no-create-home"
+   fi
+   adduser $new_user $CREATE_HOME --home $home_root/$new_user --gecos "HPC USER,1,1,1" --disabled-password
 fi
 
-adduser \
-    $CREATE_HOME \
-    --home-dir $home_root/$new_user \
-    $new_user
 
 
 if [ "$(hostname)" = "$nfs_server" ]; then

@@ -1,18 +1,35 @@
 #!/bin/bash
 
+# Check to see which OS this is running on.
+os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+
 # Script to be run on all compute nodes
-while ! rpm -q epel-release
-do
-    if ! yum -y install epel-release
-    then
-        yum clean metadata
-    fi
-done
+if [ "$os_release" == "centos" ];then
+   echo "OS release: $os_release"
+   while ! rpm -q epel-release
+   do
+       if ! yum -y install epel-release
+       then
+           yum clean metadata
+       fi
+   done
 
-yum -y install git jq htop
+   yum -y install git jq htop
 
-# change access to resource so that temp jobs can be written there
-chmod 777 /mnt/resource
+   # change access to resource so that temp jobs can be written there
+   chmod 777 /mnt/resource
+elif [ "$os_release" == "ubuntu" ];then
+   echo "OS release: $os_release"
+   apt update -y
+   apt install build-essential -y
+   apt install git jq htop unzip -y
+
+   # change access to resource so that temp jobs can be written there
+   chmod 777 /mnt
+else
+   echo "Unsupported OS release: $os_release"
+fi
+
 
 # If running on Cycle 
 # - enable METADATA access
