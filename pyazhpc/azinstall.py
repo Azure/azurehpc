@@ -90,28 +90,20 @@ for h in $(<hostlists/$tag); do
 done
 
 if [ "$os_release" == "centos" ];then
-    echo "I am now here"
+    echo "CentOS"
     $pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'rpm -q rsync || sudo yum install -y rsync' >> install/00_install_node_setup.log 2>&1
-    echo "pssh 00: $?" >> install/00_install_node_setup.log 2>&1
 elif [ "$os_release" == "ubuntu" ];then
     echo "Ubuntu" >> install/00_install_node_setup.log 2>&1
     $pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'dpkg -l rsync || sudo apt install -y rsync' >> install/00_install_node_setup.log 2>&1
-    echo "pssh 00: $?" >> install/00_install_node_setup.log 2>&1
 else
     echo "Unsupporte OS release: $os_release" >> install/00_install_node_setup.log 2>&1
 fi
 
 $prsync_cmd -p 50 -a -h hostlists/$tag ~/azhpc_install_config ~ >> install/00_install_node_setup.log 2>&1
-echo "prsync 01: $?" >> install/00_install_node_setup.log 2>&1
 $prsync_cmd -p 50 -a -h hostlists/$tag ~/.ssh ~ >> install/00_install_node_setup.log 2>&1
-echo "prsync 02: $?" >> install/00_install_node_setup.log 2>&1
-
 $pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> install/00_install_node_setup.log 2>&1
-echo "pssh 03: $?" >> install/00_install_node_setup.log 2>&1
 $pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'sudo systemctl restart sshd' >> install/00_install_node_setup.log 2>&1
-echo "pssh 04: $?" >> install/00_install_node_setup.log 2>&1
-#$pssh_cmd -p 50 -t 0 -i -h hostlists/$tag "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> install/00_install_node_setup.log 2>&1
-echo "pssh 05: $?" >> install/00_install_node_setup.log 2>&1
+$pssh_cmd -p 50 -t 0 -i -h hostlists/$tag "echo 'Defaults env_keep += \\"PSSH_NODENUM PSSH_HOST\\"' | sudo tee -a /etc/sudoers" >> install/00_install_node_setup.log 2>&1
 
 """)
 
