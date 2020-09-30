@@ -24,9 +24,12 @@ def create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey):
         os.chmod(scriptfile, 0o755)
         f.write(f"""#!/bin/bash
 
-cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 
 tag=linux
+
+pssh_cmd=pssh
+prsync_cmd=prsync
 
 # Check to see which OS this is running on.
 os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
@@ -44,6 +47,7 @@ if [ "$1" != "" ]; then
     tag=tags/$1
 else
     if [ "$os_release" == "centos" ];then
+        echo "I am here" >> install/00_install_node_setup.log 2>&1
         while ! rpm -q epel-release
         do
             if ! sudo yum install -y epel-release >> install/00_install_node_setup.log 2>&1
@@ -53,9 +57,12 @@ else
         done
         sudo yum install -y pssh nc >> install/00_install_node_setup.log 2>&1
     elif [ "$os_release" == "ubuntu" ];then
+        echo "Ubuntu" >> install/00_install_node_setup.log 2>&1
         sudo apt install -y pssh netcat >> install/00_install_node_setup.log 2>&1
+        pssh_cmd=parallel-ssh
+        prsync_cmd=parallel-rsync
     else
-        echo "Unsupported OS release: $os_release"
+        echo "Unsupported OS release: $os_release" >> install/00_install_node_setup.log 2>&1
     fi
 
     # setting up keys
@@ -65,8 +72,8 @@ else
         UserKnownHostsFile /dev/null
         LogLevel ERROR
 EOF
-    cp {sshpubkey} ~/.ssh/id_rsa.pub
-    cp {sshprivkey} ~/.ssh/id_rsa
+    cp hpcadmin_id_rsa.pub ~/.ssh/id_rsa.pub
+    cp hpcadmin_id_rsa ~/.ssh/id_rsa
     chmod 600 ~/.ssh/id_rsa
     chmod 644 ~/.ssh/config
     chmod 644 ~/.ssh/id_rsa.pub
@@ -76,25 +83,35 @@ fi
 # check sshd is up on all nodes
 for h in $(<hostlists/$tag); do
     until ssh $h hostname >/dev/null 2>&1; do
-        echo "Waiting for sshd on host - $h (sleeping for 5 seconds)"
+        echo "Waiting for sshd on host - $h (sleeping for 5 seconds)" >> install/00_install_node_setup.log 2>&1
         sleep 5
     done
 done
 
 if [ "$os_release" == "centos" ];then
-    pssh -p 50 -t 0 -i -h hostlists/$tag 'rpm -q rsync || sudo yum install -y rsync' >> install/00_install_node_setup.log 2>&1
+    echo "I am now here"
+    $pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'rpm -q rsync || sudo yum install -y rsync' >> install/00_install_node_setup.log 2>&1
+    echo "pssh 00: $?" >> install/00_install_node_setup.log 2>&1
 elif [ "$os_release" == "ubuntu" ];then
-    pssh -p 50 -t 0 -i -h hostlists/$tag 'dpkg -l rsync || sudo apt install -y rsync' >> install/00_install_node_setup.log 2>&1
+    echo "Ubuntu" >> install/00_install_node_setup.log 2>&1
+    $pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'dpkg -l rsync || sudo apt install -y rsync' >> install/00_install_node_setup.log 2>&1
+    echo "pssh 00: $?" >> install/00_install_node_setup.log 2>&1
 else
-    echo "Unsupporte OS release: $os_release"
+    echo "Unsupporte OS release: $os_release" >> install/00_install_node_setup.log 2>&1
 fi
 
-prsync -p {pssh_threads} -a -h hostlists/$tag ~/{tmpdir} ~ >> {logfile} 2>&1
-prsync -p {pssh_threads} -a -h hostlists/$tag ~/.ssh ~ >> {logfile} 2>&1
+$prsync_cmd -p 50 -a -h hostlists/$tag ~/azhpc_install_config ~ >> install/00_install_node_setup.log 2>&1
+echo "prsync 01: $?" >> install/00_install_node_setup.log 2>&1
+$prsync_cmd -p 50 -a -h hostlists/$tag ~/.ssh ~ >> install/00_install_node_setup.log 2>&1
+echo "prsync 02: $?" >> install/00_install_node_setup.log 2>&1
 
-pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> {logfile} 2>&1
-pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag 'sudo systemctl restart sshd' >> {logfile} 2>&1
-pssh -p {pssh_threads} -t 0 -i -h hostlists/$tag "echo 'Defaults env_keep += \\"PSSH_NODENUM PSSH_HOST\\"' | sudo tee -a /etc/sudoers" >> {logfile} 2>&1
+$pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'echo "AcceptEnv PSSH_NODENUM PSSH_HOST" | sudo tee -a /etc/ssh/sshd_config' >> install/00_install_node_setup.log 2>&1
+echo "pssh 03: $?" >> install/00_install_node_setup.log 2>&1
+$pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'sudo systemctl restart sshd' >> install/00_install_node_setup.log 2>&1
+echo "pssh 04: $?" >> install/00_install_node_setup.log 2>&1
+$pssh_cmd -p 50 -t 0 -i -h hostlists/$tag "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> install/00_install_node_setup.log 2>&1
+echo "pssh 05: $?" >> install/00_install_node_setup.log 2>&1
+
 """)
 
 def create_jumpbox_script(inst, tmpdir, step):
