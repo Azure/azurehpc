@@ -18,10 +18,12 @@ if ! rpm -q pbspro-execution; then
 
     # Retrieve the VMSS name to be used as the pool name for multiple VMSS support
     poolName=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
-    if [ "$poolName" != "" ]; then
-        echo "Registering node for poolName $poolName"
-        /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'" || exit 1
+    if [ -z "$poolName" ]; then
+        echo "Unable to query MDS"
+        poolName="compute"
     fi
+    echo "Registering node for poolName $poolName"
+    /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'" || exit 1
 else
     echo "PBS client was already installed"
 fi
