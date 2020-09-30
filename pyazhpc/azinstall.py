@@ -110,7 +110,7 @@ $pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'echo "AcceptEnv PSSH_NODENUM PSSH_HOS
 echo "pssh 03: $?" >> install/00_install_node_setup.log 2>&1
 $pssh_cmd -p 50 -t 0 -i -h hostlists/$tag 'sudo systemctl restart sshd' >> install/00_install_node_setup.log 2>&1
 echo "pssh 04: $?" >> install/00_install_node_setup.log 2>&1
-$pssh_cmd -p 50 -t 0 -i -h hostlists/$tag "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> install/00_install_node_setup.log 2>&1
+#$pssh_cmd -p 50 -t 0 -i -h hostlists/$tag "echo 'Defaults env_keep += \"PSSH_NODENUM PSSH_HOST\"' | sudo tee -a /etc/sudoers" >> install/00_install_node_setup.log 2>&1
 echo "pssh 05: $?" >> install/00_install_node_setup.log 2>&1
 
 """)
