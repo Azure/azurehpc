@@ -63,6 +63,8 @@ SlurmdTimeout=300
 SlurmctldParameters=cloud_dns,idle_on_node_suspend
 CommunicationParameters=NoAddrCache
 
+PropagateResourceLimits=NONE
+
 SlurmctldLogFile=/var/log/slurm/slurmctld.log
 SlurmctldDebug=debug5
 SlurmdLogFile=/var/log/slurm/slurmd.log
