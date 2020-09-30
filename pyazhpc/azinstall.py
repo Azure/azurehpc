@@ -124,6 +124,18 @@ def create_jumpbox_script(inst, tmpdir, step):
 # expecting to be in $tmp_dir
 cd "$( dirname "${{BASH_SOURCE[0]}}" )/.."
 
+# Check to see which OS this is running on.
+os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+echo "OS Release: $os_release"
+echo "OS Major Version: $os_maj_ver"
+
+pssh_cmd=pssh
+
+if [ "$os_release" == "ubuntu" ];then
+    pssh_cmd=parallel-ssh
+fi
+
 tag=${{1:-{tag}}}
 
 if [ ! -f "hostlists/tags/$tag" ]; then
