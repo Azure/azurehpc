@@ -7,8 +7,33 @@ fi
 # Disable requiretty to allow run sudo within scripts
 sed -i -e 's/Defaults    requiretty.*/ #Defaults    requiretty/g' /etc/sudoers
 
-yum -y install epel-release
-yum -y install nfs-utils nfs-utils-lib
+# Check to see which OS this is running on. 
+os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+echo "OS Release: $os_release"
+echo "OS Major Version: $os_maj_ver"
+
+if [ "$os_release" == "centos" ];then
+    yum -y install epel-release
+    yum -y install nfs-utils nfs-utils-lib
+    # Start the services
+    systemctl enable rpcbind
+    systemctl enable nfs-server
+    systemctl enable nfs-lock
+    systemctl enable nfs-idmap
+    systemctl enable nfs
+
+    systemctl start rpcbind
+    systemctl start nfs-server
+    systemctl start nfs-lock
+    systemctl start nfs-idmap
+    systemctl start nfs
+elif [ "$os_release" == "ubuntu" ];then
+    apt install nfs-kernel-server -y
+    apt install lsscsi -y
+    systemctl enable nfs-kernel-server
+    systemctl start nfs-kernel-server
+fi
 
 # Shares
 NFS_MOUNT_POINT=/share
@@ -161,6 +186,10 @@ setup_disks()
     mkdir -p $NFS_DATA
     mkdir -p $NFS_HOME
     mkdir -p $NFS_SCRATCH
+    chown nobody:nobody $NFS_APPS
+    chown nobody:nobody $NFS_DATA
+    chown nobody:nobody $NFS_HOME
+    chown nobody:nobody $NFS_SCRATCH
     chmod 777 $NFS_APPS
     chmod 777 $NFS_DATA
     chmod 777 $NFS_HOME
@@ -188,21 +217,14 @@ tune_nfs()
     grep RPCNFSDCOUNT /etc/sysconfig/nfs
 }
 
-systemctl enable rpcbind
-systemctl enable nfs-server
-systemctl enable nfs-lock
-systemctl enable nfs-idmap
-systemctl enable nfs
-
-systemctl start rpcbind
-systemctl start nfs-server
-systemctl start nfs-lock
-systemctl start nfs-idmap
-systemctl start nfs
 
 setup_disks
 tune_nfs
-systemctl restart nfs-server
+if [ "$os_release" == "centos" ];then
+    systemctl restart nfs-server
+elif [ "$os_release" == "ubuntu" ];then
+    systemctl restart nfs-kernel-server
+fi
 
 ln -s /share/apps /apps
 ln -s /share/data /data

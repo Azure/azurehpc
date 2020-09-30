@@ -3,6 +3,12 @@ device=$1
 filesystem=${2-xfs}
 mount=${3-/share}
 
+# Check if mount exist
+if [ -f "$mount" ];then
+    echo "Script was already run. Exiting"
+    exit 0
+fi
+
 if [[ $(id -u) -ne 0 ]] ; then
     echo "Must be run as root"
     exit 1
