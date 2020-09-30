@@ -26,7 +26,7 @@ case $filesystem in
         xfsuuid="UUID=`blkid |grep $device |cut -d " " -f 2 |cut -c 7-42`"
         if [ "$os_release" == "centos" ];then
             echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nobarrier,nofail 0 2" >> /etc/fstab
-        elif [ "$os_release" == "ubuntu" ]
+        elif [ "$os_release" == "ubuntu" ];then
             echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nofail 0 2" >> /etc/fstab
         fi
     ;;
@@ -38,7 +38,7 @@ case $filesystem in
         ext4uuid="UUID=`blkid |grep $device |cut -d " " -f 2 |cut -c 7-42`"
         if [ "$os_release" == "centos" ];then
             echo "$ext4uuid $mount $filesystem noatime,nodiratime,nobarrier,nofail 0 2" >> /etc/fstab
-        elif [ "$os_release" == "ubuntu" ]
+        elif [ "$os_release" == "ubuntu" ];then
             echo "$ext4uuid $mount $filesystem noatime,nodiratime,nofail 0 2" >> /etc/fstab
         fi 
     ;;
