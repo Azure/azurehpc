@@ -1,0 +1,9 @@
+{
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "vnet_resource_group": "variables.resource_group",
+    "image": "MicrosoftWindowsServer:WindowsServer:2019-Datacenter:latest",
+    "ad_domain": "MyDomain.local",
+    "ad_admin": "hpcadmin",
+    "win_password": "<NOT-SET>"
+}
