@@ -28,7 +28,6 @@ if [ "$os_release" == "centos" ];then
         echo "Not sure what to do with Version: $os_maj_ver"
     fi  
 elif [ "$os_release" == "ubuntu" ] && [ "$os_maj_ver" == "18.04" ];then
-    cd *pbs*_*
     install_file=$(ls *-server_*.deb)
     apt install ./$install_file -y
     apt install libpq-dev postgresql postgresql-contrib -y
