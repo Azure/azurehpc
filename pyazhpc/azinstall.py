@@ -58,7 +58,7 @@ else
         sudo yum install -y pssh nc >> install/00_install_node_setup.log 2>&1
     elif [ "$os_release" == "ubuntu" ];then
         echo "Ubuntu" >> install/00_install_node_setup.log 2>&1
-        apt update
+        sudo apt update
         sudo apt install -y pssh netcat >> install/00_install_node_setup.log 2>&1
         pssh_cmd=parallel-ssh
         prsync_cmd=parallel-rsync
