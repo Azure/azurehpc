@@ -2,20 +2,11 @@
 # arg: $1 = pbs_server
 pbs_server=$1
 
-<<<<<<< HEAD
-if ! rpm -q pbspro-execution; then
-    if ! rpm -q jq; then
-        yum install -y jq
-    fi
-
-    yum install -y pbspro-execution-19.1.1-0.x86_64.rpm
-=======
 # Check to see which OS this is running on. 
 os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
 os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
 echo "OS Release: $os_release"
 echo "OS Major Version: $os_maj_ver"
->>>>>>> updated azinstall for ubuntu
 
 # Check to see if pbs is already installed
 if [ -f "/etc/pbs.conf" ];then
@@ -57,5 +48,3 @@ if [ -z "$poolName" ]; then
 fi
 echo "Registering node for poolName $poolName"
 /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'" || exit 1
-
-fi
