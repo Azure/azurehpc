@@ -587,6 +587,19 @@ class ArmTemplate:
                             "priority": 1030,
                             "direction": "Inbound"
                         }
+                    },
+                    "grafana":  {
+                        "name": "default-allow-grafana",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3000",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1040,
+                            "direction": "Inbound"
+                        }
                     }
                 }
 

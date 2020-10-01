@@ -34,6 +34,7 @@
             "public_ip": true,
             "image": "variables.image",
             "subnet": "admin",
+            "nsg_allow": ["grafana"],
             "tags": [
                 "disable-selinux",
                 "grafana",
@@ -64,8 +65,10 @@
             "args": [
                 "$(<hostlists/tags/grafana)",
                 "azhpc",
-                "secret.{{variables.key_vault}}.GrafanaPassword"
-             ] 
+                "secret.{{variables.key_vault}}.GrafanaPassword",
+                "telegraf-default.conf"
+             ],
+             "deps" : ["telegraf-default.conf"]
         }
     ]
 }
