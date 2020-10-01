@@ -439,14 +439,14 @@ def generate_cc_clusters(config, tmpdir):
             f.write(json.dumps(cluster_params, indent=4))
         __cyclecloud_create_cluster(cluster_template, cluster_name, cluster_json)
         
-def __rsync(sshkey, src, dst):
+def __rsync(sshkey, src, dst, exit_on_fail=True):
     cmd = [
         "rsync", "-a", "-e",
             f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey}",
             src, dst
     ]
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if res.returncode != 0:
+    if res.returncode != 0 and exit_on_fail:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
 
@@ -459,10 +459,11 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
         rsync_cnt = 0
         while not rsync_status:
             try:
-                __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
+                log.info("Rsyncing install files: rsync_cnt")
+                __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.", False)
                 rsync_status = True
             except Exception as e:
-                log.error("rsync failed. %s" % e)
+                log.error("%d : rsync failed. %s".format(rsync_cnt, e))
                 time.sleep(15)
             rsync_cnt += 1
 
