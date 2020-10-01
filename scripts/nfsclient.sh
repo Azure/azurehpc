@@ -38,7 +38,9 @@ $nfs_server:$nfs_share/apps    /apps   nfs defaults 0 0
 $nfs_server:$nfs_share/data    /data   nfs defaults 0 0
 EOF
 
-setsebool -P use_nfs_home_dirs 1
+if [ "$os_release" == "centos" ];then
+    setsebool -P use_nfs_home_dirs 1
+fi
 
 mount -a
 
