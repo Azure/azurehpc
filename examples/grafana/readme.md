@@ -16,7 +16,6 @@ The configuration file requires the following variables to be set:
 > Note : Create an Azure Key Vault and store the Grafana Password in the secret named _GrafanaPassword_
 
 Once deployed:
- - Add port 3000 to the NSG of the grafana server
  - access the portal thru the URL : **http://[grafana server fqdn]:3000/**
  - Authenticate with the **admin** user and the password stored into your KeyVault
  - Access the dashboard thru the left meny **Dashboards/Manage** and then select "Telegraf : system dashboard"
