@@ -44,7 +44,14 @@ sed -i "s#__GRAFANA_SERVER__#$GRAFANA_SERVER#" $TELEGRAF_CONF_DIR/telegraf.conf
 sed -i "s#__GRAFANA_USER__#$GRAFANA_USER#" $TELEGRAF_CONF_DIR/telegraf.conf
 sed -i "s#__GRAFANA_PWD__#$GRAFANA_PWD#" $TELEGRAF_CONF_DIR/telegraf.conf
 
+# Inject global tags like the VM Size and the VMSS Name if any
+compute=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2018-10-01" | jq '.')
+AZHPC_VMSIZE=$(echo $compute | jq -r '.vmSize')
+export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
+vmssName=$(echo $compute | jq -r '.vmScaleSetName')
+
+
 echo "#### Starting Telegraf services:"
-systemctl daemon-reload
+#systemctl daemon-reload
 systemctl start telegraf
 systemctl enable telegraf
