@@ -16,7 +16,12 @@ if [ -f "/etc/pbs.conf" ];then
     exit 0
 fi
 
+# Find the unzipped PBS directory and change to it
+PBS_SERVER_STRING="CHANGE_THIS_TO_PBS_SERVER_HOSTNAME"
 if [ "$os_release" == "centos" ];then
+    if [ "$os_maj_ver" == "7" ];then
+        PBS_SERVER_STRING="CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME"
+    fi
     if [ "$os_maj_ver" == "7" ] || [ "$os_maj_ver" == "8" ];then
             install_file=$(ls *-execution_*.rpm)
             yum install -y $install_file
@@ -25,13 +30,13 @@ if [ "$os_release" == "centos" ];then
     fi
 elif [ "$os_release" == "ubuntu" ] && [ "$os_maj_ver" == "18.04" ];then
     install_file=$(ls *-execution_*.deb)
-    dpkg -i $install_file 
+    apt install -f -y ./$install_file 
 else
     echo "Unsupported Release: $os_release"
 fi
 
-sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /etc/pbs.conf
-sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /var/spool/pbs/mom_priv/config
+sed -i "s/${PBS_SERVER_STRING}/${pbs_server}/g" /etc/pbs.conf
+sed -i "s/${PBS_SERVER_STRING}/${pbs_server}/g" /var/spool/pbs/mom_priv/config
 sed -i "s/^if /#if /g" /opt/pbs/lib/init.d/limits.pbs_mom
 sed -i "s/^fi/#fi /g" /opt/pbs/lib/init.d/limits.pbs_mom
 systemctl enable pbs 

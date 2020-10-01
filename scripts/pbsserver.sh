@@ -40,6 +40,7 @@ fi
 systemctl enable pbs 
 systemctl start pbs 
 /opt/pbs/bin/qmgr -c "s s managers += ${admin_user}@*"
+/opt/pbs/bin/qmgr -c "s s managers += root@*"
 /opt/pbs/bin/qmgr -c 's s flatuid=t'
 /opt/pbs/bin/qmgr -c 's s job_history_enable=t'
 /opt/pbs/bin/qmgr -c 'c r pool_name type=string,flag=h'
