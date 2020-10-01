@@ -1,0 +1,49 @@
+steps:
+# Check the number of registered nodes in PBS
+- template: ../../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    continueOnError: false
+    command: /apps/ci/check_pbs_nodes.sh $(azhpc.variables.compute_instances)
+
+# Run a ring mpi pingpong
+- template: ../../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    continueOnError: false
+    command: /apps/ci/submit_pingpong.sh $(azhpc.variables.compute_instances)
+
+# Run IO500
+- template: ../../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    timeout: 180
+    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 4
+
+# Run IO500
+- template: ../../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    timeout: 180
+    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 8
+
+# Run IO500
+- template: ../../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    timeout: 180
+    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 10
+
+# Run IO500
+- template: ../../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    timeout: 180
+    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 12
+
+    # Run IO500
+- template: ../../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    timeout: 180
+    command: /apps/ci/submit_io500.sh $(azhpc.variables.compute_instances) 16

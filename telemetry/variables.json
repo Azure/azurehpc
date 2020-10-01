@@ -1,0 +1,9 @@
+{
+    "variables": {
+      "telemetry_resource_group": "<NOT-SET>",
+      "telemetry_la_workspace_name": "<NOT-SET>",
+      "telemetry_storage_account": "<NOT-SET>",
+      "telemetry_container": "<NOT-SET>"
+    }
+  }
+  

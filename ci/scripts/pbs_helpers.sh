@@ -34,7 +34,7 @@ function check_jobstatus()
             test_failure=1
         else
             echo "$jobid OK"
-            tail -n10 *.o$jobid
+            tail -n20 *.o$jobid
         fi
     done
 

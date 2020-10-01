@@ -1,0 +1,37 @@
+[
+    {
+        "script": "install-azcopy.sh",
+        "tag": "pbsclient",
+        "sudo": true
+    },
+    {
+        "script": "analytics.sh",
+        "tag": "all",
+        "sudo": true,
+        "args": [
+            "laworkspace.{{variables.telemetry_resource_group}}.{{variables.telemetry_la_workspace_name}}",
+            "lakey.{{variables.telemetry_resource_group}}.{{variables.telemetry_la_workspace_name}}"
+        ]
+    },
+    {
+        "script": "telemetry_cluster.sh",
+        "tag": "pbsserver",
+        "args": [
+            "variables.cluster_id",
+            "variables.resource_group",
+            "vmss",
+            "pbs"
+        ],
+        "deps" : ["send_to_loganalytics.sh"]
+    },
+    {
+        "script": "telemetry_nodes.sh",
+        "tag": "pbsclient",
+        "sudo": true,
+        "args": [
+            "variables.cluster_id",
+            "sasurl.{{variables.telemetry_storage_account}}.{{variables.telemetry_container}},rw"
+        ],
+        "deps" : ["send_to_loganalytics.sh"]
+    }
+]

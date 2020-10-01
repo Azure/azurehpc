@@ -1,0 +1,18 @@
+{
+    "8":
+    {
+        "azhpc.variables.compute_instances": 8
+    },
+    "16":
+    {
+        "azhpc.variables.compute_instances": 16
+    },
+    "32":
+    {
+        "azhpc.variables.compute_instances": 32
+    },
+    "64":
+    {
+        "azhpc.variables.compute_instances": 64
+    }
+}

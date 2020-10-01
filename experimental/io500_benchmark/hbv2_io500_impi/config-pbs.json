@@ -1,0 +1,169 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_HB120rs_v2",
+        "compute_instances": "<NOT-SET>",
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/20"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "all",
+                "headnode",
+                "pbsserver"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "all",
+                "compute",
+                "beeond[0]",
+                "pbsclient"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "remove_waagent.sh",
+            "tag": "compute",
+            "sudo": true
+        },
+        {
+            "script": "remove_omsagent.sh",
+            "tag": "compute",
+            "sudo": true
+        },
+        {
+            "script": "disable-selinux.sh",
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "node_healthchecks.sh",
+            "tag": "compute",
+            "sudo": true,
+            "args": [],
+            "deps": [
+                "install-azcopy.sh",
+                "healthchecks.json"
+            ]
+        },
+        {
+            "script": "make_filesystem.sh",
+            "tag": "headnode",
+            "args": [
+                "/dev/nvme0n1",
+                "xfs",
+                "/share"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "make_filesystem.sh",
+            "tag": "compute",
+            "args": [
+                "/dev/nvme0n1",
+                "xfs",
+                "/localnvme"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "headnode",
+            "args": [
+                "/share"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "headnode"
+            ],
+            "tag": "compute",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "headnode"
+            ],
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "headnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": true
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
+            "sudo": true
+        },
+        {
+            "script": "build_io500.sh",
+            "tag": "headnode"
+        },
+        {
+            "script": "setupbeeond.sh",
+            "tag": "compute",
+            "args": [
+                "/localnvme"
+            ]
+        },
+        {
+            "script": "startbeeond.sh",
+            "tag": "beeond",
+            "args": [
+                "hostlists/tags/compute",
+                "/localnvme/beeond",
+                "variables.compute_instances"
+            ]
+        }
+    ]
+}

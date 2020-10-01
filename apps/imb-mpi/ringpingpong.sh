@@ -74,8 +74,8 @@ numactl_options=" numactl --cpunodebind 0"
 if [[ "$ISPBS" = true ]]; then
     hostlist=$(pwd)/hosts.$JOBID
     sort -u $PBS_NODEFILE > $hostlist
-    # remove .internal.cloudapp.net from node names
-    #sed -i 's/.internal.cloudapp.net//g' $hostlist
+    # remove .internal.cloudapp.net from node names added by PBS in the PBS_NODEFILE
+    sed -i 's/.internal.cloudapp.net//g' $hostlist
 elif [[ "$ISSLURM" = true ]]; then
     scontrol show hostname $SLURM_NODELIST > $(pwd)/hosts.$JOBID
     hostlist=$(pwd)/hosts.$JOBID

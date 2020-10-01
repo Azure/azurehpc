@@ -14,7 +14,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 bad_node=0
 
 # Retrieve the VM size
-AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
+AZHPC_VMSIZE=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15" | jq -r '.vmSize' | tr '[:upper:]' '[:lower:]')
 
 function check_ib_device()
 {
@@ -99,7 +99,7 @@ else
     if [ "$full_sas_key" != "" ]; then
         # Get simple metadata
         hostname=$(hostname)
-        curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" > $hostname.json
+        curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" > $hostname.json
         d=$(date +"%Y/%m/%d/%H")
         location=$(jq -r '.compute.location' $hostname.json)
         blob="$d/$location/$AZHPC_VMSIZE/$hostname.json"

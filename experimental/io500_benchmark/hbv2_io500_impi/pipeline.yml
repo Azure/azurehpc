@@ -1,0 +1,54 @@
+pr: none
+# schedules:
+# - cron: "0 0 * * Sun"
+#   displayName: Every Sunday midnight build
+#   branches:
+#     include:
+#     - master
+#   always: true
+
+trigger: none
+#   batch: true
+#   branches:
+#     include:
+#     - '*'
+#   paths:
+#     include:
+#     exclude:
+
+pool: Default
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # storage account to keep deployment logs
+  azhpc.log_account: azhpctelemetry
+  # configuration file to use
+  azhpc.config: experimental/io500_benchmark/hbv2_io500_impi/config-pbs.json
+  # pipeline directory
+  azhpc.pipeline_dir: experimental/io500_benchmark/hbv2_io500_impi
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  #azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
+
+# Add the variables needed in your configuration file
+# Uncomment and set values below, or leave commented and thru pipeline variables
+  azhpc.variables.location: southcentralus
+  azhpc.variables.vm_type: Standard_HB120rs_v2
+  #azhpc.variables.compute_instances: 4
+  azhpc.variables_matrix: experimental/io500_benchmark/hbv2_io500_impi/test_matrix.json
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+# ================== Telemetry ============================
+# enable telemetry by settings add_telemetry to 1
+  azhpc.add_telemetry: 1
+# These variables need to be set when creating the pipeline
+# azhpc.variables.telemetry_resource_group
+# azhpc.variables.telemetry_la_workspace_name
+# azhpc.variables.telemetry_storage_account
+# azhpc.variables.telemetry_container
+# =========================================================
+
+jobs:
+- template: ../../../ci/templates/jobs/build.yml
+  parameters:
+    timeout: 1440
+    extra_steps: ../../../experimental/io500_benchmark/hbv2_io500_impi/test.yml

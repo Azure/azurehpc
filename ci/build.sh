@@ -54,15 +54,45 @@ if [ -d $PROJECT_DIR ]; then
 #    rm -rf $PROJECT_DIR 
 fi
 
+if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
+    echo "copying the telemetry variables so they can be initialized"
+    cp $BUILD_REPOSITORY_LOCALPATH/telemetry/variables.json $BUILD_REPOSITORY_LOCALPATH/$conf_dir
+fi
+
 echo "Calling azhpc-init"
 azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables || exit 1
 pushd $PROJECT_DIR
 
-jq '.' $config_file
+if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
+    # copy pipelines common scripts to the project scripts
+    mkdir ./scripts
+    cp $BUILD_REPOSITORY_LOCALPATH/telemetry/* ./scripts
+    chmod +x ./scripts/*.sh
+
+    echo "Adding telemetry scripts"
+    # Get cluster ID
+    clusterId="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]')"
+
+    # Add a cluster_id in variable in the config file to be used by telemetry scripts
+    mv $config_file temp.json
+    jq '.variables.cluster_id=$clusterId' --arg clusterId $clusterId temp.json > $config_file
+
+    # merge telemetry scripts
+    echo "Adding telemetry for compute nodes"
+    jdoc=$(cat $BUILD_REPOSITORY_LOCALPATH/telemetry/compute_telemetry.json)
+    mv $config_file temp.json
+    jq '. | .install+=$install' --argjson install "$jdoc" temp.json > $config_file
+
+    # Merge compute_telemetry variables file into config file
+    cp $config_file temp.json
+    jq '.variables+=$variables' --argjson variables "$(jq '.variables' variables.json)" temp.json > $config_file
+
+fi
 
 echo "********************************************************************"
 echo "*                  BUILD RESOURCES                                 *"
 echo "********************************************************************"
+jq '.' $config_file
 echo "Calling azhpc-build"
 export PATH=$PATH:$HOME/bin # add that path for any CycleCloud calls
 azhpc-build -c $config_file $AZHPC_OPTION
@@ -78,8 +108,31 @@ if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
         echo "Dumping logs"
         echo "============"
         echo ""
-        cat $tmp_dir/install/*.log
-        grep -A4 "\[FAILURE\]" $tmp_dir/install/*.log
+        #cat $tmp_dir/install/*.log
+        grep -A10 "\[FAILURE\]" $tmp_dir/install/*.log
+
+        # If a logging storage account is set, upload logs into blobs
+        if [ -n "$AZHPC_LOG_ACCOUNT" ]; then
+            echo "===================="
+            echo "Upload logs in blobs"
+            echo "===================="
+            echo ""
+            # in case of errors, upload the logs into blobs
+            echo "upload $tmp_dir into blobs"
+            blob="$SYSTEM_DEFINITIONNAME/$SYSTEM_JOBIDENTIFIER/$BUILD_BUILDNUMBER"
+            account="$AZHPC_LOG_ACCOUNT"
+            container="pipelines"
+            saskey=$( \
+                az storage container generate-sas \
+                --account-name $account \
+                --name $container \
+                --permissions "rlw" \
+                --start $(date --utc -d "-2 hours" +%Y-%m-%dT%H:%M:%SZ) \
+                --expiry $(date --utc -d "+1 hour" +%Y-%m-%dT%H:%M:%SZ) \
+                --output tsv
+            )
+            azcopy cp "$tmp_dir" "https://$account.blob.core.windows.net/$container/$blob?$saskey" --recursive=true
+        fi
     fi
     if [ "$return_code" -ne "0" ]; then
         exit $return_code

@@ -1,0 +1,144 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_HB120rs_v2",
+        "compute_instances": "<NOT-SET>",
+        "ppn": "<NOT-SET>",
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/20"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "all",
+                "headnode"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "all",
+                "compute",
+                "launch[0]"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "get_node_info.sh",
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "remove_waagent.sh",
+            "tag": "compute",
+            "sudo": true
+        },
+        {
+            "script": "remove_omsagent.sh",
+            "tag": "compute",
+            "sudo": true
+        },
+        {
+            "script": "disable-selinux.sh",
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "node_healthchecks.sh",
+            "tag": "compute",
+            "sudo": true,
+            "args": [
+            ],
+            "deps" : ["install-azcopy.sh","healthchecks.json"]
+        }, 
+        {
+            "script": "make_filesystem.sh",
+            "tag": "headnode",
+            "args": [
+                "/dev/nvme0n1",
+                "xfs",
+                "/share"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "make_filesystem.sh",
+            "tag": "compute",
+            "args": [
+                "/dev/nvme0n1",
+                "xfs",
+                "/localnvme"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "headnode",
+            "args": ["/share"],
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "headnode"
+            ],
+            "tag": "compute",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "headnode"
+            ],
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "build_io500.sh",
+            "tag": "headnode"
+        },
+        {
+            "script": "run_ior.sh",
+            "tag": "compute",
+            "args": [ "1" ]
+        },
+        {
+            "script": "setupbeeond.sh",
+            "tag": "compute",
+            "args": ["/localnvme"]
+        },
+        {
+            "script": "run_io500.sh",
+            "tag": "launch",
+            "args": [ "hostlists/compute", "{{variables.ppn}}" ]
+        }
+    ]
+}

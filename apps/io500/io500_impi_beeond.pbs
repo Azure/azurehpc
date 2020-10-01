@@ -1,0 +1,37 @@
+#!/bin/bash
+set -o pipefail
+FS_ROOT=${1:-/data}
+IO500_CONFIG=${2:-/apps/io500/config-io500.ini}
+FILESYSTEM=$FS_ROOT/datafiles
+
+SHARED_ROOT=/
+AZHPC_DATA=${SHARED_ROOT}data
+AZHPC_APPS=${SHARED_ROOT}apps
+AZHPC_APPLICATION=io500
+AZHPC_JOBID=$PBS_JOBID
+AZHPC_SHARED_DIR=$AZHPC_DATA/$AZHPC_APPLICATION/$AZHPC_JOBID
+mkdir -p $AZHPC_SHARED_DIR
+AZHPC_JOBDIR=$AZHPC_SHARED_DIR
+
+AZHPC_PPN=$(cat $PBS_NODEFILE | uniq -c | head -1 | awk '{ print $1 }')
+AZHPC_CORES=$(cat $PBS_NODEFILE | wc -l)
+AZHPC_NODES=$(cat $PBS_NODEFILE | uniq -c | wc -l)
+
+source /etc/profile.d/modules.sh
+export MODULEPATH=$MODULEPATH:/apps/modulefiles
+
+module load gcc-9.2.0
+module load mpi/impi_2018.4.274
+module load io500-app
+
+sed "s#^datadir.*#datadir = ${FILESYSTEM}#" $IO500_CONFIG > $AZHPC_JOBDIR/config.ini
+sed -i "s#^resultdir.*#resultdir = $AZHPC_JOBDIR#" $AZHPC_JOBDIR/config.ini
+sed -i "s#^timestamp-resultdir.*#timestamp-resultdir = FALSE#" $AZHPC_JOBDIR/config.ini
+
+# Compute the BlockSize based on 30% of available space
+avail=$(df $FS_ROOT | grep -A1 "beegfs" | cut -d' ' -f 4)
+blocksize=$(( ($avail * 30 / 100) / ($AZHPC_CORES * 1024) ))
+sed -i "s#^blockSize.*#blockSize = ${blocksize}m#" $AZHPC_JOBDIR/config.ini
+
+mpirun -np $AZHPC_CORES -ppn $AZHPC_PPN -f $PBS_NODEFILE io500 $AZHPC_JOBDIR/config.ini | tee stdout.log || exit 1
+

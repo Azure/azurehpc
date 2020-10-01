@@ -1,5 +1,5 @@
 #!/bin/bash
-
+MOUNT_ROOT=${1:-/mnt/resource}
 # this script needs to run without sudo
 #  - the keys from the user are used for the root user
 
@@ -15,7 +15,7 @@ sudo /etc/init.d/beegfs-client rebuild
 
 sudo cp -r $HOME/.ssh /root/.
 
-sudo mkdir /mnt/resource/beeond
-sudo chmod 777 /mnt/resource/beeond
+sudo mkdir $MOUNT_ROOT/beeond
+sudo chmod 777 $MOUNT_ROOT/beeond
 sudo mkdir /beeond
 sudo chmod 777 /beeond
