@@ -22,7 +22,7 @@ cd $dir_name
 
 if [ "$os_release" == "centos" ];then
     if [ "$os_maj_ver" == "7" ] || [ "$os_maj_ver" == "8" ];then
-            install_file=$(ls pbspro-server*.rpm)
+            install_file=$(ls *-server*.rpm)
             yum install -y $install_file
     else
         echo "Not sure what to do with Version: $os_maj_ver"
