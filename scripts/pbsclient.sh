@@ -4,21 +4,41 @@ set -e
 # arg: $1 = pbs_server
 pbs_server=$1
 
-if [ "$(rpm -qa pbspro-execution)" = "" ];then
-    yum install -y jq
-    yum install -y pbspro-execution-19.1.1-0.x86_64.rpm
+# Check to see which OS this is running on. 
+os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
+echo "OS Release: $os_release"
+echo "OS Major Version: $os_maj_ver"
 
-    sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /etc/pbs.conf
-    sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /var/spool/pbs/mom_priv/config
-    sed -i "s/^if /#if /g" /opt/pbs/lib/init.d/limits.pbs_mom
-    sed -i "s/^fi/#fi /g" /opt/pbs/lib/init.d/limits.pbs_mom
-    systemctl enable pbs
-    systemctl start pbs
+# Check to see if pbs is already installed
+if [ -f "/etc/pbs.conf" ];then
+    echo "PBSPro already installed"
+    exit 0
+fi
 
-    # Retrieve the VMSS name to be used as the pool name for multiple VMSS support
-    poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
-    /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'"
-    
+if [ "$os_release" == "centos" ];then
+    if [ "$os_maj_ver" == "7" ] || [ "$os_maj_ver" == "8" ];then
+            install_file=$(ls *-execution_*.rpm)
+            yum install -y $install_file
+    else
+        echo "Not sure what to do with Version: $os_maj_ver"
+    fi
+elif [ "$os_release" == "ubuntu" ] && [ "$os_maj_ver" == "18.04" ];then
+    install_file=$(ls *-execution_*.deb)
+    dpkg -i $install_file 
 else
-    echo "PBS client was already installed"
+    echo "Unsupported Release: $os_release"
+fi
+
+sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /etc/pbs.conf
+sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /var/spool/pbs/mom_priv/config
+sed -i "s/^if /#if /g" /opt/pbs/lib/init.d/limits.pbs_mom
+sed -i "s/^fi/#fi /g" /opt/pbs/lib/init.d/limits.pbs_mom
+systemctl enable pbs 
+systemctl start pbs 
+
+# Retrieve the VMSS name to be used as the pool name for multiple VMSS support
+poolName=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmScaleSetName')
+/opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'"
+
 fi
