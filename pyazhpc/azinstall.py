@@ -439,14 +439,32 @@ def generate_cc_clusters(config, tmpdir):
             f.write(json.dumps(cluster_params, indent=4))
         __cyclecloud_create_cluster(cluster_template, cluster_name, cluster_json)
         
-def __rsync(sshkey, src, dst, exit_on_fail=True):
+def __rsync(sshkey, src, dst, retry_on_fail=True):
     cmd = [
         "rsync", "-a", "-e",
             f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey}",
             src, dst
     ]
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if res.returncode != 0 and exit_on_fail:
+    if res.returncode != 0 and retry_on_fail:
+        rsync_status = False
+        rsync_cnt = 1
+        while rsync_status != True:
+            try:
+                log.info("Rsyncing attempt: %d".format(rsync_cnt))
+                res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if res.returncode == 0:
+                    rsync_status = True
+            except Exception as e:
+                log.error("%d : rsync failed. %s".format(rsync_cnt, e))
+                time.sleep(15)
+            rsync_cnt += 1
+
+            if rsync_cnt > 12:
+                log.error("Failed to rsync. Exiting now")
+                sys.exit("1")
+
+    elif res.returncode != 0:
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
 
@@ -455,21 +473,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
     install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
         log.debug("rsyncing install files")
-        rsync_status = False
-        rsync_cnt = 0
-        while rsync_status != True:
-            try:
-                log.info("Rsyncing install files: %d".format(rsync_cnt))
-                __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.", False)
-                rsync_status = True
-            except Exception as e:
-                log.error("%d : rsync failed. %s".format(rsync_cnt, e))
-                time.sleep(15)
-            rsync_cnt += 1
-
-            if rsync_cnt > 12:
-                log.error("Failed to rsync over the install files. Exiting now")
-                sys.exit("1")
+        __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.", False)
 
     for idx, step in enumerate(install_steps):
         if idx == 0 and not jb:
