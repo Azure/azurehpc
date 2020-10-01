@@ -457,7 +457,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
         log.debug("rsyncing install files")
         rsync_status = False
         rsync_cnt = 0
-        while not rsync_status:
+        while rsync_status != True:
             try:
                 log.info("Rsyncing install files: rsync_cnt")
                 __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.", False)
