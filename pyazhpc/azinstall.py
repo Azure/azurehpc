@@ -124,9 +124,11 @@ echo "OS Release: $os_release"
 echo "OS Major Version: $os_maj_ver"
 
 pssh_cmd=pssh
+pscp_cmd=pscp.pssh
 
 if [ "$os_release" == "ubuntu" ];then
     pssh_cmd=parallel-ssh
+    pscp_cmd=parallel-scp
 fi
 
 tag=${{1:-{tag}}}
@@ -148,7 +150,7 @@ fi
     args = inst.get("args", [])
 
     for f in files:
-        content += f"pscp.pssh -p {pssh_threads} -h hostlists/tags/$tag {f} $(pwd) >> {logfile} 2>&1\n"
+        content += f"$pscp_cmd -p {pssh_threads} -h hostlists/tags/$tag {f} $(pwd) >> {logfile} 2>&1\n"
 
     cmdline = " ".join([ "scripts/"+targetscript ] + [ f"'{arg}'" for arg in args ])
     if sudo:
