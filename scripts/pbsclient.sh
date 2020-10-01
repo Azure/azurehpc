@@ -23,7 +23,7 @@ if [ "$os_release" == "centos" ];then
         PBS_SERVER_STRING="CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME"
     fi
     if [ "$os_maj_ver" == "7" ] || [ "$os_maj_ver" == "8" ];then
-            install_file=$(ls *-execution_*.rpm)
+            install_file=$(ls *-execution-*.rpm)
             yum install -y $install_file
     else
         echo "Not sure what to do with Version: $os_maj_ver"
