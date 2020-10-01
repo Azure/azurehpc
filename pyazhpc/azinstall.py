@@ -459,7 +459,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
         rsync_cnt = 0
         while rsync_status != True:
             try:
-                log.info("Rsyncing install files: rsync_cnt")
+                log.info("Rsyncing install files: %d".format(rsync_cnt))
                 __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.", False)
                 rsync_status = True
             except Exception as e:
