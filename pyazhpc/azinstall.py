@@ -455,7 +455,20 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
     install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
         log.debug("rsyncing install files")
-        __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
+        rsync_status = False
+        rsync_cnt = 0
+        while not rsync_status:
+            try:
+                __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
+                rsync_status = True
+            except Exception as e:
+                log.error("rsync failed. %s" % e)
+                time.sleep(15)
+            rsync_cnt += 1
+
+            if rsync_cnt > 12:
+                log.error("Failed to rsync over the install files. Exiting now")
+                sys.exit("1")
 
     for idx, step in enumerate(install_steps):
         if idx == 0 and not jb:
