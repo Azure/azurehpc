@@ -441,7 +441,8 @@ def generate_cc_clusters(config, tmpdir):
             f.write(json.dumps(cluster_params, indent=4))
         __cyclecloud_create_cluster(cluster_template, cluster_name, cluster_json)
         
-def __rsync(sshkey, src, dst, retry_on_fail=True):
+def __rsync(sshkey, src, dst, retry_on_fail=False):
+    log.info("Rsync on fail: %s".format(retry_on_fail))
     cmd = [
         "rsync", "-a", "-e",
             f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey}",
@@ -450,6 +451,7 @@ def __rsync(sshkey, src, dst, retry_on_fail=True):
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     if res.returncode != 0 and retry_on_fail:
+        log.info("Rsyncing failed and retry_on_fail: %s".format(retry_on_fail))
         rsync_status = False
         rsync_cnt = 1
         while rsync_status != True:
@@ -459,7 +461,7 @@ def __rsync(sshkey, src, dst, retry_on_fail=True):
                 if res.returncode == 0:
                     rsync_status = True
             except Exception as e:
-                log.error("%d : rsync failed. %s".format(rsync_cnt, e))
+                log.info("%d : rsync failed. %s".format(rsync_cnt, e))
                 time.sleep(15)
             rsync_cnt += 1
 
@@ -476,7 +478,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
     install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
         log.debug("rsyncing install files")
-        __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.", False)
+        __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.", True)
 
     for idx, step in enumerate(install_steps):
         if idx == 0 and not jb:
