@@ -25,6 +25,8 @@
             "image": "variables.image",
             "subnet": "admin",
             "tags": [
+                "all",
+                "telegraf"
             ]
         },
         "grafana": {
@@ -36,7 +38,7 @@
             "subnet": "admin",
             "nsg_allow": ["grafana"],
             "tags": [
-                "disable-selinux",
+                "all",
                 "grafana",
                 "telegraf"
             ]
@@ -45,7 +47,12 @@
     "install": [
         {
             "script": "disable-selinux.sh",
-            "tag": "disable-selinux",
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "all",
             "sudo": true
         },
         {
