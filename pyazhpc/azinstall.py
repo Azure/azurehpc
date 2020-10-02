@@ -442,7 +442,7 @@ def generate_cc_clusters(config, tmpdir):
         __cyclecloud_create_cluster(cluster_template, cluster_name, cluster_json)
         
 def __rsync(sshkey, src, dst, retry_on_fail=False):
-    log.info("Rsync on fail: %s".format(retry_on_fail))
+    log.info("Rsync on fail: {}".format(retry_on_fail))
     cmd = [
         "rsync", "-a", "-e",
             f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey}",
@@ -451,17 +451,17 @@ def __rsync(sshkey, src, dst, retry_on_fail=False):
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     if res.returncode != 0 and retry_on_fail:
-        log.info("Rsyncing failed and retry_on_fail: %s".format(retry_on_fail))
+        log.info("Rsyncing failed and retry_on_fail: {}".format(retry_on_fail))
         rsync_status = False
         rsync_cnt = 1
         while rsync_status != True:
             try:
-                log.info("Rsyncing attempt: %d".format(rsync_cnt))
+                log.info("Rsyncing attempt: {}".format(rsync_cnt))
                 res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 if res.returncode == 0:
                     rsync_status = True
             except Exception as e:
-                log.info("%d : rsync failed. %s".format(rsync_cnt, e))
+                log.info("{} : rsync failed. {}".format(rsync_cnt, e))
                 time.sleep(15)
             rsync_cnt += 1
 
