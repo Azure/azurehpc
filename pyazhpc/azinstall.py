@@ -465,9 +465,10 @@ def __rsync(sshkey, src, dst, retry_on_fail=False):
                 log.info("result: {}".format(res.returncode))
                 if res.returncode == 0:
                     rsync_status = True
+                else:
+                    time.sleep(15)
             except Exception as e:
                 log.info("{} : rsync failed. {}".format(rsync_cnt, e))
-                time.sleep(15)
             rsync_cnt += 1
 
             if rsync_cnt > 12:
