@@ -447,26 +447,23 @@ def __rsync(sshkey, src, dst, retry_on_fail=False):
             src, dst
     ]
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    log.info("stdout: {}".format(res.stdout))
-    log.info("stderr: {}".format(res.stderr))
-    log.info("result: {}".format(res.returncode))
     if res.returncode != 0 and retry_on_fail:
-        log.info("Rsyncing failed and retry_on_fail: {}".format(retry_on_fail))
+        log.debug("Rsyncing failed and retry_on_fail: {}".format(retry_on_fail))
         rsync_status = False
         rsync_cnt = 1
         while rsync_status != True:
             try:
-                log.info("Rsyncing attempt: {}".format(rsync_cnt))
+                log.debug("Rsyncing attempt: {}".format(rsync_cnt))
                 res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                log.info("stdout: {}".format(res.stdout))
-                log.info("stderr: {}".format(res.stderr))
-                log.info("result: {}".format(res.returncode))
+                log.debug("stdout: {}".format(res.stdout))
+                log.debug("stderr: {}".format(res.stderr))
+                log.debug("result: {}".format(res.returncode))
                 if res.returncode == 0:
                     rsync_status = True
                 else:
                     time.sleep(15)
             except Exception as e:
-                log.info("{} : rsync failed. {}".format(rsync_cnt, e))
+                log.debug("{} : rsync failed. {}".format(rsync_cnt, e))
             rsync_cnt += 1
 
             if rsync_cnt > 12:
