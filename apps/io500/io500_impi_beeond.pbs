@@ -18,7 +18,7 @@ AZHPC_CORES=$(cat $PBS_NODEFILE | wc -l)
 AZHPC_NODES=$(cat $PBS_NODEFILE | uniq -c | wc -l)
 
 source /etc/profile.d/modules.sh
-export MODULEPATH=$MODULEPATH:/apps/modulefiles
+export MODULEPATH=$MODULEPATH:$AZHPC_APPS/modulefiles
 
 module load gcc-9.2.0
 module load mpi/impi_2018.4.274
@@ -29,7 +29,7 @@ sed -i "s#^resultdir.*#resultdir = $AZHPC_JOBDIR#" $AZHPC_JOBDIR/config.ini
 sed -i "s#^timestamp-resultdir.*#timestamp-resultdir = FALSE#" $AZHPC_JOBDIR/config.ini
 
 # Compute the BlockSize based on 30% of available space
-avail=$(df $FS_ROOT | grep -A1 "beegfs" | cut -d' ' -f 4)
+avail=$(df $FS_ROOT | grep $FS_ROOT | cut -d' ' -f 4)
 blocksize=$(( ($avail * 30 / 100) / ($AZHPC_CORES * 1024) ))
 sed -i "s#^blockSize.*#blockSize = ${blocksize}m#" $AZHPC_JOBDIR/config.ini
 
