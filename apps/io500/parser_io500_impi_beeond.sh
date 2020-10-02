@@ -14,6 +14,7 @@ cat $logfile |grep SCORE | sed 's/\[SCORE\]/score true/g;s/\[SCORE-invalid\]/sco
 jq '. += $score' --argjson score "$(<score.json)" result.json > metrics.json
 
 mpi_version=$(mpirun --version | head -n1)
+io500_version=$(grep version $logfile | cut -d' ' -f3)
 
 cat <<EOF >app.json
 {
@@ -22,5 +23,6 @@ cat <<EOF >app.json
     "mpi": "impi",
     "mpi_version": "$mpi_version",
     "storage": "beeond"
+    "version": "$io500_version"
 }
 EOF
