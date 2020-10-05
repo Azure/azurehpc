@@ -1,4 +1,3 @@
-#!/bin/bash
 set -o pipefail
 FS_ROOT=${1:-/data}
 IO500_CONFIG=${2:-/apps/io500/config-io500.ini}
@@ -23,7 +22,7 @@ export MODULEPATH=$MODULEPATH:/apps/modulefiles
 
 module load gcc-9.2.0
 module load mpi/impi_2018.4.274
-module load io500-app
+module load io500
 
 sed "s#^datadir.*#datadir = ${FILESYSTEM}#" $IO500_CONFIG > $AZHPC_JOBDIR/config.ini
 sed -i "s#^resultdir.*#resultdir = $AZHPC_JOBDIR#" $AZHPC_JOBDIR/config.ini
@@ -31,7 +30,7 @@ sed -i "s#^timestamp-resultdir.*#timestamp-resultdir = FALSE#" $AZHPC_JOBDIR/con
 
 # Compute the BlockSize based on 30% of available space
 avail=$(df $FS_ROOT | grep $FS_ROOT | cut -d' ' -f 4)
-blocksize=$(( ($avail * 10 / 100) / ($AZHPC_CORES * 1024) ))
+blocksize=$(( ($avail * 30 / 100) / ($AZHPC_CORES * 1024) ))
 sed -i "s#^blockSize.*#blockSize = ${blocksize}m#" $AZHPC_JOBDIR/config.ini
 
 # Update the running script with the MPI options
@@ -41,7 +40,7 @@ sed -i "s#io500_mpiargs=.*#io500_mpiargs=\"-np $AZHPC_CORES -ppn $AZHPC_PPN -f $
 
 # inject our setup directories script
 sed -i "s#function setup_directories#function _setup_directories#" $AZHPC_JOBDIR/io500.sh
-sed -i "s#function setup_paths#source $DIR/io500_beeond.sh\nfunction setup_paths#" $AZHPC_JOBDIR/io500.sh
+sed -i "s#function setup_paths#source $DIR/setup_directories_beeond.sh\nfunction setup_paths#" $AZHPC_JOBDIR/io500.sh
 
 cd $IO500_INSTALL_BASE
 $AZHPC_JOBDIR/io500.sh $AZHPC_JOBDIR/config.ini
