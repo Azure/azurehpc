@@ -16,12 +16,11 @@ The configuration file requires the following variables to be set:
 > Note : Create an Azure Key Vault and store the Grafana Password in the secret named _GrafanaPassword_
 
 Once deployed:
- - Add port 3000 to the NSG of the grafana server
- - access the portal thru the URL : **http://[grafana server fqdn]:3000/**
- - Authenticate with the **admin** user and the password stored into your KeyVault
+ - access the portal thru the URL : **http://[grafana server fqdn]:3000/**, which can be retrieved by running `azhpc-get fqdn.grafana`
+ - Authenticate with the **admin** user and the password stored into your KeyVault, which can be retrieved by running `azhpc-get secret.{{variables.key_vault}}.GrafanaPassword`
  - Access the dashboard thru the left meny **Dashboards/Manage** and then select "Telegraf : system dashboard"
 
-> Note : To monitor other VMs, just add the **telegraf** tag to your resources and its associated install script as specified the in the configuration file
+> Note : To monitor other VMs, just add the **telegraf** tag to your resources and its associated install script and configuration file as specified the in the configuration file
 
 ```json
         {
@@ -31,7 +30,9 @@ Once deployed:
             "args": [
                 "<grafana server or ip address>",
                 "azhpc",
-                "secret.{{variables.key_vault}}.GrafanaPassword"
-             ] 
+                "secret.{{variables.key_vault}}.GrafanaPassword",
+                 "telegraf-default.conf"
+             ],
+             "deps" : ["telegraf-default.conf"]
         }
 ```

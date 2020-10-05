@@ -25,6 +25,8 @@
             "image": "variables.image",
             "subnet": "admin",
             "tags": [
+                "all",
+                "telegraf"
             ]
         },
         "grafana": {
@@ -34,8 +36,9 @@
             "public_ip": true,
             "image": "variables.image",
             "subnet": "admin",
+            "nsg_allow": ["grafana"],
             "tags": [
-                "disable-selinux",
+                "all",
                 "grafana",
                 "telegraf"
             ]
@@ -44,7 +47,12 @@
     "install": [
         {
             "script": "disable-selinux.sh",
-            "tag": "disable-selinux",
+            "tag": "all",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "all",
             "sudo": true
         },
         {
@@ -64,8 +72,10 @@
             "args": [
                 "$(<hostlists/tags/grafana)",
                 "azhpc",
-                "secret.{{variables.key_vault}}.GrafanaPassword"
-             ] 
+                "secret.{{variables.key_vault}}.GrafanaPassword",
+                "telegraf-default.conf"
+             ],
+             "deps" : ["telegraf-default.conf"]
         }
     ]
 }

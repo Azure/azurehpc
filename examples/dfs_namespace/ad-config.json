@@ -1,0 +1,41 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "",
+  "admin_user": "variables.ad_admin",
+  "variables": "@variables.json",
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "admin": "10.2.1.0/24",
+      "netapp": "10.2.3.0/24",
+      "compute": "10.2.4.0/22"
+    }
+  },
+  "resources": {
+    "adnode": {
+      "type": "vm",
+      "public_ip": "true",
+      "password": "variables.win_password",
+      "vm_type": "Standard_D8s_v3",
+      "image": "variables.image",
+      "subnet": "admin",
+      "tags": []
+    }
+  },
+  "install": [
+    {
+      "type": "local_script",
+      "script": "setup_win_ad.sh",
+      "args": [
+        "variables.resource_group",
+        "adnode",
+        "variables.ad_domain",
+        "variables.ad_admin",
+        "variables.win_password"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "",
+  "admin_user": "variables.ad_admin",
+  "variables": "@variables.json",
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "hpcvnet",
+    "address_prefix": "10.2.0.0/20",
+    "subnets": {
+      "admin": "10.2.1.0/24",
+      "netapp": "10.2.3.0/24",
+      "compute": "10.2.4.0/22"
+    }
+  },
+"storage": {
+    "anfcifstestwe": {
+      "type": "anf",
+      "subnet": "netapp",
+      "joindomain": "MyDomain.local",
+      "ad_server": "adnode",
+      "ad_password": "variables.win_password",
+      "ad_username": "hpcadmin",
+      "pools": {
+        "anfpool": {
+          "size": 8,
+          "service_level": "Premium",
+          "volumes": {
+            "cifsvol1": {
+              "size": 4,
+	            "type": "cifs",
+              "mount": "/data1"
+            },
+            "cifsvol2": {
+              "size": 4,
+	            "type": "cifs",
+              "mount": "/data2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "resources": {
+    "dfs": {
+      "type": "vm",
+      "vm_type": "Standard_D8s_v3",
+      "password": "variables.win_password",
+      "accelerated_networking": true,
+      "public_ip": true,
+      "image": "variables.image",
+      "subnet": "admin",
+      "tags": []
+    },
+    "client": {
+      "type": "vm",
+      "vm_type": "Standard_D8s_v3",
+      "password": "variables.win_password",
+      "accelerated_networking": true,
+      "public_ip": true,
+      "image": "variables.image",
+      "subnet": "compute",
+      "tags": []
+    }
+  },
+  "install": [
+    {
+      "script": "setup_win_join_domain.sh",
+      "type": "local_script",
+      "args": [
+          "variables.resource_group",
+          "dfs",
+          "variables.ad_domain",
+          "adnode",
+          "variables.ad_admin",
+          "variables.win_password"
+      ]
+   },
+   {
+    "script": "setup_win_join_domain.sh",
+    "type": "local_script",
+    "args": [
+        "variables.resource_group",
+        "client",
+        "variables.ad_domain",
+        "adnode",
+        "variables.ad_admin",
+        "variables.win_password"
+    ]
+ }
+ ]
+}
