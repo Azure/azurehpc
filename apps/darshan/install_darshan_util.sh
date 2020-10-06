@@ -6,4 +6,4 @@ source $SPACK_SETUP_ENV
 
 spack install darshan-util%gcc@9.2.0
 
-sudo yum install -y xauth texlive texlive-epstopdf gnuplot texlive-lastpage texlive-subfigure texlive-multirow texlive-threeparttable perl-Pod-LaTeX perl-HTML-Parser ghostscript evince
+sudo yum install -y python 3 xauth texlive texlive-epstopdf gnuplot texlive-lastpage texlive-subfigure texlive-multirow texlive-threeparttable perl-Pod-LaTeX perl-HTML-Parser ghostscript evince
