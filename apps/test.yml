@@ -3,3 +3,14 @@ steps:
   parameters:
     user: hpcuser
     command: /apps/ci/check_pbs_nodes.sh $(azhpc.variables.compute_instances)
+
+- template: ../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/spack/build_spack.sh hbv2
+
+- template: ../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wrf_openmpi.sh hbv2
+

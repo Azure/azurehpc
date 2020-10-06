@@ -1,5 +1,5 @@
 #!/bin/bash
-
+SKU_TYPE=${1:-$SKU_TYPE}
 APP_NAME=wrf
 APP_VERSION=4.1.5
 SKU_TYPE=${SKU_TYPE:-hb}
