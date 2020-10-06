@@ -7,7 +7,7 @@ INTEL_MPI_VERSION=${INTEL_MPI_VERSION:-2020.1.217}
 USER=`whoami`
 
 MODULE_DIR=${SHARED_APP}/modulefiles/${APP_NAME}
-MODULE_NAME=${APP_NAME}
+MODULE_NAME=${APP_NAME}_${APP_VERSION}
 
 sku_type=$1
 email_address=$2
@@ -18,8 +18,8 @@ CONFIG_YAML=config.yaml
 PACKAGES_YAML=packages.yaml
 
 function create_modulefile {
-mkdir -p ${MODULE_DIR}
-cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
+    mkdir -p ${MODULE_DIR}
+    cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 #%Module 1.0
 #
 #  Spack module for use with 'environment-modules' package:
@@ -27,6 +27,9 @@ cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 setenv    SPACK_HOME        ${SPACKDIR}
 setenv    SPACK_ENV         ${SPACKDIR}/spack/share/spack/setup-env.sh
 EOF
+
+    # Create an symlink for the unversioned module name
+    ln -s ${MODULE_DIR}/${MODULE_NAME} ${MODULE_DIR}/${APP_NAME}
 }
 
 sudo yum install -y python3
