@@ -2,6 +2,8 @@
 set -o pipefail
 nodes=$1
 ppn=$2
+shift
+shift
 
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$script_dir/common.sh"
@@ -14,7 +16,7 @@ job_group=$uuid_str
 
 echo "submit job $job_group on $nodes"
 echo "AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER"
-submit_job $job_group $nodes $ppn "$AZHPC_TELEMETRY_WRAPPER $*"
+submit_job $job_group $nodes $ppn "$AZHPC_TELEMETRY_WRAPPER $@"
 
 # Wait for all jobs to be finished
 wait_alljobs $job_group
