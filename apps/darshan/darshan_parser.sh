@@ -116,11 +116,11 @@ function calc_percent_write_read_meta() {
 function output_report() {
    cat <<EOF >${DARSHAN_IO_PROFILE_NAME}.json
 {
-"io_time: {
+"io_time": {
             "percentage_of_total_wtime": $TOTAL_PERCENT_IO_WTIME,
             "percentage_write": $TOTAL_PERCENT_WRITE,
             "percentage_read": $TOTAL_PERCENT_READ,
-            "percentage_meta": $TOTAL_PERCENT_META,
+            "percentage_meta": $TOTAL_PERCENT_META
           },
 "throughput_MBps": {
                      "write": $TOTAL_TRANSFER_RATE_MBps_WRITE,
@@ -129,7 +129,7 @@ function output_report() {
 "IOPS": {
            "total": $TOTAL_IOPTS,
            "percentage": {
-                          "write": $TOTAL_PERCENT_IOPTS_WRITE
+                          "write": $TOTAL_PERCENT_IOPTS_WRITE,
                           "read": $TOTAL_PERCENT_IOPTS_READ
                          }
         },
@@ -142,41 +142,41 @@ function output_report() {
                     },
 "transfersize_percentage": {
                              "write": {
-                                        "0_100": $TOTAL_PERCENT_POSIX_SIZE_WRITE_0_100
-                                        "100_1K": $TOTAL_PERCENT_POSIX_SIZE_WRITE_100_1K
-                                        "1K_10K": $TOTAL_PERCENT_POSIX_SIZE_WRITE_1K_10K
-                                        "10K_100K": $TOTAL_PERCENT_POSIX_SIZE_WRITE_10K_100K
-                                        "100K_1M": $TOTAL_PERCENT_POSIX_SIZE_WRITE_100K_1M
-                                        "1M_4M": $TOTAL_PERCENT_POSIX_SIZE_WRITE_1M_4M
-                                        "4M_10M": $TOTAL_PERCENT_POSIX_SIZE_WRITE_4M_10M
-                                        "10M_100M": $TOTAL_PERCENT_POSIX_SIZE_WRITE_10M_100M
-                                        "100M_1G": $TOTAL_PERCENT_POSIX_SIZE_WRITE_100M_1G
+                                        "0_100": $TOTAL_PERCENT_POSIX_SIZE_WRITE_0_100,
+                                        "100_1K": $TOTAL_PERCENT_POSIX_SIZE_WRITE_100_1K,
+                                        "1K_10K": $TOTAL_PERCENT_POSIX_SIZE_WRITE_1K_10K,
+                                        "10K_100K": $TOTAL_PERCENT_POSIX_SIZE_WRITE_10K_100K,
+                                        "100K_1M": $TOTAL_PERCENT_POSIX_SIZE_WRITE_100K_1M,
+                                        "1M_4M": $TOTAL_PERCENT_POSIX_SIZE_WRITE_1M_4M,
+                                        "4M_10M": $TOTAL_PERCENT_POSIX_SIZE_WRITE_4M_10M,
+                                        "10M_100M": $TOTAL_PERCENT_POSIX_SIZE_WRITE_10M_100M,
+                                        "100M_1G": $TOTAL_PERCENT_POSIX_SIZE_WRITE_100M_1G,
                                         "1G_PLUS": $TOTAL_PERCENT_POSIX_SIZE_WRITE_1G_PLUS
                                       },
                              "read": {
-                                        "0_100": $TOTAL_PERCENT_POSIX_SIZE_READ_0_100
-                                        "100_1K": $TOTAL_PERCENT_POSIX_SIZE_READ_100_1K
-                                        "1K_10K": $TOTAL_PERCENT_POSIX_SIZE_READ_1K_10K
-                                        "10K_100K": $TOTAL_PERCENT_POSIX_SIZE_READ_10K_100K
-                                        "100K_1M": $TOTAL_PERCENT_POSIX_SIZE_READ_100K_1M
-                                        "1M_4M": $TOTAL_PERCENT_POSIX_SIZE_READ_1M_4M
-                                        "4M_10M": $TOTAL_PERCENT_POSIX_SIZE_READ_4M_10M
-                                        "10M_100M": $TOTAL_PERCENT_POSIX_SIZE_READ_10M_100M
-                                        "100M_1G": $TOTAL_PERCENT_POSIX_SIZE_READ_100M_1G
+                                        "0_100": $TOTAL_PERCENT_POSIX_SIZE_READ_0_100,
+                                        "100_1K": $TOTAL_PERCENT_POSIX_SIZE_READ_100_1K,
+                                        "1K_10K": $TOTAL_PERCENT_POSIX_SIZE_READ_1K_10K,
+                                        "10K_100K": $TOTAL_PERCENT_POSIX_SIZE_READ_10K_100K,
+                                        "100K_1M": $TOTAL_PERCENT_POSIX_SIZE_READ_100K_1M,
+                                        "1M_4M": $TOTAL_PERCENT_POSIX_SIZE_READ_1M_4M,
+                                        "4M_10M": $TOTAL_PERCENT_POSIX_SIZE_READ_4M_10M,
+                                        "10M_100M": $TOTAL_PERCENT_POSIX_SIZE_READ_10M_100M,
+                                        "100M_1G": $TOTAL_PERCENT_POSIX_SIZE_READ_100M_1G,
                                         "1G_PLUS": $TOTAL_PERCENT_POSIX_SIZE_READ_1G_PLUS
                                      }
                            },
 "io_pattern_percentage": {
                            "write" : {
-                                       "sequential": $TOTAL_PERCENT_SEQ_WRITE
+                                       "sequential": $TOTAL_PERCENT_SEQ_WRITE,
                                        "random": $TOTAL_PERCENT_RANDOM_WRITE
                                      },
                            "read" : {
-                                       "sequential": $TOTAL_PERCENT_SEQ_READ
+                                       "sequential": $TOTAL_PERCENT_SEQ_READ,
                                        "random": $TOTAL_PERCENT_RANDOM_READ
                                     },
                            "consecutive_write": $TOTAL_PERCENT_CONSEC_WRITE,
-                           "consecutive_read": $TOTAL_PERCENT_CONSEC_READ,
+                           "consecutive_read": $TOTAL_PERCENT_CONSEC_READ
                          }
 }
 EOF
