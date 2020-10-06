@@ -50,7 +50,7 @@ cp -r ${APPS_SPACK_DIR}/lib  ${SPACKDIR}/spack
 
 create_modulefile
 module use ${SHARED_APP}/modulefiles
-module load spack
+module load spack/spack
 source $SPACK_SETUP_ENV
 
 sudo mkdir /mnt/resource/spack

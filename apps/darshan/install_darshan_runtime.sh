@@ -3,7 +3,7 @@ NON_MPI=${1:-"0"}
 
 SHARED_APP=${SHARED_APP:-/apps}
 module use ${SHARED_APP}/modulefiles
-module load spack
+module load spack/spack
 source $SPACK_SETUP_ENV
 
 if [ "$NON_MPI" == "1" ]; then
