@@ -53,8 +53,8 @@ module use ${SHARED_APP}/modulefiles
 module load spack/spack
 source $SPACK_SETUP_ENV
 
-sudo mkdir /mnt/resource/spack
-sudo chmod 777 /mnt/resource/spack
+# sudo mkdir /mnt/resource/spack
+# sudo chmod 777 /mnt/resource/spack
 
 mkdir -p ${SHARED_APP}/spack/${SKU_TYPE}
 
