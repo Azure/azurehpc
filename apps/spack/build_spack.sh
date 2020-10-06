@@ -1,5 +1,5 @@
 #!/bin/bash
-
+APPS_SPACK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP_NAME=spack
 APP_VERSION=0.15.4
 SHARED_APP=${SHARED_APP:-/apps}
@@ -18,7 +18,7 @@ if [ -z "$SKU_TYPE" ]; then
     exit 1
 fi
 
-APPS_SPACK_DIR=`pwd`
+#APPS_SPACK_DIR=`pwd`
 CONFIG_YAML=config.yaml
 PACKAGES_YAML=packages.yaml
 
