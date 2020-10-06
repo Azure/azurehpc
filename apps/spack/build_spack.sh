@@ -22,6 +22,7 @@ PACKAGES_YAML=packages.yaml
 
 function create_modulefile {
     mkdir -p ${MODULE_DIR}
+    mkdir -p $MODULE_DIR/$APP_NAME # this is mandatory for all installed spack modules and referenced in the config.yaml
     cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 #%Module 1.0
 #
