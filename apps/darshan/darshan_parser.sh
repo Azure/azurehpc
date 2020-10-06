@@ -182,6 +182,10 @@ function output_report() {
 EOF
 }
 
+function format_json() {
+   cat ${DARSHAN_IO_PROFILE_NAME}.json | jq . >& tmp.json && mv tmp.json ${DARSHAN_IO_PROFILE_NAME}.json
+}
+
 get_total_wtime /tmp/darshan_parser_total.out_$$
 
 for PARAM in $POSIX_VALUES_TO_EXTRACT $STDIO_VALUES_TO_EXTRACT
@@ -204,5 +208,6 @@ calc_total_iopts
 calc_total_percent_iopts_read_write
 
 output_report
+format_json
 
 rm /tmp/darshan_parser_total.out_$$
