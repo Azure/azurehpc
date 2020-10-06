@@ -5,7 +5,7 @@ APP_VERSION=0.15.4
 SHARED_APP=${SHARED_APP:-/apps}
 INTEL_MPI_VERSION=${INTEL_MPI_VERSION:-2020.1.217}
 
-MODULE_DIR=${SHARED_APP}/modulefiles
+MODULE_DIR=${SHARED_APP}/modulefiles/${APP_NAME}
 MODULE_NAME=${APP_NAME}_${APP_VERSION}
 
 SKU_TYPE=$1
@@ -22,7 +22,6 @@ PACKAGES_YAML=packages.yaml
 
 function create_modulefile {
     mkdir -p ${MODULE_DIR}
-    mkdir -p $MODULE_DIR/$APP_NAME # this is mandatory for all installed spack modules and referenced in the config.yaml
     cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
 #%Module 1.0
 #
