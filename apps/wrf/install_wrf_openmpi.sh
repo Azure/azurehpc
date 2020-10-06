@@ -30,7 +30,6 @@ module load spack/spack
 source $SPACK_SETUP_ENV
 
 spack install  netcdf-fortran+mpi ^hdf5+fortran %gcc@9.2.0 ^openmpi@${OPENMPI_VER}
-#source ${SPACK_ROOT}/share/spack/setup-env.sh
 
 mkdir -p ${APP_DIR}
 cd ${APP_DIR}
