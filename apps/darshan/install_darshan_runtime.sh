@@ -6,7 +6,7 @@ module use ${SHARED_APP}/modulefiles
 module load spack/spack
 source $SPACK_SETUP_ENV
 
-sudo yum install -y python 3 
+sudo yum install -y python3 
 
 if [ "$NON_MPI" == "1" ]; then
    spack install darshan-runtime+pbs~mpi%gcc@9.2.0
