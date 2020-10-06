@@ -30,7 +30,7 @@ function create_modulefile {
 #  Spack module for use with 'environment-modules' package:
 #
 setenv    SPACK_HOME        ${SPACKDIR}
-setenv    SPACK_ENV         ${SPACKDIR}/spack/share/spack/setup-env.sh
+setenv    SPACK_SETUP_ENV   ${SPACKDIR}/spack/share/spack/setup-env.sh
 EOF
 
     # Create an symlink for the unversioned module name
@@ -55,7 +55,7 @@ cp -r ${APPS_SPACK_DIR}/lib  ${SPACKDIR}/spack
 source ${SPACKDIR}/spack/share/spack/setup-env.sh
 # this is to be replace by :
 # module load spack
-# source $SPACK_ENV
+# source $SPACK_SETUP_ENV
 #echo "source ${SPACKDIR}/spack/share/spack/setup-env.sh" >> ~/.bash_profile
 
 sudo mkdir /mnt/resource/spack
