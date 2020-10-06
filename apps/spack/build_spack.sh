@@ -9,9 +9,14 @@ USER=`whoami`
 MODULE_DIR=${SHARED_APP}/modulefiles/${APP_NAME}
 MODULE_NAME=${APP_NAME}_${APP_VERSION}
 
-sku_type=$1
+SKU_TYPE=$1
 email_address=$2
 STORAGE_ENDPOINT=$3
+
+if [ -z "$SKU_TYPE" ]; then
+    echo "SKU_TYPE parameter is required"
+    exit 1
+fi
 
 APPS_SPACK_DIR=`pwd`
 CONFIG_YAML=config.yaml
@@ -57,21 +62,21 @@ sudo mkdir /mnt/resource/spack
 sudo chmod 777 /mnt/resource/spack
 
 mkdir ~/.spack
-sed -i "s/SKU_TYPE/${sku_type}/" ${APPS_SPACK_DIR}/${CONFIG_YAML}
+sed -i "s/SKU_TYPE/${SKU_TYPE}/" ${APPS_SPACK_DIR}/${CONFIG_YAML}
 sed -i "s#SHARED_APP#${SHARED_APP}#" ${APPS_SPACK_DIR}/${CONFIG_YAML}
 sed -i "s/INTEL_MPI_VERSION/${INTEL_MPI_VERSION}/g" ${APPS_SPACK_DIR}/${PACKAGES_YAML}
 
 cp ${APPS_SPACK_DIR}/${CONFIG_YAML} ~/.spack
 cp ${APPS_SPACK_DIR}/packages.yaml ~/.spack
 cp ${APPS_SPACK_DIR}/compilers.yaml ~/.spack
-mkdir -p ${SHARED_APP}/spack/${sku_type}
+mkdir -p ${SHARED_APP}/spack/${SKU_TYPE}
 
 if [ ! -z $email_address ] && [ ! -z $STORAGE_ENDPOINT ]; then
     pip3 install --user azure-storage-blob
     spack gpg init
-    spack gpg create ${sku_type}_gpg $email_address
+    spack gpg create ${SKU_TYPE}_gpg $email_address
     AZURE_STORAGE=$(echo $STORAGE_ENDPOINT | sed 's/https/azure/')
-    spack mirror add ${sku_type}_buildcache ${AZURE_STORAGE}buildcache/${sku_type}
+    spack mirror add ${SKU_TYPE}_buildcache ${AZURE_STORAGE}buildcache/${SKU_TYPE}
     #cp ${APPS_SPACK_DIR}/azure_blob.py ${SPACKDIR}/spack/lib/spack/spack/util
 fi
 
