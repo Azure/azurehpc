@@ -22,8 +22,7 @@ append-path      PATH              \$WRFROOT/main
 EOF
 }
 
-sudo yum install -y jasper-devel
-sudo yum install -y libpng-devel
+sudo yum install -y jasper-devel libpng-devel python3
 
 source /etc/profile
 module use ${SHARED_APP}/modulefiles
@@ -35,7 +34,7 @@ spack install  netcdf-fortran+mpi ^hdf5+fortran %gcc@9.2.0 ^openmpi@${OPENMPI_VE
 
 mkdir -p ${APP_DIR}
 cd ${APP_DIR}
-wget https://github.com/wrf-model/WRF/archive/v${APP_VERSION}.tar.gz
+wget -q https://github.com/wrf-model/WRF/archive/v${APP_VERSION}.tar.gz
 tar xvf v${APP_VERSION}.tar.gz
 
 spack load netcdf-fortran^openmpi
