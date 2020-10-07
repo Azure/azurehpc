@@ -1,5 +1,5 @@
 #!/bin/bash
-
+SKU_TYPE=${1:-$SKU_TYPE}
 APP_NAME=wrf
 APP_VERSION=4.1.5
 SKU_TYPE=${SKU_TYPE:-hb}
@@ -8,7 +8,7 @@ MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 MODULE_NAME=${APP_VERSION}-omp-openmpi
 APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-omp-openmpi
 OPENMPI_VER=4.0.3
-APPS_WRF_DIR=`pwd`
+APPS_WRF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function create_modulefile {
 mkdir -p ${MODULE_DIR}
@@ -22,16 +22,21 @@ append-path      PATH              \$WRFROOT/main
 EOF
 }
 
-sudo yum install -y jasper-devel
-sudo yum install -y libpng-devel
+sudo yum install -y jasper-devel libpng-devel python3
+
+source /etc/profile
+module use ${SHARED_APP}/modulefiles
+module load spack/spack
+source $SPACK_SETUP_ENV
 
 spack install  netcdf-fortran+mpi ^hdf5+fortran %gcc@9.2.0 ^openmpi@${OPENMPI_VER}
-source ${SPACK_ROOT}/share/spack/setup-env.sh
 
 mkdir -p ${APP_DIR}
 cd ${APP_DIR}
-wget https://github.com/wrf-model/WRF/archive/v${APP_VERSION}.tar.gz
-tar xvf v${APP_VERSION}.tar.gz
+if [ ! -e v${APP_VERSION}.tar.gz ]; then
+    wget -q https://github.com/wrf-model/WRF/archive/v${APP_VERSION}.tar.gz
+    tar xf v${APP_VERSION}.tar.gz
+fi
 
 spack load netcdf-fortran^openmpi
 spack load hdf5^openmpi
@@ -55,6 +60,6 @@ patch -p0 < ${APPS_WRF_DIR}/WRFV4.0-rsl-8digit.patch
 
 EOF
 
-./compile -j 16 em_real
+./compile -j 16 em_real || exit 1
 
 create_modulefile
