@@ -2,8 +2,7 @@
 set -o pipefail
 nodes=$1
 ppn=$2
-shift
-shift
+
 
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$script_dir/common.sh"
@@ -14,7 +13,9 @@ PBS_MAX_WALLTIME="00:30:00"
 make_uuid_str
 job_group=$uuid_str
 
-echo "submit job $job_group on $nodes"
+echo "submit job $job_group on $nodes nodes with ppn=$ppn"
+shift; shift
+echo "command is : $@"
 echo "AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER"
 submit_job $job_group $nodes $ppn "$AZHPC_TELEMETRY_WRAPPER $@"
 
