@@ -1,0 +1,5 @@
+steps:  
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/openfoam_v8/build_openfoam.sh

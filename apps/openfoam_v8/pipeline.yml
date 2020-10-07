@@ -40,5 +40,5 @@ variables:
 
 jobs:
 - template: ../../ci/templates/jobs/build.yml
-#  parameters:
-#    extra_steps: ../../../examples/slurm_autoscale/test.yml
+  parameters:
+    extra_steps: ../../../apps/openfoam_v8/test.yml
