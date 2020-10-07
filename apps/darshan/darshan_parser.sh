@@ -39,6 +39,37 @@ function get_performance_posix_stdio() {
    done
 }
 
+function get_unique_files_time() {
+   arrStr=("POSIX" "STDIO")
+   cnt=0
+   for TIME in `awk '/# unique files: slowest_rank_io_time:/ { print $5 }' $1`
+   do
+      eval TOTAL_${arrStr[$cnt]}_UNIQUE_FILES_TIME=$TIME
+      cnt=$((cnt+1))
+   done
+   TOTAL_UNIQUE_FILES_TIME=$(bc <<< "$TOTAL_POSIX_UNIQUE_FILES_TIME + \
+                                     $TOTAL_STDIO_UNIQUE_FILES_TIME")
+}
+
+function get_shared_files_time() {
+   arrStr=("POSIX" "STDIO")
+   cnt=0
+   for TIME in `awk '/# shared files: time_by_slowest:/ { print $5 }' $1`
+   do
+      eval TOTAL_${arrStr[$cnt]}_SHARED_FILES_TIME=$TIME
+      cnt=$((cnt+1))
+   done
+   TOTAL_SHARED_FILES_TIME=$(bc <<< "$TOTAL_POSIX_SHARED_FILES_TIME + \
+                                     $TOTAL_STDIO_SHARED_FILES_TIME")
+}
+
+function calc_percent_unique_shared_files() {
+   TOTAL_IO_TIME=$(bc <<< "$TOTAL_UNIQUE_FILES_TIME + $TOTAL_SHARED_FILES_TIME")
+   TOTAL_PERCENT_UNIQUE_FILES_TIME=$(bc <<< "($TOTAL_UNIQUE_FILES_TIME * 100.0) / \
+                                              $TOTAL_IO_TIME")
+   TOTAL_PERCENT_SHARED_FILES_TIME=$(bc <<< "100.0 - $TOTAL_PERCENT_UNIQUE_FILES_TIME")
+}
+
 function calc_total_transferred_read_write() {
    TOTAL_BYTES_TRANSFERRED_READ=$(bc <<< "$TOTAL_POSIX_BYTES_READ + \
                                           $TOTAL_STDIO_BYTES_READ") 
@@ -137,6 +168,10 @@ function output_report() {
    cat <<EOF >${DARSHAN_IO_PROFILE_NAME}.json
 {
 "total_number_files": $TOTAL_NUMBER_FILES,
+"file_type_percentage": {
+                          "unique": $TOTAL_PERCENT_UNIQUE_FILES_TIME,
+                          "shared": $TOTAL_PERCENT_SHARED_FILES_TIME
+                        },
 "io_time": {
             "percentage_of_total_wtime": $TOTAL_PERCENT_IO_WTIME,
             "percentage_write": $TOTAL_PERCENT_WRITE,
@@ -231,6 +266,9 @@ calc_total_iopts
 calc_total_percent_iopts_read_write
 calc_total_number_files /tmp/darshan_parser_file.out_$$
 get_performance_posix_stdio /tmp/darshan_parser_perf.out_$$
+get_unique_files_time /tmp/darshan_parser_perf.out_$$
+get_shared_files_time /tmp/darshan_parser_perf.out_$$
+calc_percent_unique_shared_files
 
 output_report
 format_json
