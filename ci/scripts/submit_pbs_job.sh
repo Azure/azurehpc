@@ -15,9 +15,10 @@ job_group=$uuid_str
 
 echo "submit job $job_group on $nodes nodes with ppn=$ppn"
 shift; shift
-echo "command is : $@"
+command=$@
+echo "command is : $command"
 echo "AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER"
-submit_job $job_group $nodes $ppn "$AZHPC_TELEMETRY_WRAPPER $@"
+submit_job $job_group $nodes $ppn $AZHPC_TELEMETRY_WRAPPER $command
 
 # Wait for all jobs to be finished
 wait_alljobs $job_group

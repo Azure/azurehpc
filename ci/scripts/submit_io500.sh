@@ -14,7 +14,7 @@ job_group=$uuid_str
 
 echo "submit job $job_group on $nodes"
 echo "AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER"
-submit_job $job_group $nodes $ppn "$AZHPC_TELEMETRY_WRAPPER /apps/io500/io500_impi_beeond.pbs /beeond /apps/io500/config-io500.ini"
+submit_job $job_group $nodes $ppn $AZHPC_TELEMETRY_WRAPPER /apps/io500/io500_impi_beeond.pbs /beeond /apps/io500/config-io500.ini
 
 # Wait for all jobs to be finished
 wait_alljobs $job_group
