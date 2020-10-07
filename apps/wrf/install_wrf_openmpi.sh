@@ -24,7 +24,7 @@ EOF
 
 sudo yum install -y jasper-devel libpng-devel python3
 
-source /etc/profile
+source /usr/share/Modules/init/bash
 module use ${SHARED_APP}/modulefiles
 module load spack/spack
 source $SPACK_SETUP_ENV
