@@ -35,8 +35,11 @@ spack install  netcdf-fortran+mpi ^hdf5+fortran %gcc@9.2.0 ^openmpi@${OPENMPI_VE
 echo "get WRF source"
 mkdir -p ${APP_DIR}
 cd ${APP_DIR}
-wget -q https://github.com/wrf-model/WRF/archive/v${APP_VERSION}.tar.gz
-tar xvf v${APP_VERSION}.tar.gz
+
+if [ ! -e v${APP_VERSION}.tar.gz ]; then
+    wget -q https://github.com/wrf-model/WRF/archive/v${APP_VERSION}.tar.gz
+    tar xf v${APP_VERSION}.tar.gz
+fi
 
 echo "spack load"
 spack load netcdf-fortran^openmpi
