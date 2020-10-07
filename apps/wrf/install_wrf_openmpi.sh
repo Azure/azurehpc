@@ -30,7 +30,7 @@ module load spack/spack
 source $SPACK_SETUP_ENV
 
 echo "spack install"
-spack install  netcdf-fortran+mpi ^hdf5+fortran %gcc@9.2.0 ^openmpi@${OPENMPI_VER}
+spack install  netcdf-fortran+mpi ^hdf5+fortran %gcc@9.2.0 ^openmpi@${OPENMPI_VER} || exit 1
 
 echo "get WRF source"
 mkdir -p ${APP_DIR}
@@ -62,7 +62,7 @@ ln -sf $NETCDF_C/lib/pkgconfig/* $NETCDF/lib/pkgconfig
 
 cd WRF-${APP_VERSION}
 echo "apply patch"
-patch -p0 < ${APPS_WRF_DIR}/WRFV4.0-rsl-8digit.patch
+patch -t -p0 < ${APPS_WRF_DIR}/WRFV4.0-rsl-8digit.patch
 
 ./configure << EOF
 34
