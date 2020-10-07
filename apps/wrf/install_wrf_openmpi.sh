@@ -58,6 +58,6 @@ patch -p0 < ${APPS_WRF_DIR}/WRFV4.0-rsl-8digit.patch
 
 EOF
 
-./compile -j 16 em_real
+./compile -j 16 em_real || exit 1
 
 create_modulefile
