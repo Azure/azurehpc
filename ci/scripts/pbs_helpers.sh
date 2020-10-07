@@ -30,7 +30,7 @@ function check_jobstatus()
         if [ $exit_status != 0 ]; then
             echo "ERROR $exit_status: Failure while running job $jobid"
             qstat -fx $jobid
-            tail -n50 *.o$jobid
+            cat *.o$jobid
             test_failure=1
         else
             echo "$jobid OK"
