@@ -25,9 +25,9 @@ pool: Default
 variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: ../../examples/slurm_autoscale/config.json
+  azhpc.config: examples/slurm_autoscale/config.json
   # pipeline directory
-  azhpc.pipeline_dir: ../../examples/slurm_autoscale
+  azhpc.pipeline_dir: examples/slurm_autoscale
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcuser@headnode:.'
 
