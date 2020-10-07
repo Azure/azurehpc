@@ -9,6 +9,7 @@ STDIO_VALUES_TO_EXTRACT="STDIO_READS STDIO_WRITES STDIO_SEEKS STDIO_BYTES_READ S
 
 spack load darshan-util
 darshan-parser --total $DARSHAN_FILE_PATH > /tmp/darshan_parser_total.out_$$
+darshan-parser --file  $DARSHAN_FILE_PATH > /tmp/darshan_parser_file.out_$$
 
 
 function get_total_wtime() {
@@ -17,6 +18,14 @@ function get_total_wtime() {
 
 function get_total() {
    eval TOTAL_$2=$(awk -v param=total_$2 '$0~param { print $2 }' $1)
+}
+
+function calc_total_number_files() {
+   TOTAL_NUMBER_FILES=0
+   for FILE_COUNT in `awk '/# total:/ { print $3 }' $1`
+   do
+      TOTAL_NUMBER_FILES=$((TOTAL_NUMBER_FILES+FILE_COUNT))
+   done
 }
 
 function calc_total_transferred_read_write() {
@@ -116,6 +125,7 @@ function calc_percent_write_read_meta() {
 function output_report() {
    cat <<EOF >${DARSHAN_IO_PROFILE_NAME}.json
 {
+"total_number_files": $TOTAL_NUMBER_FILES,
 "io_time": {
             "percentage_of_total_wtime": $TOTAL_PERCENT_IO_WTIME,
             "percentage_write": $TOTAL_PERCENT_WRITE,
@@ -206,6 +216,7 @@ calc_percent_write_read_meta
 calc_total_iopts_read_write
 calc_total_iopts
 calc_total_percent_iopts_read_write
+calc_total_number_files /tmp/darshan_parser_file.out_$$
 
 output_report
 format_json
