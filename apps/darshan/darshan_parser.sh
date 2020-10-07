@@ -10,6 +10,7 @@ STDIO_VALUES_TO_EXTRACT="STDIO_READS STDIO_WRITES STDIO_SEEKS STDIO_BYTES_READ S
 spack load darshan-util
 darshan-parser --total $DARSHAN_FILE_PATH > /tmp/darshan_parser_total.out_$$
 darshan-parser --file  $DARSHAN_FILE_PATH > /tmp/darshan_parser_file.out_$$
+darshan-parser --perf  $DARSHAN_FILE_PATH > /tmp/darshan_parser_perf.out_$$
 
 
 function get_total_wtime() {
@@ -28,6 +29,16 @@ function calc_total_number_files() {
    done
 }
 
+function get_performance_posix_stdio() {
+   arrStr=("POSIX" "STDIO")
+   cnt=0
+   for PERFORMANCE in `awk '/# agg_perf_by_slowest:/ { print $3 }' $1`
+   do
+      eval TOTAL_${arrStr[$cnt]}_MiBps=$PERFORMANCE
+      cnt=$((cnt+1))
+   done
+}
+
 function calc_total_transferred_read_write() {
    TOTAL_BYTES_TRANSFERRED_READ=$(bc <<< "$TOTAL_POSIX_BYTES_READ + \
                                           $TOTAL_STDIO_BYTES_READ") 
@@ -37,7 +48,7 @@ function calc_total_transferred_read_write() {
 
 function calc_total_bytes_transferred() {
    TOTAL_BYTES_TRANSFERRED=$(bc <<< "$TOTAL_BYTES_TRANSFERRED_READ + $TOTAL_BYTES_TRANSFERRED_WRITE")
-   TOTAL_BYTES_TRANSFERRED_MB=$(bc <<< "$TOTAL_BYTES_TRANSFERRED / 1000000")
+   TOTAL_BYTES_TRANSFERRED_MiB=$(bc <<< "$TOTAL_BYTES_TRANSFERRED / (1024 * 1024)")
 }
 
 function calc_percent_transferred_read_write() {
@@ -47,10 +58,10 @@ function calc_percent_transferred_read_write() {
 }
 
 function calc_transfer_rate_read_write() {
-   TOTAL_TRANSFER_RATE_MBps_READ=$(bc <<< "$TOTAL_BYTES_TRANSFERRED_READ / \
-                                          ($TOTAL_WTIME_READ * 1000000)")
-   TOTAL_TRANSFER_RATE_MBps_WRITE=$(bc <<< "$TOTAL_BYTES_TRANSFERRED_WRITE / \
-                                           ($TOTAL_WTIME_WRITE * 1000000)")
+   TOTAL_TRANSFER_RATE_MiBps_READ=$(bc <<< "$TOTAL_BYTES_TRANSFERRED_READ / \
+                                           ($TOTAL_WTIME_READ * 1024 * 1024)")
+   TOTAL_TRANSFER_RATE_MiBps_WRITE=$(bc <<< "$TOTAL_BYTES_TRANSFERRED_WRITE / \
+                                            ($TOTAL_WTIME_WRITE * 1024 * 1024)")
 }
 
 function calc_percent_transfersize_read_write() {
@@ -132,9 +143,11 @@ function output_report() {
             "percentage_read": $TOTAL_PERCENT_READ,
             "percentage_meta": $TOTAL_PERCENT_META
           },
-"throughput_MBps": {
-                     "write": $TOTAL_TRANSFER_RATE_MBps_WRITE,
-                    "read": $TOTAL_TRANSFER_RATE_MBps_READ
+"throughput_MiBps": {
+                     "posix": $TOTAL_POSIX_MiBps,
+                     "stdio": $TOTAL_STDIO_MiBps, 
+                     "write": $TOTAL_TRANSFER_RATE_MiBps_WRITE,
+                     "read": $TOTAL_TRANSFER_RATE_MiBps_READ
                    },
 "IOPS": {
            "total": $TOTAL_IOPTS,
@@ -144,7 +157,7 @@ function output_report() {
                          }
         },
 "data_transferred": {
-                      "total_bytes_transferred_MB": $TOTAL_BYTES_TRANSFERRED_MB,
+                      "total_bytes_transferred_MiB": $TOTAL_BYTES_TRANSFERRED_MiB,
                       "percentage": {
                                       "write": $TOTAL_PERCENT_TRANSFERRED_WRITE,
                                       "read": $TOTAL_PERCENT_TRANSFERRED_READ
@@ -217,8 +230,11 @@ calc_total_iopts_read_write
 calc_total_iopts
 calc_total_percent_iopts_read_write
 calc_total_number_files /tmp/darshan_parser_file.out_$$
+get_performance_posix_stdio /tmp/darshan_parser_perf.out_$$
 
 output_report
 format_json
 
 rm /tmp/darshan_parser_total.out_$$
+rm /tmp/darshan_parser_file.out_$$
+rm /tmp/darshan_parser_perf.out_$$
