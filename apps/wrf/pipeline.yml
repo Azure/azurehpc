@@ -44,6 +44,8 @@ variables:
   azhpc.variables.location: westeurope
   azhpc.variables.vm_type: Standard_HB120rs_v2
   azhpc.variables.compute_instances: 4
+  azhpc.variables.test_case: new_conus12km
+  azhpc.variables.sku_type: hbv2
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
