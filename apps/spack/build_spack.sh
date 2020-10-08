@@ -35,8 +35,7 @@ EOF
     ln -s ${MODULE_DIR}/${MODULE_NAME} ${MODULE_DIR}/${APP_NAME}
 }
 
-sudo yum install -y python3
-sudo yum install -y patch
+sudo yum install -y python3 patch
 
 SPACKDIR=${SHARED_APP}/${APP_NAME}/${APP_VERSION}
 mkdir -p $SPACKDIR
@@ -52,9 +51,6 @@ create_modulefile
 module use ${SHARED_APP}/modulefiles
 module load spack/spack
 source $SPACK_SETUP_ENV
-
-# sudo mkdir /mnt/resource/spack
-# sudo chmod 777 /mnt/resource/spack
 
 mkdir -p ${SHARED_APP}/spack/${SKU_TYPE}
 
