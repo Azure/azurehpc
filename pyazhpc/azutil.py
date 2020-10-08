@@ -133,7 +133,7 @@ def deploy(resource_group, arm_template):
         "az", "deployment", "group", "create",
             "--resource-group", resource_group,
             "--template-file", arm_template,
-            "--name", deployname,
+            "--name", deployname, "--debug",
             "--no-wait"
     ]
     log.debug(" ".join(cmd))
