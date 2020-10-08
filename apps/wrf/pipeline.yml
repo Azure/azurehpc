@@ -35,7 +35,7 @@ variables:
   # configuration file to use
   azhpc.config: examples/simple_hpc_pbs/config.json
   # pipeline directory
-  azhpc.pipeline_dir: apps
+  azhpc.pipeline_dir: apps/wrf
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
 
@@ -48,6 +48,6 @@ variables:
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 jobs:
-- template: ../ci/templates/jobs/build.yml
+- template: ../../ci/templates/jobs/build.yml
   parameters:
-    extra_steps: ../../../apps/test.yml
+    extra_steps: ../../../apps/wrf/test.yml

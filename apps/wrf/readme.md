@@ -24,11 +24,13 @@ azhpc-scp -r $azhpc_dir/apps/. hpcuser@headnode:.
 azhpc-connect -u hpcuser headnode
 ```
 
+> Note : It's important to be connected with the hpcuser which have a shared home, versus hpcadmin which doesn't and can't run pbs jobs
+
 ## Installation
 
 ### Run wrf install script
 ```
-apps/wrf/install_wrf_openmpi.sh 
+apps/wrf/install_wrf_openmpi.sh <SKU_TYPE>
 ```
 > Note: Set SKU_TYPE to the type of sku you are using (e.h hb, hbv2 or hc). To install the hybrid parallel version use the install_wrf_omp_openmpi.sh script instead.
 
