@@ -6,6 +6,11 @@ steps:
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
+    user: hpcadmin
+    command: "mkdir -p /data/wrf/new_conus2.5km; tar xvf /data/wrf/new_conus2.5km_input.tar -C /data/wrf/new_conus2.5km"
+
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
     user: hpcuser
     command: /apps/spack/build_spack.sh hbv2
 

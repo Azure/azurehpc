@@ -21,7 +21,7 @@
         {
             "script": "get_blob.sh",
             "tag": "pbsserver",
-            "args": ["sasurl.{{variables.data_storage_account}}.{{variables.data_container}}/{{variables.data_folder}}", "*", "/data/{{variables.data_folder}}"]
+            "args": ["sasurl.{{variables.data_storage_account}}.{{variables.data_container}}/{{variables.data_folder}},rl", "*", "/data/{{variables.data_folder}}"]
         }
     ]
 }
