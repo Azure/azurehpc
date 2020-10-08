@@ -52,7 +52,7 @@ module load gcc-9.2.0
 export HDF5=$(spack location -i hdf5^openmpi)
 echo "HDF5=$HDF5"
 export NETCDF=$(spack location -i netcdf-fortran^openmpi)
-echo "HDF5=$NETCDF"
+echo "NETCDF=$NETCDF"
 
 NETCDF_C=$(spack location -i netcdf-c^openmpi)
 echo "NETCDF_C=$NETCDF_C"
