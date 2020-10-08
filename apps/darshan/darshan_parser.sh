@@ -17,6 +17,10 @@ function get_total_wtime() {
    TOTAL_WTIME=$(awk '/run time/ { print $4 }' $1)
 }
 
+function get_nprocs() {
+   NPROCS=$(awk '/nprocs/ { print $3 }' $1)
+}
+
 function get_total() {
    eval TOTAL_$2=$(awk -v param=total_$2 '$0~param { print $2 }' $1)
 }
@@ -167,6 +171,7 @@ function calc_percent_write_read_meta() {
 function output_report() {
    cat <<EOF >${DARSHAN_IO_PROFILE_NAME}.json
 {
+"nprocs": $NPROCS,
 "total_number_files": $TOTAL_NUMBER_FILES,
 "file_type_percentage": {
                           "unique": $TOTAL_PERCENT_UNIQUE_FILES_TIME,
@@ -245,6 +250,7 @@ function format_json() {
 }
 
 get_total_wtime /tmp/darshan_parser_total.out_$$
+get_nprocs /tmp/darshan_parser_total.out_$$
 
 for PARAM in $POSIX_VALUES_TO_EXTRACT $STDIO_VALUES_TO_EXTRACT
 do
