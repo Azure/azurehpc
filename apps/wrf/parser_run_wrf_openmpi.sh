@@ -17,6 +17,7 @@ fi
 
 mpi_version=$(mpirun --version | head -n1)
 app_version=$(grep MODEL $result | cut -d' ' -f2)
+# TODO : see https://github.com/akirakyle/WRF_benchmarks/blob/master/scripts/wrf_stats to collect metrics
 
 cat <<EOF >app.json
 {
