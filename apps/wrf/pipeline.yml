@@ -33,7 +33,7 @@ pool: Default
 variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/simple_hpc_pbs/config.json
+  azhpc.config: apps/wrf/variables.json
   # pipeline directory
   azhpc.pipeline_dir: apps/wrf
   # destination of scripts. Default is hpcuser@headnode:/apps
@@ -50,4 +50,5 @@ variables:
 jobs:
 - template: ../../ci/templates/jobs/build.yml
   parameters:
+    pre_steps: ../../../apps/wrf/init.yml
     extra_steps: ../../../apps/wrf/test.yml
