@@ -1,5 +1,9 @@
 #!/bin/bash
-blob=$1
-dest=$2
+folder_sasurl=$1 # this is the sasurl of the folder containing the blob
+blob_name=$2 # a single blob name, it can also be * for all blobs in that folder
+destination=$3 # destination folder or full name
 
-azcopy cp "$1" "$2"
+folder=$(echo $folder_sasurl | cut -d'?' -f1)
+saskey=$(echo $folder_sasurl | cut -d'?' -f2)
+
+azcopy cp "$folder/$blobname?$saskey" $destination
