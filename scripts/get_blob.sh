@@ -6,4 +6,4 @@ destination=$3 # destination folder or full name
 folder=$(echo $folder_sasurl | cut -d'?' -f1)
 saskey=$(echo $folder_sasurl | cut -d'?' -f2)
 
-azcopy cp "$folder/$blobname?$saskey" $destination
+azcopy cp "$folder/$blob_name?$saskey" $destination
