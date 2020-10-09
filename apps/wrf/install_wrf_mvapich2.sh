@@ -29,7 +29,7 @@ module load spack/spack
 source $SPACK_SETUP_ENV
 
 echo "spack install"
-spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^mvapich2@2.3.2
+spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^mvapich2@2.3.2 || exit 1
 
 echo "get WRF source"
 mkdir -p ${APP_DIR}
