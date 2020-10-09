@@ -3,6 +3,7 @@ MPI_TYPE=${1:-$openmpi}
 SKU_TYPE=${2:-$hbv2}
 APP_NAME=wps
 APP_VERSION=4.1
+WRF_VERSION=${WRF_VERSION:-4.1.5}
 SHARED_APP=${SHARED_APP:-/apps}
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 APPS_WRF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
