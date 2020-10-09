@@ -38,7 +38,9 @@ apps/wrf/build_wrf.sh <MPI_TYPE> <SKU_TYPE> <OMP>
 
 Run the WPS installation script if you need to install WPS (WRF needs to be installed first)
 ```
-apps/wrf/install_wps_openmpi.sh 
+# MPI_TYPE : openmpi or mvapich2
+# SKU_TYPE : hb, hbv2, hc
+apps/wrf/build_wps.sh <MPI_TYPE> <SKU_TYPE> 
 ```
 
 ## Running
@@ -47,7 +49,7 @@ apps/wrf/install_wps_openmpi.sh
 Now, you can run wrf as follows:
 
 ```
-qsub -l select=2:ncpus=60:mpiprocs=15 -v SKU_TYPE=hb,INPUTDIR=/path/to/inputfiles apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=2:ncpus=60:mpiprocs=15,place=scatter:excl -v SKU_TYPE=hb,INPUTDIR=/path/to/inputfiles apps/wrf/run_wrf_openmpi.pbs
 
 ```
 > Where SKU_TYPE is the sku type you are running on and INPUTDIR contains the location of wrf input files (namelist.input, wrfbdy_d01 and wrfinput_d01)
