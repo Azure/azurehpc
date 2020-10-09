@@ -1,0 +1,27 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "data_storage_account": "<NOT-SET>",
+        "data_container": "data",
+        "data_folder": "wrf"
+    },
+    "vnet": {
+    },
+    "resources": {
+    },
+    "install": [
+        {
+            "script": "install-azcopy.sh",
+            "tag": "pbsserver",
+            "sudo": true
+        },
+        {
+            "script": "get_blob.sh",
+            "tag": "pbsserver",
+            "args": ["sasurl.{{variables.data_storage_account}}.{{variables.data_container}}/{{variables.data_folder}},rl", "*", "/data/{{variables.data_folder}}"]
+        }
+    ]
+}

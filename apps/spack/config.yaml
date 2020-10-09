@@ -31,7 +31,7 @@ config:
   #
   # The build stage can be purged with \`spack clean --stage\`.
   build_stage:
-    - /mnt/resource/spack-stage
+    - /mnt/resource/scratch/spack-stage
     - ~/.spack/stage
 
 

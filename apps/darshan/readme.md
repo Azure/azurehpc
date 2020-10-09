@@ -50,6 +50,22 @@ qsub -l select=2:ncpus=120:mpiprocs=4 -v FILESYSTEM=/lustre apps/darshan/ior_dar
 ```
 > Where FILESYSTEM is the location of the filesystem being tested. The environmental variable DARSHAN_LOG_DIR_PATH is the location of the resulting darshan log files. Scripts are provided to create MPI wrappers which will instrument Darshan at compile/link time. Also, see fio_darshan.pbs to see how to get the I/O profile for a non-mpi code.
 
+## runwith_darshan wrapper
+
+The wrapper script `runwith_darshan.sh` can be used to run an MPI script with very minimal changes in that MPI script. The only thing to do is to add the `LD_PRELOAD` to the MPI run command.
+
+```bash
+$ mpirun -x LD_PRELOAD myapplication
+```
+
+To use the wrapper just run 
+
+```bash
+$ runwith_darshan.sh myrunscrip.sh myargs
+```
+after the run a `.darshan` file will be created in the home directory of the user
+
+
 ## Generate a Darshan graphical summary report.
 
 On headnode

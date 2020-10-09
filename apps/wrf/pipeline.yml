@@ -1,0 +1,56 @@
+pr: none
+# schedules:
+# - cron: "0 0 * * Sun"
+#   displayName: Every Sunday midnight build
+#   branches:
+#     include:
+#     - master
+#   always: true
+
+trigger: none
+  # batch: true
+  # branches:
+  #   include:
+  #   - '*'
+  # paths:
+  #   include:
+  #     - examples/simple_hpc_pbs/*
+  #     - pyazhpc/*
+  #     - scripts/create_raid0.sh
+  #     - scripts/make_filesystem.sh
+  #     - scripts/node_healthchecks.sh
+  #     - scripts/install-nfsserver.sh
+  #     - scripts/nfsclient.sh
+  #     - scripts/localuser.sh
+  #     - scripts/pbsdownload.sh
+  #     - scripts/pbsserver.sh
+  #     - scripts/pbsclient.sh
+  #   exclude:
+  #     - examples/simple_hpc_pbs/readme.md
+
+pool: Default
+
+variables:
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  azhpc.config: apps/wrf/variables.json
+  # pipeline directory
+  azhpc.pipeline_dir: apps/wrf
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  #azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
+
+# Add the variables needed in your configuration file
+# Uncomment and set values below, or leave commented and thru pipeline variables
+  azhpc.variables.location: westeurope
+  azhpc.variables.vm_type: Standard_HB120rs_v2
+  azhpc.variables.compute_instances: 4
+  azhpc.variables.test_case: new_conus12km
+  azhpc.variables.sku_type: hbv2
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../ci/templates/jobs/build.yml
+  parameters:
+    pre_steps: ../../../apps/wrf/init.yml
+    extra_steps: ../../../apps/wrf/test.yml

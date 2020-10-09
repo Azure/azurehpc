@@ -1,0 +1,30 @@
+steps:  
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/ci/check_pbs_nodes.sh $(azhpc.variables.compute_instances)
+
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcadmin
+    command: "mkdir -p /data/wrf/$(azhpc.variables.test_case); tar xvf /data/wrf/$(azhpc.variables.test_case)_input.tar -C /data/wrf/$(azhpc.variables.test_case)"
+
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/spack/build_spack.sh $(azhpc.variables.sku_type)
+
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wrf_openmpi.sh $(azhpc.variables.sku_type)
+
+# - template: ../../ci/templates/steps/azhpc-run.yml
+#   parameters:
+#     user: hpcuser
+#     command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wrf_omp_openmpi.sh $(azhpc.variables.sku_type)
+
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/ci/submit_pbs_job.sh $(azhpc.variables.compute_instances) 60 /apps/wrf/run_wrf_openmpi.pbs $(azhpc.variables.sku_type) /data/wrf/$(azhpc.variables.test_case)

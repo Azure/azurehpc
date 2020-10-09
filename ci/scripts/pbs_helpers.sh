@@ -30,7 +30,7 @@ function check_jobstatus()
         if [ $exit_status != 0 ]; then
             echo "ERROR $exit_status: Failure while running job $jobid"
             qstat -fx $jobid
-            tail -n50 *.o$jobid
+            cat *.o$jobid
             test_failure=1
         else
             echo "$jobid OK"
@@ -80,8 +80,10 @@ function submit_job()
     local job_name=$1
     local node_count=$2
     local ppn=$3
-    local script=$4
+    shift; shift; shift
+    local script=$@
 
+    echo "job_name=$job_name; node_count=$node_count; ppn=$ppn; script=$script"
     qsub -l walltime=$PBS_MAX_WALLTIME -N $job_name -k oe \
             -j oe -l select=$node_count:ncpus=$ppn:mpiprocs=$ppn,place=scatter:excl \
             -- $script

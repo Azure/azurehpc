@@ -1,0 +1,11 @@
+{
+  "variables": {
+    "resource_group": "my resource group",
+    "location": "my location",
+    "vm_type": "Standard_HB120rs",
+    "compute_instances": 1,
+    "data_storage_account": "<NOT-SET>",
+    "data_container": "data",
+    "data_folder": "wrf"
+  }
+}
