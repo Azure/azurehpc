@@ -15,6 +15,7 @@ import azconfig
 import azinstall
 import azlog
 import azutil
+import subprocess
 
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
