@@ -335,10 +335,10 @@ def do_status(args):
         sys.exit(1)
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
-    pssh_cmd = pssh
+    pssh_cmd = "pssh"
     os_distro = get_distro_info()
     if os_distro == "ubuntu":
-        pssh_cmd = parallel-ssh
+        pssh_cmd = "parallel-ssh"
 
     _exec_command(fqdn, adminuser, ssh_private_key, "{}".format(pssh_cmd)+f"-h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
 
