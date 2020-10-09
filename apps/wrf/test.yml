@@ -17,12 +17,12 @@ steps:
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
-    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wrf_openmpi.sh $(azhpc.variables.sku_type)
+    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wrf.sh openmpi $(azhpc.variables.sku_type)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
-    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wrf_omp_openmpi.sh $(azhpc.variables.sku_type)
+    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wrf.sh openmpi $(azhpc.variables.sku_type) omp
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
@@ -32,12 +32,12 @@ steps:
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
-    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wrf_mvapich2.sh $(azhpc.variables.sku_type)
+    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wrf.sh mvapich2 $(azhpc.variables.sku_type)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
-    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wrf_omp_mvapich2.sh $(azhpc.variables.sku_type)
+    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wrf.sh mvapich2 $(azhpc.variables.sku_type) omp
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
