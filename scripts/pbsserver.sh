@@ -17,7 +17,7 @@ fi
 
 # PBS needs to be installed
 # Find the unzipped PBS directory and change to it
-dir_name=$(ls -dr */ | grep pbs | tail -n1)
+dir_name=$(ls -dr */ | grep openpbs | tail -n1)
 cd $dir_name
 
 if [ "$os_release" == "centos" ];then

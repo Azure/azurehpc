@@ -88,6 +88,30 @@
             "sudo": true
         },
         {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "-r openpbs"
+            ],
+            "tag": "pbsserver",
+            "sudo": true
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "-r openpbs"
+            ],
+            "tag": "pbsclient",
+            "sudo": true
+        },
+        {
             "script": "setupbeeond.sh",
             "tag": "beeond",
             "sudo": false

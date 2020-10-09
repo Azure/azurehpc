@@ -11,23 +11,25 @@ echo "OS Release: $os_release"
 echo "OS Major Version: $os_maj_ver"
 # Script to be run on all compute nodes
 if [ "$os_release" == "centos" ];then
-    filename=openpbs_${pbs_ver}.centos_8.zip
+    filename=openpbs_${pbs_ver}.centos_8
 elif [ "$os_release" == "ubuntu" ];then
-    filename=openpbs_${pbs_ver}.ubuntu_1804.zip
+    filename=openpbs_${pbs_ver}.ubuntu_1804
 fi
 
 echo "$filename"
 
 if [ "$os_release" == "centos" ] && [ "$os_maj_ver" == "7" ];then
-    filename=pbspro_19.1.1.centos7.zip
+    filename=pbspro_19.1.1.centos7
 
     if [ ! -f "$filename" ];then
-        wget -q https://github.com/PBSPro/pbspro/releases/download/v19.1.1/$filename
-        unzip $filename
+        wget -q https://github.com/PBSPro/pbspro/releases/download/v19.1.1/${filename}.zip
+        unzip ${filename}.zip
+        mv $filename openpbs
     fi
 else
     if [ ! -f "$filename" ];then
-        wget -q http://wpc.23a7.iotacdn.net/8023A7/origin2/rl/OpenPBS/$filename
-        unzip $filename
+        wget -q http://wpc.23a7.iotacdn.net/8023A7/origin2/rl/OpenPBS/${filename}.zip
+        unzip ${filename}.zip
+        mv $filename openpbs
     fi
 fi

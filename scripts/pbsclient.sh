@@ -14,7 +14,9 @@ if [ -f "/etc/pbs.conf" ];then
     exit 0
 fi
 
-# Find the unzipped PBS directory and change to it
+# Change to the openpbs dir
+cd openpbs
+
 PBS_SERVER_STRING="CHANGE_THIS_TO_PBS_SERVER_HOSTNAME"
 if [ "$os_release" == "centos" ];then
     if [ "$os_maj_ver" == "7" ];then
