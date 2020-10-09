@@ -336,12 +336,9 @@ def do_status(args):
         sys.exit(1)
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
-    pssh_cmd = "pssh"
-    os_distro = get_distro_info()
-    if os_distro == "ubuntu":
-        pssh_cmd = "parallel-ssh"
+    pssh_cmd = "pssh_cmd=$(if [ $(which pssh) ];then pssh_cmd="pssh";elif [ $(which parallel-ssh) ];then pssh_cmd="parallel-ssh";else pssh_cmd="None";fi; echo $pssh_cmd)"
 
-    _exec_command(fqdn, adminuser, ssh_private_key, "{}".format(pssh_cmd)+f" -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
+    _exec_command(fqdn, adminuser, ssh_private_key, "{}".format(pssh_cmd)+f"{pssh_cmd} -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
 
 
 def do_run(args):
