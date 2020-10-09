@@ -9,6 +9,9 @@ if [ -z $INPUTDIR ]; then
     exit 1
 fi
 
+if ! rpm -q python3; then
+    sudo yum install -y python3 
+fi
 source /etc/profile
 export MODULEPATH=${SHARED_APP}/modulefiles/${SKU_TYPE}:$MODULEPATH
 
