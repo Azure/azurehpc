@@ -7,7 +7,7 @@ APP_VERSION=4.1.5
 SHARED_APP=${SHARED_APP:-/apps}
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 APPS_WRF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -n $OMP ]; then
+if [ "$OMP" != ""  ]; then
     MODULE_NAME=${APP_VERSION}-$OMP-${MPI_TYPE}
     APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-$OMP-${MPI_TYPE}
 else
