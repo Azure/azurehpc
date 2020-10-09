@@ -7,6 +7,7 @@ SHARED_APP=${SHARED_APP:-/apps}
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 MODULE_NAME=${APP_VERSION}-mvapich2
 APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-mvapich2
+MVAPICH2_VER=2.3.3
 APPS_WRF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function create_modulefile {
@@ -29,7 +30,7 @@ module load spack/spack
 source $SPACK_SETUP_ENV
 
 echo "spack install"
-spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^mvapich2@2.3.2 || exit 1
+spack install  netcdf-fortran+mpi ^netcdf~parallel-netcdf ^hdf5+fortran %gcc@9.2.0 ^mvapich2@${MVAPICH2_VER} || exit 1
 
 echo "get WRF source"
 mkdir -p ${APP_DIR}
@@ -45,7 +46,7 @@ spack load netcdf^mvapich2
 spack load hdf5^mvapich2
 spack load perl
 echo "module load"
-module load mpi/mvapich2-2.3.2
+module load mpi/mvapich2-${MVAPICH2_VER}
 module load gcc-9.2.0
 
 export HDF5=$(spack location -i hdf5^mvapich2)

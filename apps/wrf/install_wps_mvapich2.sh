@@ -5,6 +5,7 @@ APP_VERSION=4.1
 SKU_TYPE=${SKU_TYPE:-hbv2}
 SHARED_APP=${SHARED_APP:-/apps}
 WRF_VERSION=4.1.3
+MVAPICH2_VER=2.3.3
 APP_DIR=${SHARED_APP}/${SKU_TYPE}/${APP_NAME}-mvapich2
 
 sudo yum install -y jasper-devel libpng-devel python3
@@ -28,7 +29,7 @@ spack load netcdf^mvapich2
 spack load hdf5^mvapich2
 spack load perl
 echo "module load"
-module load mpi/mvapich2-2.3.2
+module load mpi/mvapich2-${MVAPICH2_VER}
 module load gcc-9.2.0
 
 export HDF5=$(spack location -i hdf5^mvapich2)
