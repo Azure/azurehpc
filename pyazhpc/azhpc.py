@@ -341,7 +341,7 @@ def do_status(args):
     if os_distro == "ubuntu":
         pssh_cmd = "parallel-ssh"
 
-    _exec_command(fqdn, adminuser, ssh_private_key, "{}".format(pssh_cmd)+f"-h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
+    _exec_command(fqdn, adminuser, ssh_private_key, "{}".format(pssh_cmd)+f" -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
 
 
 def do_run(args):
