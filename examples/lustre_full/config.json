@@ -245,7 +245,7 @@
         {
             "script": "pbsserver.sh",
             "copy": [
-                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+                "-r openpbs"
             ],
             "tag": "pbsserver",
             "sudo": true
@@ -256,7 +256,7 @@
                 "$(<hostlists/tags/pbsserver)"
             ],
             "copy": [
-                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+                "-r openpbs"
             ],
             "tag": "pbsclient",
             "sudo": true
