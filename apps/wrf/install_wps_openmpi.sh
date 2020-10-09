@@ -14,7 +14,7 @@ echo "get WPS source"
 mkdir -p ${APP_DIR}
 cd ${APP_DIR}
 if [ ! -e v${APP_VERSION}.tar.gz ]; then
-    wget https://github.com/wrf-model/WPS/archive/v${APP_VERSION}.tar.gz
+    wget -q https://github.com/wrf-model/WPS/archive/v${APP_VERSION}.tar.gz
     tar xf v${APP_VERSION}.tar.gz
 fi
 
