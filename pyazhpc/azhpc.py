@@ -22,6 +22,20 @@ from cryptography.hazmat.backends import default_backend as crypto_default_backe
 
 log = azlog.getLogger(__name__)
 
+def get_distro_info():
+    # Determine which linux distro you are using
+    os_distro="centos"
+    process = subprocess.Popen(['cat', '/etc/os-release'], stdout=subprocess.PIPE)
+    out, err = process.communicate()
+    out = out.decode()
+    lines = out.split("\n")
+    for line in lines:
+        if line[:3] == "ID=":
+            os_distro = line.split("=")[1].replace('"',"")
+
+    log.debug("OS Distro: %s" % os_distro)
+    return os_distro
+
 def do_preprocess(args):
     log.debug("reading config file ({})".format(args.config_file))
     config = azconfig.ConfigFile()
@@ -321,7 +335,12 @@ def do_status(args):
         sys.exit(1)
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
-    _exec_command(fqdn, adminuser, ssh_private_key, f"pssh -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
+    pssh_cmd = pssh
+    os_distro = get_distro_info()
+    if os_distro == "ubuntu":
+        pssh_cmd = parallel-ssh
+
+    _exec_command(fqdn, adminuser, ssh_private_key, "{}".format(pssh_cmd)+f"-h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
 
 
 def do_run(args):
