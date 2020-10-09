@@ -6,11 +6,6 @@ steps:
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
-    user: hpcadmin
-    command: "mkdir -p /data/wrf/$(azhpc.variables.test_case); tar xvf /data/wrf/$(azhpc.variables.test_case)_input.tar -C /data/wrf/$(azhpc.variables.test_case)"
-
-- template: ../../ci/templates/steps/azhpc-run.yml
-  parameters:
     user: hpcuser
     command: /apps/spack/build_spack.sh $(azhpc.variables.sku_type)
 
@@ -27,7 +22,7 @@ steps:
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
-    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wps_openmpi.sh $(azhpc.variables.sku_type)
+    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wps.sh openmpi $(azhpc.variables.sku_type)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
@@ -42,7 +37,12 @@ steps:
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
-    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/install_wps_mvapich2.sh $(azhpc.variables.sku_type)
+    command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wps.sh mvapich2 $(azhpc.variables.sku_type)
+
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcadmin
+    command: "mkdir -p /data/wrf/$(azhpc.variables.test_case); tar xvf /data/wrf/$(azhpc.variables.test_case)_input.tar -C /data/wrf/$(azhpc.variables.test_case)"
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
