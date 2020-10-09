@@ -3,7 +3,6 @@ MPI_TYPE=${1:-$openmpi}
 SKU_TYPE=${2:-$hbv2}
 APP_NAME=wps
 APP_VERSION=4.1
-WRF_VERSION=${WRF_VERSION:-4.1.5}
 SHARED_APP=${SHARED_APP:-/apps}
 MODULE_DIR=${SHARED_APP}/modulefiles/${SKU_TYPE}/${APP_NAME}
 APPS_WRF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -13,6 +12,7 @@ APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-${MPI_TYPE}
 function get_version {
     # TODO : get these versions dynamically from the image
     GCC_VERSION=9.2.0
+    WRF_VERSION=4.1.5
     case $MPI_TYPE in
         openmpi)
             MPI_VER=4.0.3
