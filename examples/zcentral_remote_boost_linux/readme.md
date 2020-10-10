@@ -1,8 +1,8 @@
-# Build a Linux visualization node and HPE ZCentral Remote Boost (formarly HP RGS) for visualization
+# Build a Linux visualization VM and HPE ZCentral Remote Boost (formarly HP RGS) for visualization
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/zcentral_remote_boost_linux/config.json)
 
-This example will create and a Linux (CentOS 7.8) visualization node with HPE ZCentral Remote Boost.
+This example will create and a Linux (CentOS 7.8) visualization vm with HPE ZCentral Remote Boost.
 
 >NOTE: 
 - MAKE SURE you have followed the steps in [prerequisite](../../tutorials/prerequisites.md) before proceeding here
