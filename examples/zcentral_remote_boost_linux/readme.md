@@ -18,8 +18,9 @@ The variables can be set with the `-v` option where variables are comma separate
 
 ```
 azhpc-init -c $azhpc_dir/examples/zcentral_remote_boost_linux -d zcentral_remote_boost_linux -v resource_group=azhpc-cluster,location=southcentralus
+```
 
-Create the Linux visualization vm
+Create/build the Linux visualization vm
 
 ```
 cd zcentral_remote_boost_linux
