@@ -4,7 +4,7 @@ filesystem=${2-xfs}
 mount=${3-/share}
 
 # Check if mount exist
-if [ -f "$mount" ];then
+if [ -d "$mount" ];then
     echo "Script was already run. Exiting"
     exit 0
 fi
