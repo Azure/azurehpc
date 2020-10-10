@@ -1,4 +1,4 @@
-# Build a Linux visualization node and HPE ZCentral REmote Boost (formarly HP RGS) for visualization
+# Build a Linux visualization node and HPE ZCentral Remote Boost (formarly HP RGS) for visualization
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/zcentral_remote_boost_linux/config.json)
 
@@ -11,7 +11,7 @@ This example will create and a Linux (CentOS 7.8) visualization node with HPE ZC
 First initialise a new project. AZHPC provides the `azhpc-init` command that will help here.  Running with the `-s` parameter will show all the variables that need to be set, e.g.
 
 ```
-azhpc-init -c $azhpc_dir/examples/zcentral_remote_boost_linux -d  -l_remote_boost_linux -s
+azhpc-init -c $azhpc_dir/examples/zcentral_remote_boost_linux -d zcentral_remote_boost_linux -s
 ```
 
 The variables can be set with the `-v` option where variables are comma separated.  The `-d` option is required and will create a new directory name for you.
@@ -36,9 +36,9 @@ Download and install ZCentral REmote Boost receiver on local WS. Connect to ZCEn
 
 Once you connect to the Zcentral Remote Boost Linux Sender, give your username and password.
 
-![Alt text1](/examples/zcentral_remote_boost_linux/images/zcentral_login.JPG?raw=true "zcentral login")
+![Alt text2](/examples/zcentral_remote_boost_linux/images/zcentral_login.JPG?raw=true "zcentral login")
 
 You should then see your Linux REmote visualization desktop.
 
-![Alt text1](/examples/zcentral_remote_boost_linux/images/zcentral_linux_desktop.JPG?raw=true "zcentral desktop")
+![Alt text3](/examples/zcentral_remote_boost_linux/images/zcentral_linux_desktop.JPG?raw=true "zcentral desktop")
 
