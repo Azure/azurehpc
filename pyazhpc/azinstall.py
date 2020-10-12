@@ -162,7 +162,7 @@ fi
 
     if reboot:
         content += f"""
-pssh -p {pssh_threads} -t 0 -i -h hostlists/tags/$tag "sudo reboot" >> {logfile} 2>&1
+$pssh_cmd -p {pssh_threads} -t 0 -i -h hostlists/tags/$tag "sudo reboot" >> {logfile} 2>&1
 echo "    Waiting for nodes to come back"
 sleep 10
 for h in $(<hostlists/tags/$tag); do
