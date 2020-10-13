@@ -370,7 +370,7 @@ def do_run(args):
     hostlist = " ".join(hosts)
     cmd = " ".join(args.args)
     pssh_cmd = "pssh_cmd=$(if [ $(which pssh) ];then pssh_cmd=\"pssh\";elif [ $(which parallel-ssh) ];then pssh_cmd=\"parallel-ssh\";else pssh_cmd=\"None\";fi; echo $pssh_cmd;)"
-    log.debug("{};".format(pssh_cmd)+f" \"$pssh_cmd\" -H '{hostlist}' -i -t 0 '{cmd}')
+    log.debug("{};".format(pssh_cmd)+f" \"$pssh_cmd\" -H '{hostlist}' -i -t 0 '{cmd}'")
     _exec_command(fqdn, sshuser, ssh_private_key, "{};".format(pssh_cmd)+f" \"$pssh_cmd\" -H '{hostlist}' -i -t 0 '{cmd}'")
 
 def _create_private_key(private_key_file, public_key_file):
