@@ -31,6 +31,7 @@
             "image": "variables.hpc_image",
             "subnet": "compute",
             "storage_sku": "Premium_LRS",
+            "nsg_allow": ["ssh","zcentral"],
             "tags": [
                 "cndefault",
                 "disable-selinux",
@@ -65,15 +66,6 @@
             "args": [
                "variables.zcentral_remote_boost_sender_sas_url",
                "variables.zcentral_remote_boost_sender_license_sas_url"
-            ]
-        },
-        {
-            "type": "local_script",
-            "script": "open_vm_port.sh",
-            "args": [
-               "variables.resource_group",
-               "headnode",
-                42966
             ]
         },
         {
