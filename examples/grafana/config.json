@@ -67,7 +67,7 @@
         },
         {
             "script": "install-telegraf.sh",
-            "tag": "telegraf",
+            "tag": "grafana",
             "sudo": true,
             "args": [
                 "$(<hostlists/tags/grafana)",
@@ -76,6 +76,16 @@
                 "telegraf-default.conf"
              ],
              "deps" : ["telegraf-default.conf"]
+        },
+        {
+            "script": "install-telegraf.sh",
+            "tag": "telegraf",
+            "sudo": true,
+            "args": [
+                "$(<hostlists/tags/grafana)",
+                "azhpc",
+                "secret.{{variables.key_vault}}.GrafanaPassword"
+             ]
         }
     ]
 }
