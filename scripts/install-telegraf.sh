@@ -17,10 +17,6 @@ if [ -z "$GRAFANA_PWD" ]; then
     echo "Grafana password parameter is required"
     exit 1
 fi
-if [ -z "$TELEGRAF_CONF" ]; then
-    echo "Telegraf configuration file parameter is required"
-    exit 1
-fi
 
 echo "#### Configuration repo for InfluxDB:"
 cat <<EOF | tee /etc/yum.repos.d/influxdb.repo
@@ -38,11 +34,53 @@ yum -y install telegraf
 # Update telegraph.conf
 TELEGRAF_CONF_DIR=/etc/telegraf
 cp $TELEGRAF_CONF_DIR/telegraf.conf $TELEGRAF_CONF_DIR/telegraf.conf.origin
-cp $DIR/$TELEGRAF_CONF $TELEGRAF_CONF_DIR/telegraf.conf
+if [ -z "$TELEGRAF_CONF" ]; then
+    echo "Using embedded configuration file"
+cat << EOF > $TELEGRAF_CONF_DIR/telegraf.conf
+[global_tags]
+[agent]
+  interval = "10s"
+  round_interval = true
+  metric_batch_size = 1000
+  metric_buffer_limit = 10000
+  collection_jitter = "0s"
+  flush_interval = "10s"
+  flush_jitter = "0s"
+  precision = ""
+  hostname = ""
+  omit_hostname = false
+[[outputs.influxdb]]
+  urls = ["http://$GRAFANA_SERVER:8086"]
+  database = "monitor"
+  username = "$GRAFANA_USER"
+  password = "$GRAFANA_PWD"
+[[inputs.cpu]]
+  percpu = true
+  totalcpu = true
+  collect_cpu_time = false
+  report_active = false
+[[inputs.interrupts]]
+  cpu_as_tag = false
+[[inputs.disk]]
+  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+[[inputs.diskio]]
+[[inputs.kernel]]
+[[inputs.mem]]
+[[inputs.processes]]
+[[inputs.swap]]
+[[inputs.system]]
+[[inputs.net]]
+[[inputs.conntrack]]
+  files = ["ip_conntrack_count","ip_conntrack_max","nf_conntrack_count","nf_conntrack_max"]
+EOF
 
-sed -i "s#__GRAFANA_SERVER__#$GRAFANA_SERVER#" $TELEGRAF_CONF_DIR/telegraf.conf
-sed -i "s#__GRAFANA_USER__#$GRAFANA_USER#" $TELEGRAF_CONF_DIR/telegraf.conf
-sed -i "s#__GRAFANA_PWD__#$GRAFANA_PWD#" $TELEGRAF_CONF_DIR/telegraf.conf
+else
+    echo "Using $TELEGRAF_CONF"
+    cp $DIR/$TELEGRAF_CONF $TELEGRAF_CONF_DIR/telegraf.conf
+    sed -i "s#__GRAFANA_SERVER__#$GRAFANA_SERVER#" $TELEGRAF_CONF_DIR/telegraf.conf
+    sed -i "s#__GRAFANA_USER__#$GRAFANA_USER#" $TELEGRAF_CONF_DIR/telegraf.conf
+    sed -i "s#__GRAFANA_PWD__#$GRAFANA_PWD#" $TELEGRAF_CONF_DIR/telegraf.conf
+fi
 
 # Inject global tags like the VM Size and the VMSS Name if any
 compute=$(curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2018-10-01" | jq '.')
