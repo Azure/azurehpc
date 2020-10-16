@@ -10,8 +10,8 @@
         "vm_type": "Standard_NV12s_v3",
         "low_priority": false,
         "vnet_resource_group": "variables.resource_group",
-        "zcentral_remote_boost_sender_sas_url": "<NOT-SET>",
-        "zcentral_remote_boost_sender_license_sas_url": "<NOT-SET>",
+        "zcentral_remote_boost_sender_sas_url": "sasurl.[account].[container].ZCentral_RB*.tar.tz",
+        "zcentral_remote_boost_sender_license_sas_url": "sasurl.[account].[container].license.lic",
         "headnode_pw": "<NOT-SET>"
     },
     "vnet": {
