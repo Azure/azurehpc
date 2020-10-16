@@ -600,6 +600,19 @@ class ArmTemplate:
                             "priority": 1040,
                             "direction": "Inbound"
                         }
+                    },
+                    "zcentral":  {
+                        "name": "default-allow-zcentral",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "42966",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1050,
+                            "direction": "Inbound"
+                        }
                     }
                 }
 

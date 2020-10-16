@@ -181,7 +181,7 @@ This dictionary describes the resources for the project.
 | **instances**              | Number of VMs or VMSS instances to create                                   |   yes    |         |
 | **low_priority**           | Boolean flag to se Spot Instance (Eviction = Delete)                        |   no     |  False  |
 | **managed_identity**       | [Managed Identity property](#managed-identity-property) to use (**vm only**)|   no     |         |
-| **nsg_allow**              | Enabled pre-defined NSG rules `ssh`, `rdp`, `http`, `https` or `grafana` (**vm only**) |   no     | ssh/rdp |
+| **nsg_allow**              | Enabled pre-defined NSG rules `ssh`, `rdp`, `http`, `https`, `zcentral` or `grafana` (**vm only**) |   no     | ssh/rdp |
 | **os_disk_size**           | OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size|   no     |         |
 | **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
 | **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|

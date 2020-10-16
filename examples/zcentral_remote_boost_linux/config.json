@@ -1,0 +1,94 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS:7_8:latest",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_NV12s_v3",
+        "low_priority": false,
+        "vnet_resource_group": "variables.resource_group",
+        "zcentral_remote_boost_sender_sas_url": "sasurl.[account].[container].ZCentral_RB*.tar.tz",
+        "zcentral_remote_boost_sender_license_sas_url": "sasurl.[account].[container].license.lic",
+        "headnode_pw": "<NOT-SET>"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "storage_sku": "Premium_LRS",
+            "nsg_allow": ["ssh","zcentral"],
+            "tags": [
+                "cndefault",
+                "disable-selinux",
+                "linux_xfce",
+                "linux_zcentral_remote_boost"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "linux_xfce.sh",
+            "tag": "linux_xfce",
+            "sudo": true,
+            "args": [
+               "hpcadmin"
+            ]
+        },
+        {
+            "script": "linux_zcentral_remote_boost.sh",
+            "tag": "linux_zcentral_remote_boost",
+            "sudo": true,
+            "args": [
+               "variables.zcentral_remote_boost_sender_sas_url",
+               "variables.zcentral_remote_boost_sender_license_sas_url"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "linux_nvidia_gpu_extension.sh",
+            "args": [
+                "variables.resource_group",
+                "headnode"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "restart_gdm.sh"
+        },
+        {
+            "type": "local_script",
+            "script": "reset_vm_passwd.sh",
+            "args": [
+                 "variables.resource_group",
+                 "headnode",
+                 "hpcadmin",
+                 "variables.headnode_pw"
+            ]
+        }
+    ]
+}
