@@ -1,11 +1,13 @@
 {
     "Gen1":
     {
+        "azhpc.variables.location": "southcentralus",
         "azhpc.variables.vm_type": "Standard_NV12s_v3",
         "azhpc.variables.image": "OpenLogic:CentOS:7.7:latest"
     },
     "Gen2":
     {
+        "azhpc.variables.location": "southcentralus",
         "azhpc.variables.vm_type": "Standard_ND40rs_v2",
         "azhpc.variables.image": "OpenLogic:CentOS:7_7-gen2:latest"
     }

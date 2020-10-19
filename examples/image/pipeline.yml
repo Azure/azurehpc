@@ -23,19 +23,24 @@ trigger:
 pool: Default
 
 variables:
+  - group: azhpc_build_common
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/image/create_image.json
+  - name: azhpc.config
+    value: examples/image/create_image.json
   # pipeline directory
-  azhpc.pipeline_dir: examples/image
+  - name: azhpc.pipeline_dir
+    value: examples/image
   # destination of scripts. Default is hpcuser@headnode:/apps
-  azhpc.script_remote_dest: 'hpcadmin@builder:.'
+  - name: azhpc.script_remote_dest
+    value: 'hpcadmin@builder:.'
 
+  - name: azhpc.variables_matrix
+    value: examples/image/test_matrix.json
 # Add the variables needed in your configuration file
-# Uncomment and set values below, or leave commented and thru pipeline variables
-  # azhpc.variables.location: westeurope
-  # azhpc.variables.image_name: foo
-  azhpc.variables_matrix: examples/image/test_matrix.json
+# Set values below or thru pipeline variables
+  # - name: azhpc.variables.variable_name
+  #   value: variable_value
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
