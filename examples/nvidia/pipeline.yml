@@ -26,6 +26,7 @@ trigger:
 pool: Default
 
 variables:
+  - group: azhpc_build_common
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
   azhpc.config: examples/nvidia/config.json
