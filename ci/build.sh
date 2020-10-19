@@ -30,13 +30,16 @@ echo "********************************************************************"
 #export AZHPC_VARIABLES_UUID=${AZHPC_UUID-azhpc}
 azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
 #init_variables="-v resource_group=$AZHPC_RESOURCEGROUP"
-init_variables="-v "
 for item in $azhpc_variables; do
     key=$(echo $item | cut -d '=' -f1)
     value=$(echo $item | cut -d '=' -f2)
     variable=${key#AZHPC_VARIABLES_}
     variable=${variable,,}
-    init_variables+=",$variable=$value"
+    if [ "$init_variables" == "" ]; then
+        init_variables+="-v $variable=$value"
+    else
+        init_variables+=",$variable=$value"
+    fi
 done
 
 echo $init_variables
