@@ -22,19 +22,23 @@ trigger:
 pool: Default
 
 variables:
+  - group: azhpc_build_common
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/anf_full/config.json
+  - name: azhpc.config
+    value: examples/anf_full/config.json
   # pipeline directory
-  azhpc.pipeline_dir: examples/anf_full
+  - name: azhpc.pipeline_dir
+    value: examples/anf_full
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@headnode:.'
 
 # Add the variables needed in your configuration file
-# Uncomment and set values below, or leave commented and thru pipeline variables
-  # azhpc.variables.location: eastus
-  azhpc.variables.anf_mount: /netapps
-  azhpc.variables.compute_instances: 4
+# Set values below or thru pipeline variables
+  - name: azhpc.variables.anf_mount
+    value: /netapps
+  - name: azhpc.variables.compute_instances
+    value: 4
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 jobs:

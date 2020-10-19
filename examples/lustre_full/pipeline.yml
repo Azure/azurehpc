@@ -29,26 +29,29 @@ trigger:
 pool: Default
 
 variables:
+  - group: azhpc_build_common
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/lustre_full/config.json
+  - name: azhpc.config
+    value: examples/lustre_full/config.json
   # pipeline directory
-  azhpc.pipeline_dir: examples/lustre_full
+  - name: azhpc.pipeline_dir
+    value: examples/lustre_full
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@headnode:.'
 
 # Add the variables needed in your configuration file
-# Uncomment and set values below, or leave commented and thru pipeline variables
-  # azhpc.variables.location: westeurope
-  azhpc.variables.compute_instances: 2
-  azhpc.variables.low_priority: true
-  azhpc.variables.oss_instances: 2
-  # azhpc.variables.la_name: analytics_workspace_name
-  # azhpc.variables.la_resourcegroup: analytics_resource_group
-  azhpc.variables.log_analytics_lfs_name: lfs
-  azhpc.variables.lustre_mount: /lustre
-  # azhpc.variables.storage_account: account
-  # azhpc.variables.storage_container: container
+# Set values below or thru pipeline variables
+  - name: azhpc.variables.compute_instances
+    value: 2
+  - name: azhpc.variables.low_priority
+    value: true
+  - name: azhpc.variables.oss_instances
+    value: 2
+  - name: azhpc.variables.log_analytics_lfs_name
+    value: lfs
+  - name: azhpc.variables.lustre_mount
+    value: /lustre
   
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

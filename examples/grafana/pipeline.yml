@@ -23,19 +23,22 @@ trigger:
 pool: Default
 
 variables:
+  - group: azhpc_build_common
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
-  azhpc.config: examples/grafana/config.json
+  - name: azhpc.config
+    value: examples/grafana/config.json
   # pipeline directory
-  azhpc.pipeline_dir: examples/grafana
+  - name: azhpc.pipeline_dir
+    value: examples/grafana
   # destination of scripts. Default is hpcuser@headnode:/apps
-  azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
+  - name: azhpc.script_remote_dest
+    value: 'hpcadmin@jumpbox:.'
 
 # Add the variables needed in your configuration file
-# Uncomment and set values below, or leave commented and thru pipeline variables
-  # azhpc.variables.location: westeurope
-  # azhpc.variables.vm_type: Standard_D8s_v3
-  # azhpc.variables.key_vault: mykeyVault
+# Set values below or thru pipeline variables
+  # - name: azhpc.variables.variable_name
+  #   value: variable_value
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
