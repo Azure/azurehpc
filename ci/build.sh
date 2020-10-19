@@ -27,9 +27,7 @@ echo "********************************************************************"
 echo "*                  INIT CONFIG VARIABLES                           *"
 echo "********************************************************************"
 # AZHPC_UUID is set when creating the RG unique name when starting the pipeline
-#export AZHPC_VARIABLES_UUID=${AZHPC_UUID-azhpc}
 azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
-#init_variables="-v resource_group=$AZHPC_RESOURCEGROUP"
 for item in $azhpc_variables; do
     key=$(echo $item | cut -d '=' -f1)
     value=$(echo $item | cut -d '=' -f2)

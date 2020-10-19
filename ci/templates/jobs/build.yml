@@ -25,9 +25,6 @@ jobs:
     matrix: $[ dependencies.InitMatrix.outputs['mtrx.azhpc_matrix'] ]
 
   steps:
-  # from https://medium.com/microsoftazure/how-to-pass-variables-in-azure-pipelines-yaml-tasks-5c81c5d31763
-  # To pass the variable FOO, write it to a file
-  # While the file name doesn't matter, naming it like the variable and putting it inside the $(Pipeline.Workspace)/variables folder could be a good pattern
   - task: Bash@3
     displayName: 'Create Resource Group Name'
     inputs:
@@ -39,8 +36,7 @@ jobs:
           # Create pipeline variable
           echo "##vso[task.setvariable variable=azhpc.variables.resource_group]$ResourceGroup"
           echo "##vso[task.setvariable variable=azhpc.variables.uuid]$UUID_STR"
-          #mkdir -p $(Pipeline.Workspace)/$(System.JobName)
-          #echo "$ResourceGroup" > $(Pipeline.Workspace)/$(System.JobName)/azhpc.ResourceGroup
+
 
   - ${{ if not(eq(parameters.pre_steps,'')) }}:
     - template: ${{parameters.pre_steps}}
@@ -79,8 +75,6 @@ jobs:
           . install.sh
           pushd $PROJECT_DIR
           azhpc-destroy -c $config_file $AZHPC_OPTION --force --no-wait
-          #echo "removing resource group $AZHPC_RESOURCEGROUP"
-          #az group delete -n $AZHPC_RESOURCEGROUP -y --no-wait
         fi
 
         # clean up project dir
