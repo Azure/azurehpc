@@ -19,17 +19,18 @@ if [ "$AZHPC_VARIABLES_LOCATION" = "" ]; then
     echo "variable AZHPC_VARIABLES_LOCATION is required"
     exit 1
 fi
-if [ "$AZHPC_RESOURCEGROUP" = "" ]; then
-    echo "variable AZHPC_RESOURCEGROUP is required"
+if [ "$AZHPC_VARIABLES_RESOURCEGROUP" = "" ]; then
+    echo "variable AZHPC_VARIABLES_RESOURCEGROUP is required"
     exit 1
 fi
 echo "********************************************************************"
 echo "*                  INIT CONFIG VARIABLES                           *"
 echo "********************************************************************"
 # AZHPC_UUID is set when creating the RG unique name when starting the pipeline
-export AZHPC_VARIABLES_UUID=${AZHPC_UUID-azhpc}
+#export AZHPC_VARIABLES_UUID=${AZHPC_UUID-azhpc}
 azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
-init_variables="-v resource_group=$AZHPC_RESOURCEGROUP"
+#init_variables="-v resource_group=$AZHPC_RESOURCEGROUP"
+init_variables="-v "
 for item in $azhpc_variables; do
     key=$(echo $item | cut -d '=' -f1)
     value=$(echo $item | cut -d '=' -f2)

@@ -37,10 +37,10 @@ jobs:
           ResourceGroup="azhpc-$UUID_STR"
           echo "Resource Group name is $ResourceGroup"
           # Create pipeline variable
-          echo "##vso[task.setvariable variable=azhpc.ResourceGroup]$ResourceGroup"
-          echo "##vso[task.setvariable variable=azhpc.uuid]$UUID_STR"
-          mkdir -p $(Pipeline.Workspace)/$(System.JobName)
-          echo "$ResourceGroup" > $(Pipeline.Workspace)/$(System.JobName)/azhpc.ResourceGroup
+          echo "##vso[task.setvariable variable=azhpc.variables.resource_group]$ResourceGroup"
+          echo "##vso[task.setvariable variable=azhpc.variables.uuid]$UUID_STR"
+          #mkdir -p $(Pipeline.Workspace)/$(System.JobName)
+          #echo "$ResourceGroup" > $(Pipeline.Workspace)/$(System.JobName)/azhpc.ResourceGroup
 
   - ${{ if not(eq(parameters.pre_steps,'')) }}:
     - template: ${{parameters.pre_steps}}
@@ -53,7 +53,6 @@ jobs:
       scriptType: 'bash'
       scriptLocation: 'scriptPath'
       scriptPath: './ci/build.sh' 
-      #$(Pipeline.Workspace)/$(System.JobName)
       scriptArguments: 
       useGlobalConfig: true
       failOnStandardError: false
@@ -71,14 +70,19 @@ jobs:
       scriptType: 'bash'
       inlineScript: |
         # don't delete if in debug mode
-        if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
-          echo "removing resource group $AZHPC_RESOURCEGROUP"
-          az group delete -n $AZHPC_RESOURCEGROUP -y --no-wait
-        fi
         conf_dir=$(dirname $AZHPC_CONFIG)
         if [ "$PROJECT_DIR" = "" ]; then
             PROJECT_DIR=${conf_dir##*/}
         fi
+        if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
+          config_file=$(basename $AZHPC_CONFIG)
+          . install.sh
+          pushd $PROJECT_DIR
+          azhpc-destroy -c $config_file $AZHPC_OPTION --force --no-wait
+          #echo "removing resource group $AZHPC_RESOURCEGROUP"
+          #az group delete -n $AZHPC_RESOURCEGROUP -y --no-wait
+        fi
+
         # clean up project dir
         if [ -d $PROJECT_DIR ]; then
             ls -al $PROJECT_DIR
