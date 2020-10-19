@@ -19,8 +19,8 @@ if [ "$AZHPC_VARIABLES_LOCATION" = "" ]; then
     echo "variable AZHPC_VARIABLES_LOCATION is required"
     exit 1
 fi
-if [ "$AZHPC_VARIABLES_RESOURCEGROUP" = "" ]; then
-    echo "variable AZHPC_VARIABLES_RESOURCEGROUP is required"
+if [ "$AZHPC_VARIABLES_RESOURCE_GROUP" = "" ]; then
+    echo "variable AZHPC_VARIABLES_RESOURCE_GROUP is required"
     exit 1
 fi
 echo "********************************************************************"
