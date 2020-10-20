@@ -1,0 +1,85 @@
+parameters:
+  pre_steps: ''
+  extra_steps: ''
+  timeout: 180
+  build_timeout: 60
+
+jobs:
+- job: Init # Empty job which will automatically do a clone of the repo
+  # steps:
+  # - task: Bash@3
+  #   name: mtrx
+  #   displayName: 'Read Matrix'
+  #   inputs:
+  #     targetType: 'inline'
+  #     script: |
+  #         azhpc_matrix=$(jq -c '.' $BUILD_REPOSITORY_LOCALPATH/$AZHPC_VARIABLES_MATRIX)
+  #         echo "matrix=$azhpc_matrix"
+  #         echo "##vso[task.setvariable variable=azhpc_matrix;isOutput=true]$azhpc_matrix"
+            
+- deployment: DeployResources
+  timeoutInMinutes: ${{ parameters.timeout }}
+  cancelTimeoutInMinutes: 2
+  environment: azhpc
+  dependsOn: Init
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - task: Bash@3
+          displayName: 'Create Resource Group Name'
+          inputs:
+            targetType: 'inline'
+            script: |
+                UUID_STR="$(cat /proc/sys/kernel/random/uuid | tr -d '\n-' | tr '[:upper:]' '[:lower:]' | cut -c 1-6)"
+                ResourceGroup="azhpc-$UUID_STR"
+                echo "Resource Group name is $ResourceGroup"
+                # Create pipeline variable
+                echo "##vso[task.setvariable variable=azhpc.variables.resource_group]$ResourceGroup"
+                echo "##vso[task.setvariable variable=azhpc.variables.uuid]$UUID_STR"
+
+        - ${{ if not(eq(parameters.pre_steps,'')) }}:
+          - template: ${{parameters.pre_steps}}
+
+        - task: AzureCLI@2
+          displayName: "Build Resources"
+          timeoutInMinutes: ${{ parameters.build_timeout }}
+          inputs:
+            azureSubscription: 'target-subscription'
+            scriptType: 'bash'
+            scriptLocation: 'scriptPath'
+            scriptPath: './ci/build.sh' 
+            scriptArguments: 
+            useGlobalConfig: true
+            failOnStandardError: false
+          continueOnError: false
+
+        - ${{ if not(eq(parameters.extra_steps,'')) }}:
+          - template: ${{parameters.extra_steps}}
+
+        - task: AzureCLI@2
+          condition: always()
+          displayName: 'Remove Resource Group'
+          inputs:
+            azureSubscription: 'target-subscription'
+            scriptLocation: inlineScript
+            scriptType: 'bash'
+            inlineScript: |
+              # don't delete if in debug mode
+              conf_dir=$(dirname $AZHPC_CONFIG)
+              if [ "$PROJECT_DIR" = "" ]; then
+                  PROJECT_DIR=${conf_dir##*/}
+              fi
+              if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
+                config_file=$(basename $AZHPC_CONFIG)
+                . install.sh
+                pushd $PROJECT_DIR
+                azhpc-destroy -c $config_file $AZHPC_OPTION --force --no-wait
+              fi
+
+              # clean up project dir
+              if [ -d $PROJECT_DIR ]; then
+                  ls -al $PROJECT_DIR
+                  rm -rf $PROJECT_DIR 
+              fi
+
