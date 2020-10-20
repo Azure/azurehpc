@@ -5,7 +5,7 @@ parameters:
   build_timeout: 60
 
 jobs:
-- job: Init
+- job: Init # Empty job which will automatically do a clone of the repo
   # steps:
   # - task: Bash@3
   #   name: mtrx
