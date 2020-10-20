@@ -8,7 +8,7 @@ jobs:
 - deployment: DeployResources
   timeoutInMinutes: ${{ parameters.timeout }}
   cancelTimeoutInMinutes: 2
-  environment: $(azhpc.pipeline_dir)
+  environment: simple_hpc_pbs
   strategy:
     runOnce:
       deploy:
