@@ -22,8 +22,8 @@ jobs:
   cancelTimeoutInMinutes: 2
   environment: simple_hpc_pbs
   dependsOn: InitMatrix
-  workspace:
-    clean: all
+  # workspace:
+  #   clean: all
   strategy:
     runOnce:
       deploy:
