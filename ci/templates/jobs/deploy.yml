@@ -9,6 +9,8 @@ jobs:
   timeoutInMinutes: ${{ parameters.timeout }}
   cancelTimeoutInMinutes: 2
   environment: simple_hpc_pbs
+  workspace:
+    clean: all
   strategy:
     runOnce:
       deploy:
