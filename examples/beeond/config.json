@@ -33,6 +33,8 @@
             "tags": [
                 "cndefault",
                 "nfsserver",
+                "pbsserver",
+                "loginnode",
                 "localuser",
                 "disable-selinux"
             ]
@@ -45,6 +47,7 @@
             "subnet": "compute",
             "tags": [
                 "nfsclient",
+                "pbsclient",
                 "cndefault",
                 "localuser",
                 "disable-selinux",
@@ -85,6 +88,30 @@
                 "$(<hostlists/tags/nfsserver)"
             ],
             "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": true
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
             "sudo": true
         },
         {
