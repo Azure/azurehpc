@@ -11,4 +11,3 @@ az vm user update \
   --username $USER \
   --password $PASSWD
 
-sleep 120
