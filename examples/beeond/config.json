@@ -4,7 +4,7 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables": {
-        "hpc_image": "OpenLogic:CentOS-HPC:7.7:7.7.2020062600",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_HC44rs",
