@@ -63,7 +63,7 @@ else
         do
             echo "Attempt: $icnt"
             echo "parallel-ssh not found"
-            sleep 5 
+            sleep 60 
             sudo apt update
             sudo apt install -y pssh netcat >> install/00_install_node_setup.log 2>&1
             icnt=$((++icnt))
