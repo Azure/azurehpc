@@ -58,8 +58,16 @@ else
         sudo yum install -y pssh nc >> install/00_install_node_setup.log 2>&1
     elif [ "$os_release" == "ubuntu" ];then
         echo "Ubuntu" >> install/00_install_node_setup.log 2>&1
-        sudo apt update
-        sudo apt install -y pssh netcat >> install/00_install_node_setup.log 2>&1
+        icnt=0
+        while [ ! $(which parallel-ssh) ] && [ "$icnt" -lt "5" ]
+        do
+            echo "Attempt: $icnt"
+            echo "parallel-ssh not found"
+            sleep 5 
+            sudo apt update
+            sudo apt install -y pssh netcat >> install/00_install_node_setup.log 2>&1
+            icnt=$((++icnt))
+        done
         pssh_cmd=parallel-ssh
         prsync_cmd=parallel-rsync
     else
