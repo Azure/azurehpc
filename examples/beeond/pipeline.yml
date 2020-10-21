@@ -34,6 +34,9 @@ variables:
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@jumpbox:.'
 
+  - name: azhpc.variables_matrix
+    value: examples/beeond/test_matrix.json
+
 # Add the variables needed in your configuration file
 # Set values below or thru pipeline variables
   # - name: azhpc.variables.variable_name

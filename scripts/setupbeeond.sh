@@ -11,7 +11,7 @@ sudo yum install -y psmisc libbeegfs-ib beeond pdsh
 
 sudo sed -i 's/^buildArgs=-j8/buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1 OFED_INCLUDE_PATH=\/usr\/src\/ofa_kernel\/default\/include/g' /etc/beegfs/beegfs-client-autobuild.conf
 
-sudo /etc/init.d/beegfs-client rebuild
+sudo /etc/init.d/beegfs-client rebuild || exit 1
 
 sudo cp -r $HOME/.ssh /root/.
 

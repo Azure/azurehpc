@@ -1,0 +1,14 @@
+{
+    "HC44rs":
+    {
+        "azhpc.variables.vm_type": "Standard_HC44rs"
+    },
+    "HB60rs":
+    {
+        "azhpc.variables.vm_type": "Standard_HB60rs"
+    },
+    "HB120rs_v2":
+    {
+        "azhpc.variables.vm_type": "Standard_HB120rs_v2"
+    }
+}
