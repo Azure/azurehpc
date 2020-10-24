@@ -24,12 +24,16 @@ if [ "$os_release" == "centos" ] && [ "$os_maj_ver" == "7" ];then
     if [ ! -f "$filename" ];then
         wget -q https://github.com/PBSPro/pbspro/releases/download/v19.1.1/${filename}.zip
         unzip ${filename}.zip
-        mv $filename openpbs
+        if [ ! -f openpbs/$filename ]; then
+            mv $filename openpbs
+        fi
     fi
 else
     if [ ! -f "$filename" ];then
         wget -q http://wpc.23a7.iotacdn.net/8023A7/origin2/rl/OpenPBS/${filename}.zip
         unzip ${filename}.zip
-        mv $filename openpbs
+        if [ ! -f openpbs/$filename ]; then
+            mv $filename openpbs
+        fi
     fi
 fi
