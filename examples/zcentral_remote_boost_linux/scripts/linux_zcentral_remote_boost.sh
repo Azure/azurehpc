@@ -14,7 +14,7 @@ function install_zcentral_sender() {
    tar xvf $SENDER_TAR_GZ
    cd ${LINUX_VERSION}/sender
    chmod 777 ./install.sh
-   ./install.sh -acceptLicense -noflex
+   ./install.sh -agreeToLicense -noLicenseConfig
 }
 
 get_sas_url_filename $ZCENTRAL_SENDER_SAS_URL SENDER_TAR_GZ
