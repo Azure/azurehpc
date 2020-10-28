@@ -53,7 +53,7 @@
         },
         {
             "script": "wait.sh",
-            "args": ["30"],
+            "args": ["60"],
             "tag": "sleep"
         },
         {
