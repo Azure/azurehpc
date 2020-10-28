@@ -5,7 +5,7 @@
     "admin_user": "hpcadmin",
     "variables": {
         "image": "OpenLogic:CentOS:7.7:latest",
-        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7.7:7.7.2020062600",
         "compute_instances": 4,
         "vm_type": "Standard_HB60rs",
         "storage_instances": 4,
