@@ -31,7 +31,9 @@ Allow ~10 minutes for deployment.
 
 # Remote Visualization on Linux VM
 
-Download and install ZCentral REmote Boost receiver on local WS. Connect to ZCEntral Remote boost sender using its public IP address.
+Download and install ZCentral Remote Boost receiver on local WS. Connect to ZCentral Remote boost sender using its public IP address.
+
+>NOTE: You need to go to the receiver settings and disable HP Velocity (in the Performance section).
 
 ![Alt text1](/examples/zcentral_remote_boost_linux/images/zcentral_receiver.JPG?raw=true "zcentral receiver")
 
