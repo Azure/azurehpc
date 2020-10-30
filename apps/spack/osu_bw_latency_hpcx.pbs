@@ -2,17 +2,17 @@
 
 SHARED_APPS=/apps
 
-export OMP_NUM_THREADS=1
+module use /apps/modulefiles
+module load spack/spack
+source $SPACK_SETUP_ENV
 
-module load gcc-9.2.0
-module load mpi/hpcx-v2.5.0
+module load mpi/hpcx
 spack load osu-micro-benchmarks^hpcx
 
 cat $PBS_NODEFILE
 
 cd $PBS_O_WORKDIR
-sed -e 's/$/ slots=1/' $PBS_NODEFILE > hpcx_hostfile
 
-mpirun -x PATH --hostfile hpcx_hostfile --map-by core --report-bindings --mca pml ucx osu_bw
+mpirun -x PATH --hostfile $PBS_NODEFILE --map-by ppr:1:node --bind-to core --report-bindings osu_bw
 sleep 2
-mpirun -x PATH --hostfile hpcx_hostfile --map-by core --report-bindings --mca pml ucx osu_latency
+mpirun -x PATH --hostfile $PBS_NODEFILE --map-by ppr:1:node --bind-to core --report-bindings osu_latency
