@@ -2,15 +2,15 @@
 packages:
   openmpi:
     modules:
-       openmpi@4.0.3%gcc@9.2.0: mpi/openmpi-4.0.3
+       openmpi@4.0.4%gcc@9.2.0: mpi/openmpi
     buildable: False
   mvapich2:
     modules:
-       mvapich2@2.3.3%gcc@9.2.0: mpi/mvapich2-2.3.3
+       mvapich2@2.3.4%gcc@9.2.0: mpi/mvapich2
     buildable: False
   hpcx:
     modules:
-       hpcx@2.6.0%gcc@9.2.0: mpi/hpcx-v2.6.0
+       hpcx@2.7.0%gcc@9.2.0: mpi/hpcx
     buildable: False
   intel-mpi:
     paths:
