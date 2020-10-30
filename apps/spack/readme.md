@@ -31,20 +31,19 @@ Example, building and installing osu-micro-benchmarks using different MPI librar
 
 Using mvapich2
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^mvapich2@2.3.3
+spack install osu-micro-benchmarks^mvapich2
 ```
 Using openmpi
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^openmpi@4.0.3
+spack install osu-micro-benchmarks^openmpi
 ```
 Using hpcx
 ```
-spack install osu-micro-benchmarks%gcc@9.2.0^hpcx@2.6.0
+spack install osu-micro-benchmarks^hpcx
 ```
 Using intel mpi 
 ```
-source /opt/intel/compilers_and_libraries_2020.1.217/linux/mpi/intel64/bin/mpivars.sh
-spack install --dirty osu-micro-benchmarks%gcc@9.2.0^intel-mpi@2020.1.217
+spack install osu-micro-benchmarks^intel-mpi
 ```
 
 Some example PBS scripts have been provided to show how run the osu-micro-benchmarks.
