@@ -2,14 +2,18 @@
 
 SHARED_APPS=/apps
 
-module load gcc-9.2.0
-module load mpi/impi-2019.5.281
+module use /apps/modulefiles
+module load spack/spack
+source $SPACK_SETUP_ENV
+
 spack load osu-micro-benchmarks^intel-mpi
 
-export OMP_NUM_THREADS=1
+export I_MPI_PIN_DOMAIN=core
 export I_MPI_DEBUG=5
 
 cat $PBS_NODEFILE
+
+cd $PBS_O_WORKDIR
 
 mpirun osu_bw
 sleep 2
