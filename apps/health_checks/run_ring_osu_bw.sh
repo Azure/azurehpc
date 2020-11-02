@@ -5,8 +5,8 @@
 # second parameter : full path to osu_bw executable
 # third parameter : full path to output directory
 #
-module load gcc-8.2.0
-module load mpi/mvapich2-2.3.1
+module load gcc-9.2.0
+module load mpi/mvapich2
 #
 hostlist=$1
 EXEPATH=$2
