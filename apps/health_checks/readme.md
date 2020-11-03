@@ -66,4 +66,4 @@ Minimum latency: 1.429 usec     hbv2vmss00000z, hbv2vmss00000v
 Maximum latency: 1.915 usec     hbv2vmss000002, hbv2vmss00000a
 Average latency: 1.743 usec
 ```
->Note: You can run the clustrekit.sh or clusterkit scripts directly to give you more control, pass "-h" to see all options.
+>Note: You can run the clustrekit.sh or clusterkit scripts directly to give you more control, pass "-h" to see all options. You can also customize your heathcheck report by using the analysis.py script (-h to see all options).
