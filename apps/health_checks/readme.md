@@ -6,9 +6,11 @@ Detailed documentation on how to run these health checks on HBV2, HB and HC can 
 
 ### Alternative Stream test
 To run stream tests on HB/HC:
+```
 azhpc-scp -r $azhpc_dir/apps hpcadmin@headnode:
 azhpc-run -n headnode apps/health_checks/install_stream_test.sh
 azhpc-run -n compute /data/node_utils/Stream/stream_test.sh
+```
 
 ### Mellanox clusterkit tests
 Mellanox OFED contains clusterkit (Node and IB healthcheck), its included on CentOS-HPC marketplace images.
