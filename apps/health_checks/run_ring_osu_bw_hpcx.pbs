@@ -11,6 +11,6 @@ module load mpi/hpcx
 
 src=$(tail -n1 $PBS_NODEFILE)
 dst=$(head -n1 $PBS_NODEFILE)
-mpirun -np 2 --host $src,$dst --map-by node $HPCX_OSU_DIR/osu_latency | tee ${src}_to_${dst}_osu_latency.log
-mpirun -np 2 --host $src,$dst --map-by node $HPCX_OSU_DIR/osu_bw | tee ${src}_to_${dst}_osu_bw.log
-mpirun -np 2 --host $src,$dst --map-by node $HPCX_OSU_DIR/osu_bibw | tee ${src}_to_${dst}_osu_bibw.log
+mpirun -np 2 --host $src,$dst --map-by node -x LD_LIBRARY_PATH $HPCX_OSU_DIR/osu_latency | tee ${src}_to_${dst}_osu_latency.log
+mpirun -np 2 --host $src,$dst --map-by node -x LD_LIBRARY_PATH $HPCX_OSU_DIR/osu_bw | tee ${src}_to_${dst}_osu_bw.log
+mpirun -np 2 --host $src,$dst --map-by node -x LD_LIBRARY_PATH $HPCX_OSU_DIR/osu_bibw | tee ${src}_to_${dst}_osu_bibw.log
