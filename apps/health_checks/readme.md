@@ -23,7 +23,7 @@ which clusterkit.sh
 ```
 
 To run the clusterkit healthcheck tests.
-
+>Note: Execute clusterkit scripts on a compute node (HBv2, HB or HC)
 ```
 run_clusterkit.sh /path/to/hostlist
 ```
