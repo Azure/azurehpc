@@ -41,6 +41,7 @@ if [ ! -d $APP_DIR ]; then
 
    cd $APP_DIR
    wget -O $MLC_TAR_GZ $MLC_TAR_GZ_SAS_URL
+   tar xvf $MLC_TAR_GZ
 
-   sudo create_modulefile
+   create_modulefile
 fi
