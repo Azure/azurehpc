@@ -12,6 +12,22 @@ azhpc-run -n headnode apps/health_checks/install_stream_test.sh
 azhpc-run -n compute /data/node_utils/Stream/stream_test.sh
 ```
 
+### Alternative Intel Memory Latency Checker (MLC) Memory bandwidth test
+Intel MLC is a free intel tool that can be used to measure a VM memory bandwidth, it runs other VM latency tests/checks,
+to see all options passed the --h arg.
+
+To install Intel MLC
+```
+./install_mlc.sh blob_sas_url_full_path_to_mlc_tar.gz
+```
+
+To run all intel MLC memory bandwidth tests
+```
+run_all_mlc_stream.sh /path/to/hostfile
+```
+>Note: You can run Intel MLC on AMD processors also. MLC required hugepages to be enabled. If you do not require
+hugepages you may need to disable them after running the MLC tests.
+
 ### Mellanox clusterkit tests
 Mellanox OFED contains clusterkit (Node and IB healthcheck), its included on CentOS-HPC marketplace images.
 
