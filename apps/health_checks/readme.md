@@ -45,6 +45,7 @@ To run the clusterkit healthcheck tests.
 ```
 run_clusterkit.sh /path/to/hostlist
 ```
+>Note: The hostlist needs to contain an even number of hosts.
 The results for the tests will be location in a directory with the following format "date_time", in the current working directory.
 
 To check the clusterkit results and generate a report.
