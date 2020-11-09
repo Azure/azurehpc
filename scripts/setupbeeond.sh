@@ -11,6 +11,9 @@ sudo yum install -y psmisc libbeegfs-ib beeond pdsh
 
 sudo sed -i 's/^buildArgs=-j8/buildArgs=-j8 BEEGFS_OPENTK_IBVERBS=1 OFED_INCLUDE_PATH=\/usr\/src\/ofa_kernel\/default\/include/g' /etc/beegfs/beegfs-client-autobuild.conf
 
+# ibverbs API changed, small patch, specify a Reason for rdma_reject: unsupported, till handled in Beegfs upstream
+sudo sed -i  's/rdma_reject(cm_id, NULL, 0)/rdma_reject(cm_id, NULL, 0, 5)/g' /opt/beegfs/src/client/client_module_7/source/common/net/sock/ibv/IBVSocket.c
+
 sudo /etc/init.d/beegfs-client rebuild || exit 1
 
 sudo cp -r $HOME/.ssh /root/.
