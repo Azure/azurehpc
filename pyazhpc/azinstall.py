@@ -407,7 +407,7 @@ def __rsync(sshkey, src, dst):
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
 
-def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
+def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
     jb = cfg.get("install_from")
     install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
@@ -417,6 +417,11 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
     for idx, step in enumerate(install_steps):
         if idx == 0 and not jb:
             continue
+
+        if idx != 0 and idx < startstep:
+            log.info("skipping step")
+            continue
+
         script = step["script"]
         scripttype = step.get("type", "jumpbox_script")
         instcmd = [ f"{tmpdir}/install/{idx:02}_{script}" ]
