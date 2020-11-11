@@ -418,15 +418,15 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
         if idx == 0 and not jb:
             continue
 
-        if idx != 0 and idx < startstep:
-            log.info("skipping step")
-            continue
-
         script = step["script"]
         scripttype = step.get("type", "jumpbox_script")
         instcmd = [ f"{tmpdir}/install/{idx:02}_{script}" ]
         log.info(f"Step {idx:02} : {script} ({scripttype})")
         starttime = time.time()
+
+        if idx != 0 and idx < startstep:
+            log.info("    skipping step")
+            continue
 
         if scripttype == "jumpbox_script":
             if jb:
