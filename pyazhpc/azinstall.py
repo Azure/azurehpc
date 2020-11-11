@@ -113,7 +113,7 @@ fi
     if sudo:
         cmdline = "sudo " + cmdline
 
-    marker = f"marker-\"'$(hostname)'\"-{targetscript[:targetscript.rfind('.')]}"
+    marker = f"marker-\"'$(hostname)'\"-{step:02}-{targetscript[:targetscript.rfind('.')]}"
 
     content += f"pssh -p {pssh_threads} -t 0 -i -h hostlists/tags/$tag \"cd {tmpdir}; test -f {marker} && echo 'script already run' || ( {cmdline} && touch {marker} ) \" >> {logfile} 2>&1\n"
 
