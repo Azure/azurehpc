@@ -702,6 +702,11 @@ def do_run_install(args):
     config = c.preprocess()
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file)[:-5]
+    log.debug(f"tmpdir = {tmpdir}")
+    if os.path.isdir(tmpdir):
+        log.debug("removing existing tmp directory")
+        shutil.rmtree(tmpdir)
+    
     adminuser = config["admin_user"]
     private_key_file = adminuser+"_id_rsa"
     public_key_file = adminuser+"_id_rsa.pub"
