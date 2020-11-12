@@ -372,18 +372,19 @@ The new version is now implemneted in Python and it will by default reuse the Py
 
 Aliases have been created to allow an easier usage as well as a backward compatibility with the bash only version :
 
-| Aliases                                   | Description                                                            |
-|-------------------------------------------|------------------------------------------------------------------------|
-| **[azhpc-build](#azhpc-build)**           | Build the resources defined in the config file                         |
-| **[azhpc-connect](#azhpc-connect)**       | This will connect to a node in a running cluster                       |
-| **[azhpc-destroy](#azhpc-destroy)**       | This will delete the resource group defined in the config file         |
-| **[azhpc-get](#azhpc-get)**               | This will return the value of a variable from the config file          |
-| **[azhpc-init](#azhpc-init)**             | Update or create variables in the config file                          |
-| **[azhpc-preprocess](#azhpc-preprocess)** | Preprocess the configuration file                                      |
-| **[azhpc-run](#azhpc-run)**               | Run a command on one of multiple resources                             |
-| **[azhpc-scp](#azhpc-scp)**               | Uses the scp to copy a file to/from the remote resource                |
-| **[azhpc-status](#azhpc-status)**         | Show the uptime for all the resources in the project                   |
-| **[azhpc-watch](#azhpc-watch)**           | This shows the provisioning state of all the resources in the project  |
+| Aliases                                     | Description                                                            |
+|---------------------------------------------|------------------------------------------------------------------------|
+| **[azhpc-build](#azhpc-build)**             | Build the resources defined in the config file                         |
+| **[azhpc-connect](#azhpc-connect)**         | This will connect to a node in a running cluster                       |
+| **[azhpc-destroy](#azhpc-destroy)**         | This will delete the resource group defined in the config file         |
+| **[azhpc-run_install](#azhpc-run_install)** | Just run the install and assume the resource are already there         |
+| **[azhpc-get](#azhpc-get)**                 | This will return the value of a variable from the config file          |
+| **[azhpc-init](#azhpc-init)**               | Update or create variables in the config file                          |
+| **[azhpc-preprocess](#azhpc-preprocess)**   | Preprocess the configuration file                                      |
+| **[azhpc-run](#azhpc-run)**                 | Run a command on one of multiple resources                             |
+| **[azhpc-scp](#azhpc-scp)**                 | Uses the scp to copy a file to/from the remote resource                |
+| **[azhpc-status](#azhpc-status)**           | Show the uptime for all the resources in the project                   |
+| **[azhpc-watch](#azhpc-watch)**             | This shows the provisioning state of all the resources in the project  |
 
 ### azhpc-build
 
@@ -444,6 +445,20 @@ optional arguments:
   --no-color            turn off color in output
   --force               delete resource group immediately
   --no-wait             do not wait for resources to be deleted
+```
+
+### azhpc-run_install
+
+Just run the install and assume the resources are already there.
+
+```
+optional arguments:
+  -h, --help            show this help message and exit
+  --config-file CONFIG_FILE, -c CONFIG_FILE
+                        config file
+  --debug               increase output verbosity
+  --no-color            turn off color in output
+  --step STEP           the install step to start running
 ```
 
 ### azhpc-get

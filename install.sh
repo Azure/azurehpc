@@ -12,7 +12,7 @@ if [ -e /etc/centos-release ]; then
     export AZHPC_PYTHONPATH=/usr/lib64/az/lib/python3.6/site-packages
 fi
 
-for cmd in "" build connect destroy get init preprocess run scp status; do
+for cmd in "" build connect destroy run_install get init preprocess run scp status; do
     if [ "$cmd" = "" ]; then
         cmd_name=azhpc
         cmd_launch=azhpc.py

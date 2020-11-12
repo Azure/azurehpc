@@ -696,6 +696,33 @@ def do_build(args):
             log.info("creating cyclecloud clusters")
             azinstall.generate_cc_clusters(config, f"{tmpdir}/clusters")
 
+def do_run_install(args):
+    c = azconfig.ConfigFile()
+    c.open(args.config_file)
+    config = c.preprocess()
+
+    tmpdir = "azhpc_install_" + os.path.basename(args.config_file)[:-5]
+    log.debug(f"tmpdir = {tmpdir}")
+    if os.path.isdir(tmpdir):
+        log.debug("removing existing tmp directory")
+        shutil.rmtree(tmpdir)
+    
+    adminuser = config["admin_user"]
+    private_key_file = adminuser+"_id_rsa"
+    public_key_file = adminuser+"_id_rsa.pub"
+
+    start_step = args.step
+
+    log.info("building host lists")
+    azinstall.generate_hostlists(config, tmpdir)
+    log.info("building install scripts")
+    azinstall.generate_install(config, tmpdir, adminuser, private_key_file, public_key_file)
+
+    resource_group = c.read_value("resource_group")
+    fqdn = c.get_install_from_destination()
+    log.debug(f"running script from : {fqdn}")
+    azinstall.run(config, tmpdir, adminuser, private_key_file, public_key_file, fqdn, start_step)
+
 def do_destroy(args):
     log.info("reading config file ({})".format(args.config_file))
     config = azconfig.ConfigFile()
@@ -791,6 +818,21 @@ if __name__ == "__main__":
         action="store_true",
         default=False,
         help="do not wait for resources to be deleted"
+    )
+
+    resume_install_parser = subparsers.add_parser(
+        "run_install",
+        parents=[gopt_parser],
+        add_help=False,
+        description="just run the install and assume the resources are already there",
+        help="just run the install and assume the resources are already there"
+    )
+    resume_install_parser.set_defaults(func=do_run_install)
+    resume_install_parser.add_argument(
+        "--step",
+        type=int,
+        help="the install step to start running",
+        default=0
     )
 
     get_parser = subparsers.add_parser(
