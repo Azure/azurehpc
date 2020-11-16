@@ -7,7 +7,7 @@ hostlist=`cat $PBS_NODEFILE | sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\
 DATA_DIR=${DATA_DIR:-/data}
 MODEL=${MODEL:-e1}
 SHARED_APPS=/apps
-export mpi_options="-env IMPI_FABRICS=shm:ofa -env I_MPI_FALLBACK_DEVICE=0"
+export mpi_options="-env I_MPI_FABRICS=shm:ofa -env I_MPI_FALLBACK_DEVICE=0"
 
 #define hosts in abaqus_v6.env file
 # mp_file_system=(LOCAL,LOCAL)
