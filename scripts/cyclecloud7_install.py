@@ -298,6 +298,9 @@ def start_cc():
     
     _catch_sys_error([cs_cmd, "start"])
 
+    # Add 30s wait for cycle to start
+    _catch_sys_error([sleep, "30"])
+
     # Retry await_startup in case it takes much longer than expected 
     # (this is common in local testing with limited compute resources)
     max_tries = 3
@@ -309,6 +312,8 @@ def start_cc():
             started = True
         except:
             if max_tries >  0:
+                # Wait 30s seconds before retrying
+                _catch_sys_error([sleep, "30"])
                 print "Retrying..."
             else:
                 raise 
@@ -446,11 +451,6 @@ def main():
                         action="store_true",
                         help="Use the first assigned Managed Identity rather than a Service Principle for the default account")
 
-    parser.add_argument("--dryrun",
-                        dest="dryrun",
-                        action="store_true",
-                        help="Allow local testing outside Azure Docker")
-
     parser.add_argument("--password",
                         dest="password",
                         help="The password for the CycleCloud UI user")
@@ -481,13 +481,7 @@ def main():
 
     install_cc_cli()
 
-    if not args.dryrun:
-        vm_metadata = get_vm_metadata()
-    else:
-        vm_metadata = {"compute": {
-            "subscriptionId": "1234-50-679890",
-            "location": "dryrun",
-            "resourceGroupName": "dryrun-rg"}}
+    vm_metadata = get_vm_metadata()
 
     if args.resourceGroup:
         print("CycleCloud created in resource group: %s" % vm_metadata["compute"]["resourceGroupName"])
