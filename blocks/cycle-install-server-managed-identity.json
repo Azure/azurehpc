@@ -32,7 +32,7 @@
       "vm_type": "variables.cc_vm_type",
       "accelerated_networking": true,
       "public_ip": true,
-      "nsg_allow": ["ssh", "cyclecloud"],
+      "nsg_allow": ["ssh", "https"],
       "image": "variables.image",
       "subnet": "admin",
       "managed_identity": {
