@@ -22,6 +22,8 @@ trigger:
       - blocks/jumpbox-nfs.json.json
       - blocks/vnet.json
       - scripts/cc_install_managed_identity.sh
+      - scripts/cyclecloud8_install.py
+      - scripts/cyclecloud7_install.py
     exclude:
       - examples/cycleserver_msi/readme.md
 
