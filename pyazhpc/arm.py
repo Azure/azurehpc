@@ -601,6 +601,19 @@ class ArmTemplate:
                             "direction": "Inbound"
                         }
                     },
+                    "cyclecloud":  {
+                        "name": "default-allow-zcentral",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1050,
+                            "direction": "Inbound"
+                        }
+                    }
                     "zcentral":  {
                         "name": "default-allow-zcentral",
                         "properties": {
@@ -610,7 +623,7 @@ class ArmTemplate:
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 1050,
+                            "priority": 1060,
                             "direction": "Inbound"
                         }
                     }
