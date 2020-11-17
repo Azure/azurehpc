@@ -613,7 +613,7 @@ class ArmTemplate:
                             "priority": 1050,
                             "direction": "Inbound"
                         }
-                    }
+                    },
                     "zcentral":  {
                         "name": "default-allow-zcentral",
                         "properties": {
