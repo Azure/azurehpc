@@ -42,7 +42,8 @@ case "$AZHPC_AZURE_ENVIRONMENT" in
 esac
 
 echo "Setup cyclecloud_install.py for $fqdn"
-$PYTHON cyclecloud${cc_version}_install.py \
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+$PYTHON $DIR\cyclecloud${cc_version}_install.py \
     --useManagedIdentity \
     --username $admin_user \
     --hostname $fqdn \
