@@ -43,7 +43,7 @@ esac
 
 echo "Setup cyclecloud_install.py for $fqdn"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-$PYTHON $DIR\cyclecloud${cc_version}_install.py \
+$PYTHON $DIR/cyclecloud${cc_version}_install.py \
     --useManagedIdentity \
     --username $admin_user \
     --hostname $fqdn \
