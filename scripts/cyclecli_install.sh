@@ -9,7 +9,7 @@ install_cli7()
 {
     echo "Installing CC CLI 7"
     echo "Getting CLI binaries..."
-    wget -q --no-check-certificate https://$fqdn:8443/download/tools/cyclecloud-cli.zip
+    wget -q --no-check-certificate https://$fqdn/download/tools/cyclecloud-cli.zip
     unzip -o cyclecloud-cli.zip
     pushd cyclecloud-cli-installer/
 
@@ -36,7 +36,7 @@ install_cli8()
 {
     echo "Installing CC CLI 8"
     echo "Getting CLI binaries..."
-    wget -q --no-check-certificate https://$fqdn:8443/static/tools/cyclecloud-cli.zip 
+    wget -q --no-check-certificate https://$fqdn/static/tools/cyclecloud-cli.zip 
     unzip -o cyclecloud-cli.zip
     pushd cyclecloud-cli-installer/
 
@@ -57,7 +57,7 @@ install_cli8()
     echo $name
     ~/bin/cyclecloud initialize --force --batch \
         --name $name \
-        --url=https://$fqdn:8443 \
+        --url=https://$fqdn \
         --verify-ssl=false \
         --username=$admin_user \
         --password="${password}"
