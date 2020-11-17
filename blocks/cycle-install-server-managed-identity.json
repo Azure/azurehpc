@@ -65,7 +65,8 @@
         "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}",
         "variables.projectstore",
         "variables.cc_version"
-      ]
+      ],
+      "deps": ["cyclecloud8_install.py", "cyclecloud7_install.py"]
     }
   ]
 }
