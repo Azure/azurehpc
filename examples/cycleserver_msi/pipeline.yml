@@ -23,7 +23,6 @@ trigger:
       - blocks/vnet.json
       - scripts/cc_install_managed_identity.sh
       - scripts/cyclecloud8_install.py
-      - scripts/cyclecloud7_install.py
     exclude:
       - examples/cycleserver_msi/readme.md
 
@@ -42,8 +41,8 @@ variables:
   - name: azhpc.script_remote_dest
     value: 'hpcadmin@jumpbox:.'
 
-  - name: azhpc.variables_matrix
-    value: examples/cycleserver_msi/test_matrix.json
+  # - name: azhpc.variables_matrix
+  #   value: examples/cycleserver_msi/test_matrix.json
 # Add the variables needed in your configuration file
 # Set values below or thru pipeline variables
   # - name: azhpc.variables.variable_name

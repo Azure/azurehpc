@@ -11,10 +11,10 @@
     "key_vault": "<NOT-SET>",
     "projectstore": "<NOT-SET>",
     "admin_user": "hpcadmin",
-    "image": "OpenLogic:CentOS:7.7:latest",
+    "image": "azurecyclecloud:azure-cyclecloud:cyclecloud-81:8.1.0",
     "cc_vm_type": "Standard_D8s_v3",
     "cc_password_secret_name": "CycleAdminPassword",
-    "cc_version": "7"
+    "cc_version": "8"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",
@@ -39,6 +39,7 @@
         "role": "contributor",
         "scope": "resource_group"
       },
+      "data_disks": [ 0 ],
       "tags": [
         "cycle"
       ]
