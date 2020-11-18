@@ -3,7 +3,7 @@ fqdn=$1
 admin_user=$2
 password=$3
 projectstore=$4
-cc_version=${5-7}
+cc_version=${5-8}
 
 case "$cc_version" in
     7)
