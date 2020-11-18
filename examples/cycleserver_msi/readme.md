@@ -1,7 +1,8 @@
 # Building the infrastructure
 ![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/cycleserver_msi?branchName=master)
 
-Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER by using building blocks.
+Here we will explain how to deploy a full system with a VNET, JUMPBOX, CYCLESERVER 8 by using building blocks.
+CycleCloud will be deployed using the azure marketplace image. 
 
 ## Step 1 - install azhpc
 after cloning azhpc, source the install.sh script
@@ -29,7 +30,6 @@ $ cp $azhpc_dir/examples/cycleserver_msi/variables.json .
 ```
 
 Edit the variables.json to match your environment. Give a unique value to `uuid`. An existing keyvault can be referenced if needed.
-Choose the CycleCloud version to be installed (7 or 8)
 
 ```json
 {
@@ -38,8 +38,7 @@ Choose the CycleCloud version to be installed (7 or 8)
     "location": "my location",
     "key_vault": "kv{{variables.uuid}}",
     "uuid": "unique value",
-    "projectstore": "locker{{variables.uuid}}",
-    "cc_version": "7"
+    "projectstore": "locker{{variables.uuid}}"
   }
 }
 ```
