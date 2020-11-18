@@ -59,8 +59,7 @@ case $MPI in
         module use /usr/share/Modules/modulefiles
         module load mpi/hpcx
 
-        mpi_options=" --map-by core"
-        mpi_options+=" -bind-to core"
+        mpi_options=" -bind-to core"
         [[ "$ISPBS" = true ]] && mpi_options+=" -npernode 1 -np 2"
         host_option="-host"
 
