@@ -67,7 +67,7 @@
         "variables.projectstore",
         "variables.cc_version"
       ],
-      "deps": ["cyclecloud8_install.py", "cyclecloud7_install.py"]
+      "deps": ["cyclecloud8_install.py"]
     }
   ]
 }

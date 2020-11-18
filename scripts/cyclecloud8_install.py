@@ -503,15 +503,15 @@ def main():
 
     print("Debugging arguments: %s" % args)
 
-    if not already_installed():
-        configure_msft_repos()
-        install_pre_req()
-        download_install_cc()
-        modify_cs_config()
+    # if not already_installed():
+    #     configure_msft_repos()
+    #     install_pre_req()
+    #     download_install_cc()
+    #     modify_cs_config()
 
-    start_cc()
+    #start_cc()
 
-    install_cc_cli()
+    #install_cc_cli()
 
     vm_metadata = get_vm_metadata()
 
