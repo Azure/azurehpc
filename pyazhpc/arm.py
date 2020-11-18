@@ -702,7 +702,7 @@ class ArmTemplate:
                 deps.append(f"Microsoft.Compute/availabilitySets/{ravset}")
 
             # Add support for cyclecloud plan
-            plan = "{}"
+            plan = ""
             if ros[0] == "azurecyclecloud":
                 plan = self.__helper_arm_create_plan(rimage)
             
