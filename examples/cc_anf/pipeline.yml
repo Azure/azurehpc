@@ -51,3 +51,4 @@ jobs:
 - template: ../../ci/templates/jobs/build.yml
   parameters:
     pre_steps: ../../../examples/cc_anf/init.yml
+    extra_steps: ../../../examples/cc_anf/test.yml
