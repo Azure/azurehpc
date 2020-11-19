@@ -86,7 +86,7 @@ $ cyclecloud start_cluster pbscycle
 Retrieve the cluster status by running:
 
 ```
-$ cyclecloud show_cluster pbscycle | grep master | xargs | cut -d ' ' -f 2
+$ cyclecloud show_cluster pbscycle | grep server | xargs | cut -d ' ' -f 2
 $ cyclecloud show_nodes -c pbscycle --format=json | jq -r '.[0].State'
 ```
 
@@ -103,7 +103,7 @@ $ cyclecloud start_cluster slurmcycle
 Retrieve the cluster status by running:
 
 ```
-$ cyclecloud show_cluster slurmcycle | grep master | xargs | cut -d ' ' -f 2
+$ cyclecloud show_cluster slurmcycle | grep server | xargs | cut -d ' ' -f 2
 $ cyclecloud show_nodes -c slurmcycle --format=json | jq -r '.[0].State'
 ```
 
@@ -150,7 +150,7 @@ From the jumpbox, connect to the CycleCloud master:
 ### PBS
 
 ```
-[hpcadmin@jumpbox ~]$ cyclecloud connect master -c pbscycle
+[hpcadmin@jumpbox ~]$ cyclecloud connect server -c pbscycle
 ```
 
 ---
@@ -158,7 +158,7 @@ From the jumpbox, connect to the CycleCloud master:
 ### Slurm
 
 ```
-[hpcadmin@jumpbox ~]$ cyclecloud connect master -c slurmcycle
+[hpcadmin@jumpbox ~]$ cyclecloud connect server -c slurmcycle
 ```
 
 ---

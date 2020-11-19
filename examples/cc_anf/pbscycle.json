@@ -3,8 +3,10 @@
     "resource_group": "variables.resource_group",
     "admin_user": "hpcadmin",
     "variables": {
-        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:8_1:latest",
         "vm_type": "Standard_HB60rs",
+        "cc_pbs_version": "20.0.1-0",
+        "nfs_server" : "jumpbox",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vnet_name": "hpcvnet",
@@ -17,18 +19,37 @@
     "cyclecloud": {
         "clusters": {
             "pbscycle": {
-                "template": "pbspro_template_1.3.7",
+                "template": "pbspro_template_1.4.0",
                 "parameters": {
-                    "MaxExecuteCoreCount": 1000,
-                    "MasterMachineType": "Standard_D8s_v3",
-                    "Credentials": "azure",
-                    "Autoscale": true,
+                    "MaxExecuteCoreCount" : 1000,
+                    "serverMachineType" : "Standard_D8s_v3",
+                    "UsePublicNetwork" : false,
+                    "AdditionalNAS" : true,
+                    "AdditionalNFSMountOptions" : null,
+                    "About shared" : null,
                     "SubnetId": "{{variables.resource_group}}/{{variables.vnet_name}}/compute",
-                    "UseLowPrio": false,
-                    "UsePublicNetwork": false,
-                    "ReturnProxy": false,
+                    "PBSVersion" : "variables.cc_pbs_version",
                     "Region": "variables.location",
-                    "MasterClusterInitSpecs": {
+                    "Additional NFS Mount Readme" : null,
+                    "NumberLoginNodes" : 0,
+                    "AdditionalNFSExportPath" : "/share",
+                    "ExecuteMachineType": "variables.vm_type",
+                    "FilesystemSize" : 100,
+                    "AdditionalNFSMountPoint" : "/nfsshare",
+                    "NFSSharedMountOptions" : null,
+                    "ReturnProxy" : false,
+                    "Credentials" : "azure",
+                    "Autoscale" : true,
+                    "NFSSharedExportPath" : null,
+                    "NFSAddress" : null,
+                    "UseLowPrio" : false,
+                    "NFSType" : "Builtin",
+                    "AdditonalNFSAddress" : "variables.nfs_server",
+                    "pbspro" : null,
+                    "SchedulerImageName" : "variables.hpc_image",
+                    "ImageName": "variables.hpc_image",
+                    "ExecuteNodesPublic" : false,
+                    "serverClusterInitSpecs": {
                         "azurehpc:anf:1.0.0": {
                             "Order": 10000,
                             "Name": "azurehpc:anf:1.0.0",
@@ -38,8 +59,6 @@
                             "Locker": "azure-storage"
                         }
                     },
-                    "ExecuteMachineType": "variables.vm_type",
-                    "ImageName": "variables.hpc_image",
                     "ExecuteClusterInitSpecs": {
                         "azurehpc:anf:1.0.0": {
                             "Order": 10000,
