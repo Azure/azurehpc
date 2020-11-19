@@ -17,7 +17,3 @@ $azhpc_dir/init-and-merge.sh $prereqs prereqs.json $AZHPC_VARIABLES
 locker=$(azhpc-get -c $AZHPC_VARIABLES variables.projectstore | cut -d '=' -f2 | xargs)
 sed -i "s/#projectstore#/$locker/g" $AZHPC_CONFIG
 
-# Accept the licence term of the Cycle Markeplace image
-cc_image=$(azhpc-get -c $AZHPC_CONFIG variables.cc_image | cut -d '=' -f2 | xargs)
-echo "Accepting terms for $cc_image"
-az vm image terms accept --urn $cc_image
