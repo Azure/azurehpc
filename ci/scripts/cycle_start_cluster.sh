@@ -14,4 +14,4 @@ master=$(get_master_name $cluster_name)
 echo "master is $master"
 
 # echo "Changing ownership of shared scripts"
-# ssh $master "sudo chown -R hpcadmin:hpcadmin /nfsshare/apps"
+ssh $master "sudo chown -R hpcadmin:hpcadmin /nfsshare/apps"
