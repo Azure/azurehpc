@@ -2,7 +2,7 @@ steps:
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcadmin
-    command: /nfsshare/apps/ci/cycle_start_cluster.sh pbscycle
+    command: /apps/ci/cycle_start_cluster.sh pbscycle
 
 #- template: ../../ci/templates/steps/azhpc-run.yml
 #  parameters:
