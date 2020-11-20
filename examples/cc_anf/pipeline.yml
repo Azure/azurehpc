@@ -38,7 +38,7 @@ variables:
     value: examples/cc_anf
   # destination of scripts. Default is hpcuser@headnode:/apps
   - name: azhpc.script_remote_dest
-    value: 'hpcadmin@jumpbox:.'
+    value: 'hpcadmin@jumpbox:/apps'
 
 # Add the variables needed in your configuration file
 # Set values below or thru pipeline variables
