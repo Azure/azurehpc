@@ -11,9 +11,7 @@ module use ${SHARED_APP}/modulefiles
 module load ior
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
-AZHPC_VMSIZE='standard_hb60rs'
 export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
-#echo "Running on $AZHPC_VMSIZE"
 if [ "$AZHPC_VMSIZE" = "" ]; then
     echo "Unable to retrieve VM Size - Exiting"
     exit 1
@@ -27,6 +25,14 @@ case "$AZHPC_VMSIZE" in
         module load mpi/mpich-3.2-x86_64
         ;;
 esac
+
+function drop_all_caches {
+for HOST in `cat $PBS_NODEFILE | uniq`
+do
+   ssh $HOST 'sudo bash -c "sync; echo 3 > /proc/sys/vm/drop_caches"'
+done
+
+}
 
 if [[ -n "$PBS_NODEFILE" ]]; then
     CORES=$(cat $PBS_NODEFILE | wc -l)
@@ -57,10 +63,10 @@ do
    else
       TYPE_IO_ARG="-k"
    fi
-sudo bash -c "sync; echo 3 > /proc/sys/vm/drop_caches"
+drop_all_caches
 mpirun  -bind-to hwthread $MPI_OPTS $IOR_BIN/ior -a $IO_API -v -i 1 $TYPE_IO_ARG -m -d 1 $IO_API_ARG -w -r -t $TRANSFER_SIZE -b $SIZE -o ${FILESYSTEM}/test -O summaryFormat=$SUMMARY_FORMAT -O summaryFile=ior_${IO_API}_${TYPE_IO}_${TRANSFER_SIZE}_${SIZE}_${HOST}_${NUMPROCS}.out_$$
+rm ${FILESYSTEM}/test.*
 sleep 2
 done
 done
 done
-rm ${FILESYSTEM}/test.*
