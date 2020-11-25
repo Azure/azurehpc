@@ -11,7 +11,7 @@
       "key_vault": "<NOT-SET>",
       "admin_user": "hpcadmin",
       "cc_password_secret_name": "CycleAdminPassword",
-      "cc_version": "7"
+      "cc_version": "8"
     },
     "vnet": {
       "resource_group": "variables.vnet_resource_group",

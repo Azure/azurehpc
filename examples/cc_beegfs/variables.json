@@ -5,6 +5,8 @@
     "key_vault": "kv{{variables.uuid}}",
     "uuid": "unique value",
     "projectstore": "locker{{variables.uuid}}",
-    "scheduler": "pbs or slurm"
+    "scheduler": "pbs or slurm",
+    "cc_image": "azurecyclecloud:azure-cyclecloud:cyclecloud-81:8.1.0",
+    "cc_version": "8"    
   }
 }

@@ -7,6 +7,8 @@
     "projectstore": "locker{{variables.uuid}}",
     "scheduler": "pbs or slurm",
     "lustre_storage_account": "locker{{variables.uuid}}",
-    "lustre_version": "2.12.4"
+    "lustre_version": "2.12.4",
+    "cc_image": "azurecyclecloud:azure-cyclecloud:cyclecloud-81:8.1.0",
+    "cc_version": "8"
   }
 }

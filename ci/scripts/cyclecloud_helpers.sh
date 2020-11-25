@@ -6,7 +6,7 @@ PATH=$HOME/bin:$PATH
 cluster_wait_targetstate()
 {
     local cluster_name=$1
-    local master_name=${2-master}
+    local master_name=${2-server}
 
     state=$(cyclecloud show_nodes -c $cluster_name --format=json | jq -r --arg master "$master_name" '.[] | select(.Name==$master) | .State')
     target=$(cyclecloud show_nodes -c $cluster_name --format=json | jq -r --arg master "$master_name" '.[] | select(.Name==$master) | .TargetState')
@@ -20,6 +20,6 @@ cluster_wait_targetstate()
 get_master_name()
 {
     local cluster_name=$1
-    local master_name=${2-master}
+    local master_name=${2-server}
     cyclecloud show_nodes -c $cluster_name --format=json | jq -r --arg master "$master_name" '.[] | select(.Name==$master) | .Instance.PrivateHostName'
 }

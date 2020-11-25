@@ -392,6 +392,13 @@ class ArmTemplate:
                 cacheoption = cache
             else:
                 cacheoption = "None"
+            
+            # To support deploying images that contains datadisks
+            createOption = "Empty"
+            if d == 0:
+                d = ""
+                createOption = "fromImage"
+
             if sku == "UltraSSD_LRS":
                 cacheoption = "None"
 
@@ -400,7 +407,7 @@ class ArmTemplate:
                 "managedDisk": {
                     "storageAccountType": sku
                 },
-                "createOption": "Empty",
+                "createOption": createOption,
                 "lun": i,
                 "diskSizeGB": d
             })
@@ -418,6 +425,16 @@ class ArmTemplate:
             return {
                 "id": refstr
             }
+
+    def __helper_arm_create_plan(self, refstr):
+        if ":" in refstr:
+            return {
+                "publisher": refstr.split(":")[0],
+                "product": refstr.split(":")[1],
+                "name": refstr.split(":")[2]
+            }
+        else:
+            return { }
 
     def __helper_arm_add_zones(self, res, zones):
         strzones = []
@@ -684,11 +701,17 @@ class ArmTemplate:
             if ravset:
                 deps.append(f"Microsoft.Compute/availabilitySets/{ravset}")
 
+            # Add support for cyclecloud plan
+            plan = ""
+            if ros[0] == "azurecyclecloud":
+                plan = self.__helper_arm_create_plan(rimage)
+            
             vmres = {
                 "type": "Microsoft.Compute/virtualMachines",
                 "apiVersion": "2019-07-01",
                 "name": r,
                 "location": loc,
+                "plan": plan,
                 "dependsOn": deps,
                 "tags": rtags,
                 "properties": {
