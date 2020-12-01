@@ -5,6 +5,18 @@ if [[ $(id -u) -ne 0 ]] ; then
     exit 1
 fi
 
+# Shares
+NFS_APPS=$NFS_MOUNT_POINT/apps
+NFS_DATA=$NFS_MOUNT_POINT/data
+NFS_HOME=$NFS_MOUNT_POINT/home
+NFS_SCRATCH=/mnt/resource/scratch
+
+if [[ -d $NFS_APPS ]]
+then
+   echo "Directory: $NFS_APPS exists. Install NFS server script has already been run on this system"
+   exit 0
+fi
+
 # Check to see which OS this is running on. 
 os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
 os_maj_ver=$(cat /etc/os-release | grep "^VERSION_ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
@@ -31,12 +43,6 @@ elif [ "$os_release" == "ubuntu" ];then
     systemctl enable nfs-kernel-server
     systemctl start nfs-kernel-server
 fi
-
-# Shares
-NFS_APPS=$NFS_MOUNT_POINT/apps
-NFS_DATA=$NFS_MOUNT_POINT/data
-NFS_HOME=$NFS_MOUNT_POINT/home
-NFS_SCRATCH=/mnt/resource/scratch
 
 ######################################
 # Create shares and exports
