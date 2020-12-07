@@ -133,7 +133,9 @@ if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
                 --expiry $(date --utc -d "+1 hour" +%Y-%m-%dT%H:%M:%SZ) \
                 --output tsv
             )
+            echo "azcopy cp $tmp_dir https://$account.blob.core.windows.net/$container/$blob?$saskey --recursive=true"
             azcopy cp "$tmp_dir" "https://$account.blob.core.windows.net/$container/$blob?$saskey" --recursive=true
+
         fi
     fi
     if [ "$return_code" -ne "0" ]; then
