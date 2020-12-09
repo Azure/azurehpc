@@ -1,4 +1,11 @@
 #!/bin/bash -x
+
+# Check to see if openpbs dir already exists
+if [ -d "openpbs" ]
+then
+    echo "Open PBS has already been downloaded"
+    exit 0
+fi
   
 # Check to see which OS this is running on. 
 os_release=$(cat /etc/os-release | grep "^ID\=" | cut -d'=' -f 2 | sed -e 's/^"//' -e 's/"$//')
