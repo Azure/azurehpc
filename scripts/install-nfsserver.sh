@@ -24,19 +24,29 @@ echo "OS Release: $os_release"
 echo "OS Major Version: $os_maj_ver"
 if [ "$os_release" == "centos" ];then
     yum -y install epel-release
-    yum -y install nfs-utils nfs-utils-lib
-    # Start the services
-    systemctl enable rpcbind
-    systemctl enable nfs-server
-    systemctl enable nfs-lock
-    systemctl enable nfs-idmap
-    systemctl enable nfs
 
-    systemctl start rpcbind
-    systemctl start nfs-server
-    systemctl start nfs-lock
-    systemctl start nfs-idmap
-    systemctl start nfs
+    if [ "$os_maj_ver" == "7" ];then
+        yum -y install nfs-utils nfs-utils-lib
+        # Start the services
+        systemctl enable rpcbind
+        systemctl enable nfs-server
+        systemctl enable nfs-lock
+        systemctl enable nfs-idmap
+        systemctl enable nfs
+
+        systemctl start rpcbind
+        systemctl start nfs-server
+        systemctl start nfs-lock
+        systemctl start nfs-idmap
+        systemctl start nfs
+    elif [ "$os_maj_ver" == "8" ];then
+        yum -y install nfs-utils
+        systemctl enable nfs-server.service
+    else
+        echo "Unsupported Major version: $os_maj_ver"
+        exit -1
+    fi
+
 elif [ "$os_release" == "ubuntu" ];then
     apt install nfs-kernel-server -y
     apt install lsscsi -y
@@ -51,10 +61,10 @@ mkdir -p $NFS_APPS
 mkdir -p $NFS_DATA
 mkdir -p $NFS_HOME
 mkdir -p $NFS_SCRATCH
-chown nobody:nogroup $NFS_APPS
-chown nobody:nogroup $NFS_DATA
-chown nobody:nogroup $NFS_HOME
-chown nobody:nogroup $NFS_SCRATCH
+chown nobody:nobody $NFS_APPS
+chown nobody:nobody $NFS_DATA
+chown nobody:nobody $NFS_HOME
+chown nobody:nobody $NFS_SCRATCH
 chmod 777 $NFS_APPS
 chmod 777 $NFS_DATA
 chmod 777 $NFS_HOME
@@ -83,7 +93,11 @@ sed -i -e "$replace" /etc/sysconfig/nfs
 grep RPCNFSDCOUNT /etc/sysconfig/nfs
 
 if [ "$os_release" == "centos" ];then
-    systemctl restart nfs-server
+    if [ "$os_maj_ver" == "7" ];then
+        systemctl restart nfs-server
+    elif [ "$os_maj_ver" == "8" ];then
+        systemctl start nfs-server.service
+    fi
 elif [ "$os_release" == "ubuntu" ];then
     systemctl restart nfs-kernel-server
 fi

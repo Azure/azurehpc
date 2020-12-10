@@ -24,8 +24,10 @@ case $filesystem in
     xfs)
         mkfs -t $filesystem $device || exit 1
         xfsuuid="UUID=`blkid |grep $device |cut -d " " -f 2 |cut -c 7-42`"
-        if [ "$os_release" == "centos" ];then
+        if [ "$os_release" == "centos" ] && [ "$os_maj_ver" == "7" ];then
             echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nobarrier,nofail 0 2" >> /etc/fstab
+        elif [ "$os_release" == "centos" ] && [ "$os_maj_ver" == "8" ];then
+            echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nofail 0 2" >> /etc/fstab
         elif [ "$os_release" == "ubuntu" ];then
             echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nofail 0 2" >> /etc/fstab
         fi
