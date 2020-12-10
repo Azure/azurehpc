@@ -30,6 +30,10 @@ else
    echo "Unsupported OS release: $os_release"
 fi
 
+# Install azcopy
+wget https://aka.ms/downloadazcopy-v10-linux -O azcopy
+tar xzvf azcopy
+sudo mv azcopy_*/azcopy /usr/local/bin/azcopy
 
 # If running on Cycle 
 # - enable METADATA access
