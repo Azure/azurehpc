@@ -47,10 +47,10 @@ else
     while ! rpm -q epel-release
     do
         if grep -q "Red Hat" /etc/redhat-release
-		then
-			sudo systemctl stop firewalld.service
-			sudo systemctl disable firewalld.service
-			sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm >> {logfile} 2>&1
+	then
+	    sudo systemctl stop firewalld.service
+	    sudo systemctl disable firewalld.service
+	    sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm >> {logfile} 2>&1
         elif ! sudo yum install -y epel-release > {logfile} 2>&1
         then
             sudo yum clean metadata
