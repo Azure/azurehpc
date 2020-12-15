@@ -11,6 +11,7 @@ enabled=1
 gpgcheck=1
 gpgkey=http://ftp.heanet.ie/pub/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7
 EOF
+    # Stop and disable the firewall for lnet to work
     systemctl stop firewalld.service
     systemctl disable firewalld.service
 fi
