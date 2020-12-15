@@ -27,9 +27,9 @@ for line in $(<$NODE_FILENAME); do
         continue
     else
         if [ "$queue" != "None" ]; then
-            qsub -q $queue -N osu_bw_test -v OUTDIR=$OUTDIR -l select=1:ncpus=1:mem=1gb:host=$src+1:ncpus=1:mem=1gb:host=$dst -l place=excl ~/azurehpc/apps/health_checks/run_ring_osu_bw_hpcx.pbs
+            qsub -q $queue -N osu_bw_test -v OUTDIR=$OUTDIR -l select=1:ncpus=1:host=$src+1:ncpus=1:host=$dst -l place=excl ~/azurehpc/apps/health_checks/run_ring_osu_bw_hpcx.pbs
         else
-            qsub -N osu_bw_test -v OUTDIR=$OUTDIR -l select=1:ncpus=1:mem=1gb:host=$src+1:ncpus=1:mem=1gb:host=$dst -l place=excl ~/azurehpc/apps/health_checks/run_ring_osu_bw_hpcx.pbs
+            qsub -N osu_bw_test -v OUTDIR=$OUTDIR -l select=1:ncpus=1:host=$src+1:ncpus=1:host=$dst -l place=excl ~/azurehpc/apps/health_checks/run_ring_osu_bw_hpcx.pbs
         fi
         src=$dst
         sleep .5
