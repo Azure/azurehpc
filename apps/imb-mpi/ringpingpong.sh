@@ -1,10 +1,20 @@
 #!/bin/bash
 MPI=${1-impi2018}
 MODE=${2-ring}
+TYPE=${3-latency}
 set -o pipefail
 
 [[ -n $PBS_NODEFILE ]] && { ISPBS=true; JOBID=$PBS_JOBID; }
 [[ -n $SLURM_NODELIST ]] && { ISSLURM=true; JOBID=$SLURM_JOBID; }
+
+if [ $TYPE == "latency" ]; then
+   MSGLOG="9:10"
+elif [ $TYPE == "bandwidth" ]; then
+   MSGLOG="22:24"
+else
+   echo "Error: Do not recognize MSGLOG option: $MSGLOG"
+   exit 1
+fi
 
 case $MPI in
     impi2016)
@@ -87,7 +97,7 @@ case $MODE in
         for dst in $(<$hostlist); do
             mpirun $host_option $src,$dst \
                 $mpi_options $numactl_options \
-                $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$JOBID.log
+                $IMB_ROOT/IMB-MPI1 PingPong -msglog $MSGLOG > ${src}_to_${dst}_ringpingpong.$JOBID.log
             src=$dst
         done
     ;;
@@ -99,7 +109,7 @@ case $MODE in
             for dst in $(<desthosts.$JOBID); do
                 mpirun $host_option $src,$dst \
                     $mpi_options $numactl_options \
-                    $IMB_ROOT/IMB-MPI1 PingPong -msglog 9:10 > ${src}_to_${dst}_ringpingpong.$JOBID.log
+                    $IMB_ROOT/IMB-MPI1 PingPong -msglog $MSGLOG > ${src}_to_${dst}_ringpingpong.$JOBID.log
             done
         done
         rm desthosts.$JOBID
@@ -109,6 +119,7 @@ esac
 # clean up
 rm $hostlist
 
+if [ $TYPE == "latency" ]; then
 echo "Ring Ping Pong Results (1024 bytes)"
 printf "%-20s %-20s %10s\n" "Source" "Destination" "Time [usec]"
 grep "^         1024 " *_ringpingpong.$JOBID.log \
@@ -116,4 +127,12 @@ grep "^         1024 " *_ringpingpong.$JOBID.log \
     | sed 's/_to_/ /g;s/_ringpingpong[^:]*://g' \
     | sort -nk 3 \
     | xargs printf "%-20s %-20s %10s\n" | tee output.log
-
+else
+echo "Ring Ping Pong Bandwidth Results (16777216 bytes)"
+printf "%-20s %-20s %10s\n" "Source" "Destination" "Mbytes/sec"
+grep "^ *16777216 " *_ringpingpong.$JOBID.log \
+    | tr -s ' ' | cut -d ' ' -f 1,5 \
+    | sed 's/_to_/ /g;s/_ringpingpong[^:]*://g' \
+    | sort -nk 3 \
+    | xargs printf "%-20s %-20s %10s\n" | tee bandwidth_output.log
+fi
