@@ -61,9 +61,12 @@ if [ ! -d $SPACKDIR ]; then
    cp ${APPS_SPACK_DIR}/packages.yaml  ${SPACKDIR}/spack/etc/spack/defaults
    cp ${APPS_SPACK_DIR}/compilers.yaml ${SPACKDIR}/spack/etc/spack/defaults
 
+   create_modulefile
+
    if [ ! -z $email_address ] && [ ! -z $STORAGE_ENDPOINT ]; then
       pip3 install --user azure-storage-blob
       module use ${SHARED_APP}/modulefiles
+      module load spack/spack
       source $SPACK_SETUP_ENV
       spack gpg init
       spack gpg create ${SKU_TYPE}_gpg $email_address
@@ -75,8 +78,6 @@ if [ ! -d $SPACKDIR ]; then
    patch -t -p0 < ${APPS_SPACK_DIR}/web_azure.patch
    patch -t -p0 < ${APPS_SPACK_DIR}/fetch_strategy_azure.patch
    patch -t -p0 < ${APPS_SPACK_DIR}/darshan-runtime_package.patch
-
-   create_modulefile
 
    chmod -R 777 $SPACKDIR
    chmod -R 777 $MODULE_DIR
