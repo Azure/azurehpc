@@ -72,6 +72,7 @@ if [ ! -d $SPACKDIR ]; then
       spack gpg create ${SKU_TYPE}_gpg $email_address
       AZURE_STORAGE=$(echo $STORAGE_ENDPOINT | sed 's/https/azure/')
       spack mirror add ${SKU_TYPE}_buildcache ${AZURE_STORAGE}buildcache/${SKU_TYPE}
+      mv ~/.spack/mirrors.yaml  ${SPACKDIR}/spack/etc/spack/defaults
    fi
 
    cd $SPACKDIR
