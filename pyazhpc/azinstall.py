@@ -166,7 +166,7 @@ fi
 
     marker = f"marker-\"'$(hostname)'\"-{step:02}-{targetscript[:targetscript.rfind('.')]}"
 
-    content += f"pssh -p {pssh_threads} -t 0 -i -h hostlists/tags/$tag \"cd {tmpdir}; test -f {marker} && echo 'script already run' || ( {cmdline} && touch {marker} || true ) \" >> {logfile} 2>&1\n"
+    content += f"$pssh_cmd -p {pssh_threads} -t 0 -i -h hostlists/tags/$tag \"cd {tmpdir}; test -f {marker} && echo 'script already run' || ( {cmdline} && touch {marker} || true ) \" >> {logfile} 2>&1\n"
 
     if reboot:
         content += f"""
@@ -484,7 +484,7 @@ def __rsync(sshkey, src, dst, retry_on_fail=False):
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
 
-def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn):
+def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
     jb = cfg.get("install_from")
     install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
