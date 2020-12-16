@@ -1,5 +1,5 @@
---- fetch_strategy.py.orig	2020-12-16 15:40:27.953050684 +0000
-+++ fetch_strategy.py	2020-12-16 17:59:13.538267644 +0000
+--- spack/lib/spack/spack/fetch_strategy.py.orig	2020-12-16 15:40:27.953050684 +0000
++++ spack/lib/spack/spack/fetch_strategy.py	2020-12-16 17:59:13.538267644 +0000
 @@ -301,6 +301,11 @@
          url = None
          errors = []
