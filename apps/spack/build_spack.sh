@@ -1,7 +1,7 @@
 #!/bin/bash
 APPS_SPACK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP_NAME=spack
-APP_VERSION=0.15.4
+APP_VERSION=0.16.0
 SHARED_APP=${SHARED_APP:-/apps}
 INTEL_MPI_VERSION=${INTEL_MPI_VERSION:-2020.2.254}
 
@@ -57,25 +57,28 @@ if [ ! -d $SPACKDIR ]; then
    sed -i "s#SHARED_APP#${SHARED_APP}#" ${APPS_SPACK_DIR}/${CONFIG_YAML}
    sed -i "s/INTEL_MPI_VERSION/${INTEL_MPI_VERSION}/g" ${APPS_SPACK_DIR}/${PACKAGES_YAML}
 
-   mkdir ~/.spack
    cp ${APPS_SPACK_DIR}/${CONFIG_YAML} ${SPACKDIR}/spack/etc/spack/defaults
    cp ${APPS_SPACK_DIR}/packages.yaml  ${SPACKDIR}/spack/etc/spack/defaults
    cp ${APPS_SPACK_DIR}/compilers.yaml ${SPACKDIR}/spack/etc/spack/defaults
 
+   create_modulefile
+
    if [ ! -z $email_address ] && [ ! -z $STORAGE_ENDPOINT ]; then
       pip3 install --user azure-storage-blob
+      module use ${SHARED_APP}/modulefiles
+      module load spack/spack
+      source $SPACK_SETUP_ENV
       spack gpg init
       spack gpg create ${SKU_TYPE}_gpg $email_address
       AZURE_STORAGE=$(echo $STORAGE_ENDPOINT | sed 's/https/azure/')
       spack mirror add ${SKU_TYPE}_buildcache ${AZURE_STORAGE}buildcache/${SKU_TYPE}
+      mv ~/.spack/mirrors.yaml  ${SPACKDIR}/spack/etc/spack/defaults
    fi
 
    cd $SPACKDIR
    patch -t -p0 < ${APPS_SPACK_DIR}/web_azure.patch
    patch -t -p0 < ${APPS_SPACK_DIR}/fetch_strategy_azure.patch
    patch -t -p0 < ${APPS_SPACK_DIR}/darshan-runtime_package.patch
-
-   create_modulefile
 
    chmod -R 777 $SPACKDIR
    chmod -R 777 $MODULE_DIR

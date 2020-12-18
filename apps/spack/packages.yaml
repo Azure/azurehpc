@@ -1,24 +1,33 @@
 # -------------------------------------------------------------------------
 packages:
   openmpi:
-    modules:
-       openmpi@4.0.4%gcc@9.2.0: mpi/openmpi
+    externals:
+    - spec: openmpi@4.0.4%gcc@9.2.0
+      modules:
+      - mpi/openmpi
     buildable: False
   mvapich2:
-    modules:
-       mvapich2@2.3.4%gcc@9.2.0: mpi/mvapich2
+    externals:
+    - spec: mvapich2@2.3.4%gcc@9.2.0
+      modules:
+      - mpi/mvapich2
     buildable: False
   hpcx:
-    modules:
-       hpcx@2.7.0%gcc@9.2.0: mpi/hpcx
+    externals:
+    - spec: hpcx@2.7.0%gcc@9.2.0
+      modules:
+      - mpi/hpcx
     buildable: False
   intel-mpi:
-    paths:
-       intel-mpi@INTEL_MPI_VERSION: /opt/intel/compilers_and_libraries_INTEL_MPI_VERSION/linux/mpi
+    externals:
+    - spec: intel-mpi@INTEL_MPI_VERSION
+      prefix: /opt/intel/compilers_and_libraries_INTEL_MPI_VERSION/linux/mpi
     buildable: False
   gcc:
-    modules:
-       gcc@9.2.0: gcc-9.2.0
+    externals: 
+    - spec: gcc@9.2.0
+      modules:
+      - gcc-9.2.0
     buildable: False
   all:
     compiler: [gcc, intel, pgi, clang, xl, nag, fj]
