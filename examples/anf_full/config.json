@@ -35,7 +35,7 @@
                     "size": "variables.anf_volume_size",
                     "service_level": "variables.anf_service",
                     "volumes": {
-                        "anfvol1" : {
+                        "uniquevolumename" : {
                             "size": "variables.anf_volume_size",
                             "mount": "variables.anf_mount"
                         }
