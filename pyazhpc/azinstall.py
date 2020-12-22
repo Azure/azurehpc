@@ -69,9 +69,15 @@ fi
 
 # check sshd is up on all nodes
 for h in $(<hostlists/$tag); do
+    retry=0
     until ssh $h hostname >/dev/null 2>&1; do
-        echo "Waiting for sshd on host - $h (sleeping for 5 seconds)"
-        sleep 5
+        echo "Waiting for sshd on host - $h (sleeping for 10 seconds)"
+        sleep 10
+        if [ "$retry" -eq "10" ]; then
+            echo "ERROR: Unable to contact $h after 10 retries"
+            exit 1
+        fi
+        retry=$(($retry + 1))
     done
 done
 
