@@ -115,27 +115,7 @@ if [[ "$return_code" -ne "0" ]] || [[ "$show_logs" == "true" ]]; then
 
         # If a logging storage account is set, upload logs into blobs
         if [ -n "$AZHPC_LOG_ACCOUNT" ]; then
-            echo "===================="
-            echo "Upload logs in blobs"
-            echo "===================="
-            echo ""
-            # in case of errors, upload the logs into blobs
-            echo "upload $tmp_dir into blobs"
-            blob="$SYSTEM_DEFINITIONNAME/$SYSTEM_JOBIDENTIFIER/$BUILD_BUILDNUMBER"
-            account="$AZHPC_LOG_ACCOUNT"
-            container="pipelines"
-            saskey=$( \
-                az storage container generate-sas \
-                --account-name $account \
-                --name $container \
-                --permissions "rlw" \
-                --start $(date --utc -d "-2 hours" +%Y-%m-%dT%H:%M:%SZ) \
-                --expiry $(date --utc -d "+1 hour" +%Y-%m-%dT%H:%M:%SZ) \
-                --output tsv
-            )
-            echo "azcopy cp $tmp_dir https://$account.blob.core.windows.net/$container/$blob?$saskey --recursive=true"
-            azcopy cp "$tmp_dir" "https://$account.blob.core.windows.net/$container/$blob?$saskey" --recursive=true
-
+            $azhpc_dir/ci/upload_logs.sh $tmp_dir "$SYSTEM_DEFINITIONNAME/$SYSTEM_JOBIDENTIFIER/$BUILD_BUILDNUMBER"
         fi
     fi
     if [ "$return_code" -ne "0" ]; then
