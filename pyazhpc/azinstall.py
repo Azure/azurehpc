@@ -36,11 +36,18 @@ fi
 if [ "$1" != "" ]; then
     tag=tags/$1
 else
+    retry=0
     while ! rpm -q epel-release
     do
         if ! sudo yum install -y epel-release >> {logfile} 2>&1
         then
+            sleep 10
             sudo yum clean metadata
+            if [ "$retry" -eq "10" ]; then
+                echo "ERROR: Unable to install epel-release package after 10 retries"
+                exit 1
+            fi
+            retry=$(($retry + 1))
         fi
     done
     sudo yum install -y pssh nc >> {logfile} 2>&1
