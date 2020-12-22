@@ -71,6 +71,7 @@ jobs:
         fi
         config_file=$(basename $AZHPC_CONFIG)
         . install.sh
+        pushd $PROJECT_DIR
 
         # If job has been canceled then upload the logs
         if [ "$AGENT_JOBSTATUS" = "Canceled" ]; then
@@ -82,7 +83,6 @@ jobs:
 
         # don't delete if in debug mode
         if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
-          pushd $PROJECT_DIR
           azhpc-destroy -c $config_file $AZHPC_OPTION --force --no-wait
         fi
 
@@ -91,4 +91,3 @@ jobs:
             ls -al $PROJECT_DIR
             rm -rf $PROJECT_DIR 
         fi
-
