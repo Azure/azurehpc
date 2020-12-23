@@ -65,15 +65,24 @@ jobs:
       scriptLocation: inlineScript
       scriptType: 'bash'
       inlineScript: |
-        # don't delete if in debug mode
         conf_dir=$(dirname $AZHPC_CONFIG)
         if [ "$PROJECT_DIR" = "" ]; then
             PROJECT_DIR=${conf_dir##*/}
         fi
+        config_file=$(basename $AZHPC_CONFIG)
+        . install.sh
+        pushd $PROJECT_DIR
+
+        # If job has been canceled then upload the logs
+        if [ "$AGENT_JOBSTATUS" = "Canceled" ]; then
+          config_file_no_path=${config_file##*/}
+          config_file_no_path_or_extension=${config_file_no_path%.*}
+          tmp_dir=azhpc_install_$config_file_no_path_or_extension
+          $azhpc_dir/ci/upload_logs.sh $tmp_dir "$SYSTEM_DEFINITIONNAME/$SYSTEM_JOBIDENTIFIER/$BUILD_BUILDNUMBER"
+        fi
+
+        # don't delete if in debug mode
         if [[ -z $SYSTEM_DEBUG ]] || [[ "$SYSTEM_DEBUG" == "false" ]]; then
-          config_file=$(basename $AZHPC_CONFIG)
-          . install.sh
-          pushd $PROJECT_DIR
           azhpc-destroy -c $config_file $AZHPC_OPTION --force --no-wait
         fi
 
@@ -82,4 +91,3 @@ jobs:
             ls -al $PROJECT_DIR
             rm -rf $PROJECT_DIR 
         fi
-

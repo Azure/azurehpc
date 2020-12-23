@@ -1,0 +1,10 @@
+{
+    "CentOS-HPC-77-latest":
+    {
+        "azhpc.variables.hpc_image": "OpenLogic:CentOS-HPC:7.7:latest"
+    },
+    "CentOS-77-latest":
+    {
+        "azhpc.variables.hpc_image": "OpenLogic:CentOS:7.7:latest"
+    }
+}
