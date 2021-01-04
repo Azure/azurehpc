@@ -27,6 +27,11 @@ echo "********************************************************************"
 echo "*                  INIT CONFIG VARIABLES                           *"
 echo "********************************************************************"
 
+echo "Init pipeline context variables"
+export AZHPC_VARIABLES_PIPELINE=$SYSTEM_DEFINITIONNAME
+export AZHPC_VARIABLES_JOBID=$SYSTEM_JOBIDENTIFIER
+export AZHPC_VARIABLES_BUILD=$BUILD_BUILDNUMBER
+
 azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
 for item in $azhpc_variables; do
     key=$(echo $item | cut -d '=' -f1)
@@ -61,6 +66,9 @@ if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
     cp $BUILD_REPOSITORY_LOCALPATH/telemetry/variables.json $BUILD_REPOSITORY_LOCALPATH/$conf_dir
 fi
 
+echo "copying the tags variables so they can be initialized"
+cp $BUILD_REPOSITORY_LOCALPATH/ci/tags_variables.json $BUILD_REPOSITORY_LOCALPATH/$conf_dir
+
 echo "Calling azhpc-init"
 azhpc-init $AZHPC_OPTION -c $BUILD_REPOSITORY_LOCALPATH/$conf_dir -d $PROJECT_DIR $init_variables || exit 1
 pushd $PROJECT_DIR
@@ -88,8 +96,15 @@ if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
     # Merge compute_telemetry variables file into config file
     cp $config_file temp.json
     jq '.variables+=$variables' --argjson variables "$(jq '.variables' variables.json)" temp.json > $config_file
-
 fi
+
+echo "Add pipeline context tags to the resource group"
+cp $config_file temp.json
+jq '.resource_tags+=$tags' --argjson tags "$(jq '.resource_tags' $BUILD_REPOSITORY_LOCALPATH/ci/tags.json)" temp.json > $config_file
+# Merge tags_variables variables file into config file
+cp $config_file temp.json
+jq '.variables+=$variables' --argjson variables "$(jq '.variables' tags_variables.json)" temp.json > $config_file
+
 
 echo "********************************************************************"
 echo "*                  BUILD RESOURCES                                 *"
