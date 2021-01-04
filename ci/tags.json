@@ -1,16 +1,8 @@
 {
-  "resource_tags": [
+  "resource_tags": 
     {
-      "key": "Pipeline",
-      "value": "variables.pipeline"
-    },
-    {
-      "key": "JobId",
-      "value": "variables.jobid"
-    },
-    {
-      "key": "Build",
-      "value": "variables.build"
+      "Pipeline": "variables.pipeline",
+      "JobId": "variables.jobid",
+      "Build": "variables.build"
     }
-  ]
 }
