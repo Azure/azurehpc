@@ -27,6 +27,11 @@ echo "********************************************************************"
 echo "*                  INIT CONFIG VARIABLES                           *"
 echo "********************************************************************"
 
+echo "Init pipeline context variables"
+export AZHPC_VARIABLES_PIPELINE=$SYSTEM_DEFINITIONNAME
+export AZHPC_VARIABLES_JOBID=$SYSTEM_JOBIDENTIFIER
+export AZHPC_VARIABLES_BUILD=$BUILD_BUILDNUMBER
+
 azhpc_variables=$(printenv | grep AZHPC_VARIABLES)
 for item in $azhpc_variables; do
     key=$(echo $item | cut -d '=' -f1)
@@ -90,6 +95,11 @@ if [ "$AZHPC_ADD_TELEMETRY" = "1" ]; then
     jq '.variables+=$variables' --argjson variables "$(jq '.variables' variables.json)" temp.json > $config_file
 
 fi
+
+echo "Add pipeline context tags to the resource group"
+cp $config_file temp.json
+jq '.resource_tags+=$tags' --argjson tags "$(jq '.resource_tags' $BUILD_REPOSITORY_LOCALPATH/ci/tags.json)" temp.json > $config_file
+
 
 echo "********************************************************************"
 echo "*                  BUILD RESOURCES                                 *"
