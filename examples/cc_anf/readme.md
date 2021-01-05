@@ -118,10 +118,10 @@ $ azhpc-get fqdn.cycleserver
 fqdn.cycleserver = cycleserver4c0e45.westeurope.cloudapp.azure.com
 ```
 
-Retrieve the CycleCloud admin password from the logs:
+Retrieve the CycleCloud admin password:
 
 ```
-$ grep password azhpc_install_config/install/*.log
+$ azhpc-get "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}"
 ```
 
 Connect to the CycleCloud Web Portal `https://fqdn-of-cycleserver` as `hpcadmin` with the password retrieved above. Check that you have a `pbscycle` or  `slurmcycle` cluster.
