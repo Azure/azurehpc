@@ -18,8 +18,11 @@ offer=$(echo $imgref | jq -r '.offer')
 publisher=$(echo $imgref | jq -r '.publisher')
 sku=$(echo $imgref | jq -r '.sku')
 version=$(echo $imgref | jq -r '.version')
-hyperv=$(az vm image show --urn $publisher:$offer:$sku:$version --query "hyperVgeneration" -o tsv)
+hyperv=$(az vm image show --urn $publisher:$offer:$sku:$version --query "hyperVGeneration" -o tsv)
 echo "hyper-v generation is $hyperv"
+if [ "$hyperv" == "" ]; then
+    echo "Unable to retrieve the hyper-v generation version"
+fi
 
 echo "Create Image $image_name from VM $vm_name"
 if [ "$rg" == "$image_rg" ]; then
