@@ -413,7 +413,7 @@ def generate_cc_clusters(config, tmpdir):
         
 def __rsync(sshkey, src, dst):
     cmd = [
-        "rsync", "-a", "-e",
+        "rsync", "-a", "--timeout=60", "--contimeout=60", "-e",
             f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey}",
             src, dst
     ]
