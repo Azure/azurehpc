@@ -5,7 +5,7 @@ APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
 DATA_DIR=${DATA_DIR:-/data}
 CASE=${CASE:-civil}
 OMPI=${OMPI:-openmpi4}
-STARCCM_VERSION=${STARCCM_VERSION:-14.06.012}
+STARCCM_VERSION=${STARCCM_VERSION:-15.04.008}
 
 # PODKEY is required (pass in as environment variable)
 if [ -z "$PODKEY" ];
