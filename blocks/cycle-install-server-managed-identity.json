@@ -67,7 +67,7 @@
         "variables.projectstore",
         "variables.cc_version"
       ],
-      "deps": ["cyclecloud8_config.py"]
+      "deps": ["cyclecloud8_config.py", "cyclecloud7_config.py"]
     }
   ]
 }

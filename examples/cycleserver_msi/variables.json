@@ -5,7 +5,7 @@
     "key_vault": "kv{{variables.uuid}}",
     "uuid": "unique value",
     "projectstore": "locker{{variables.uuid}}",
-    "cc_image": "azurecyclecloud:azure-cyclecloud:cyclecloud-81:8.1.0",
-    "cc_version": "8"
+    "cc_image": "azurecyclecloud:azure-cyclecloud:cyclecloud-81:8.1.0 | azurecyclecloud:azure-cyclecloud:cyclecloud-79x:7.9.8",
+    "cc_version": "8 | 7"
   }
 }
