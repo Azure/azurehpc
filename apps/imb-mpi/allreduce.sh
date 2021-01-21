@@ -8,6 +8,10 @@ set -o pipefail
 [[ "$ISPBS" = true ]] && num_ranks=$(wc -l <$PBS_NODEFILE)
 [[ "$ISSLURM" = true ]] && num_ranks=$(($SLURM_NNODES * $(echo $SLURM_TASKS_PER_NODE | awk -F'(' '{print $1}')))
 
+# Retrieve the VM size
+AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
+export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
+
 case $MPI in
     impi2016)
         source /opt/intel/impi/5.1.3.223/bin64/mpivars.sh
@@ -46,7 +50,7 @@ case $MPI in
         export I_MPI_FABRICS="shm:ofi"
         #export I_MPI_FALLBACK_DEVICE=0
         export I_MPI_DEBUG=4
-        export FI_PROVIDER=verbs
+        export FI_PROVIDER=mlx
         [[ "$ISPBS" = true ]] && mpi_options="-hostfile $PBS_NODEFILE -np $num_ranks"
         if [ -z $MPI_BIN ]; then
             IMB_ROOT=$I_MPI_ROOT/intel64/bin
@@ -58,7 +62,13 @@ case $MPI in
         source /etc/profile
         module use /usr/share/Modules/modulefiles
         module load mpi/hpcx
-        mpi_options+=" --map-by core"
+        mpi_options+=" -bind-to core"
+        mpi_options+=" -mca coll_hcoll_enable 1 -x HCOLL_ENABLE_MCAST_ALL=1"
+        case $AZHPC_VMSIZE in
+            standard_hb120rs_v2|standard_hb60rs)
+                mpi_options+=" -x HCOLL_SBGP_BASESMSOCKET_GROUP_BY=numa"
+            ;;
+        esac
         [[ "$ISPBS" = true ]] && mpi_options+=" -hostfile $PBS_NODEFILE -np $num_ranks"
         IMB_ROOT=$HPCX_MPI_TESTS_DIR/imb
     ;;

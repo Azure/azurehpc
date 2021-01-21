@@ -16,6 +16,10 @@ else
    exit 1
 fi
 
+# Retrieve the VM size
+AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2018-10-01" | jq -r '.compute.vmSize')
+export AZHPC_VMSIZE=${AZHPC_VMSIZE,,}
+
 case $MPI in
     impi2016)
         source /opt/intel/impi/5.1.3.223/bin64/mpivars.sh
@@ -55,7 +59,7 @@ case $MPI in
         export I_MPI_FABRICS="shm:ofi"
         #export I_MPI_FALLBACK_DEVICE=0
         export I_MPI_DEBUG=4
-        export FI_PROVIDER=verbs
+        export FI_PROVIDER=mlx
         [[ "$ISPBS" = true ]] && mpi_options="-np 2 -ppn 1"
         host_option="-hosts"
         if [ -z $MPI_BIN ]; then
@@ -70,9 +74,14 @@ case $MPI in
         module load mpi/hpcx
 
         mpi_options=" -bind-to core"
+        mpi_options+=" -mca coll_hcoll_enable 1 -x HCOLL_ENABLE_MCAST_ALL=1"
         [[ "$ISPBS" = true ]] && mpi_options+=" -npernode 1 -np 2"
         host_option="-host"
-
+        case $AZHPC_VMSIZE in
+            standard_hb120rs_v2|standard_hb60rs)
+                mpi_options+=" -x HCOLL_SBGP_BASESMSOCKET_GROUP_BY=numa"
+            ;;
+        esac
         IMB_ROOT=$HPCX_MPI_TESTS_DIR/imb
     ;;
 esac
