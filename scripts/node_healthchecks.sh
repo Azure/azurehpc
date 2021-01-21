@@ -52,7 +52,10 @@ function check_ib_device()
         ;;
     esac
 
-    check_ib_values $AZHPC_VMSIZE "$IB_STATE" "$IB_RATE" "$IB_SPEED" "$IB_PHYS_STATE"
+    # Don't call if there is no IB device
+    if [ $bad_node -eq 0 ]; then
+        check_ib_values $AZHPC_VMSIZE "$IB_STATE" "$IB_RATE" "$IB_SPEED" "$IB_PHYS_STATE"
+    fi
 }
 
 function check_ib_values()
