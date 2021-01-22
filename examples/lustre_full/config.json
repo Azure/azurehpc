@@ -14,7 +14,7 @@
     "variables": {
         "resource_group": "<NOT-SET>",
         "location": "westeurope",
-        "image": "OpenLogic:CentOS:7.8:latest",
+        "image": "OpenLogic:CentOS:7_8:latest",
         "hpcimage": "OpenLogic:CentOS-HPC:7_8:latest",
         "lustreimage": "OpenLogic:CentOS:7_9:latest",
         "compute_instances": 2,
