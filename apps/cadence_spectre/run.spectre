@@ -1,12 +1,13 @@
 #!/bin/bash
 
+license_ip=$1
 export MMSIMHOME="/mnt/efs/fs1/spectrex"
 
 export PATH="$PATH:$MMSIMHOME/tools/bin:$MMSIMHOME/tools/spectre/bin:$MMSIMHOME/tools/ultrasim/bin:$MMSIMHOME/tools/relxpert/bin"
 
 export LD_LIBRARY_PATH="/usr/lib/X11:/usr/X11R6/lib:/usr/lib:/usr/dt/lib/usr/openwin/lib:/usr/ucblib"
 
-export LM_LICENSE_FILE="5280@70.37.94.39"
+export LM_LICENSE_FILE="5280@$license_ip"
 export CDS_LIC_FILE="$LM_LICENSE_FILE"
 
 export CDS_AUTO_64BIT="ALL"
