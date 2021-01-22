@@ -91,7 +91,11 @@ function check_ib_values()
 
 }
 
-check_ib_device
+# Check IB device only if IB tools are installed
+ibv_devinfo 2> /dev/null
+if [ $? -eq 0 ]; then
+    check_ib_device
+fi
 
 if [ $bad_node -eq 0 ]; then
     echo "VM is healthy"
