@@ -3,7 +3,7 @@
     "resource_group": "variables.resource_group",
     "admin_user": "hpcadmin",
     "variables": {
-        "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7_8:latest",
         "htc_image": "OpenLogic:CentOS-HPC:latest",
         "hpc_vm_type": "Standard_HB60rs",
         "htc_vm_type": "Standard_D16s_v3",

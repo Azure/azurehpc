@@ -14,8 +14,9 @@
     "variables": {
         "resource_group": "<NOT-SET>",
         "location": "westeurope",
-        "image": "OpenLogic:CentOS:7.7:latest",
-        "hpcimage": "OpenLogic:CentOS-HPC:7.7:latest",
+        "image": "OpenLogic:CentOS:7_8:latest",
+        "hpcimage": "OpenLogic:CentOS-HPC:7_8:latest",
+        "lustreimage": "OpenLogic:CentOS:7_9:latest",
         "compute_instances": 2,
         "oss_instances": 2,
         "storage_account": "<NOT-SET>",
@@ -26,7 +27,7 @@
         "log_analytics_lfs_name": "<NOT-SET>",
         "log_analytics_workspace": "laworkspace.{{variables.la_resourcegroup}}.{{variables.la_name}}",
         "log_analytics_key": "lakey.{{variables.la_resourcegroup}}.{{variables.la_name}}",
-        "lustre_version": "2.12.4",
+        "lustre_version": "2.12.6",
         "lustre_mount": "/lustre"
     },
     "resources": {
@@ -35,7 +36,7 @@
             "vm_type": "Standard_D8s_v3",
             "accelerated_networking": true,
             "public_ip": true,
-            "image": "variables.hpcimage",
+            "image": "variables.image",
             "subnet": "compute",
             "tags": [
                 "disable-selinux",
@@ -68,7 +69,7 @@
             "type": "vm",
             "vm_type": "Standard_L8s_v2",
             "accelerated_networking": true,
-            "image": "variables.image",
+            "image": "variables.lustreimage",
             "subnet": "storage",
             "tags": [
                 "lfspkgs",
@@ -83,7 +84,7 @@
             "vm_type": "Standard_L8s_v2",
             "instances": "variables.oss_instances",
             "accelerated_networking": true,
-            "image": "variables.image",
+            "image": "variables.lustreimage",
             "subnet": "storage",
             "tags": [
                 "lfspkgs",
@@ -98,7 +99,7 @@
             "vm_type": "Standard_D16s_v3",
             "instances": 1,
             "accelerated_networking": true,
-            "image": "variables.image",
+            "image": "variables.lustreimage",
             "subnet": "storage",
             "tags": [
                 "lfspkgs",
@@ -112,7 +113,7 @@
             "vm_type": "Standard_D16s_v3",
             "instances": 1,
             "accelerated_networking": true,
-            "image": "variables.image",
+            "image": "variables.lustreimage",
             "subnet": "storage",
             "tags": [
                 "lfspkgs",
