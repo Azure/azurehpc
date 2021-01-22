@@ -13,7 +13,7 @@
     "vnet_name": "hpcvnet",
     "jumpbox": "fqdn.jumpbox",
     "vnet_resource_group": "variables.resource_group",
-    "lustre_image": "OpenLogic:CentOS:7.7:latest",
+    "lustre_image": "OpenLogic:CentOS:7_9:latest",
     "lustre_vm_type": "Standard_L16s_v2",
     "lustre_instances": 2,
     "lustre_storage_account": "<NOT-SET>",
