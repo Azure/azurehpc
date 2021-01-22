@@ -96,12 +96,17 @@ check_ib_device
 if [ $bad_node -eq 0 ]; then
     echo "VM is healthy"
 else
-    echo "VM is unhealthy"
+    PhysicalHostName=$(strings /var/lib/hyperv/.kvp_pool_3 | grep -A1 PhysicalHostName | head -n 2 | tail -1)
+    echo "VM $PhysicalHostName is unhealthy"
 
     # If the sas key is not empty, get the node metadata and upload it into a blob
     if [ "$full_sas_key" != "" ]; then
         # Get simple metadata
-        hostname=$(hostname)
+        if [ "$PhysicalHostName" != "" ]; then
+            hostname=$PhysicalHostName
+        else
+            hostname=$(hostname)
+        fi
         curl -s --noproxy "*" -H Metadata:true "http://169.254.169.254/metadata/instance?api-version=2019-08-15" > $hostname.json
         d=$(date +"%Y/%m/%d/%H")
         location=$(jq -r '.compute.location' $hostname.json)
