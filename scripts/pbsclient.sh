@@ -7,7 +7,7 @@ if ! rpm -q pbspro-execution; then
         yum install -y jq
     fi
 
-    yum install -y pbspro-execution-19.1.1-0.x86_64.rpm
+    yum install -y pbspro-execution-19.1.3-0.x86_64.rpm
 
     sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /etc/pbs.conf
     sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /var/spool/pbs/mom_priv/config

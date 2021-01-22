@@ -4,7 +4,7 @@ set -e
 admin_user=$(whoami)
 
 if [ "$(rpm -qa pbspro-server)" = "" ];then
-    yum install -y pbspro-server-19.1.1-0.x86_64.rpm
+    yum install -y pbspro-server-19.1.3-0.x86_64.rpm
     systemctl enable pbs
     systemctl start pbs
     /opt/pbs/bin/qmgr -c "s s managers += ${admin_user}@*"
