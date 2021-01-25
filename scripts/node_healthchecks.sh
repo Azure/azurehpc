@@ -92,8 +92,7 @@ function check_ib_values()
 }
 
 # Check IB device only if IB tools are installed
-ibv_devinfo 2> /dev/null
-if [ $? -eq 0 ]; then
+if [ -e /usr/bin/ibv_devinfo ]; then
     check_ib_device
 fi
 
