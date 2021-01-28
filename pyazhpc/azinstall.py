@@ -426,6 +426,28 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
     jb = cfg.get("install_from")
     install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
+        log.debug("wait for ssh on jumpbox")
+        attempt = 1
+        while True:
+            cmd = [
+                "ssh", 
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "UserKnownHostsFile=/dev/null",
+                    "-i", sshprivkey,
+                    f"{adminuser}@{fqdn}",
+                    "hostname"
+            ]
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if res.returncode == 0:
+                break
+
+            attempt += 1
+            if attempt > 10:
+                log.error("failed to connect to the jumpbox after 10 attempts")
+                sys.exit(1)
+            
+            time.sleep(10)
+            
         log.debug("rsyncing install files")
         __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
 
