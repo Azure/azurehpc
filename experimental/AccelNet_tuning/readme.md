@@ -13,7 +13,6 @@ The performance benefits of enabling accelerated networking on HB120_v2 and HB60
   ls /sys/class/net/eth2/device/msi_irqs
   53  55  57  59  61  63  65  67  69  71  73  75  77  79  81  83
 54  56  58  60  62  64  66  68  70  72  74  76  78  80  82  84
-
   ```
   map first four multi-purpose channel to vNUMA 0
   ```bash
