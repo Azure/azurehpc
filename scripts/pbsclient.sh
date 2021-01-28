@@ -2,6 +2,28 @@
 # arg: $1 = pbs_server
 pbs_server=$1
 
+function fail {
+  echo $1 >&2
+  exit 1
+}
+
+function retry {
+  local n=1
+  local max=3
+  local delay=10
+  while true; do
+    "$@" && break || {
+      if [[ $n -lt $max ]]; then
+        ((n++))
+        echo "Command failed. Attempt $n/$max:"
+        sleep $delay;
+      else
+        fail "The command has failed after $n attempts."
+      fi
+    }
+  done
+}
+
 if ! rpm -q pbspro-execution; then
     if ! rpm -q jq; then
         yum install -y jq
@@ -23,7 +45,7 @@ if ! rpm -q pbspro-execution; then
         poolName="compute"
     fi
     echo "Registering node for poolName $poolName"
-    /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'" || exit 1
+    retry /opt/pbs/bin/qmgr -c "c n $(hostname) resources_available.pool_name='$poolName'"
 else
     echo "PBS client was already installed"
 fi
