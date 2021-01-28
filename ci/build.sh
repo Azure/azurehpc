@@ -1,9 +1,9 @@
 #!/bin/bash
 PROJECT_DIR=$1
 show_logs=${AZHPC_SHOW_LOGS,,}
+AZHPC_OPTION="--debug"
 if [ "$SYSTEM_DEBUG" = "true" ]; then
     set -x
-    AZHPC_OPTION="--debug"
     show_logs="true"
     printenv
 fi
