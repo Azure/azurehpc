@@ -71,6 +71,8 @@
                 "scope": "resource_group"
             },
             "nsg_allow": ["rdp", "ssh", "http", "https", "grafana"],
+            "ephemeral_os_disk": "Set whether to use the ephermal disk for the operation system; default os false",
+            "ephemeral_os_disk_placement": "Specifies the ephemeral disk placement. Possible values are: CacheDisk (default), ResourceDisk",
             "os_disk_size": "OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size",
             "os_storage_sku": "(Premium_LRS), StandardSSD_LRS, Standard_LRS",
             "password": "user admin password to use with Windows",
@@ -94,6 +96,8 @@
             "image": "For a public image use format OpenLogic:CentOS:7.7:latest ; For a custom image use the imageID of a managed image",
             "instances": "Number of VMs to create in the VMSS",
             "low_priority": "true, (false)",
+            "ephemeral_os_disk": "Set whether to use the ephermal disk for the operation system; default os false",
+            "ephemeral_os_disk_placement": "Specifies the ephemeral disk placement. Possible values are: CacheDisk (default), ResourceDisk",
             "os_disk_size": "OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size",
             "os_storage_sku": "(Premium_LRS), StandardSSD_LRS, Standard_LRS",
             "password": "user admin password to use with Windows",
