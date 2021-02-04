@@ -462,6 +462,8 @@ class ArmTemplate:
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
+        rephemeralosdisk = res.get("ephemeral_os_disk", False)
+        rephemeralosdiskplacement = res.get("ephemeral_os_disk_placement", "CacheDisk")
         rosdisksize = res.get("os_disk_size", None)
         rosstoragesku = res.get("os_storage_sku", "Premium_LRS")
         rdatadisks = res.get("data_disks", [])
@@ -706,9 +708,28 @@ class ArmTemplate:
             if ros[0] == "azurecyclecloud":
                 plan = self.__helper_arm_create_plan(rimage)
             
+            if rephemeralosdisk == True:
+                osdisk = {
+                    "diffDiskSettings": {
+                        "option": "Local",
+                        "placement": rephemeralosdiskplacement
+                    },
+                    "caching": "ReadOnly",
+                    "createOption": "FromImage"
+                }
+            else:
+                osdisk = {
+                    "name": f"{r}_osdisk",
+                    "createOption": "fromImage",
+                    "caching": "ReadWrite",
+                    "managedDisk": {
+                        "storageAccountType": rosstoragesku
+                    }
+                }
+
             vmres = {
                 "type": "Microsoft.Compute/virtualMachines",
-                "apiVersion": "2019-07-01",
+                "apiVersion": "2020-06-01",
                 "name": r,
                 "location": loc,
                 "plan": plan,
@@ -726,14 +747,7 @@ class ArmTemplate:
                         ]
                     },
                     "storageProfile": {
-                        "osDisk": {
-                            "name": f"{r}_osdisk",
-                            "createOption": "fromImage",
-                            "caching": "ReadWrite",
-                            "managedDisk": {
-                                "storageAccountType": rosstoragesku
-                            },
-                        },
+                        "osDisk": osdisk,
                         "imageReference": imageref,
                         "dataDisks": datadisks
                     },
@@ -820,6 +834,8 @@ class ArmTemplate:
         rsubnet = res["subnet"]
         ran = res.get("accelerated_networking", False)
         rlowpri = res.get("low_priority", False)
+        rephemeralosdisk = res.get("ephemeral_os_disk", False)
+        rephemeralosdiskplacement = res.get("ephemeral_os_disk_placement", "CacheDisk")
         rosdisksize = res.get("os_disk_size", None)
         rosstoragesku = res.get("os_storage_sku", "Premium_LRS")
         rdatadisks = res.get("data_disks", [])
@@ -854,11 +870,30 @@ class ArmTemplate:
             rdatadisks, rstoragesku, rstoragecache)
         imageref = self.__helper_arm_create_image_reference(rimage)
 
+
+        if rephemeralosdisk == True:
+            osdisk = {
+                "diffDiskSettings": {
+                    "option": "Local",
+                    "placement": rephemeralosdiskplacement
+                },
+                "caching": "ReadOnly",
+                "createOption": "FromImage"
+            }
+        else:
+            osdisk = {
+                "createOption": "FromImage",
+                "caching": "ReadWrite",
+                "managedDisk": {
+                    "storageAccountType": rosstoragesku
+                }
+            }
+        
         nicname = r+"_nic"
         ipconfigname = r+"_ipconfig"
         vmssres = {
             "type": "Microsoft.Compute/virtualMachineScaleSets",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2020-06-01",
             "name": r,
             "location": loc,
             "dependsOn": deps,
@@ -874,13 +909,7 @@ class ArmTemplate:
                 },
                 "virtualMachineProfile": {
                     "storageProfile": {
-                        "osDisk": {
-                            "createOption": "FromImage",
-                            "caching": "ReadWrite",
-                            "managedDisk": {
-                                "storageAccountType": rosstoragesku
-                            },
-                        },
+                        "osDisk": osdisk,
                         "dataDisks": datadisks,
                         "imageReference": imageref
                     },
