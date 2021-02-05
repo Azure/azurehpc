@@ -29,3 +29,5 @@ if [ -e $CYCLECLOUD_HOME/bin/jetpack ]; then
         $DIR/azhpc4cycle.sh pbs_enable_job_history
     fi
 fi
+
+echo "this is foo"
