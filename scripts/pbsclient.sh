@@ -1,24 +1,28 @@
 #!/bin/bash
 # arg: $1 = pbs_server
 pbs_server=$1
+version=${2-19}
 
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$script_dir/azhpc-library.sh"
+source "$script_dir/azhpc-library.sh" # Needed to use the retry function
+$script_dir/pbsdownload.sh $version
 
-$script_dir/pbsdownload.sh
-
-read_os
-case "$os_maj_ver" in
-    7)
+case "$version" in
+    19)
         rpm_list="pbspro_19.1.3.centos_7/pbspro-execution-19.1.3-0.x86_64.rpm"
         rpm="pbspro-execution"
         SERVER_NAME_SUBST="CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME"
     ;;
-    8)
+    20)
         rpm_list="openpbs_20.0.1.centos_8/openpbs-execution-20.0.1-0.x86_64.rpm"
         rpm="openpbs-execution"
         SERVER_NAME_SUBST="CHANGE_THIS_TO_PBS_SERVER_HOSTNAME"
     ;;
+    *)
+        echo "Unknown version $version provided"
+        echo "Usage : $0 <pbs_server> {19|20}"
+        exit 1
+    ;;    
 esac
 
 if ! rpm -q $rpm; then

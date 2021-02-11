@@ -5,9 +5,9 @@ is_centos8()
 {
     read_os
     if [ "$os_release" == "centos" ] && [ "$os_maj_ver" == "8" ]; then
-        return 1
-    else
         return 0
+    else
+        return 1
     fi
 }
 
@@ -15,9 +15,9 @@ is_centos7()
 {
     read_os
     if [ "$os_release" == "centos" ] && [ "$os_maj_ver" == "7" ]; then
-        return 1 
+        return 0 
     else
-        return 0
+        return 1
     fi
 }
 

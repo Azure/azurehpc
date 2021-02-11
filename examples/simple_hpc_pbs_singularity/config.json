@@ -34,7 +34,6 @@
                 "cndefault",
                 "nfsserver",
                 "pbsserver",
-                "loginnode",
                 "localuser",
                 "disable-selinux"
             ]
@@ -96,8 +95,7 @@
             "tag": "pbsserver",
             "sudo": true,
             "deps": [
-                "pbsdownload.sh",
-                "azhpc-library.sh"
+                "pbsdownload.sh"
             ]
         },
         {
@@ -108,8 +106,7 @@
             "tag": "pbsclient",
             "sudo": true,
             "deps": [
-                "pbsdownload.sh",
-                "azhpc-library.sh"
+                "pbsdownload.sh"
             ]
         },
         {

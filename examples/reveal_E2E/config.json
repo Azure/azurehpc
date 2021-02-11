@@ -12,7 +12,6 @@
     "beegfs_mount": "/beegfs",
     "beegfs_disk_type": "nvme",
     "beegfs_node_type": "both",
-    "beegfs_node_type": "both",
     "beegfs_pools": "false",
     "beegfs_pools_restart": "false",
     "location": "southcentralus",
@@ -53,7 +52,6 @@
         "cndefault",
         "nfsserver",
         "pbsserver",
-        "loginnode",
         "localuser",
         "disable-selinux",
         "beegfspkgs",
@@ -221,8 +219,7 @@
       "tag": "pbsserver",
       "sudo": true,
       "deps": [
-          "pbsdownload.sh",
-          "azhpc-library.sh"
+          "pbsdownload.sh"
       ]
     },
     {
@@ -233,8 +230,7 @@
       "tag": "pbsclient",
       "sudo": true,
       "deps": [
-          "pbsdownload.sh",
-          "azhpc-library.sh"
+          "pbsdownload.sh"
       ]
     },
     {
