@@ -289,6 +289,8 @@ def generate_install(cfg, tmpdir, adminuser, sshprivkey, sshpubkey):
     inst = cfg.get("install", [])
     create_jumpbox_setup_script(tmpdir, sshprivkey, sshpubkey)
 
+    # Add library script to the destination
+    __copy_script("azhpc-library.sh", f"{tmpdir}/scripts")
     for n, step in enumerate(inst):
         stype = step.get("type", "jumpbox_script")
         if stype == "jumpbox_script":

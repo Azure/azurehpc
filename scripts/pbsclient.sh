@@ -1,38 +1,39 @@
 #!/bin/bash
 # arg: $1 = pbs_server
 pbs_server=$1
+version=${2-19}
 
-function fail {
-  echo $1 >&2
-  exit 1
-}
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/azhpc-library.sh" # Needed to use the retry function
+$script_dir/pbsdownload.sh $version
 
-function retry {
-  local n=1
-  local max=3
-  local delay=10
-  while true; do
-    "$@" && break || {
-      if [[ $n -lt $max ]]; then
-        ((n++))
-        echo "Command failed. Attempt $n/$max:"
-        sleep $delay;
-      else
-        fail "The command has failed after $n attempts."
-      fi
-    }
-  done
-}
+case "$version" in
+    19)
+        rpm_list="pbspro_19.1.3.centos_7/pbspro-execution-19.1.3-0.x86_64.rpm"
+        rpm="pbspro-execution"
+        SERVER_NAME_SUBST="CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME"
+    ;;
+    20)
+        rpm_list="openpbs_20.0.1.centos_8/openpbs-execution-20.0.1-0.x86_64.rpm"
+        rpm="openpbs-execution"
+        SERVER_NAME_SUBST="CHANGE_THIS_TO_PBS_SERVER_HOSTNAME"
+    ;;
+    *)
+        echo "Unknown version $version provided"
+        echo "Usage : $0 <pbs_server> {19|20}"
+        exit 1
+    ;;    
+esac
 
-if ! rpm -q pbspro-execution; then
+if ! rpm -q $rpm; then
     if ! rpm -q jq; then
         yum install -y jq
     fi
 
-    yum install -y pbspro-execution-19.1.3-0.x86_64.rpm
+    yum install -y $rpm_list
 
-    sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /etc/pbs.conf
-    sed -i "s/CHANGE_THIS_TO_PBS_PRO_SERVER_HOSTNAME/${pbs_server}/g" /var/spool/pbs/mom_priv/config
+    sed -i "s/${SERVER_NAME_SUBST}/${pbs_server}/g" /etc/pbs.conf
+    sed -i "s/${SERVER_NAME_SUBST}/${pbs_server}/g" /var/spool/pbs/mom_priv/config
     sed -i "s/^if /#if /g" /opt/pbs/lib/init.d/limits.pbs_mom
     sed -i "s/^fi/#fi /g" /opt/pbs/lib/init.d/limits.pbs_mom
     systemctl enable pbs

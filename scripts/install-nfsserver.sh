@@ -5,8 +5,22 @@ if [[ $(id -u) -ne 0 ]] ; then
     exit 1
 fi
 
+set -e
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/azhpc-library.sh" 
+read_os
+
 yum -y install epel-release
-yum -y install nfs-utils nfs-utils-lib
+
+case "$os_maj_ver" in
+    7)
+        yum_list="nfs-utils nfs-utils-lib"
+    ;;
+    8)
+        yum_list="nfs-utils"
+    ;;
+esac
+yum -y install $yum_list
 
 # Shares
 NFS_APPS=$NFS_MOUNT_POINT/apps
@@ -16,15 +30,19 @@ NFS_SCRATCH=/mnt/resource/scratch
 
 systemctl enable rpcbind
 systemctl enable nfs-server
-systemctl enable nfs-lock
-systemctl enable nfs-idmap
-systemctl enable nfs
+if is_centos7; then
+    systemctl enable nfs-lock
+    systemctl enable nfs-idmap
+    systemctl enable nfs
+fi
 
 systemctl start rpcbind
 systemctl start nfs-server
-systemctl start nfs-lock
-systemctl start nfs-idmap
-systemctl start nfs
+if is_centos7; then
+    systemctl start nfs-lock
+    systemctl start nfs-idmap
+    systemctl start nfs
+fi
 
 ######################################
 # Create shares and exports
@@ -54,12 +72,15 @@ exportfs
 ########################################
 # Tune NFS
 ########################################
+
 cores=$(grep processor /proc/cpuinfo | wc -l)
 nfs_proc=$(($cores * 4))
-replace="s/#RPCNFSDCOUNT=16/RPCNFSDCOUNT=$nfs_proc/g"
-sed -i -e "$replace" /etc/sysconfig/nfs
-grep RPCNFSDCOUNT /etc/sysconfig/nfs
+replace="s/# threads=8/threads=$nfs_proc/g"
+sed -i -e "$replace" /etc/nfs.conf
 
 systemctl restart nfs-server
+
+# Dump the NFSD stats
+cat /proc/net/rpc/nfsd
 
 df -h
