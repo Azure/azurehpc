@@ -72,14 +72,15 @@ exportfs
 ########################################
 # Tune NFS
 ########################################
-if is_centos7; then
-    cores=$(grep processor /proc/cpuinfo | wc -l)
-    nfs_proc=$(($cores * 4))
-    replace="s/#RPCNFSDCOUNT=16/RPCNFSDCOUNT=$nfs_proc/g"
-    sed -i -e "$replace" /etc/sysconfig/nfs
-    grep RPCNFSDCOUNT /etc/sysconfig/nfs
-fi
+
+cores=$(grep processor /proc/cpuinfo | wc -l)
+nfs_proc=$(($cores * 4))
+replace="s/# threads=8/threads=$nfs_proc/g"
+sed -i -e "$replace" /etc/nfs.conf
 
 systemctl restart nfs-server
+
+# Dump the NFSD stats
+cat /proc/net/rpc/nfsd
 
 df -h
