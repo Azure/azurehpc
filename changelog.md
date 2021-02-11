@@ -1,5 +1,6 @@
 # AzureHPC Change log
 
+- [PR 467](https://github.com/Azure/azurehpc/pull/467) : First support of CentOS 8.1 and OpenPBS 20
 - [PR 464](https://github.com/Azure/azurehpc/pull/464) : Added support for ephemeral OS disks
 - [PR 462](https://github.com/Azure/azurehpc/pull/462) : Accelerated networking tuning for HB120_v2 and HB60
 - [PR 460](https://github.com/Azure/azurehpc/pull/460) : Update PBS to 19.1.3 from 19.1.1
