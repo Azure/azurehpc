@@ -1,5 +1,21 @@
 # AzureHPC Change log
 
+- [PR 464](https://github.com/Azure/azurehpc/pull/464) : Added support for ephemeral OS disks
+- [PR 462](https://github.com/Azure/azurehpc/pull/462) : Accelerated networking tuning for HB120_v2 and HB60
+- [PR 460](https://github.com/Azure/azurehpc/pull/460) : Update PBS to 19.1.3 from 19.1.1
+- [PR 459](https://github.com/Azure/azurehpc/pull/459) : Update lustre to 2.12.6
+- [PR 453](https://github.com/Azure/azurehpc/pull/453) : Deploy CC 7.9.x from the marketplace image
+- [PR 452](https://github.com/Azure/azurehpc/pull/452) : Fix rsync timeout
+- [PR 422](https://github.com/Azure/azurehpc/pull/422) : Deploy CycleCloud 8.x from the martketplace image
+- [PR 417](https://github.com/Azure/azurehpc/pull/417) : Install steps are now idempotent
+- [PR 411](https://github.com/Azure/azurehpc/pull/410) : Intel MLC scripts
+- [PR 410](https://github.com/Azure/azurehpc/pull/410) : Added Mellanox Clusterkit scripts
+- [PR 403](https://github.com/Azure/azurehpc/pull/403) : BEEOND 7.2
+- [PR 386](https://github.com/Azure/azurehpc/pull/386) : Added example for DFS namespace
+- [PR 384](https://github.com/Azure/azurehpc/pull/384) : Quantum espresso
+- [PR 380](https://github.com/Azure/azurehpc/pull/380) : Nwchem update to 7.0.0
+- [PR 375](https://github.com/Azure/azurehpc/pull/375) : Update namd to 2.14
+- [PR 373](https://github.com/Azure/azurehpc/pull/373) : ldap example
 - [PR 372](https://github.com/Azure/azurehpc/pull/372) : Catch BadRequest and Conflict deployment errors
 - [PR 370](https://github.com/Azure/azurehpc/pull/370) : Deploy and capture Gen2 VM and Images
 - [PR 369](https://github.com/Azure/azurehpc/pull/369) : Allow installation of CycleCloud in USGov Azure Cloud
