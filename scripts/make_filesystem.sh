@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 device=$1
 filesystem=${2-xfs}
 mount=${3-/share}
