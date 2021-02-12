@@ -14,9 +14,6 @@ mkdir -p /scratch
 mkdir -p /apps
 mkdir -p /data
 mkdir -p /share/home
-mount $nfs_server:$nfs_share/apps /apps
-mount $nfs_server:$nfs_share/data /data
-mount $nfs_server:$nfs_share/home /share/home
 
 chmod 777 /scratch
 

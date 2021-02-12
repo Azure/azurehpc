@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 device=$1
 filesystem=${2-xfs}
 mount=${3-/share}
@@ -8,13 +9,19 @@ if [[ $(id -u) -ne 0 ]] ; then
     exit 1
 fi
 
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$script_dir/azhpc-library.sh" 
+
 echo "Creating a $filesystem filesystem on device $device mounted on $mount"
 
 case $filesystem in
     xfs)
         mkfs -t $filesystem $device || exit 1
         xfsuuid="UUID=`blkid |grep $device |cut -d " " -f 2 |cut -c 7-42`"
-        echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nobarrier,nofail 0 2" >> /etc/fstab
+        if is_centos7; then
+            options=",nobarrier"
+        fi
+        echo "$xfsuuid $mount $filesystem rw,noatime,attr2,inode64,nofail$options 0 2" >> /etc/fstab
     ;;
 
     ext4)
