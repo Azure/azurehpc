@@ -10,7 +10,7 @@ if [[ $(id -u) -ne 0 ]] ; then
 fi
 
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$script_dir/azhpc-library.sh" # Needed to use the retry function
+source "$script_dir/azhpc-library.sh" 
 
 echo "Creating a $filesystem filesystem on device $device mounted on $mount"
 
