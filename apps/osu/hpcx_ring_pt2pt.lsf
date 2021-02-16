@@ -5,7 +5,7 @@ PROFILE=$2
 
 AZHPC_MPI_HOSTFILE=$LSB_DJOB_HOSTFILE
 
-source /etc/profile # so we can load modules
+source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 
 HPCX_DIR=$(ls -atr /opt | grep hpcx | tail -n1)

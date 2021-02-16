@@ -2,7 +2,7 @@
 # MODE: ring (one to one node only), half (one to each one way only)
 MODE=${1-ring}
 set -o pipefail
-source /etc/profile
+source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 module load mpi/hpcx
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-source /etc/profile
+source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 module load mpi/hpcx
 

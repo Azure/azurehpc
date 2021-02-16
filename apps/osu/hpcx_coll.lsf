@@ -7,7 +7,7 @@ AZHPC_MPI_HOSTFILE=$LSB_DJOB_HOSTFILE
 AZHPC_CORES=$LSB_DJOB_NUMPROC
 AZHPC_PPN=$(echo $LSB_MCPU_HOSTS | cut -d' ' -f2)
 
-source /etc/profile # so we can load modules
+source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 
 HPCX_DIR=$(ls -atr /opt | grep hpcx | tail -n1)
