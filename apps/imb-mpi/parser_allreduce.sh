@@ -1,6 +1,6 @@
 #!/bin/bash
 MPI=$1
-source /etc/profile
+source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 case $MPI in
     impi2018)

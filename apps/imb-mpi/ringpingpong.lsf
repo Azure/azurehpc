@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # setup Intel MPI environment for Infiniband
-source /etc/profile # so we can load modules
+source /etc/profile.d/modules.sh
 module load mpi/impi_2018.4.274
 source $MPI_BIN/mpivars.sh
 

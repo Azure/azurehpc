@@ -2,7 +2,7 @@
 # Prerequisites : OpenMPI 4.0.x + GCC 9.x
 SHARED_APP=${1:-/apps}
 set -e
-source /etc/profile
+source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 
 AZHPC_VMSIZE=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute?api-version=2018-10-01" | jq -r '.vmSize')

@@ -28,7 +28,7 @@ case $MPI in
         fi
     ;;
     impi2018)
-        source /etc/profile
+        source /etc/profile.d/modules.sh
         module use /usr/share/Modules/modulefiles
         module load mpi/impi
         #source $MPI_BIN/mpivars.sh
@@ -43,7 +43,7 @@ case $MPI in
         fi
     ;;
     impi2019)
-        source /etc/profile
+        source /etc/profile.d/modules.sh
         module use /usr/share/Modules/modulefiles
         module load mpi/impi-2019
         #source $MPI_BIN/mpivars.sh -ofi_internal
@@ -59,7 +59,7 @@ case $MPI in
         fi
     ;;
     ompi)
-        source /etc/profile
+        source /etc/profile.d/modules.sh
         module use /usr/share/Modules/modulefiles
         module load mpi/hpcx
         mpi_options+=" -bind-to core"
