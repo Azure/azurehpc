@@ -6,7 +6,7 @@
 ##ulimit -s unlimited
 
 # Setup environment variables
-LS_DYNA_EXE_PATH=${LS_DYNA_PATH:-/apps/LS-DYNA}
+LS_DYNA_EXE_PATH=${LS_DYNA_EXE_PATH:-/apps/LS-DYNA}
 LS_DYNA_DATA_PATH=${LS_DYNA_DATA_PATH:-/data/LS-DYNA/topcrunch}
 LS_DYNA_MPP_EXE=${LS_DYNA_MPP_EXE:-ls-dyna_mpp_s_R9_3_1_x64_centos65_ifort131_avx2_intelmpi-2018}
 LS_DYNA_HYB_EXE=${LS_DYNA_HYB_EXE:-ls-dyna_hyb_s_R9_3_1_x64_centos65_ifort131_avx2_intelmpi-2018}
