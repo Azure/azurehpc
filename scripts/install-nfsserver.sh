@@ -75,6 +75,7 @@ exportfs
 
 cores=$(grep processor /proc/cpuinfo | wc -l)
 nfs_proc=$(($cores * 4))
+sed -i -e "s/#\[nfsd\]/\[nfsd\]/g" /etc/nfs.conf
 replace="s/# threads=8/threads=$nfs_proc/g"
 sed -i -e "$replace" /etc/nfs.conf
 
