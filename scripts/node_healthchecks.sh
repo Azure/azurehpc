@@ -35,11 +35,12 @@ function check_ib_device()
         standard_hc44rs|standard_hb60rs|standard_hb120rs_v2)
             # Retrieve IB info
             ib_device=$(ifconfig | grep ib0 -A1 | grep inet | tr -s ' ' | cut -d' ' -f 3)
+            IBDV=$(ibdev2netdev | grep "ib0" | awk -F ' ' '{print $1}')
             if [ -n "$ib_device" ]; then
-                IB_STATE=$(ibv_devinfo | grep state | xargs | cut -d' ' -f2)
-                IB_RATE=$(ibv_devinfo -v | grep active_width | cut -d':' -f2 | xargs | cut -d' ' -f1)
-                IB_SPEED=$(ibv_devinfo -v | grep active_speed | cut -d':' -f2 | xargs | cut -d'(' -f1 | xargs)
-                IB_PHYS_STATE=$(ibv_devinfo -v | grep phys_state | cut -d':' -f2 | xargs | cut -d' ' -f1)
+                IB_STATE=$(ibv_devinfo -d $IBDV | grep state | xargs | cut -d' ' -f2)
+                IB_RATE=$(ibv_devinfo -d $IBDV -v | grep active_width | cut -d':' -f2 | xargs | cut -d' ' -f1)
+                IB_SPEED=$(ibv_devinfo -d $IBDV -v | grep active_speed | cut -d':' -f2 | xargs | cut -d'(' -f1 | xargs)
+                IB_PHYS_STATE=$(ibv_devinfo -d $IBDV -v | grep phys_state | cut -d':' -f2 | xargs | cut -d' ' -f1)
             else
                 echo "ERROR : No IB devices found"
                 bad_node=1
