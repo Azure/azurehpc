@@ -15,10 +15,10 @@ function get_version {
     WRF_VERSION=4.1.5
     case $MPI_TYPE in
         openmpi)
-            MPI_VER=4.0.3
+            MPI_VER=4.0.5
         ;;
         mvapich2)
-            MPI_VER=2.3.3
+            MPI_VER=2.3.5
         ;;
     esac
 }
@@ -33,7 +33,7 @@ function install_packages {
 }
 
 function load_spack {
-    source /usr/share/Modules/init/bash
+    source /etc/profile.d/modules.sh
     module use ${SHARED_APP}/modulefiles
     module load spack/spack
     source $SPACK_SETUP_ENV
