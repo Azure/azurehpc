@@ -159,16 +159,17 @@ if [ "$AZHPC_SCRIPT_REMOTE_DEST" = "" ]; then
 fi
 
 # Copy Applications run scripts
-echo "Copy Applications run scripts to $AZHPC_SCRIPT_REMOTE_DEST"
-azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/apps $AZHPC_SCRIPT_REMOTE_DEST || exit 1
+echo "Copy $BUILD_REPOSITORY_LOCALPATH/apps run scripts to $AZHPC_SCRIPT_REMOTE_DEST"
+ls -al $BUILD_REPOSITORY_LOCALPATH/apps
+azhpc-scp $AZHPC_OPTION -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/apps/. $AZHPC_SCRIPT_REMOTE_DEST || exit 1
 
 # Copy pipeline library scripts
-echo "Copy pipeline library scripts to $AZHPC_SCRIPT_REMOTE_DEST"
-azhpc-scp $debug_option -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scripts $AZHPC_SCRIPT_REMOTE_DEST/ci || exit 1
+echo "Copy $BUILD_REPOSITORY_LOCALPATH/ci/scripts to $AZHPC_SCRIPT_REMOTE_DEST"
+azhpc-scp $AZHPC_OPTION -c $config_file -- -r $BUILD_REPOSITORY_LOCALPATH/ci/scripts $AZHPC_SCRIPT_REMOTE_DEST/ci || exit 1
 
 # List remote files
 echo "List files copied to $AZHPC_SCRIPT_REMOTE_DEST"
 remote_dir=$(echo $AZHPC_SCRIPT_REMOTE_DEST | cut -d ':' -f2)
-azhpc-run $debug_option -c $config_file ls -al $remote_dir
-azhpc-run $debug_option -c $config_file ls -al $remote_dir/ci
+azhpc-run $AZHPC_OPTION -c $config_file ls -al $remote_dir
+azhpc-run $AZHPC_OPTION -c $config_file ls -al $remote_dir/ci
 
