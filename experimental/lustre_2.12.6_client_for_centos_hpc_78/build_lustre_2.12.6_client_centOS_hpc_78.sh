@@ -26,13 +26,14 @@ chmod 777 ./autogen.sh
 ./autogen.sh
 
 yum install -y libselinux-devel
+yum install -y libyaml-devel
 
 ./configure
 make
 make rpms
 
 
-yum install ${BUILD_PATH}/${MOFED_FOLDER}/RPMS/kmod-mlnx-ofa_kernel-5.2-OFED.5.2.1.0.4.1.rhel7u8.x86_64.rpm
+yum install -y ${BUILD_PATH}/${MOFED_FOLDER}/RPMS/kmod-mlnx-ofa_kernel-5.2-OFED.5.2.1.0.4.1.rhel7u8.x86_64.rpm
 
 rpm -ivh ${BUILD_PATH}/${LUSTRE_RELEASE}/kmod-lustre-client-2.12.6-1.el7.x86_64.rpm
 rpm -ivh ${BUILD_PATH}/${LUSTRE_RELEASE}/lustre-client-2.12.6-1.el7.x86_64.rpm
