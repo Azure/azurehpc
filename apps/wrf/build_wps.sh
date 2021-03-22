@@ -9,6 +9,18 @@ APPS_WRF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MODULE_NAME=${APP_VERSION}-${MPI_TYPE}
 APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-${MPI_TYPE}
 
+function create_modulefile {
+mkdir -p ${MODULE_DIR}
+cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
+#%Module
+set              wpsversion        ${APP_VERSION}
+set              WPSROOT           ${APP_DIR}/WPS-\$wpsversion
+setenv           WPSROOT           ${APP_DIR}/WPS-\$wpsversion
+
+append-path      PATH              \$WPSROOT
+EOF
+}
+
 function get_version {
     # TODO : get these versions dynamically from the image
     GCC_VERSION=9.2.0
@@ -83,3 +95,5 @@ cd WPS-${APP_VERSION}
 EOF
 
 ./compile || exit 1
+
+create_modulefile
