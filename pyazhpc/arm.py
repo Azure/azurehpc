@@ -846,6 +846,7 @@ class ArmTemplate:
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
         rtags = res.get("resource_tags", {})
+        rmanagedidentity = res.get("managed_identity", None)
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
         if vnet_in_deployment:
@@ -954,6 +955,46 @@ class ArmTemplate:
 
         if rosdisksize:
             vmssres["properties"]["virtualMachineProfile"]["storageProfile"]["osDisk"]["diskSizeGb"] = rosdisksize
+
+        if rmanagedidentity is not None:
+            vmssres["identity"] = {
+                "type": "SystemAssigned"
+            }
+
+            role_lookup = {
+                "reader": "[resourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+                "contributor": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "owner": "[resourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]"
+            }
+            role = rmanagedidentity.get("role", "reader")
+            if role not in role_lookup:
+                log.error(
+                    f"{role} is an invalid role for a managed identity (options are: {', '.join(role_lookup.keys())})")
+                sys.exit(1)
+
+            scope_lookup = {
+                "resource_group": "[resourceGroup().id]",
+                "subscription": "[subscription().subscriptionId]"
+            }
+            scope = rmanagedidentity.get("scope", "resource_group")
+            if scope not in scope_lookup:
+                log.error(
+                    f"{scope} is an invalid scope for a managed identity (options are: {', '.join(scope_lookup.keys())})")
+                sys.exit(1)
+
+            self.resources.append({
+                "apiVersion": "2017-09-01",
+                "type": "Microsoft.Authorization/roleAssignments",
+                "name": f"[guid(subscription().subscriptionId, resourceGroup().id, '{r}')]",
+                "properties": {
+                    "roleDefinitionId": role_lookup[role],
+                    "principalId": f"[reference('{r}', '2017-12-01', 'Full').identity.principalId]",
+                    "scope": scope_lookup[scope]
+                },
+                "dependsOn": [
+                    f"[resourceId('Microsoft.Compute/virtualMachineScaleSets/', '{r}')]"
+                ]
+            })
 
         self.__helper_arm_add_zones(vmssres, raz)
         self.resources.append(vmssres)

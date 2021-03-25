@@ -180,7 +180,7 @@ This dictionary describes the resources for the project.
 | **image**                  | For a public image use format OpenLogic:CentOS:7.7:latest - For a custom image use the imageID of a managed image |   yes    |         |
 | **instances**              | Number of VMs or VMSS instances to create                                   |   yes    |         |
 | **low_priority**           | Boolean flag to se Spot Instance (Eviction = Delete)                        |   no     |  False  |
-| **managed_identity**       | [Managed Identity property](#managed-identity-property) to use (**vm only**)|   no     |         |
+| **managed_identity**       | [Managed Identity property](#managed-identity-property) to use              |   no     |         |
 | **nsg_allow**              | Enabled pre-defined NSG rules `ssh`, `rdp`, `http`, `https`, `zcentral` or `grafana` (**vm only**) |   no     | ssh/rdp |
 | **ephemeral_os_disk**      | Set whether to use the ephermal disk for the operation system               |   no     |  False  |
 | **ephemeral_os_disk_placement** | Specifies the ephemeral disk placement. Possible values are: CacheDisk, ResourceDisk |   no     |  CacheDisk  |
