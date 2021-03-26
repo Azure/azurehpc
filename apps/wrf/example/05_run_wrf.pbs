@@ -1,0 +1,19 @@
+#!/bin/bash
+export SHARED_APP=$HOME/apps
+source $HOME/env_wrf.sh hc
+
+pushd wrf
+
+ln -s ${WRFROOT}/run/* .
+
+mpirun real.exe
+
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+
+mpi_options="-x LD_LIBRARY_PATH "
+if [ -n $LD_PRELOAD ]; then
+    mpi_options+="-x LD_PRELOAD"
+fi
+
+mpirun $mpi_options -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa wrf.exe
+popd
