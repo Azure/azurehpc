@@ -2,19 +2,19 @@
 packages:
   openmpi:
     externals:
-    - spec: openmpi@4.0.4%gcc@9.2.0
+    - spec: openmpi@4.0.5%gcc@9.2.0
       modules:
       - mpi/openmpi
     buildable: False
   mvapich2:
     externals:
-    - spec: mvapich2@2.3.4%gcc@9.2.0
+    - spec: mvapich2@2.3.5%gcc@9.2.0
       modules:
       - mpi/mvapich2
     buildable: False
   hpcx:
     externals:
-    - spec: hpcx@2.7.0%gcc@9.2.0
+    - spec: hpcx@2.7.4%gcc@9.2.0
       modules:
       - mpi/hpcx
     buildable: False

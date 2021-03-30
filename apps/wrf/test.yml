@@ -2,41 +2,49 @@ steps:
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/check_pbs_nodes.sh $(azhpc.variables.compute_instances)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/spack/build_spack.sh $(azhpc.variables.sku_type)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wrf.sh openmpi $(azhpc.variables.sku_type)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wrf.sh openmpi $(azhpc.variables.sku_type) omp
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wps.sh openmpi $(azhpc.variables.sku_type)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wrf.sh mvapich2 $(azhpc.variables.sku_type)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wrf.sh mvapich2 $(azhpc.variables.sku_type) omp
 
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/submit_pbs_job.sh 1 120 /apps/wrf/build_wps.sh mvapich2 $(azhpc.variables.sku_type)
 
 - template: ../../ci/templates/steps/azhpc-run.yml
@@ -47,4 +55,5 @@ steps:
 - template: ../../ci/templates/steps/azhpc-run.yml
   parameters:
     user: hpcuser
+    continueOnError: false
     command: /apps/ci/submit_pbs_job.sh $(azhpc.variables.compute_instances) 60 /apps/wrf/run_wrf_openmpi.pbs $(azhpc.variables.sku_type) /data/wrf/$(azhpc.variables.test_case)

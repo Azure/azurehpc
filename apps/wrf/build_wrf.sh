@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 MPI_TYPE=${1:-$openmpi}
 SKU_TYPE=${2:-$hbv2}
 OMP=$3
@@ -34,10 +35,10 @@ function get_version {
     GCC_VERSION=9.2.0
     case $MPI_TYPE in
         openmpi)
-            MPI_VER=4.0.3
+            MPI_VER=4.0.5
         ;;
         mvapich2)
-            MPI_VER=2.3.3
+            MPI_VER=2.3.5
         ;;
     esac
     if [ "$OMP" == "" ]; then
@@ -57,7 +58,7 @@ function install_packages {
 }
 
 function load_spack {
-    source /usr/share/Modules/init/bash
+    source /etc/profile.d/modules.sh
     module use ${SHARED_APP}/modulefiles
     module load spack/spack
     source $SPACK_SETUP_ENV
@@ -76,7 +77,7 @@ function get_wrf {
 
 function spack_install {
     echo "spack install"
-    spack install  netcdf-fortran+mpi ^hdf5+fortran %gcc@${GCC_VERSION} ^${MPI_TYPE}@${MPI_VER} || exit 1
+    spack install  netcdf-fortran ^hdf5+fortran %gcc@${GCC_VERSION} ^${MPI_TYPE}@${MPI_VER} || exit 1
 }
 
 function spack_load {

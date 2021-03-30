@@ -9,16 +9,28 @@ APPS_WRF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MODULE_NAME=${APP_VERSION}-${MPI_TYPE}
 APP_DIR=$SHARED_APP/${SKU_TYPE}/${APP_NAME}-${MPI_TYPE}
 
+function create_modulefile {
+mkdir -p ${MODULE_DIR}
+cat << EOF >> ${MODULE_DIR}/${MODULE_NAME}
+#%Module
+set              wpsversion        ${APP_VERSION}
+set              WPSROOT           ${APP_DIR}/WPS-\$wpsversion
+setenv           WPSROOT           ${APP_DIR}/WPS-\$wpsversion
+
+append-path      PATH              \$WPSROOT
+EOF
+}
+
 function get_version {
     # TODO : get these versions dynamically from the image
     GCC_VERSION=9.2.0
     WRF_VERSION=4.1.5
     case $MPI_TYPE in
         openmpi)
-            MPI_VER=4.0.3
+            MPI_VER=4.0.5
         ;;
         mvapich2)
-            MPI_VER=2.3.3
+            MPI_VER=2.3.5
         ;;
     esac
 }
@@ -33,7 +45,7 @@ function install_packages {
 }
 
 function load_spack {
-    source /usr/share/Modules/init/bash
+    source /etc/profile.d/modules.sh
     module use ${SHARED_APP}/modulefiles
     module load spack/spack
     source $SPACK_SETUP_ENV
@@ -83,3 +95,5 @@ cd WPS-${APP_VERSION}
 EOF
 
 ./compile || exit 1
+
+create_modulefile
