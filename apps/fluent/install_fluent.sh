@@ -34,7 +34,7 @@ sed -i s/-mpiopt=\$PARA_MPIRUN_FLAGS/-mpiopt=\'\$PARA_MPIRUN_FLAGS\'/g  $APP_INS
 # Use the system libcrypto vs the shipped version
 # The below part is required for Centos 8
 mv $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/commonfiles/CPython/3_7/linx64/Release/python/lib/libcrypto.so.1.1 /$APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/commonfiles/CPython/3_7/linx64/Release/python/lib/libcrypto.so.1.1.orig
-mv $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/fluent/lib/lnamd64/libcrypto.so.1.1.orig $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/fluent/lib/lnamd64/libcrypto.so.1.1.orig
+mv $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/fluent/lib/lnamd64/libcrypto.so.1.1 $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/fluent/lib/lnamd64/libcrypto.so.1.1.orig
 mv $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/Framework/bin/Linux64/libcrypto.so.1.1 $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/Framework/bin/Linux64/libcrypto.so.1.1.orig
 
 
