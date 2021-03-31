@@ -1,5 +1,5 @@
 #!/bin/bash
-
+  
 # parameters that can be overridden
 APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
 TMP_DIR=${TMP_DIR:-/mnt/resource}
@@ -30,6 +30,13 @@ yum -y install freetype motif.x86_64 mesa-libGLU-9.0.0-4.el7.x86_64
 # fixes required for fluent 19.3.0 on Hb/Hc VMs
 sed -i 's/OMPI_MCA_mca_component_show_load_errors/OMPI_MCA_mca_base_component_show_load_errors/g;s/my_ic_flag="--mca btl self,vader,openib"/#my_ic_flag="--mca btl self,vader,openib"/g' $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/fluent/fluent*/multiport/mpi_wrapper/bin/mpirun.fl
 sed -i s/-mpiopt=\$PARA_MPIRUN_FLAGS/-mpiopt=\'\$PARA_MPIRUN_FLAGS\'/g  $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/fluent/bin/fluentbench.pl
+
+# Use the system libcrypto vs the shipped version
+# The below part is required for Centos 8
+mv $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/commonfiles/CPython/3_7/linx64/Release/python/lib/libcrypto.so.1.1 /$APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/commonfiles/CPython/3_7/linx64/Release/python/lib/libcrypto.so.1.1.orig
+mv $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/fluent/lib/lnamd64/libcrypto.so.1.1.orig $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/fluent/lib/lnamd64/libcrypto.so.1.1.orig
+mv $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/Framework/bin/Linux64/libcrypto.so.1.1 $APP_INSTALL_DIR/ansys_inc/$FLUENT_VERSION/Framework/bin/Linux64/libcrypto.so.1.1.orig
+
 
 cd -
 rm -rf $tmp_dir
