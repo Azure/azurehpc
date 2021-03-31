@@ -2,6 +2,7 @@
 
 # arg: $1 = device (e.g. L=/dev/sdb Lv2=/dev/nvme0n1)
 device=$1
+hsm_max_requests=${2:-128}
 
 # this will only install MDS on first node in a scaleset
 if [ "$PSSH_NODENUM" = "0" ]; then
@@ -15,7 +16,7 @@ if [ "$PSSH_NODENUM" = "0" ]; then
     # set up hsm
     lctl set_param -P mdt.*-MDT0000.hsm_control=enabled
     lctl set_param -P mdt.*-MDT0000.hsm.default_archive_id=1
-    lctl set_param mdt.*-MDT0000.hsm.max_requests=128
+    lctl set_param mdt.*-MDT0000.hsm.max_requests=$hsm_max_requests
 
     # allow any user and group ids to write
     lctl set_param mdt.*-MDT0000.identity_upcall=NONE
