@@ -3,11 +3,11 @@
 
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/simple_hpc_pbs/config.json)
 
-This example will create an HPC cluster ready to run with PBS Pro.
+This example will create an HPC cluster ready to run with OpenPBS.
 
 ## Initialise the project
 
-To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by compying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
+To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by copying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
 
 ```
 azhpc-init -c $azhpc_dir/examples/simple_hpc_pbs -d simple_hpc_pbs -s
