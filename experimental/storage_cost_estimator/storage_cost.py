@@ -11,7 +11,7 @@ anf_max_write_bw_GBps = 1.5
 ROUNDOFF_ADJUST_FACTOR = 1.15
 IOPS_transfer_size_KB = 4.0
 
-excel_file='/mnt/c/Users/cogarvey/Documents/vm_storage_limits_costs.xlsx'
+excel_file='./vm_storage_limits_costs.xlsx'
 
 
 def read_excel(excel_file):
