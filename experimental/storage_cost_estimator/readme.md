@@ -2,12 +2,12 @@
 
 ## Overview
 
-The  HPC storage cost estimator tool can compare the cost of various Azure HPC Storage options (IaaS Parallel Filesystems (Ephemeral and managed disks), IaaS NFS servers (ephemeral and managed disks), Azure Netapp files (standard, premium and ultra) and Blob Storage (premium, standard (hot, cold and archive)). The I/O requirements (i.e target I/O throughput and capacity) are used to configure the storage solutions used in the comparisons. Theoretical I/O performance is calculated using the VM, disk and storage limits/specifications. Storage cost comparisons are based on PAYGO pricing.
+The  HPC storage cost estimator tool can compare the cost of various Azure HPC Storage options (IaaS Parallel Filesystems (Ephemeral and managed disks), IaaS NFS servers (ephemeral and managed disks), Azure Netapp files (standard, premium and ultra) and Blob Storage (premium, standard (hot, cold and archive)) and HPC Cache. The I/O requirements (i.e target I/O throughput and capacity) are used to configure and select the storage solutions used in the comparisons. Theoretical I/O performance is calculated using the VM, disk and storage limits/specifications. Storage cost comparisons are based on PAYGO pricing.
 
 ## Architecture
 
 
-![test](/experimental/storage_cost_estimator/images/storage_cost_tool_architecture.jpg?raw=true "storage_cost")
+![storage_cost_architecture](/experimental/storage_cost_estimator/images/storage_cost_tool_architecture.jpg?raw=true "storage_cost")
 
 ## features
 
@@ -16,6 +16,7 @@ The  HPC storage cost estimator tool can compare the cost of various Azure HPC S
   - IaaS NFS Server (Ephemeral and managed disks)
   - Azure Netapp Files (standard, premium and ultra)
   - Blob storage (premium, standard (hot,cold & archive))
+  - HPC Cache (small, medium and large configurations)
 - Tuning of Blob transfer cost model
 - flexibile report generation
 
@@ -34,7 +35,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -r TOTAL_REPORT_SIZE, --total_report_size TOTAL_REPORT_SIZE
-                        Total number of items/lines in the storage report [int] (default: 20)
+                        Total number of items/lines in the storage report [int] (default: 24)
   -g GROUP_REPORT_SIZE, --group_report_size GROUP_REPORT_SIZE
                         Total number of items/lines in each storage report group or type of storage [int] (default: 4)
   -brp BLOB_READ_PERCENT, --blob_read_percent BLOB_READ_PERCENT
@@ -73,6 +74,10 @@ NFS Standard_D48as_v4+S20x17           $2,388.37
 NFS Standard_D48ds_v4+local_ssd        $2,573.98
 NFS Standard_D64a_v4+local_ssd         $2,690.78
 Ultra ANF 8 TiB                        $3,217.33
+Premium ANF 16 TiB                     $4,820.01
+HPC Cache 2 GB/s 3 TiB                 $4,881.82
+Standard ANF 62 TiB                    $9,361.94
+standard_archive Blob 1.0 TiB          $182,738.40
 ```
 Add the -dr option to get a detailed report
 ```
@@ -102,4 +107,8 @@ NFS Standard_D48as_v4+S20x17            8.50           1.02           1.02      
 NFS Standard_D48ds_v4+local_ssd         1.76           2.90           2.90           462,000        462,000        $2,573.98
 NFS Standard_D64a_v4+local_ssd          1.56           1.00           0.50           96,000         96,000         $2,690.78
 Ultra ANF 8 TiB                         8.00           1.02           1.02           64,000         64,000         $3,217.33
+Premium ANF 16 TiB                      16.00          1.02           1.02           64,000         64,000         $4,820.01
+HPC Cache 2 GB/s 3 TiB                  3.00           2.00           0.80           unknown        unknown        $4,881.82
+Standard ANF 62 TiB                     62.00          0.99           0.99           62,000         62,000         $9,361.94
+standard_archive Blob 1.0 TiB           1.00           6.25           1.25           unknown        unknown        $182,738.40
 ```

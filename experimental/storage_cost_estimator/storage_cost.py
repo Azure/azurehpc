@@ -7,6 +7,9 @@ from pandas import ExcelFile
 
 
 blob_storage_capacity_limit_TiB = 5120
+hpc_cache_max_capacity_TiB = 48.0
+hpc_cache_max_throughput_GBps = 8.0
+hpc_cache_write_throughput_percent = 0.4
 anf_max_write_bw_GBps = 1.5
 ROUNDOFF_ADJUST_FACTOR = 1.15
 IOPS_transfer_size_KB = 4.0
@@ -24,6 +27,8 @@ def read_excel(excel_file):
    anf_sheet_dropna = anf_sheet.dropna(how='all')
    blob_sheet = pd.read_excel(excel_file, skiprows=7, sheet_name='blob')
    blob_sheet_dropna = blob_sheet.dropna(how='all')
+   hpc_cache_sheet = pd.read_excel(excel_file, skiprows=4, sheet_name='hpc_cache')
+   hpc_cache_sheet_dropna = hpc_cache_sheet.dropna(how='all')
 
    disk_name_l = list(disk_limits_sheet_dropna['Name'])
    disk_size_TiB_l = list(disk_limits_sheet_dropna['Size (TiB)'])
@@ -57,7 +62,15 @@ def read_excel(excel_file):
    blob_write_cost_per_10k_ops_l = list(blob_sheet_dropna['write_cost_per_10k_ops'])
    blob_read_cost_per_10k_ops_l = list(blob_sheet_dropna['read_cost_per_10k_ops'])
 
-   return(disk_name_l,disk_size_TiB_l,disk_price_per_month_l,disk_iops_l,disk_throughput_MBps_l,vm_name_l,vm_vcpu_l,vm_mem_GiB_l,vm_tmp_storage_GiB_l,vm_max_num_data_disks_l,vm_max_cached_tmp_storage_throughput_MBps_l,vm_max_tmp_storage_read_throughput_MBps_l,vm_max_tmp_storage_write_throughput_MBps_l,vm_max_tmp_storage_iops_l,vm_max_uncached_disk_throughput_MBps_l,vm_max_uncached_disk_iops_l,vm_network_bw_Mbps_l,vm_cost_per_month_l,anf_service_level_l,anf_per_GiB_per_hr_l,anf_MBps_per_TiB_l,anf_iops_per_TiB_l,blob_tier_l,blob_egress_Gbps_l,blob_ingress_Gbps_l,blob_cost_per_TiB_l,blob_write_cost_per_10k_ops_l,blob_read_cost_per_10k_ops_l)
+   hpc_cache_throughput_GBps_l = list(hpc_cache_sheet_dropna['Throughput_GBps'])
+   hpc_cache_capacity_small_TiB_l = list(hpc_cache_sheet_dropna['Capacity_small_TiB'])
+   hpc_cache_capacity_medium_TiB_l = list(hpc_cache_sheet_dropna['Capacity_medium_TiB'])
+   hpc_cache_capacity_large_TiB_l = list(hpc_cache_sheet_dropna['Capacity_large_TiB'])
+   hpc_cache_cost_small_per_month_l = list(hpc_cache_sheet_dropna['cost_small_per_month'])
+   hpc_cache_cost_medium_per_month_l = list(hpc_cache_sheet_dropna['cost_medium_per_month'])
+   hpc_cache_cost_large_per_month_l = list(hpc_cache_sheet_dropna['cost_large_per_month'])
+
+   return(disk_name_l,disk_size_TiB_l,disk_price_per_month_l,disk_iops_l,disk_throughput_MBps_l,vm_name_l,vm_vcpu_l,vm_mem_GiB_l,vm_tmp_storage_GiB_l,vm_max_num_data_disks_l,vm_max_cached_tmp_storage_throughput_MBps_l,vm_max_tmp_storage_read_throughput_MBps_l,vm_max_tmp_storage_write_throughput_MBps_l,vm_max_tmp_storage_iops_l,vm_max_uncached_disk_throughput_MBps_l,vm_max_uncached_disk_iops_l,vm_network_bw_Mbps_l,vm_cost_per_month_l,anf_service_level_l,anf_per_GiB_per_hr_l,anf_MBps_per_TiB_l,anf_iops_per_TiB_l,blob_tier_l,blob_egress_Gbps_l,blob_ingress_Gbps_l,blob_cost_per_TiB_l,blob_write_cost_per_10k_ops_l,blob_read_cost_per_10k_ops_l,hpc_cache_throughput_GBps_l,hpc_cache_capacity_small_TiB_l,hpc_cache_capacity_medium_TiB_l,hpc_cache_capacity_large_TiB_l,hpc_cache_cost_small_per_month_l,hpc_cache_cost_medium_per_month_l,hpc_cache_cost_large_per_month_l)
 
 
 def nfs_disk(all_d, vm_name_l, vm_max_uncached_disk_throughput_MBps_l,disk_name_l,disk_throughput_MBps_l,vm_max_num_data_disks_l,disk_size_TiB_l,vm_cost_per_month_l,disk_price_per_month_l,vm_network_bw_Mbps_l, disk_iops_l, vm_max_uncached_disk_iops_l):
@@ -340,7 +353,40 @@ def blob_storage(all_d, blob_tier_l,  blob_egress_Gbps_l, blob_cost_per_TiB_l, b
           all_d[key]['write_iops'] = value['write_iops']
           all_d[key]['read_iops'] = value['read_iops']
           count = count + 1      
-     
+
+
+def hpc_cache(all_d,hpc_cache_throughput_GBps_l,hpc_cache_capacity_small_TiB_l,hpc_cache_capacity_medium_TiB_l,hpc_cache_capacity_large_TiB_l,hpc_cache_cost_small_per_month_l,hpc_cache_cost_medium_per_month_l,hpc_cache_cost_large_per_month_l):
+   if target_capacity_TiB > hpc_cache_max_capacity_TiB or target_performance_GBps > hpc_cache_max_throughput_GBps:
+      return
+   hpc_cache_d = {}
+   for h_i, hpc_cache_throughput_GBps in enumerate(hpc_cache_throughput_GBps_l):
+      if hpc_cache_throughput_GBps >= target_performance_GBps:
+         hpc_cache_cost_l = [hpc_cache_cost_small_per_month_l[h_i],hpc_cache_cost_medium_per_month_l[h_i],hpc_cache_cost_large_per_month_l[h_i]]
+         for hc_i, hpc_cache_capacity_TiB in enumerate([hpc_cache_capacity_small_TiB_l[h_i],hpc_cache_capacity_medium_TiB_l[h_i],hpc_cache_capacity_large_TiB_l[h_i]]):
+            if hpc_cache_capacity_TiB >= target_capacity_TiB:
+               hpc_cache_description = "HPC Cache {} GB/s {} TiB".format(hpc_cache_throughput_GBps,hpc_cache_capacity_TiB)
+               hpc_cache_d[hpc_cache_description] = {}
+               hpc_cache_d[hpc_cache_description]['total_cost_per_month'] = hpc_cache_cost_l[hc_i]
+               hpc_cache_d[hpc_cache_description]['capacity_TiB'] =  hpc_cache_capacity_TiB
+               hpc_cache_d[hpc_cache_description]['write_bw_GBps'] =  hpc_cache_throughput_GBps * hpc_cache_write_throughput_percent
+               hpc_cache_d[hpc_cache_description]['read_bw_GBps'] =  hpc_cache_throughput_GBps
+               hpc_cache_d[hpc_cache_description]['write_iops'] =  "unknown"
+               hpc_cache_d[hpc_cache_description]['read_iops'] =  "unknown"
+               break
+         break 
+   
+   count=0
+   for key, value in sorted(hpc_cache_d.items(), key=lambda item: item[1]['total_cost_per_month']):
+       if count < group_report_size and not pd.isna(hpc_cache_d[key]['total_cost_per_month']):
+          all_d[key] = {}
+          all_d[key]['total_cost_per_month'] = value['total_cost_per_month']
+          all_d[key]['capacity_TiB'] = value['capacity_TiB']
+          all_d[key]['write_bw_GBps'] = value['write_bw_GBps']
+          all_d[key]['read_bw_GBps'] = value['read_bw_GBps']
+          all_d[key]['write_iops'] = value['write_iops']
+          all_d[key]['read_iops'] = value['read_iops']
+          count = count + 1      
+           
 
 def storage_report(all_d):
 
@@ -376,7 +422,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("target_performance_GBps", type=float, help="Target total aggregate I/O performance in GB/s [float]")
     parser.add_argument("target_capacity_TiB", type=float, help="Target total storage capacity in TiB [float]")
-    parser.add_argument("-r", "--total_report_size", type=int, default=20, help="Total number of items/lines in the storage report [int]")
+    parser.add_argument("-r", "--total_report_size", type=int, default=24, help="Total number of items/lines in the storage report [int]")
     parser.add_argument("-g", "--group_report_size", type=int, default=4, help="Total number of items/lines in each storage report group or type of storage [int]")
     parser.add_argument("-brp", "--blob_read_percent", type=float, default=0.6, help="The percentage of total Blob I/O done by read (Used in calculating Blob I/O operations transfer costs [float]")
     parser.add_argument("-bbs", "--blob_block_size_MiB", type=float, default=32.0, help="Blob block size used in calculation of blob transfer operations cost [float]")
@@ -398,13 +444,14 @@ def main():
        detailed_report = False
 
     all_d = {}
-    (disk_name_l,disk_size_TiB_l,disk_price_per_month_l,disk_iops_l,disk_throughput_MBps_l,vm_name_l,vm_vcpu_l,vm_mem_GiB_l,vm_tmp_storage_GiB_l,vm_max_num_data_disks_l,vm_max_cached_tmp_storage_throughput_MBps_l,vm_max_tmp_storage_read_throughput_MBps_l,vm_max_tmp_storage_write_throughput_MBps_l,vm_max_tmp_storage_iops_l,vm_max_uncached_disk_throughput_MBps_l,vm_max_uncached_disk_iops_l,vm_network_bw_Mbps_l,vm_cost_per_month_l,anf_service_level_l,anf_per_GiB_per_hr_l,anf_MBps_per_TiB_l,anf_iops_per_TiB_l,blob_tier_l,blob_egress_Gbps_l,blob_ingress_Gbps_l,blob_cost_per_TiB_l,blob_write_cost_per_10k_ops_l,blob_read_cost_per_10k_ops_l) = read_excel(excel_file)
+    (disk_name_l,disk_size_TiB_l,disk_price_per_month_l,disk_iops_l,disk_throughput_MBps_l,vm_name_l,vm_vcpu_l,vm_mem_GiB_l,vm_tmp_storage_GiB_l,vm_max_num_data_disks_l,vm_max_cached_tmp_storage_throughput_MBps_l,vm_max_tmp_storage_read_throughput_MBps_l,vm_max_tmp_storage_write_throughput_MBps_l,vm_max_tmp_storage_iops_l,vm_max_uncached_disk_throughput_MBps_l,vm_max_uncached_disk_iops_l,vm_network_bw_Mbps_l,vm_cost_per_month_l,anf_service_level_l,anf_per_GiB_per_hr_l,anf_MBps_per_TiB_l,anf_iops_per_TiB_l,blob_tier_l,blob_egress_Gbps_l,blob_ingress_Gbps_l,blob_cost_per_TiB_l,blob_write_cost_per_10k_ops_l,blob_read_cost_per_10k_ops_l,hpc_cache_throughput_GBps_l,hpc_cache_capacity_small_TiB_l,hpc_cache_capacity_medium_TiB_l,hpc_cache_capacity_large_TiB_l,hpc_cache_cost_small_per_month_l,hpc_cache_cost_medium_per_month_l,hpc_cache_cost_large_per_month_l) = read_excel(excel_file)
     pfs_disk(all_d, vm_name_l, vm_max_uncached_disk_throughput_MBps_l,disk_name_l,disk_throughput_MBps_l,vm_max_num_data_disks_l,disk_size_TiB_l,vm_cost_per_month_l,disk_price_per_month_l,disk_iops_l, vm_max_uncached_disk_iops_l)
     pfs_local_ssd(all_d, vm_name_l, vm_tmp_storage_GiB_l, vm_max_tmp_storage_read_throughput_MBps_l,vm_max_tmp_storage_write_throughput_MBps_l,vm_cost_per_month_l,vm_network_bw_Mbps_l,vm_max_tmp_storage_iops_l)
     anf(all_d, anf_service_level_l,anf_per_GiB_per_hr_l,anf_MBps_per_TiB_l,anf_iops_per_TiB_l)
     nfs_disk(all_d, vm_name_l, vm_max_uncached_disk_throughput_MBps_l,disk_name_l,disk_throughput_MBps_l,vm_max_num_data_disks_l,disk_size_TiB_l,vm_cost_per_month_l,disk_price_per_month_l,vm_network_bw_Mbps_l, disk_iops_l, vm_max_uncached_disk_iops_l)
     nfs_local_ssd(all_d, vm_name_l, vm_tmp_storage_GiB_l, vm_max_tmp_storage_read_throughput_MBps_l, vm_max_tmp_storage_write_throughput_MBps_l, vm_cost_per_month_l,vm_network_bw_Mbps_l, vm_max_tmp_storage_iops_l)
     blob_storage(all_d, blob_tier_l,  blob_egress_Gbps_l, blob_cost_per_TiB_l, blob_ingress_Gbps_l, blob_read_cost_per_10k_ops_l,  blob_write_cost_per_10k_ops_l)
+    hpc_cache(all_d,hpc_cache_throughput_GBps_l,hpc_cache_capacity_small_TiB_l,hpc_cache_capacity_medium_TiB_l,hpc_cache_capacity_large_TiB_l,hpc_cache_cost_small_per_month_l,hpc_cache_cost_medium_per_month_l,hpc_cache_cost_large_per_month_l)
     storage_report(all_d)
 
 
