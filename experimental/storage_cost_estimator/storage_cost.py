@@ -295,7 +295,7 @@ def anf(all_d, anf_service_level_l, anf_per_GiB_per_hr_l, anf_MBps_per_TiB_l, an
              else:
                 anf_capacity_TiB = target_capacity_TiB
              (capacity_TiB, write_bw_GBps, read_bw_GBps, write_iops, read_iops) = anf_perf_capacity(anf_capacity_TiB,  anf_MBps_per_TiB_l[a_i], anf_iops_per_TiB_l[a_i])
-             anf_description = "{} ANF {:d} TiB".format(anf_service_level_l[a_i],int(anf_capacity_TiB))
+             anf_description = "ANF {} {:d} TiB".format(anf_service_level_l[a_i],int(anf_capacity_TiB))
              anf_d[anf_description] = {}
              anf_d[anf_description]['total_cost_per_month'] = anf_capacity_TiB * 730 * anf_per_GiB_per_hr_l[a_i] * 1024
              anf_d[anf_description]['capacity_TiB'] =  capacity_TiB
