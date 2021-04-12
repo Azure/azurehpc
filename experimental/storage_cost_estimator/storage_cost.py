@@ -323,7 +323,7 @@ def blob_storage(all_d, blob_tier_l,  blob_egress_Gbps_l, blob_cost_per_TiB_l, b
    for b_i,tier in enumerate(blob_tier_l):
       if target_capacity_TiB > blob_storage_capacity_limit_TiB or target_performance_GBps > blob_egress_Gbps_l[b_i]/8.0:
          continue
-      blob_description = "{} Blob {} TiB".format(tier,target_capacity_TiB)
+      blob_description = "Blob {} {} TiB".format(tier,target_capacity_TiB)
       blob_d[blob_description] = {}
       blob_capacity_cost_per_month = target_capacity_TiB * blob_cost_per_TiB_l[b_i]
       blob_write_bw_MBps = blob_ingress_Gbps_l[b_i] * 1000.0 / 8.0
