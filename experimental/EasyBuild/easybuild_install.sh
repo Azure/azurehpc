@@ -62,3 +62,5 @@ echo 'enforce-checksums = true' >> ${EB_CONFIGDIR}/easybuild.cfg
 
 # Install required OS dependencies
 sudo yum install -y openssl-devel
+sudo yum install -y python36-pyOpenSSL
+sudo pip3 install requests
