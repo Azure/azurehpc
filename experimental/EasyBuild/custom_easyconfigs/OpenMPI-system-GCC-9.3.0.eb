@@ -1,0 +1,15 @@
+# Use OpenMPI included in the HPC-X installation available in the system
+easyblock = 'AzureMPI'
+
+name = 'OpenMPI'
+version = 'system'
+
+homepage = 'https://developer.nvidia.com/networking/hpc-x'
+description = """NVIDIA HPC-X is a comprehensive software package that includes 
+ Message Passing Interface (MPI), Symmetrical Hierarchical Memory (SHMEM) and 
+ Partitioned Global Address Space (PGAS) communications libraries fully optimized
+ for NVIDIA InfiniBand networking solutions."""
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+
+moduleclass = 'mpi'
