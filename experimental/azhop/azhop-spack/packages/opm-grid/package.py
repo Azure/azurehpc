@@ -1,5 +1,3 @@
-     Show Dotfiles Show Owner/Mode
-/anfhome/hpcuser/azhop-spack/packages/opm-grid/
 # Copyright 2013-2020 Lawrence Livermore National Security, LLC and other
 # Spack Project Developers. See the top-level COPYRIGHT file for details.
 #
