@@ -1,5 +1,16 @@
 # EasyBuild
 
+- [What is EasyBuild](#what-is-easybuild)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Utilization](#utilization)
+  * [Software optimization](#software-optimization)
+  * [Install standard foss toolchain](#install-standard-foss-toolchain)
+  * [Install custom foss toolchain containing system HPC-X](#install-custom-foss-toolchain-containing-system-hpc-x)
+
+## What is EasyBuild
+
 [EasyBuild](https://docs.easybuild.io/en/latest/index.html) is an open source framework written in Python designed to simplify the build, installation and management of scientific software on HPC systems. The main target is to provide a flexible solution to build highly optimized software stacks in a reproducible and fully automated way and organize them to allow co-existence of different versions of compilers, libraries and end-user software. Since software is built with all its required dependencies (including compilers), the stacks dependency to the libraries available in the underlying OS is minimal with the exception of glibc, OpenSSL and OFED.
 
 [**Toolchains**](https://docs.easybuild.io/en/latest/Concepts_and_Terminology.html#toolchains) represent the fundation of the EasyBuild software stack organization. A toolchain is defined as the set of compilers and libraries (MPI and numerical) used to build software. The most widely adopted toolchains are the following [common toolchains](https://docs.easybuild.io/en/latest/Common-toolchains.html#common-toolchains):
@@ -107,3 +118,46 @@ A different target architecture can be specified by using the `--optarch` option
    $ eb -r foss-2020a.eb
    ```
    This step will require about 3.5 hours on an HB60rs VM.
+
+### Install custom foss toolchain containing system HPC-X
+
+The following steps will illustrate how to install a custom AzureMPI easyblock and a set of modified `foss` toolchain easyconfig files that will override the default ones provided by EasyBuild to use the Nvidia HPC-X already installed in the Azure marketplace HPC image.
+
+Since all the names of the modules in the toolchain are not modified from the original ones in the `foss` toolchain, all sofwtare available in EasyBuild will be compatible with the new toolchain without modifications.
+
+1. Run the AzureMPI easyblock and custom `foss` easyconfig installation script:
+   ```
+   $ ./azurempi_install.sh
+   ```
+
+2. Check that the `foss-2020a` toolchain now includes `OpenMPI-system` from the `custom_easyconfigs` directory:
+   ```
+   $ ml EasyBuild
+   $ eb foss-2020a.eb -D | grep OpenMPI-system
+    * [ ] $CFGS/custom_easyconfigs/OpenMPI-system-GCC-9.3.0.eb (module: Compiler/GCC/9.3.0 | OpenMPI/system)
+   ```
+   If EasyBuild robot still picks up the original `OpenMPI` easyconfig check the following:
+   * The `<stack_root_path>/EasyBuild/custom_easyconfigs` directory should contain:
+     ```
+     foss-2020a.eb
+     gompi-2020a.eb
+     OpenMPI-system-GCC-9.3.0.eb
+     ```
+   * The `<stack_root_path>/EasyBuild/custom_easyblocks` directory should contain:
+     ```
+     azurempi.py
+     ```
+   * The EasyBuild configuration should show:
+     ```
+     $ egrep 'include-easyblocks|robot-paths' <stack_root_path>/EasyBuild/easybuild.d/easybuild.cfg 
+     include-easyblocks = <stack_root_path>/EasyBuild/custom_easyblocks/azurempi.py
+     robot-paths = <stack_root_path>/EasyBuild/custom_easyconfigs:
+     ```
+     **Check that the `custom_easyconfigs` directory is followed by a colon. This instructs EasyBuild to prepended it to the default robot search path.** In this way during dependency resolution the custom easyconfigs will be found and selected for installation before the default ones shipped with EasyBuild.
+
+3. Install the custom `foss` toolchain:
+   ```
+   $ eb foss-2020a.eb -r
+   ```
+
+**NOTE:** Currently only the *foss-2020a* toolchain version is provided. To add a different toolchain version, simply create the corresponding easyconfig files in `<stack_root_path>/EasyBuild/custom_easyconfigs`.
