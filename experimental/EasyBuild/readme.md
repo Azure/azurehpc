@@ -26,7 +26,7 @@ The remaining information regarding software version, toolchain and all the othe
 ## Prerequisites
 
 * GNU/Linux OS
-* Python 2.6, 2.7 or >=3.5
+* Python >=3.5
 * [Environment Modules (TCL/C)](http://modules.sourceforge.net/) or [Lmod](https://lmod.readthedocs.io/en/latest/index.html)
 
 The provided installation script will use latest Python 3 available with the chosen distribution. Lmod is used as environment modules manager due to its larger feature set compared to Environment Modules.
