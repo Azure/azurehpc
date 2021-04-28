@@ -159,5 +159,6 @@ Since all the names of the modules in the toolchain are not modified from the or
    ```
    $ eb foss-2020a.eb -r
    ```
+   The custom toolchain installation will take about 100 minutes in an HB120rs_v2 VM.
 
 **NOTE:** Currently only the *foss-2020a* toolchain version is provided. To add a different toolchain version, simply create the corresponding easyconfig files in `<stack_root_path>/EasyBuild/custom_easyconfigs`.
