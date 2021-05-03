@@ -15,7 +15,8 @@ job_group=$uuid_str
 
 echo "submit job $job_group on $nodes"
 echo "AZHPC_TELEMETRY_WRAPPER=$AZHPC_TELEMETRY_WRAPPER"
-submit_job $job_group $nodes 1 $AZHPC_TELEMETRY_WRAPPER /apps/imb-mpi/ringpingpong.sh $mpi $mode
+APPS_ROOT=${AZHPC_APPS:/apps}
+submit_job $job_group $nodes 1 $AZHPC_TELEMETRY_WRAPPER $APPS_ROOT/imb-mpi/ringpingpong.sh $mpi $mode
 
 # Wait for all jobs to be finished
 wait_alljobs $job_group
