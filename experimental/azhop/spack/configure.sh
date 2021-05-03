@@ -7,13 +7,13 @@ spack compiler find /opt/gcc-9.2.0/
 echo "Configure external MPI packages"
 cat <<EOF >~/.spack/packages.yaml
 packages:
+  all:
+    target: [x86_64]
   openmpi:
     externals:
     - spec: openmpi@4.0.5%gcc@9.2.0
       modules:
       - mpi/openmpi-4.0.5
     buildable: False
-  all:
-    target: [x86_64]
 EOF
 
