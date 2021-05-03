@@ -14,6 +14,6 @@ packages:
       - mpi/openmpi-4.0.5
     buildable: False
   all:
-  target: [x86_64]
+    target: [x86_64]
 EOF
 
