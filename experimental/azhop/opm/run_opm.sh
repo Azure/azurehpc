@@ -11,7 +11,6 @@ INPUT_FILE=${INPUT##*/}
 NUM_THREADS=1
 
 . ~/spack/share/spack/setup-env.sh
-source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 spack load opm-simulators
 
