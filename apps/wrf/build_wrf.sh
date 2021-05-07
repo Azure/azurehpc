@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
-MPI_TYPE=${1:-$openmpi}
-SKU_TYPE=${2:-$hbv2}
+MPI_TYPE=${1:-hpcx}
+SKU_TYPE=${2:-hbv2}
 OMP=$3
 APP_NAME=wrf
 APP_VERSION=4.1.5
@@ -34,6 +34,9 @@ function get_version {
     # TODO : get these versions dynamically from the image
     GCC_VERSION=9.2.0
     case $MPI_TYPE in
+        hpcx)
+            MPI_VER=2.7.4
+        ;;
         openmpi)
             MPI_VER=4.0.5
         ;;
@@ -116,7 +119,6 @@ $CONFIG_VALUE
 EOF
 }
 
-sudo dnf config-manager --set-enabled PowerTools
 
 install_packages
 get_version
