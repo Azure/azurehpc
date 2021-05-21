@@ -44,7 +44,6 @@ sed -i 's/^[\ ]*end_hour[\ ]*=[\ ]*.*$/ end_hour = '"$ref_hour"',/g' $DATA_DIR/n
 cat $DATA_DIR/namelist.input
 
 . ~/spack/share/spack/setup-env.sh
-source /etc/profile.d/modules.sh
 module use /usr/share/Modules/modulefiles
 spack load wps
 WPS_ROOT=$(spack location -i wps)

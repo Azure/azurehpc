@@ -8,5 +8,5 @@ spack install hdf5+fortran+hl ^openmpi
 spack install netcdf-fortran ^hdf5+fortran+hl ^openmpi
 spack install wrf ^netcdf-fortran ^hdf5+fortran+hl ^openmpi
 
-spack install wps build_type=dmpar ^netcdf-fortran 
+spack install wps build_type=dmpar ^netcdf-fortran ^openmpi
 
