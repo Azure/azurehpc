@@ -1,0 +1,22 @@
+#!/bin/bash
+
+license_ip=$1
+export MMSIMHOME="/mnt/efs/fs1/spectrex"
+
+export PATH="$PATH:$MMSIMHOME/tools/bin:$MMSIMHOME/tools/spectre/bin:$MMSIMHOME/tools/ultrasim/bin:$MMSIMHOME/tools/relxpert/bin"
+
+export LD_LIBRARY_PATH="/usr/lib/X11:/usr/X11R6/lib:/usr/lib:/usr/dt/lib/usr/openwin/lib:/usr/ucblib"
+
+export LM_LICENSE_FILE="5280@$license_ip"
+export CDS_LIC_FILE="$LM_LICENSE_FILE"
+
+export CDS_AUTO_64BIT="ALL"
+
+cd  /mnt/efs/fs1/spectrex/spectre_example/postlayout_dspf
+sudo yum -y install ksh
+
+# run in local machine (single node)
+spectre -64 +preset=cx +mt=32 input.scs -o SPECTREX_cx_32t +lqt 0 -f sst2
+
+# run in distributed mode (2 nodes)
+# spectre -64 +preset=cx +mt=1 input.scs +xdp=ssh +hosts "10.0.0.5 10.0.0.8" +lqt 0 -f sst2 +debug +info
