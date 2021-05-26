@@ -20,12 +20,7 @@ azhpc-connect -u hpcuser headnode
 ```
 Or simply create a Azure Virtual machine with CentOS and ssh connect to it.
 
-## Installation and download sample BlastDB (~1.2TB)
-
-Change folder to:
-```
-cd /azurehpc/apps/blast
-```
+## Install BLAST, download BlastDB, input file, query string
 
 Take a look at the 'install_blast.sh' script, modify the installation directory if needed:
 ```
