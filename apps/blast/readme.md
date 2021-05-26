@@ -38,7 +38,7 @@ source install_blast.sh
 ```
 ## Run BLAST
 
-Change folder to your BLAST installation director.
+Change folder to your BLAST installation directory
 ```
 source test.sh
 ```
