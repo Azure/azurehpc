@@ -75,3 +75,33 @@ Warning: 4 threads are mapped to 1 core(s), for pid (13406)
 Warning: 4 threads are mapped to 1 core(s), for pid (13407)
 Warning: 4 threads are mapped to 1 core(s), for pid (13408)
 ```
+You then test running the same HPC application on multiple ND96asr_v4 virtual machines.
+
+```
+./check_app_pinning.py hello
+
+Virtual Machine (cgndv4) Numa topology
+
+NumaNode id  Core ids              GPU ids
+============ ==================== ==========
+0            ['0-23']             [3, 2]
+1            ['24-47']            [1, 0]
+2            ['48-71']            [7, 6]
+3            ['72-95']            [5, 4]
+
+
+Application (hello) Mapping/pinning
+
+PID          Threads           Running Threads   Core id mapping   Numa Node ids   GPU ids
+============ ================= ================= ================= =============== ===============
+32473        6                 0                 0                 [0]             [3, 2]
+32474        6                 2                 24                [1]             [1, 0]
+32475        6                 2                 48                [2]             [7, 6]
+32476        6                 2                 72                [3]             [5, 4]
+
+
+Warning: 2 threads are mapped to 1 core(s), for pid (32474)
+Warning: 2 threads are mapped to 1 core(s), for pid (32475)
+Warning: 2 threads are mapped to 1 core(s), for pid (32476)
+Warning: Virtual Machine has 8 GPU's, but 6 threads are running
+```
