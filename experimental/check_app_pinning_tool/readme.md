@@ -103,5 +103,5 @@ PID          Threads           Running Threads   Core id mapping   Numa Node ids
 Warning: 2 threads are mapped to 1 core(s), for pid (32474)
 Warning: 2 threads are mapped to 1 core(s), for pid (32475)
 Warning: 2 threads are mapped to 1 core(s), for pid (32476)
-Warning: Virtual Machine has 8 GPU's, but 6 threads are running
+Warning: Virtual Machine has 8 GPU's, but only 6 threads are running
 ```
