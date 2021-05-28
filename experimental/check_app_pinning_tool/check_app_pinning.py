@@ -222,10 +222,11 @@ def check_process_numa_distribution(total_num_processes, total_num_numa_domains,
 
 
 def check_thread_to_gpu(num_threads, num_gpus):
-      if num_threads < num_gpus:
-         print("Warning: Virtual Machine has {} GPU's, but only {} threads are running".format(num_gpus,num_threads))
-      elif num_threads > num_gpus:
-         print("Warning: Virtual Machine has only {} GPU's, but {} threads are running".format(num_gpus,num_threads))
+      if num_gpus > 0:
+         if num_threads < num_gpus:
+            print("Warning: Virtual Machine has {} GPU's, but only {} threads are running".format(num_gpus,num_threads))
+         elif num_threads > num_gpus:
+            print("Warning: Virtual Machine has only {} GPU's, but {} threads are running".format(num_gpus,num_threads))
 
 
 def check_app(topo_d, process_d):
@@ -298,14 +299,12 @@ def report(app_pattern, topo_d, process_d):
 
 def main():
    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-#   parser.add_argument("-p", "--application_pattern", type=str, default="None", help="Select the application pattern to check [string]")
    parser.add_argument(dest="application_pattern", type=str, default="None", help="Select the application pattern to check [string]")
    args = parser.parse_args()
    if args.application_pattern:
       app_pattern = args.application_pattern
    topo_d = parse_lstopo()
    pids_l = find_pids(app_pattern)
-#   print(pids_l)
    process_d = find_threads(pids_l)
    find_process_numas(topo_d, process_d)
    find_process_gpus(topo_d, process_d)
