@@ -203,9 +203,10 @@ def check_size_core_map_domain(process_d):
 
 def check_numa_per_process(process_d):
     for pid in process_d["pids"]:
-       numas = process_d["pids"][pid]["numas"]
-       if len(numas) > 1:
-         print("Warning: pid ({} is mapped to more than one numa domain ({})".format(pid,numas))
+       if  process_d["pids"][pid]["running_threads"] > 0:
+           numas = process_d["pids"][pid]["numas"]
+           if len(numas) > 1:
+              print("Warning: pid ({} is mapped to more than one numa domain ({})".format(pid,numas))
 
 
 def check_process_numa_distribution(total_num_processes, total_num_numa_domains, process_d):
