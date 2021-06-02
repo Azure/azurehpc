@@ -62,12 +62,12 @@ NumaNode id  Core ids              GPU ids
 
 Application (hpcapp) Mapping/pinning
 
-PID          Threads           Running Threads   Core id mapping   Numa Node ids   GPU ids
-============ ================= ================= ================= =============== ===============
-13405        7                 4                 0                 [0]             []
-13406        7                 4                 4                 [1]             []
-13407        7                 4                 8                 [2]             []
-13408        7                 4                 12                [3]             []
+PID          Threads           Running Threads   Last core id     Core id mapping   Numa Node ids   GPU ids
+============ ================= ================= ==============  ================= =============== ===============
+13405        7                 4                   0              0                 [0]             []
+13406        7                 4                   4              4                 [1]             []
+13407        7                 4                   8              8                 [2]             []
+13408        7                 4                   12             12                [3]             []
 
 
 Warning: 4 threads are mapped to 1 core(s), for pid (13405)
@@ -92,12 +92,12 @@ NumaNode id  Core ids              GPU ids
 
 Application (hello) Mapping/pinning
 
-PID          Threads           Running Threads   Core id mapping   Numa Node ids   GPU ids
-============ ================= ================= ================= =============== ===============
-32473        6                 0                 0                 [0]             [3, 2]
-32474        6                 2                 24                [1]             [1, 0]
-32475        6                 2                 48                [2]             [7, 6]
-32476        6                 2                 72                [3]             [5, 4]
+PID          Threads           Running Threads   Last core id    Core id mapping   Numa Node ids   GPU ids
+============ ================= ================= ==============  ================= =============== ===============
+32473        6                 0                 0                  0                 [0]             [3, 2]
+32474        6                 2                 24                 24                [1]             [1, 0]
+32475        6                 2                 48                 48                [2]             [7, 6]
+32476        6                 2                 72                 72                [3]             [5, 4]
 
 
 Warning: 2 threads are mapped to 1 core(s), for pid (32474)

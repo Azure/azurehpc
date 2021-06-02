@@ -101,7 +101,6 @@ def find_gpus_in_numa(numa_id, topo_d):
          return topo_d["numanode_ids"][numanode_id]["gpu_ids"]
    
 
-
 def find_process_gpus(topo_d, process_d):
    for pid in process_d["pids"]:
       all_gpus_l = []
@@ -109,6 +108,15 @@ def find_process_gpus(topo_d, process_d):
          gpus_l = find_gpus_in_numa(numa_id, topo_d)
          all_gpus_l.extend(gpus_l)
       process_d["pids"][pid]["gpus"] = all_gpus_l
+
+
+def find_last_core_id(process_d): 
+   for pid in process_d["pids"]:
+       filepath = os.path.join("/proc",str(pid),"stat")
+       f = open(filepath)
+       for line in f:
+           last_core_id = line.split()[38]
+       process_d["pids"][pid]["last_core_id"] = last_core_id
    
 
 def conv_indx_str_to_list(indx_str):
@@ -287,15 +295,16 @@ def report(app_pattern, topo_d, process_d):
     print("")
     print("Application ({}) Mapping/pinning".format(app_pattern))
     print("")
-    print("{:<12} {:<17} {:<17} {:<17} {:<15} {:<15}".format("PID","Threads","Running Threads","Core id mapping","Numa Node ids", "GPU ids"))
-    print("{:=<12} {:=<17} {:=<17} {:=<17} {:=<15} {:=<15}".format("=","=","=","=","=","="))
+    print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format("PID","Threads","Running Threads","Last core id","Core id mapping","Numa Node ids", "GPU ids"))
+    print("{:=<12} {:=<17} {:=<17} {:=<15} {:=<17} {:=<15} {:=<15}".format("=","=","=","=","=","=","="))
     for pid in process_d["pids"]:
        threads = process_d["pids"][pid]["num_threads"]
        running_threads = process_d["pids"][pid]["running_threads"]
+       last_core_id = process_d["pids"][pid]["last_core_id"]
        cpus_allowed = process_d["pids"][pid]["cpus_allowed"]
        numas = str(list_to_ranges(process_d["pids"][pid]["numas"]))
        gpus = str(list_to_ranges(process_d["pids"][pid]["gpus"]))
-       print("{:<12} {:<17} {:<17} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,cpus_allowed,numas,gpus))
+       print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpus))
 
 
 def main():
@@ -309,6 +318,7 @@ def main():
    process_d = find_threads(pids_l)
    find_process_numas(topo_d, process_d)
    find_process_gpus(topo_d, process_d)
+   find_last_core_id(process_d)
    report(app_pattern, topo_d, process_d)
    check_app(topo_d, process_d)
 
