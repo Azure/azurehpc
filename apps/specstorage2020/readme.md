@@ -24,13 +24,11 @@ Or simply create a Azure Virtual machine with CentOS and ssh connect to it.
 
 ## Install SPECStorage 2020
 
-The 'install_blast.sh' takes 2 variables: username and password, to access SPEC.org site:
-
-Run the 'install_blast.sh' script:
+The 'install_specstorage_2020.sh' takes 2 variables: username and password, to access SPEC.org site and download the ISO:
 ```
-source install_blast.sh <USERNAME> <PASSWORD>
+source install_specstorage_2020.sh <USERNAME> <PASSWORD>
 ```
-## Edit the sfs_rc configuration file
+## Edit the configuration file
 
 Change folder to your SFS Storage 2020 installation directory. Make a copy of the default sfs_rc file as sfs_test. Follow instructions on [SPEC Storage 2020 User Guide](https://www.spec.org/storage2020/docs/usersguide.pdf) section 1.5 to edit the sfs_test file.
 ```
