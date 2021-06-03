@@ -32,7 +32,7 @@ source install_blast.sh <USERNAME> <PASSWORD>
 ```
 ## Edit the sfs_rc configuration file
 
-Change folder to your SFS Storage 2020 installation directory. Make a copy of the default sfs_rc file as sfs_test. Follow instructions [SPEC Storage 2020 User Guide](https://www.spec.org/storage2020/docs/usersguide.pdf) section 1.5, to Edit the sfs_test file.
+Change folder to your SFS Storage 2020 installation directory. Make a copy of the default sfs_rc file as sfs_test. Follow instructions on [SPEC Storage 2020 User Guide](https://www.spec.org/storage2020/docs/usersguide.pdf) section 1.5 to edit the sfs_test file.
 ```
 cd SPECstorage_2020/
 cp sfs_rc sfs_test
@@ -65,8 +65,6 @@ Below the sample results
   Business    Requested     Achieved     Avg Lat       Total          Read        Write   Run    #    Cl   Avg File      Cl Data   Start Data    Init File     Max File   Workload       Valid
     Metric      Op Rate      Op Rate        (ms)        KBps          KBps         KBps   Sec   Cl  Proc    Size KB      Set MiB      Set MiB      Set MiB    Space MiB       Name         Run
          1       450.00      450.021       2.155     7281.775     3818.915     3462.860   300    1     5       3424        11051        11051        11051        12056 EDA_BLENDED
-```
-
 ```
 
 
