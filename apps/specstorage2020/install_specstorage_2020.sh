@@ -1,10 +1,13 @@
 #!/bin/bash
 
+username=$1
+password=$2
+
 sudo yum -y install python3
 sudo yum -y install pip3
 sudo pip3 install PyYAML
 
-wget --user mengrutsai --password 0411Pipe https://pro.spec.org/private/osg/benchmarks/sfs/SPECstorage_2020.iso
+wget --user $username --password $password https://pro.spec.org/private/osg/benchmarks/sfs/SPECstorage_2020.iso
 mkdir SFS
 sudo mount -o loop SPECstorage_2020.iso SFS/
 
