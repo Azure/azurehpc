@@ -25,3 +25,11 @@ packages:
     buildable: False
 EOF
 
+echo "Configure local settings"
+
+cat <<EOF >~/.spack/config.yaml
+config:
+  build_stage:
+    - /mnt/resource/$USER/spack-stage
+    - ~/.spack/stage
+EOF
