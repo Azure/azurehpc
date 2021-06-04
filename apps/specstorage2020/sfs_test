@@ -45,8 +45,8 @@
 # PASSWORD=MyPa55w0rd
 ##############################################################################
 
-CLIENT_MOUNTPOINTS=azpr-pureraymond:/mnt/specsfs2020-1 azpr-pureraymond:/mnt/specsfs2020-2 azpr-pureraymond:/mnt/specsfs2020-3 azpr-pureraymond:/mnt/specsfs2020-4
-USER=azhpcraymond
+CLIENT_MOUNTPOINTS=headnode:/beegfs
+USER=hpcuser
 PASSWORD=
 
 ##############################################################################
@@ -55,7 +55,7 @@ PASSWORD=
 # In heterogeneous modes EXEC_PATH must be set to a Unix path.
 #  **** This field cannot be empty ****
 ##############################################################################
-EXEC_PATH=/mnt/tools/SPECstorage_2020/binaries/linux/x86_64/netmist
+EXEC_PATH=/share/home/hpcuser/SPECstorage_2020/binaries/linux/x86_64/netmist
 
 ##############################################################################
 # Legacy mode + heterogeneous client types:
@@ -140,7 +140,7 @@ WINDOWS_PASSWORD=
 ##############################################################################
 
 BENCHMARK=EDA_BLENDED
-LOAD=70
+LOAD=10
 INCR_LOAD=10
 NUM_RUNS=10
 
@@ -149,7 +149,7 @@ PRIME_MON_SCRIPT=
 PRIME_MON_ARGS=
 NETMIST_LOGS=
 NETMIST_WINDOWS_LOGS=
-NETMIST_LICENSE_KEY=62
+NETMIST_LICENSE_KEY=
 NETMIST_LICENSE_KEY_PATH=/tmp/netmist_license_key
 
 ##############################################################################
