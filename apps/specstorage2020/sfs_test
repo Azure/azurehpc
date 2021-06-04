@@ -1,0 +1,181 @@
+##############################################################################
+#
+#       sfs_rc
+#
+# Specify netmist parameters for generic runs in this file.
+#
+# The following parameters are configurable within the SPECstorage Solution 2020 run and
+# reporting rules.
+#
+##############################################################################
+
+##############################################################################
+# Legacy settings for current sfs_rc files
+# Used for Unix only, or Windows only environments.
+##############################################################################
+#
+# Example for all Unix:
+# CLIENT_MOUNTPOINTS=clientname:/mnt/testdir
+# USER=spec
+# PASSWORD=MYpa55w0rd
+# EXEC_PATH=/usr/local/bin/netmist
+# NETMIST_LOGS=
+# NETMIST_LICENSE_KEY= <License number>
+# NETMIST_LICENSE_KEY_PATH=/tmp/netmist_license_key
+# PDSM_MODE=
+# PDSM_INTERVAL=
+# UNIX_PDSM_LOG=
+# UNIX_PDSM_CONTROL=
+# EXEC_PATH=/usr/local/bin/netmist
+# ---------------------------------------------------------------------------
+# Example for all Windows:
+# CLIENT_MOUNTPOINTS=clientname:\\servername\share\testdir
+# USER=mydomain\spec
+# PASSWORD=MYpa55w0rd
+# EXEC_PATH=C:\\tmp\\netmist.exe
+# NETMIST_WINDOWS_LOGS=
+# NETMIST_LICENSE_KEY= <License number>
+# NETMIST_LICENSE_KEY_PATH=C:\tmp\netmist_license_key
+# PDSM_MODE=
+# PDSM_INTERVAL=
+# WINDOWS_PDSM_LOG=
+# WINDOWS_PDSM_CONTROL=
+# EXEC_PATH=C:\\tmp\\netmist.exe
+# USER=domain\account
+# PASSWORD=MyPa55w0rd
+##############################################################################
+
+CLIENT_MOUNTPOINTS=azpr-pureraymond:/mnt/specsfs2020-1 azpr-pureraymond:/mnt/specsfs2020-2 azpr-pureraymond:/mnt/specsfs2020-3 azpr-pureraymond:/mnt/specsfs2020-4
+USER=azhpcraymond
+PASSWORD=
+
+##############################################################################
+# In Legacy Unix only mode with a Unix prime this must be set to a Unix path.
+# In Legacy Windows only mode, EXEC_PATH must be set to a Windows path.
+# In heterogeneous modes EXEC_PATH must be set to a Unix path.
+#  **** This field cannot be empty ****
+##############################################################################
+EXEC_PATH=/mnt/tools/SPECstorage_2020/binaries/linux/x86_64/netmist
+
+##############################################################################
+# Legacy mode + heterogeneous client types:
+# These client lists are used in the legacy mode to provide heterogeneous
+# client support.
+# This allows heterogeneous clients sharing same legacy workload.
+# This mode ignores the platform_type field in the YAML config file.
+# For these lists:
+# 1) Both lists have to be populated
+# 2) Corresponding *_EXEC_PATH, *_USER, *_PASSWORD need to be present
+##############################################################################
+
+UNIX_CLIENT_LIST=
+WINDOWS_CLIENT_LIST=
+
+##############################################################################
+# Heterogeneous clients with their heterogeneous OS types specified in the YAML
+# "platform_type" fields.
+##############################################################################
+# For mixed OS workload tests:
+# 1) change "platform_type" in YAML to the appropriate OS in each workload
+#    component
+# 2) Provide both Windows and Unix mount-points
+#    < WINDOWS_CLIENT_MOUNTPOINTS= and UNIX_CLIENT_MOUNTPOINTS= >
+#    Important: Both OSs should have exactly same number of mount-points
+# 3) Set Prime path "EXEC_PATH" to UNIX path. Prime in this mode must be
+#    a UNIX system.
+#--------------------------------------------
+# UNIX Settings for heterogeneous client pool
+#
+# Example:
+#
+# UNIX_CLIENT_MOUNTPOINTS=client1:/mnt/testdir
+# UNIX_EXEC_PATH=/usr/local/bin/netmist
+# UNIX_USER=spec
+# NETMIST_LOGS=
+# NETMIST_LICENSE_KEY= <License number>
+# NETMIST_LICENSE_KEY_PATH=/tmp/netmist_license_key
+# PDSM_MODE=
+# PDSM_INTERVAL=
+# UNIX_PDSM_LOG=
+# UNIX_PDSM_CONTROL=
+#--------------------------------------------
+UNIX_CLIENT_MOUNTPOINTS=
+UNIX_EXEC_PATH=
+UNIX_USER=
+#--------------------------------------------
+#
+# Windows Settings for heterogeneous client pool
+#
+# Example:
+# WINDOWS_CLIENT_MOUNTPOINTS=WIN10M1:\\smbserver\test
+# WINDOWS_EXEC_PATH=C:\\tmp\\netmist.exe
+# WINDOWS_USER=labnet\\administrator
+# WINDOWS_PASSWORD=MYpa55w0rd
+# NETMIST_WINDOWS_LOGS=
+# NETMIST_LICENSE_KEY= <License number>
+# NETMIST_LICENSE_KEY_PATH=C:\tmp\netmist_license_key
+# PDSM_MODE=
+# PDSM_INTERVAL=
+# WINDOWS_PDSM_LOG=
+# WINDOWS_PDSM_CONTROL=
+#--------------------------------------------
+WINDOWS_CLIENT_MOUNTPOINTS=
+WINDOWS_EXEC_PATH=
+WINDOWS_USER=
+WINDOWS_PASSWORD=
+#############################################################################
+
+
+#############################################################################
+#
+# Common Settings for all modes
+#
+# Official BENCHMARK values are
+#       -SWBUILD
+#       -VDA
+#       -EDA_BLENDED
+#       -AI_IMAGE
+#       -GENOMICS
+#
+##############################################################################
+
+BENCHMARK=EDA_BLENDED
+LOAD=70
+INCR_LOAD=10
+NUM_RUNS=10
+
+IPV6_ENABLE=0
+PRIME_MON_SCRIPT=
+PRIME_MON_ARGS=
+NETMIST_LOGS=
+NETMIST_WINDOWS_LOGS=
+NETMIST_LICENSE_KEY=62
+NETMIST_LICENSE_KEY_PATH=/tmp/netmist_license_key
+
+##############################################################################
+#
+#  DO NOT EDIT BELOW THIS LINE FOR AN OFFICIAL BENCHMARK SUBMISSION
+#
+#  Constraints and overrides on the values below this line can be found in the
+#  benchmark XML file (default is benchmarks.xml).  To bypass all overrides
+#  use the --ignore-overrides flag in SfsManager.  Using the flag will make
+#  the results invalid for formal submission.
+#
+##############################################################################
+MAX_FD=
+LOCAL_ONLY=0
+FILE_ACCESS_LIST=0
+
+# PDSM_MODE of 0 create shared PDSM log file with overwrites.
+# PDSM_MODE of 1 create shared PDSM log file with open append.
+PDSM_MODE=
+# PDSM_INTERVAL # Interval in seconds
+PDSM_INTERVAL=
+# <PLATFORM>_PDSM_LOG filename  Full pathname to the PDSM log file. Used to
+# log the details of every proc's activities.
+UNIX_PDSM_LOG=
+WINDOWS_PDSM_LOG=
+# <PLATFORM>_PDSM_CONTROL filename  Full pathname to the PDSM control file. Used
+# for dynamically changing workloads.
+UNIX_PDSM_CONTROL=
+WINDOWS_PDSM_CONTROL=
