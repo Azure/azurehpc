@@ -20,7 +20,6 @@ Then connect to the headnode:
 ```
 azhpc-connect -u hpcuser headnode
 ```
-Or simply create a Azure Virtual machine with CentOS and ssh connect to it.
 
 ## Install SPECStorage 2020
 
