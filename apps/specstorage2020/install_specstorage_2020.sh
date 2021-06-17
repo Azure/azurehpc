@@ -6,6 +6,8 @@ password=$2
 sudo yum -y install python3
 sudo yum -y install pip3
 sudo pip3 install PyYAML
+# required on CentOS 8.+
+sudo pip install -U PyYAML
 
 wget --user $username --password $password https://pro.spec.org/private/osg/benchmarks/sfs/SPECstorage_2020.iso
 mkdir SFS
