@@ -10,7 +10,6 @@ import socket
 import json
 from urllib.request import urlopen, Request
 
-l3cache_coreid_d = {"Standard_HB120rs_v3": ["0-7","8-15","16-23","24-29","30-37","38-45","46-53","54-59","60-67","68-75","76-83","84-89","90-97","98-105","106-113","114-119"]}
 l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7],\
                                                            1: [8,9,10,11,12,13,14,15],\
                                                            2: [16,17,18,19,20,21,22,23],\
