@@ -15,3 +15,9 @@ sudo sed -i 's/MODULEPATH_INIT.*then/&\n        unsetenv MODULEPATH/g' /etc/prof
 printf '\nUsing %s as default module path.\n' ${MODULE_PATH}
 printf 'If wrong, please change it at /usr/share/lmod/lmod/init/.modulespath\n\n'
 echo ${MODULE_PATH} | sudo tee /usr/share/lmod/lmod/init/.modulespath > /dev/null
+
+# Disable user spider cache creation
+grep -qF 'LMOD_SHORT_TIME' /etc/profile.d/z00_lmod.sh || echo 'export LMOD_SHORT_TIME=86400' | \
+  sudo tee -a /etc/profile.d/z00_lmod.sh
+grep -qF 'LMOD_SHORT_TIME' /etc/profile.d/z00_lmod.csh || echo 'setenv LMOD_SHORT_TIME=86400' | \
+  sudo tee -a /etc/profile.d/z00_lmod.csh
