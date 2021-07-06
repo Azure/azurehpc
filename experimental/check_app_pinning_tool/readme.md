@@ -104,4 +104,51 @@ Warning: 2 threads are mapped to 1 core(s), for pid (32474)
 Warning: 2 threads are mapped to 1 core(s), for pid (32475)
 Warning: 2 threads are mapped to 1 core(s), for pid (32476)
 Warning: Virtual Machine has 8 GPU's, but only 6 threads are running
+
+
+For HB_v3 will also show the L3cache topology.
+
+[azureuser@cghb120v3 ~]$ ./check_app_pinning_new.py hello
+
+Virtual Machine (Standard_HB120rs_v3) Numa topology
+
+NumaNode id  Core ids              GPU ids
+============ ==================== ==========
+0            ['0-29']             []
+1            ['30-59']            []
+2            ['60-89']            []
+3            ['90-119']           []
+
+L3Cache id   Core ids
+============ ====================
+0            ['0-7']
+1            ['8-15']
+2            ['16-23']
+3            ['24-29']
+4            ['30-37']
+5            ['38-45']
+6            ['46-53']
+7            ['54-59']
+8            ['60-67']
+9            ['68-75']
+10           ['76-83']
+11           ['84-89']
+12           ['90-97']
+13           ['98-105']
+14           ['106-113']
+15           ['114-119']
+
+
+Application (hello) Mapping/pinning
+
+PID          Threads           Running Threads   Last core id    Core id mapping   Numa Node ids   GPU ids
+============ ================= ================= =============== ================= =============== ===============
+11588        7                 4                 12              0-29              [0]             []
+11589        7                 4                 31              30-59             [1]             []
+11590        7                 4                 62              60-89             [2]             []
+11591        7                 4                 92              90-119            [3]             []
+
+
+Warning: threads corresponding to process 11588 are mapped to multiple L3cache(s) ([0, 1, 2, 3])
+[azureuser@cghb120v3 ~]$
 ```
