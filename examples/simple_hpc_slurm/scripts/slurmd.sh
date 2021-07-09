@@ -14,9 +14,10 @@ chown slurm /var/log/slurm
 ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
 ln -s /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
 
+# Collect the actual hardware configuration of the node
+
 slurmd -C | grep $HOSTNAME > /apps/slurm/nodeconf/$HOSTNAME
 
 systemctl enable slurmd
-#systemctl start slurmd
 
 exit 0

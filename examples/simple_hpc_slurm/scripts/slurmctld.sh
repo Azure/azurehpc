@@ -4,11 +4,8 @@ yum install -y epel-release screen
 
 yum install python3 perl-ExtUtils-MakeMaker gcc mariadb-devel openssl openssl-devel pam-devel rpm-build numactl numactl-devel hwloc hwloc-devel lua lua-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad -y
 
-# for multiple partition nodeset will be useful
-#yum install -y python2-clustershell
-
 slurm_version=${1:-20.11.8}
-slurm_tarball=slurm-20.11.8.tar.bz2
+slurm_tarball=slurm-${slurm_version}.tar.bz2
 if [ ! -f $slurm_tarball ]; then
   wget https://download.schedmd.com/slurm/$slurm_tarball
 fi
@@ -101,24 +98,6 @@ EOF
 
 ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
 ln -s /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
-
-#mkdir -p /apps/slurm/scripts
-#
-#cp scripts/suspend.sh /apps/slurm/scripts/
-#cp scripts/resume.sh /apps/slurm/scripts/
-#
-#chmod +x /apps/slurm/scripts/*.sh
-#ls -alh /apps/slurm/scripts
-#
-#mkdir -p /apps/slurm/azscale/scripts
-#cp scripts/config.json /apps/slurm/azscale
-#cp scripts/*_id_rsa* /apps/slurm/azscale
-#chmod 600 /apps/slurm/azscale/*_id_rsa
-#chmod 644 /apps/slurm/azscale/*_id_rsa.pub
-#cp -r scripts /apps/slurm/azscale/.
-#pushd /apps/slurm
-#git clone https://github.com/Azure/azurehpc.git
-#popd
 
 chown slurm.slurm -R /apps/slurm
 mkdir -p /apps/slurm/nodeconf
