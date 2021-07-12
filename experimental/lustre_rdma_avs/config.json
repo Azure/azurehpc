@@ -1,0 +1,274 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/22",
+            "storage": "10.2.4.0/24"
+        }
+    },
+    "variables": {
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "lustreimage": "OpenLogic:CentOS:7.7:7.7.2020042900",
+        "hpcimage": "OpenLogic:CentOS:7.7:7.7.2020042900",
+        "compute_instances": 2,
+        "lustre_instances": 2,
+        "low_priority": false,
+        "storage_account": "<NOT-SET>",
+        "storage_key": "sakey.{{variables.storage_account}}",
+        "storage_container": "<NOT-SET>",
+        "log_analytics_lfs_name": "<NOT-SET>",
+        "la_resourcegroup": "<NOT-SET>",
+        "la_name": "<NOT-SET>",
+        "log_analytics_workspace": "laworkspace.{{variables.la_resourcegroup}}.{{variables.la_name}}",
+        "log_analytics_key": "lakey.{{variables.la_resourcegroup}}.{{variables.la_name}}",
+        "lustre_version": "2.12.4",
+        "lustre_avset": "{{variables.resource_group}}avset",
+        "lustre_mount": "/lustre"
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": false,
+            "public_ip": true,
+            "image": "variables.hpcimage",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "cndefault",
+                "localuser",
+                "pbsserver",
+                "loginnode",
+                "rebootlustre",
+                "nfsserver",
+                "allnodes"
+            ]
+        },
+        "compute": {
+            "type": "vm",
+            "vm_type": "Standard_HB120rs_v2",
+            "instances": "variables.compute_instances",
+            "availability_set": "variables.lustre_avset",
+            "low_priority": "variables.low_priority",
+            "accelerated_networking": false,
+            "image": "variables.hpcimage",
+            "subnet": "storage",
+            "tags": [
+                "cndefault",
+                "lfsrepo",
+                "lfsclient",
+                "localuser",
+                "pbsclient",
+                "nfsclient",
+                "disable-selinux",
+                "allnodes"
+            ]
+        },
+        "lfsmaster": {
+            "type": "vm",
+            "vm_type": "Standard_HB120rs_v2",
+            "availability_set": "variables.lustre_avset",
+            "accelerated_networking": false,
+            "image": "variables.lustreimage",
+            "subnet": "storage",
+            "tags": [
+                "cndefault",
+                "lustre",
+                "lfsmaster",
+                "lfsrepo",
+                "localuser",
+                "nfsclient",
+                "disable-selinux",
+                "lfsloganalytics",
+                "allnodes"
+            ]
+        },
+        "lustre": {
+            "type": "vm",
+            "vm_type": "Standard_HB120rs_v2",
+            "instances": "variables.lustre_instances",
+            "availability_set": "variables.lustre_avset",
+            "accelerated_networking": false,
+            "image": "variables.lustreimage",
+            "subnet": "storage",
+            "tags": [
+                "cndefault",
+                "lfsrepo",
+                "localuser",
+                "nfsclient",
+                "lustre",
+                "ossnode",
+                "disable-selinux",
+                "lfsloganalytics",
+                "allnodes"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "nfsserver.sh",
+            "tag": "nfsserver",
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "lfsrepo.sh",
+            "tag": "lfsrepo",
+            "args": [
+                "variables.lustre_version"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "lustreinstall1.sh",
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "rebootlustre.sh",
+            "tag": "rebootlustre",
+            "sudo": true,
+            "args": [
+                "$(<hostlists/tags/lustre)",
+                "variables.lustre_instances"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "wait.sh",
+            "args": [
+                "180"
+            ]
+        },
+        {
+            "script": "installOFED.sh",
+            "tag": "allnodes",
+            "sudo": true
+        },
+        {
+            "script": "lustreinstall2.sh",
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lustrenetwork.sh",
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfsmaster.sh",
+            "tag": "lfsmaster",
+            "args": [
+                "/dev/sdb"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "lfsoss.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lfsmaster)",
+                "/dev/nvme0n1"
+            ],
+            "tag": "ossnode",
+            "sudo": true
+        },
+        {
+            "script": "lfshsm.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lustre)",
+                "variables.storage_account",
+                "variables.storage_key",
+                "variables.storage_container",
+                "variables.lustre_version"
+            ],
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
+            "script": "lfsclient.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lfsmaster)",
+                "variables.lustre_mount"
+            ],
+            "tag": "lfsclient",
+            "sudo": true
+        },
+        {
+            "script": "lfsimport.sh",
+            "args": [
+                "variables.storage_account",
+                "variables.storage_key",
+                "variables.storage_container",
+                "variables.lustre_mount",
+                "variables.lustre_version"
+            ],
+            "tag": "lfsazimport",
+            "sudo": true
+        },
+        {
+            "script": "lfsloganalytics.sh",
+            "args": [
+                "variables.log_analytics_lfs_name",
+                "variables.log_analytics_workspace",
+                "variables.log_analytics_key"
+            ],
+            "tag": "lfsloganalytics",
+            "sudo": true
+        },
+        {
+            "script": "pbsdownload.sh",
+            "tag": "loginnode",
+            "sudo": false
+        },
+        {
+            "script": "pbsserver.sh",
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-server-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsserver",
+            "sudo": true
+        },
+        {
+            "script": "pbsclient.sh",
+            "args": [
+                "$(<hostlists/tags/pbsserver)"
+            ],
+            "copy": [
+                "pbspro_19.1.1.centos7/pbspro-execution-19.1.1-0.x86_64.rpm"
+            ],
+            "tag": "pbsclient",
+            "sudo": true
+        }
+    ]
+}

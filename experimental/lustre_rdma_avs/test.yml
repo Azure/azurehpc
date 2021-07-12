@@ -1,0 +1,16 @@
+steps:  
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcuser
+    command: /apps/ci/check_pbs_nodes.sh $(azhpc.variables.compute_instances)
+
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcadmin
+    command: /apps/ci/check_mountpoints.sh $(azhpc.variables.lustre_mount)
+
+- template: ../../ci/templates/steps/azhpc-run.yml
+  parameters:
+    user: hpcadmin
+    command: /apps/ci/check_lustre_client.sh $(azhpc.variables.lustre_mount)
+
