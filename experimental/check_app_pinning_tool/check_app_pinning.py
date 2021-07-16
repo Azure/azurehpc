@@ -10,7 +10,6 @@ import socket
 import json
 from urllib.request import urlopen, Request
 
-l3cache_coreid_d = {"Standard_HB120rs_v3": ["0-7","8-15","16-23","24-29","30-37","38-45","46-53","54-59","60-67","68-75","76-83","84-89","90-97","98-105","106-113","114-119"]}
 l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7],\
                                                            1: [8,9,10,11,12,13,14,15],\
                                                            2: [16,17,18,19,20,21,22,23],\
@@ -27,7 +26,14 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                           13: [98,99,100,101,102,103,104,105],\
                                                           14: [106,107,108,109,110,111,112,113],\
                                                           15: [114,115,116,117,118,119]\
-                                                          }},
+                                                          },
+                                          "allowed_number_of_processes": [16,32,48,64,80,96,120],
+                                          "excluded_cores": {6: [6,7,14,15,22,23,36,37,44,45,52,53,66,67,74,75,82,83,96,97,104,105,112,113],
+                                                            5: [5,6,7,13,14,15,21,22,23,29,35,36,37,43,44,45,50,51,52,53,59,65,66,67,73,74,75,81,82,83,89,95,96,97,103,104,105,111,112,113,119],
+                                                            4: [4,5,6,7,12,13,14,15,20,21,22,23,28,29,34,35,36,37,42,43,44,45,49,50,51,52,53,58,59,64,65,66,67,72,73,74,75,80,81,82,83,88,89,94,95,96,97,102,103,104,105,110,111,112,113,118,119],
+                                                            3: [3,4,5,6,7,11,12,13,14,15,19,20,21,22,23,27,28,29,33,34,35,36,37,41,42,43,44,45,48,49,50,51,52,53,57,58,59,63,64,65,66,67,71,72,73,74,75,79,80,81,82,83,87,88,89,93,94,95,96,97,101,102,103,104,105,109,110,111,112,113,117,118,119],
+                                                            2: [2,3,4,5,6,7,10,11,12,13,14,15,18,19,20,21,22,23,26,27,28,29,32,33,34,35,36,37,40,41,42,43,44,45,47,48,49,50,51,52,53,56,57,58,59,62,63,64,65,66,67,70,71,72,73,74,75,78,79,80,81,82,83,86,87,88,89,92,93,94,95,96,97,100,101,102,103,104,105,108,109,110,111,112,113,116,117,118,119],
+                                          }},
                     "Standard_HB120-96rs_v3": {"l3cache_ids":  {0: [0,1,2,3,4,5],\
                                                                 1: [6,7,8,9,10,11],\
                                                                 2: [12,13,14,15,16,17],\
@@ -44,7 +50,9 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                                13: [78,79,80,81,82,83],\
                                                                14: [84,85,86,87,88,89],\
                                                                15: [90,91,92,93,94,95]\
-                                                          }},
+                                                          },
+                                          "allowed_number_of_processes": [16,32,48,64,80,96]
+                                           },
                     "Standard_HB120-64rs_v3": {"l3cache_ids":  {0: [0,1,2,3],\
                                                                 1: [4,5,6,7],\
                                                                 2: [8,9,10,11],\
@@ -61,7 +69,9 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                                13: [52,53,54,55],\
                                                                14: [56,57,58,59],\
                                                                15: [60,61,62,63]\
-                                                          }},
+                                                          },
+                                          "allowed_number_of_processes": [16,32,48,64]
+                                            },
                     "Standard_HB120-32rs_v3": {"l3cache_ids":  {0: [0,1],\
                                                                 1: [2,3],\
                                                                 2: [4,5],\
@@ -78,7 +88,9 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                                13: [26,27],\
                                                                14: [28,29],\
                                                                15: [30,31]\
-                                                          }},
+                                                          },
+                                        "allowed_number_of_processes": [16,32]
+                                          },
                     "Standard_HB120-16rs_v3": {"l3cache_ids":  {0: [0],\
                                                                 1: [1],\
                                                                 2: [2],\
@@ -95,7 +107,60 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                                13: [13],\
                                                                14: [14],\
                                                                15: [15]\
-                                                          }},
+                                                          },
+                                         "allowed_number_of_processes": [16]
+                                         },
+                    "Standard_HB120rs_v2": {"l3cache_ids":  {0: [0,1,2,3],\
+                                                             1: [4,5,6,7],\
+                                                             2: [8,9,10,11],\
+                                                             3: [12,13,14,15],\
+                                                             4: [16,17,18,19],\
+                                                             5: [20,21,22,23],\
+                                                             6: [24,25,26,27],\
+                                                             7: [28,29,30,31],\
+                                                             8: [32,33,34,35],\
+                                                             9: [36,37,38,39],\
+                                                            10: [40,41,42,43],\
+                                                            11: [44,45,46,47],\
+                                                            12: [48,49,50,51],\
+                                                            13: [52,53,54,55],\
+                                                            14: [56,57,58,59],\
+                                                            15: [60,61,62,63],\
+                                                            16: [64,65,66,67],\
+                                                            17: [68,69,70,71],\
+                                                            18: [72,73,74,75],\
+                                                            19: [76,77,78,79],\
+                                                            20: [80,81,82,83],\
+                                                            21: [84,85,86,87],\
+                                                            22: [88,89,90,91],\
+                                                            23: [92,93,94,95],\
+                                                            24: [96,97,98,99],\
+                                                            25: [100,101,102,103],\
+                                                            26: [104,105,106,107],\
+                                                            27: [108,109,110,111],\
+                                                            28: [112,113,114,115],\
+                                                            29: [116,117,118,119],\
+                                                          },
+                                                "allowed_number_of_processes": [30,60,90,120]
+                                                 },
+                    "Standard_HB60rs": {"l3cache_ids":  {0: [0,1,2,3],\
+                                                         1: [4,5,6,7],\
+                                                         2: [8,9,10,11],\
+                                                         3: [12,13,14,15],\
+                                                         4: [16,17,18,19],\
+                                                         5: [20,21,22,23],\
+                                                         6: [24,25,26,27],\
+                                                         7: [28,29,30,31],\
+                                                         8: [32,33,34,35],\
+                                                         9: [36,37,38,39],\
+                                                        10: [40,41,42,43],\
+                                                        11: [44,45,46,47],\
+                                                        12: [48,49,50,51],\
+                                                        13: [52,53,54,55],\
+                                                        14: [56,57,58,59],\
+                                                          },
+                                                "allowed_number_of_processes": [15,30,45,60]
+                                                 },
                     "Standard_ND96asr_v4": {"l3cache_ids":  {0: [0,1,2,3],\
                                                              1: [4,5,6,7],\
                                                              2: [8,9,10,11],\
@@ -120,7 +185,9 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                             21: [84,85,86,87],\
                                                             22: [88,89,90,91],\
                                                             23: [92,93,94,95]\
-                                                          }}}
+                                                          },
+                                                "allowed_number_of_processes": [24,48,72,96]
+                                                 }}
 
 
 def get_vm_metadata():
@@ -306,6 +373,18 @@ def find_running_threads(pid, threads_l):
     return nrthreads
 
 
+def check_if_sku_is_supported(actual_sku_name):
+    sku_found = False
+    supported_sku_names_l = []
+    for sku_name in l3cache_coreid_d:
+        supported_sku_names_l.append(sku_name)
+        if sku_name == actual_sku_name:
+           sku_found = True
+           break
+    
+    return (sku_found,supported_sku_names_l)
+
+
 def calc_total_num_processes(process_d):
    return len(process_d["pids"])
 
@@ -366,6 +445,32 @@ def check_numa_per_process(process_d):
            numas = process_d["pids"][pid]["numas"]
            if len(numas) > 1:
               print("Warning: pid ({} is mapped to more than one numa domain ({})".format(pid,numas))
+
+
+def calc_number_processes_per_numa(total_number_processes, num_numa_domains):
+    if total_number_processes < num_numa_domains:
+       number_processes_per_numa = 1
+    else:
+       number_processes_per_numa = int(total_number_processes / num_numa_domains)
+
+    return number_processes_per_numa
+
+
+def calc_process_pinning(total_number_processes, num_numa_domains, l3cache_topo_d):
+    number_processes_per_numa = calc_number_processes_per_numa(total_number_processes, num_numa_domains)
+    number_cores_in_l3cache = calc_number_cores_in_l3cache(l3cache_topo_d)
+    indx = 0
+    pinning_l = []
+    while len(pinning_l) < total_number_processes:
+        for l3cache_id in l3cache_topo_d["l3cache_ids"]:
+            if indx > len(l3cache_topo_d["l3cache_ids"][l3cache_id])-1:
+               continue
+            if len(pinning_l) < total_number_processes:
+               pinning_l.append(l3cache_topo_d["l3cache_ids"][l3cache_id][indx])
+            else:
+               break
+        indx += 1
+    return (pinning_l, number_processes_per_numa, number_cores_in_l3cache)
 
 
 def check_process_numa_distribution(total_num_processes, total_num_numa_domains, process_d):
@@ -437,23 +542,54 @@ def check_threads_l3cache(total_num_processes, total_num_threads, l3cache_topo_d
                     break
 
 
-def check_app(topo_d, process_d, l3cache_topo_d):
+def check_app(app_pattern, topo_d, process_d, l3cache_topo_d):
    print("")
    print("")
-   total_num_processes = calc_total_num_processes(process_d)
    total_num_numa_domains = calc_total_num_numas(topo_d)
    total_num_l3caches = calc_total_num_l3caches(l3cache_topo_d)
    total_num_cores = calc_total_num_cores(topo_d)
-   total_num_threads = calc_total_num_threads(process_d)
    total_num_gpus = calc_total_num_gpus(topo_d)
 
-   check_total_threads(total_num_cores,  total_num_threads)
-   check_size_core_map_domain(process_d)
-   check_numa_per_process(process_d)
-   check_process_numa_distribution(total_num_processes, total_num_numa_domains, process_d)
-   check_thread_to_gpu(total_num_threads, total_num_gpus)
-   check_processes_to_l3cache(total_num_processes, total_num_l3caches, l3cache_topo_d, process_d)
-   check_threads_l3cache(total_num_processes, total_num_threads, l3cache_topo_d, process_d)
+   if app_pattern:
+      total_num_processes = calc_total_num_processes(process_d)
+      total_num_threads = calc_total_num_threads(process_d)
+      check_total_threads(total_num_cores,  total_num_threads)
+      check_size_core_map_domain(process_d)
+      check_numa_per_process(process_d)
+      check_process_numa_distribution(total_num_processes, total_num_numa_domains, process_d)
+      check_thread_to_gpu(total_num_threads, total_num_gpus)
+      check_processes_to_l3cache(total_num_processes, total_num_l3caches, l3cache_topo_d, process_d)
+      check_threads_l3cache(total_num_processes, total_num_threads, l3cache_topo_d, process_d)
+
+
+def calc_number_cores_in_l3cache(l3cache_topo_d):
+    min_number_cores_in_l3cache = 999
+    for l3cache_id in l3cache_topo_d["l3cache_ids"]:
+        current_min_number_cores_in_l3cache = len(l3cache_topo_d["l3cache_ids"][l3cache_id])
+        if current_min_number_cores_in_l3cache < min_number_cores_in_l3cache:
+           min_number_cores_in_l3cache = current_min_number_cores_in_l3cache
+
+    return min_number_cores_in_l3cache
+
+      
+def check_pinning_syntax(total_number_processes, number_threads_per_process, topo_d, l3cache_topo_d):
+   print("")
+   print("")
+   total_num_cores = calc_total_num_cores(topo_d)
+   number_l3caches = len(l3cache_topo_d["l3cache_ids"])
+   number_cores_in_l3cache = calc_number_cores_in_l3cache(l3cache_topo_d)
+   num_numas = calc_total_num_numas(topo_d)
+   have_warning = False
+
+   if check_number_of_processes(total_number_processes, number_threads_per_process, number_l3caches, num_numas, l3cache_topo_d):
+       have_warning = True
+   if check_total_number_of_threads(total_number_processes, number_threads_per_process, total_num_cores):
+       have_warning = True
+   if check_number_threads_per_l3cache(total_number_processes, number_threads_per_process, number_l3caches, number_cores_in_l3cache):
+       have_warning = True
+   print("")
+
+   return have_warning
 
 
 def range_to_list(range_str):
@@ -461,7 +597,11 @@ def range_to_list(range_str):
     if len(range_str_l) == 2:
         return range(int(range_str_l[0]), int(range_str_l[1])+1)
     elif len(range_str_l) == 1:
-        return list(map(int,range_str_l))
+        range_str_l2 = range_str.split(",")
+        if len(range_str_l2) > 2:
+           return list(map(int,range_str_l2))
+        else:
+           return list(map(int,range_str_l))
     else:
         print("Error: function range_to_list does not support {}".format(range_str))
 
@@ -491,11 +631,57 @@ def list_to_ranges(l):
        range_str_l = conv_ranges(range_l)
        return range_str_l
 
+def list_to_str(l):
+    return ",".join(map(str,l))
 
-def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d):
+
+def check_number_of_processes(total_number_processes, number_threads_per_process, number_l3caches, num_numas, l3cache_topo_d):
+    have_warning = False
+    if total_number_processes > number_l3caches and total_number_processes not in l3cache_topo_d["allowed_number_of_processes"]:
+       have_warning = True
+       print("Warning: You requested  {} MPI processes, for this SKU its recommended you use one of these process counts, {}".format(total_number_processes,l3cache_topo_d["allowed_number_of_processes"]))
+    if number_threads_per_process > 1 and total_number_processes > num_numas and not total_number_processes % num_numas == 0:
+       have_warning = True
+       print("Warning: For this hybrid parallel job, the number of numa domains ({}) does not divide evenly into number of processes ({})".format(num_numas, total_number_processes))
+    
+    return have_warning
+
+
+def check_total_number_of_threads(total_number_processes, number_threads_per_process, total_number_cores):
+    have_warning = False
+    total_number_of_threads = total_number_processes * number_threads_per_process
+    if total_number_of_threads > total_number_cores:
+       have_warning = True
+       print("Warning: You requested a total of {} threads (number of processes = {}, number of threads per process = {}), but this SKU only has {} cores".format(total_number_of_threads, total_number_processes, number_threads_per_process, total_number_cores))
+
+    return have_warning
+
+
+def calc_number_processes_per_l3cache(total_number_processes, number_l3caches):
+    if total_number_processes < number_l3caches:
+       number_processes_per_l3cache = 1
+    else:
+       number_processes_per_l3cache = total_number_processes /  number_l3caches
+   
+    return int(number_processes_per_l3cache)
+
+
+def check_number_threads_per_l3cache(total_number_processes, number_threads_per_process, number_l3caches, number_cores_in_l3cache):
+    have_warning = False
+    if number_threads_per_process > 1:
+       number_processes_per_l3cache = calc_number_processes_per_l3cache(total_number_processes, number_l3caches)
+       number_threads_in_l3cache = number_processes_per_l3cache * number_threads_per_process
+       if not number_threads_in_l3cache == number_cores_in_l3cache:
+          have_warning = True
+          print("Warning: Total number of threads in l3cache ({}) is not equal to total number of cores in l3cache ({})".format(number_threads_in_l3cache,number_cores_in_l3cache))
+
+    return have_warning
+
+
+def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning):
     hostname = socket.gethostname()
     print("")
-    print("Virtual Machine ({}) Numa topology".format(sku_name))
+    print("Virtual Machine ({}, {}) Numa topology".format(sku_name, hostname))
     print("")
     print("{:<12} {:<20}  {:<10}".format("NumaNode id","Core ids", "GPU ids"))
     print("{:=<12} {:=<20} {:=<10}".format("=","=", "="))
@@ -512,38 +698,94 @@ def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d):
           print("{:<12} {:<20}".format(l3cache_id,core_ids_l))
        print("")
     print("")
-    print("Application ({}) Mapping/pinning".format(app_pattern))
-    print("")
-    print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format("PID","Threads","Running Threads","Last core id","Core id mapping","Numa Node ids", "GPU ids"))
-    print("{:=<12} {:=<17} {:=<17} {:=<15} {:=<17} {:=<15} {:=<15}".format("=","=","=","=","=","=","="))
-    for pid in process_d["pids"]:
-       threads = process_d["pids"][pid]["num_threads"]
-       running_threads = process_d["pids"][pid]["running_threads"]
-       last_core_id = process_d["pids"][pid]["last_core_id"]
-       cpus_allowed = process_d["pids"][pid]["cpus_allowed"]
-       numas = str(list_to_ranges(process_d["pids"][pid]["numas"]))
-       gpus = str(list_to_ranges(process_d["pids"][pid]["gpus"]))
-       print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpus))
+    if app_pattern:
+       print("Application ({}) Mapping/pinning".format(app_pattern))
+       print("")
+       print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format("PID","Threads","Running Threads","Last core id","Core id mapping","Numa Node ids", "GPU ids"))
+       print("{:=<12} {:=<17} {:=<17} {:=<15} {:=<17} {:=<15} {:=<15}".format("=","=","=","=","=","=","="))
+       for pid in process_d["pids"]:
+          threads = process_d["pids"][pid]["num_threads"]
+          running_threads = process_d["pids"][pid]["running_threads"]
+          last_core_id = process_d["pids"][pid]["last_core_id"]
+          cpus_allowed = process_d["pids"][pid]["cpus_allowed"]
+          numas = str(list_to_ranges(process_d["pids"][pid]["numas"]))
+          gpus = str(list_to_ranges(process_d["pids"][pid]["gpus"]))
+          print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpus))
+    else:
+       print("Process/thread {} MPI Mapping/pinning syntax for {} processes and {} threads per process".format(mpi_type, total_number_processes,number_threads_per_process))
+       print("")
+       if sku_name == "Standard_HB120rs_v3" and number_threads_per_process > 1:
+          print("Warning: You are planning on running a hybrid parallel application on {}, it is recommended that you use Standard_HB120-96rs_v3, Standard_HB120-64rs_v3 or Standard_HB120-32rs_v3 instead.".format(sku_name))
+          sys.exit(1)
+       if have_warning:
+           print("NOTE: MPI process/thread pinning syntax will NOT be displayed until the warnings above have been corrected")
+       else:
+          if mpi_type == "openmpi":
+             if number_threads_per_process == 1:
+                 print("--bind-to cpulist:ordered --cpu-list",list_to_str(pinning_syntax_l))
+             else:
+                print("--map-by ppr:{}:numa:pe={}".format(number_processes_per_numa, number_threads_per_process))
+          else:
+             if number_threads_per_process == 1:
+                print("-genv I_MPI_PIN_PROCESSOR=",list_to_str(pinning_syntax_l))
+             else:
+                print("export I_MPI_PIN_DOMAIN={}:compact".format(number_cores_in_l3cache))
 
 
 def main():
+   total_number_processes = 0
+   number_threads_per_process = 0
+   pinning_l = []
+   number_processes_per_numa = 0
+   number_cores_in_l3cache = 0
+   mpi_type = "None"
+   have_warning = False
    vm_metadata = get_vm_metadata()
    sku_name = vm_metadata["compute"]["vmSize"]
    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-   parser.add_argument(dest="application_pattern", type=str, default="None", help="Select the application pattern to check [string]")
+   parser.add_argument("-anp", "--application_name_pattern", dest="application_pattern", type=str, help="Select the application pattern to check [string]")
+   parser.add_argument("-ppa", "--print_pinning_syntax", action="store_true", help="Print MPI pinning syntax")
+   parser.add_argument("-tnp", "--total_number_processes", dest="total_number_processes", type=int, help="Total number of MPI processes (used with -ppa)")
+   parser.add_argument("-ntpp", "--number_threads_per_process", dest="number_threads_per_process", type=int, help="Number of threads per process (used with -ppa)")
+   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel"], help="Select which type of MPI to generate pinning syntax (used with -ppa)")
    args = parser.parse_args()
-   if args.application_pattern:
-      app_pattern = args.application_pattern
+   if not args.application_pattern and not args.print_pinning_syntax:
+      print("Error: you must select either an application_name_pattern(-anp) (to see where your application is pinned)  or print_pinning_syntax (-ppa) (to see the MPI pinning syntax), -h argument will show you all argument options.")
+      sys.exit(1)
    topo_d = parse_lstopo()
    l3cache_topo_d = create_l3cache_topo(sku_name)
+   if args.application_pattern:
+      app_pattern = args.application_pattern
+      pids_l = find_pids(app_pattern)
+      process_d = find_threads(pids_l)
+      find_process_numas(topo_d, process_d)
+      find_process_gpus(topo_d, process_d)
+      find_last_core_id(process_d)
+   if args.print_pinning_syntax:
+      (sku_found, supported_sku_names_l) = check_if_sku_is_supported(sku_name)
+      if not sku_found:
+          print("Error: {} is currently not a supported SKU to determine the correct process/thread MPI pinning/mapping syntax.\n The following SKUs are supported {}".format(sku_name, supported_sku_names_l))
+          sys.exit(1)
+      process_d = {}
+      if args.total_number_processes:
+         total_number_processes = args.total_number_processes
+      else:
+         total_number_processes = calc_total_num_cores(topo_d)
+      if args.number_threads_per_process:
+         number_threads_per_process = args.number_threads_per_process
+      else:
+         number_threads_per_process = 1
+      if args.mpi_type:
+          mpi_type = args.mpi_type
+      else:
+          mpi_type = "openmpi"
+      have_warning = check_pinning_syntax(total_number_processes, number_threads_per_process, topo_d, l3cache_topo_d)
+      num_numas = calc_total_num_numas(topo_d)
+      (pinning_l, number_processes_per_numa, number_cores_in_l3cache) = calc_process_pinning(total_number_processes, num_numas, l3cache_topo_d)
+
 #   print(l3cache_topo_d)
-   pids_l = find_pids(app_pattern)
-   process_d = find_threads(pids_l)
-   find_process_numas(topo_d, process_d)
-   find_process_gpus(topo_d, process_d)
-   find_last_core_id(process_d)
-   report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d)
-   check_app(topo_d, process_d, l3cache_topo_d)
+   report(args.application_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning)
+   check_app(args.application_pattern, topo_d, process_d, l3cache_topo_d)
 
 
 if __name__ == "__main__":
