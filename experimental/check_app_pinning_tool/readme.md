@@ -135,7 +135,7 @@ Warning: 4 threads are mapped to 1 core(s), for pid (13408)
 You then test running the same HPC application on multiple ND96asr_v4 virtual machines.
 
 ```
-./check_app_pinning.py hello
+./check_app_pinning.py -anp hello
 
 Virtual Machine (cgndv4) Numa topology
 
@@ -165,7 +165,7 @@ Warning: Virtual Machine has 8 GPU's, but only 6 threads are running
 
 For HB_v3 will also show the L3cache topology.
 
-[azureuser@cghb120v3 ~]$ ./check_app_pinning_new.py hello
+[azureuser@cghb120v3 ~]$ ./check_app_pinning_new.py -anp hello
 
 Virtual Machine (Standard_HB120rs_v3) Numa topology
 
