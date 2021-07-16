@@ -1,7 +1,7 @@
 # HPC Application process/thread mapping/pinning checking tool
 
 Correct mapping/pinning of HPC Application processes/threads is critical for optimal performance.
-The HPC Application process/thread mapping/pinning checking tool allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally. This tool shows you the virtual machine NUMA topology (i.e location of code id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
+The HPC Application process/thread mapping/pinning checking tool has two main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally or it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX and Intel MPI (Currently for HPC VM's based on AMD processors (HB (v1,v2 & v3) and NDv4). This tool shows you the virtual machine NUMA topology (i.e location of code id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
 
 ## Prerequisites
 
@@ -11,20 +11,76 @@ The HPC Application process/thread mapping/pinning checking tool allows you to q
 ## Usage
 ```
  ./check_app_pinning.py -h
-usage: check_app_pinning.py [-h] application_pattern
-
-positional arguments:
-  application_pattern  Select the application pattern to check [string]
+usage: check_app_pinning.py [-h] [-anp APPLICATION_PATTERN] [-ppa]
+                            [-tnp TOTAL_NUMBER_PROCESSES]
+                            [-ntpp NUMBER_THREADS_PER_PROCESS]
+                            [-mt {openmpi,intel}]
 
 optional arguments:
-  -h, --help           show this help message and exit
+  -h, --help            show this help message and exit
+  -anp APPLICATION_PATTERN, --application_name_pattern APPLICATION_PATTERN
+                        Select the application pattern to check [string]
+                        (default: None)
+  -ppa, --print_pinning_syntax
+                        Print MPI pinning syntax (default: False)
+  -tnp TOTAL_NUMBER_PROCESSES, --total_number_processes TOTAL_NUMBER_PROCESSES
+                        Total number of MPI processes (used with -ppa)
+                        (default: None)
+  -ntpp NUMBER_THREADS_PER_PROCESS, --number_threads_per_process NUMBER_THREADS_PER_PROCESS
+                        Number of threads per process (used with -ppa)
+                        (default: None)
+  -mt {openmpi,intel}, --mpi_type {openmpi,intel}
+                        Select which type of MPI to generate pinning syntax
+                        (used with -ppa) (default: None)
 ```
-## Example
+## Examples
+You are on a Standard_HB120-64rs_v2 virtual machine, you would like to know the correct HPCX pinning syntax to pin 16 MPI
+processes and 4 threads per process.
+
+check_app_pinning.py -ppa -tnp 16 -ntpp 4
+
+Virtual Machine (Standard_HB120-64rs_v3, cghb64v3) Numa topology
+
+NumaNode id  Core ids              GPU ids
+============ ==================== ==========
+0            ['0-15']             []
+1            ['16-31']            []
+2            ['32-47']            []
+3            ['48-63']            []
+
+L3Cache id   Core ids
+============ ====================
+0            ['0-3']
+1            ['4-7']
+2            ['8-11']
+3            ['12-15']
+4            ['16-19']
+5            ['20-23']
+6            ['24-27']
+7            ['28-31']
+8            ['32-35']
+9            ['36-39']
+10           ['40-43']
+11           ['44-47']
+12           ['48-51']
+13           ['52-55']
+14           ['56-59']
+15           ['60-63']
+
+
+Process/thread openmpi MPI Mapping/pinning syntax for 16 processes and 4 threads per process
+
+--map-by ppr:4:numa:pe=4
+
+
+Note: Incorrect number of processes and threads is flagged with warnings
+
+
 You have a hybrid parallel application (called hpcapp) running on multiple virtual machines (HB120_v2). You would like to check if the processes and threads are pinned correctly. On one of the virtual machine you run
 ```
-check_app_pinning.py hpcapp
+check_app_pinning.py -anp hpcapp
 
-Virtual Machine (cghb120v2) Numa topology
+Virtual Machine (Standard_HB120_v2, cghb120v2) Numa topology
 
 NumaNode id  Core ids              GPU ids
 ============ ==================== ==========
