@@ -37,6 +37,7 @@ optional arguments:
 You are on a Standard_HB120-64rs_v2 virtual machine, you would like to know the correct HPCX pinning syntax to pin 16 MPI
 processes and 4 threads per process.
 
+```
 check_app_pinning.py -ppa -tnp 16 -ntpp 4
 
 Virtual Machine (Standard_HB120-64rs_v3, cghb64v3) Numa topology
@@ -71,7 +72,7 @@ L3Cache id   Core ids
 Process/thread openmpi MPI Mapping/pinning syntax for 16 processes and 4 threads per process
 
 --map-by ppr:4:numa:pe=4
-
+```
 
 Note: Incorrect number of processes and threads is flagged with warnings
 
