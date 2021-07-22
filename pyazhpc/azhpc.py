@@ -642,7 +642,8 @@ def do_build(args):
 
     log.info("creating resource group " + config["resource_group"])
 
-    resource_tags = config.get("resource_tags", {})
+    resource_tags = config.get("resource_tags", {}).copy()
+    resource_tags.update(config.get("global_tags", {}))
     azutil.create_resource_group(
         config["resource_group"],
         config["location"],

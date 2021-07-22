@@ -4,6 +4,10 @@
     "location": "azure region to use",
     "proximity_placement_group_name": "name of the proximity placement group to create and join resources to",
     "resource_group": "resource group name to create resources in",
+    "global_tags": {
+        "tag_key_1": "tag_value_1",
+        "tag_key_2": "tag_value_2"
+    },
     "variables": {
         "variable1": "value1",
         "variable2": "value2"
