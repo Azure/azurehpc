@@ -70,6 +70,7 @@ The following properties are global :
 | **install_from**                   | The resource where the install script will be run |   no     |         |
 | **admin_user**                     | The admin user for all resources                  |   yes    |         |
 | **proximity_placement_group_name** | The proximity group name to create                |   no     |         |
+| **global_tags**                    | Global tags to apply to all ARM resources         |   no     |         |
 
 The `azhpc-build` command will generate an install script from the configuration file.  This will be run from the `install_from` VM.  The `install_from` VM must either have a public IP address or be accessible by hostname from where `azhpc-build` is run (i.e. run `azhpc-build` from a VM on the same vnet).
 

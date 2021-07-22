@@ -7,7 +7,6 @@ import azutil
 
 log = azlog.getLogger(__name__)
 
-
 class ArmTemplate:
     def __init__(self):
         self.parameters = {}
@@ -38,11 +37,14 @@ class ArmTemplate:
                 }
             })
 
+        gtags = cfg.get("global_tags", {})
+
         res = {
             "apiVersion": "2018-10-01",
             "type": "Microsoft.Network/virtualNetworks",
             "name": vnet_name,
             "location": location,
+            "tags": gtags,
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
@@ -63,6 +65,7 @@ class ArmTemplate:
                 "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
                 "apiVersion": "2019-11-01",
                 "name": f"{vnet_name}/{peer_name}-{peer_resource_group}",
+                "tags": gtags,
                 "properties": {
                     "remoteVirtualNetwork": {
                         "id": f"[resourceId('{peer_resource_group}', 'Microsoft.Network/virtualNetworks', '{peer_vnet_name}')]"
@@ -81,6 +84,7 @@ class ArmTemplate:
                 "type": "Microsoft.Resources/deployments",
                 "apiVersion": "2017-05-10",
                 "name": f"{peer_resource_group}peer",
+                "tags": gtags,
                 "resourceGroup": peer_resource_group,
                 "properties": {
                     "mode": "Incremental",
@@ -94,6 +98,7 @@ class ArmTemplate:
                                 "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
                                 "apiVersion": "2019-11-01",
                                 "name": f"{peer_vnet_name}/{peer_name}-{resource_group}",
+                                "tags": gtags,
                                 "properties": {
                                     "remoteVirtualNetwork": {
                                         "id": f"[resourceId('{resource_group}', 'Microsoft.Network/virtualNetworks', '{vnet_name}')]"
@@ -122,6 +127,7 @@ class ArmTemplate:
                 "type": "Microsoft.Network/privateDnsZones",
                 "apiVersion": "2018-09-01",
                 "name": dns_domain,
+                "tags": gtags,
                 "location": "global",
                 "properties": {},
                 "resources": [{
@@ -155,6 +161,7 @@ class ArmTemplate:
                 "type": "Microsoft.Network/routeTables",
                 "apiVersion": "2019-11-01",
                 "name": route_name,
+                "tags": gtags,
                 "location": location,
                 "properties": {
                     "disableBgpRoutePropagation": False,
@@ -177,6 +184,7 @@ class ArmTemplate:
                 "type": "Microsoft.Network/routeTables/routes",
                 "apiVersion": "2019-11-01",
                 "name": f"{route_name}/{route_name}",
+                "tags": gtags,
                 "dependsOn": [
                     f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
                 ],
@@ -191,6 +199,7 @@ class ArmTemplate:
                 "type": "Microsoft.Network/virtualNetworks/subnets",
                 "apiVersion": "2019-11-01",
                 "name": f"{vnet_name}/{route_subnet}",
+                "tags": gtags,
                 "dependsOn": [
                     f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
                 ],
@@ -208,6 +217,7 @@ class ArmTemplate:
         vnet = cfg["vnet"]["name"]
         subnet = account["subnet"]
         nicdeps = []
+        gtags = cfg.get("global_tags", {})
 
         rg = cfg["resource_group"]
         vnetrg = cfg["vnet"].get("resource_group", rg)
@@ -257,8 +267,8 @@ class ArmTemplate:
             "name": name,
             "type": "Microsoft.NetApp/netAppAccounts",
             "apiVersion": "2020-02-01",
+            "tags": gtags,
             "location": loc,
-            "tags": {},
             "properties": props,
             "dependsOn": nicdeps
         })
@@ -271,8 +281,8 @@ class ArmTemplate:
                 "name": name+"/"+poolname,
                 "type": "Microsoft.NetApp/netAppAccounts/capacityPools",
                 "apiVersion": "2020-02-01",
+                "tags": gtags,
                 "location": loc,
-                "tags": {},
                 "properties": {
                     "size": poolsize * 2**40,
                     "serviceLevel": servicelevel
@@ -292,8 +302,8 @@ class ArmTemplate:
                     "name": name+"/"+poolname+"/"+volname,
                     "type": "Microsoft.NetApp/netAppAccounts/capacityPools/volumes",
                     "apiVersion": "2020-06-01",
+                    "tags": gtags,
                     "location": loc,
-                    "tags": {},
                     "properties": {
                         "creationToken": volname,
                         "serviceLevel": servicelevel,
@@ -313,11 +323,13 @@ class ArmTemplate:
 
     def _add_storageaccount(self, cfg, name):
         loc = cfg["location"]
+        gtags = cfg.get("global_tags", {})
 
         res = {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
             "name": name,
+            "tags": gtags,
             "location": loc,
             "sku": {
                 "name": "Standard_LRS"
@@ -335,6 +347,7 @@ class ArmTemplate:
                     "type": "blobServices/containers",
                     "apiVersion": "2019-06-01",
                     "name": f"default/{container}",
+                    "tags": gtags,
                     "dependsOn": [
                         name
                     ]
@@ -345,12 +358,15 @@ class ArmTemplate:
 
     def _add_proximity_group(self, cfg):
         ppg = cfg.get("proximity_placement_group_name", None)
+        gtags = cfg.get("global_tags", {})
+
         if ppg:
             loc = cfg["location"]
             self.resources.append({
                 "apiVersion": "2018-04-01",
                 "type": "Microsoft.Compute/proximityPlacementGroups",
                 "name": ppg,
+                "tags": gtags,
                 "location": loc
             })
 
@@ -469,7 +485,9 @@ class ArmTemplate:
         rdatadisks = res.get("data_disks", [])
         rstoragesku = res.get("storage_sku", "Premium_LRS")
         rstoragecache = res.get("storage_cache", "ReadWrite")
-        rtags = res.get("resource_tags", {})
+        gtags = cfg.get("global_tags", {})
+        rtags = res.get("resource_tags", {}).copy()
+        rtags.update(gtags)
         rmanagedidentity = res.get("managed_identity", None)
         loc = cfg["location"]
         ravset = res.get("availability_set")
@@ -494,6 +512,7 @@ class ArmTemplate:
                 "type": "Microsoft.Compute/availabilitySets",
                 "apiVersion": "2018-10-01",
                 "location": loc,
+                "tags": gtags,
                 "sku": {
                     "name": "Aligned"
                 },
@@ -544,7 +563,7 @@ class ArmTemplate:
                     "name": pipname,
                     "location": loc,
                     "dependsOn": [],
-                    "tags": {},
+                    "tags": gtags,
                     "properties": {
                         "dnsSettings": {
                             "domainNameLabel": dnsname
@@ -649,7 +668,7 @@ class ArmTemplate:
                     "name": nsgname,
                     "location": loc,
                     "dependsOn": [],
-                    "tags": {},
+                    "tags": gtags,
                     "properties": {
                             "securityRules": nsgrules
                     }
@@ -686,7 +705,7 @@ class ArmTemplate:
                 "name": nicname,
                 "location": loc,
                 "dependsOn": nicdeps,
-                "tags": {},
+                "tags": gtags,
                 "properties": nicprops
             })
 
@@ -845,7 +864,9 @@ class ArmTemplate:
         loc = cfg["location"]
         adminuser = cfg["admin_user"]
         rrg = cfg["resource_group"]
-        rtags = res.get("resource_tags", {})
+        gtags = cfg.get("global_tags", {})
+        rtags = res.get("resource_tags", {}).copy()
+        rtags.update(gtags)
         rmanagedidentity = res.get("managed_identity", None)
         vnetname = cfg["vnet"]["name"]
         vnetrg = cfg["vnet"].get("resource_group", rrg)
@@ -986,6 +1007,7 @@ class ArmTemplate:
                 "apiVersion": "2017-09-01",
                 "type": "Microsoft.Authorization/roleAssignments",
                 "name": f"[guid(subscription().subscriptionId, resourceGroup().id, '{r}')]",
+                "tags": gtags,
                 "properties": {
                     "roleDefinitionId": role_lookup[role],
                     "principalId": f"[reference('{r}', '2017-12-01', 'Full').identity.principalId]",
