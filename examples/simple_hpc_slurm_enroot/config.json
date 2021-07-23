@@ -1,0 +1,156 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "variables": {
+        "hpc_image": "OpenLogic:CentOS-HPC:7_9:latest",
+        "slurm_version": "20.11.8",
+        "location": "<NOT-SET>",
+        "resource_group": "<NOT-SET>",
+        "vm_type": "Standard_NC4as_T4_v3",
+        "compute_instances": 2,
+        "low_priority": false,
+        "vnet_resource_group": "variables.resource_group"
+    },
+    "vnet": {
+        "resource_group": "variables.vnet_resource_group",
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.4.0/22"
+        }
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "data_disks": [1024, 1024],
+            "storage_sku": "Premium_LRS",
+            "tags": [
+                "cndefault",
+                "nfsserver",
+                "munge",
+                "slurmctld",
+                "localuser",
+                "disable-selinux"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "instances": "variables.compute_instances",
+            "accelerated_networking": false,
+            "low_priority": "variables.low_priority",
+            "image": "variables.hpc_image",
+            "subnet": "compute",
+            "tags": [
+                "nfsclient",
+                "munge",
+                "slurmd",
+                "cndefault",
+                "localuser",
+                "disable-selinux",
+                "enroot",
+                "gpu"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "cndefault",
+            "sudo": true
+        },
+        {
+            "script": "create_raid0.sh",
+            "tag": "nfsserver",
+            "args": ["/dev/md10", "/dev/sd[c-d]"],
+            "sudo": true
+        },
+        {
+            "script": "make_filesystem.sh",
+            "tag": "nfsserver",
+            "args": ["/dev/md10", "xfs", "/share"],
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "nfsserver",
+            "args": ["/share"],
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "munge.sh",
+            "args": ["abcdefghijklmnopqrstuvwxyz123456"],
+            "tag": "munge",
+            "sudo": true
+        },
+        {
+            "script": "slurmctld.sh",
+            "args": ["variables.slurm_version"],
+            "tag": "slurmctld",
+            "sudo": true
+        },
+        {
+            "script": "slurmd.sh",
+            "tag": "slurmd",
+            "sudo": true
+        },
+        {
+            "script": "slurmnodes.sh",
+            "tag": "slurmctld",
+            "sudo": true
+        },
+        {
+            "script": "slurmstart.sh",
+            "tag": "slurmd",
+            "sudo": true
+        },
+        {
+            "script": "install_nvidia.sh",
+            "tag": "gpu",
+            "sudo": true,
+            "reboot": true
+        },        
+        {
+            "script": "install_enroot.sh",
+            "tag": "enroot",
+            "sudo": true,
+            "reboot": true
+        },        
+        {
+            "script": "node_healthchecks.sh",
+            "tag": "pbsclient",
+            "sudo": true,
+            "args": [
+            ],
+            "deps" : ["install-azcopy.sh","healthchecks.json"]
+        } 
+    ]
+}
