@@ -11,8 +11,10 @@ chown slurm /var/spool/slurm
 mkdir -p /var/log/slurm
 chown slurm /var/log/slurm
 
-ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
-ln -s /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
+ln -sv /apps/slurm/slurm.conf /etc/slurm/slurm.conf
+ln -sv /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
+ln -sv /apps/slurm/plugstack.conf /etc/slurm/plugstack.conf
+ln -sv /apps/slurm/plugstack.conf.d /etc/slurm/plugstack.conf.d
 
 # Collect the actual hardware configuration of the node
 

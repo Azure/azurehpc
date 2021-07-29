@@ -37,7 +37,9 @@
                 "munge",
                 "slurmctld",
                 "localuser",
-                "disable-selinux"
+                "disable-selinux",
+                "sleep",
+                "pyxis"
             ]
         },
         "compute": {
@@ -56,7 +58,8 @@
                 "localuser",
                 "disable-selinux",
                 "enroot",
-                "gpu"
+                "gpu",
+                "pyxis"
             ]
         }
     },
@@ -118,6 +121,11 @@
             "sudo": true
         },
         {
+            "script": "pyxis.sh",
+            "tag": "slurmctld",
+            "sudo": true
+        },
+        {
             "script": "slurmd.sh",
             "tag": "slurmd",
             "sudo": true
@@ -128,21 +136,25 @@
             "sudo": true
         },
         {
-            "script": "slurmstart.sh",
+            "script": "pyxis_slurmd.sh",
             "tag": "slurmd",
             "sudo": true
         },
         {
             "script": "install_nvidia.sh",
             "tag": "gpu",
-            "sudo": true,
-            "reboot": true
+            "sudo": true
         },        
         {
             "script": "install_enroot.sh",
             "tag": "enroot",
             "sudo": true,
             "reboot": true
+        },
+        {
+            "script": "wait.sh",
+            "args": ["120"],
+            "tag": "sleep"
         },        
         {
             "script": "node_healthchecks.sh",

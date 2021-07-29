@@ -96,11 +96,21 @@ ConstrainDevices=no
 
 EOF
 
-ln -s /apps/slurm/slurm.conf /etc/slurm/slurm.conf
-ln -s /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
+# Create plugstack.conf
+cat <<EOF > /apps/slurm/plugstack.conf
+include /etc/slurm/plugstack.conf.d/*
+
+EOF
+
+mkdir -pv /apps/slurm/plugstack.conf.d
+
+ln -sv /apps/slurm/slurm.conf /etc/slurm/slurm.conf
+ln -sv /apps/slurm/cgroup.conf /etc/slurm/cgroup.conf
+ln -sv /apps/slurm/plugstack.conf /etc/slurm/plugstack.conf
+ln -sv /apps/slurm/plugstack.conf.d /etc/slurm/plugstack.conf.d
 
 chown slurm.slurm -R /apps/slurm
-mkdir -p /apps/slurm/nodeconf
+mkdir -pv /apps/slurm/nodeconf 
 
 systemctl enable slurmctld
 
