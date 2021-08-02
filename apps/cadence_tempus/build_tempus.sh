@@ -5,7 +5,7 @@ INSTALL_DIR="/data/tempus/"
 
 
 WORKING_DIR="/mnt/resource"
-CADENCE_TOOLS_BLOB="https://edarg3diag.blob.core.windows.net/edatools/Cadence"
+CADENCE_TOOLS_BLOB=$1
 ISCAPE_FILE="IScape04.23-s012lnx86.t.Z"
 
 cd ${WORKING_DIR}
