@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # TODO: install directory
-INSTALL_DIR="/netapps/voltus/"
+INSTALL_DIR="/voltus/"
 
 WORKING_DIR="/mnt/resource"
 CADENCE_TOOLS_BLOB="https://edarg3diag.blob.core.windows.net/edatools/Cadence"
