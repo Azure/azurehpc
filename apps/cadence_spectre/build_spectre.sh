@@ -16,7 +16,7 @@ install_required_packages()
         yum -y install ksh
         yum -y install mesa-libGLU
         yum -y install motif
-        yum -y redhat-lsb
+        yum -y install redhat-lsb
         yum -y install glibc.i686
         yum -y install elfutils-libelf.i686
         yum -y install mesa-libGL.i686
