@@ -23,6 +23,8 @@ optional arguments:
                         (default: None)
   -ppa, --print_pinning_syntax
                         Print MPI pinning syntax (default: False)
+  -f, --force           Force printing MPI pinning syntax (i.e ignore
+                        warnings) (default: False)
   -tnp TOTAL_NUMBER_PROCESSES, --total_number_processes TOTAL_NUMBER_PROCESSES
                         Total number of MPI processes (used with -ppa)
                         (default: None)
