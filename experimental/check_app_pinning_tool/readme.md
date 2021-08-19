@@ -26,7 +26,7 @@ optional arguments:
   -f, --force           Force printing MPI pinning syntax (i.e ignore
                         warnings) (default: False)
   -tnp TOTAL_NUMBER_PROCESSES, --total_number_processes TOTAL_NUMBER_PROCESSES
-                        Total number of MPI processes (used with -ppa)
+                        Total number of MPI processes per VM (used with -ppa)
                         (default: None)
   -ntpp NUMBER_THREADS_PER_PROCESS, --number_threads_per_process NUMBER_THREADS_PER_PROCESS
                         Number of threads per process (used with -ppa)
@@ -36,7 +36,7 @@ optional arguments:
                         (used with -ppa) (default: None)
 ```
 ## Examples
-You are on a Standard_HB120-64rs_v2 virtual machine, you would like to know the correct HPCX pinning syntax to pin 16 MPI
+You are on a Standard_HB120-64rs_v3 virtual machine, you would like to know the correct HPCX pinning syntax to pin 16 MPI
 processes and 4 threads per process.
 
 ```

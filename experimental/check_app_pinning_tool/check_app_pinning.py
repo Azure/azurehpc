@@ -759,7 +759,7 @@ def main():
    parser.add_argument("-anp", "--application_name_pattern", dest="application_pattern", type=str, help="Select the application pattern to check [string]")
    parser.add_argument("-ppa", "--print_pinning_syntax", action="store_true", help="Print MPI pinning syntax")
    parser.add_argument("-f", "--force", action="store_true", help="Force printing MPI pinning syntax (i.e ignore warnings)")
-   parser.add_argument("-tnp", "--total_number_processes", dest="total_number_processes", type=int, help="Total number of MPI processes (used with -ppa)")
+   parser.add_argument("-tnp", "--total_number_processes", dest="total_number_processes", type=int, help="Total number of MPI processes per VM (used with -ppa)")
    parser.add_argument("-ntpp", "--number_threads_per_process", dest="number_threads_per_process", type=int, help="Number of threads per process (used with -ppa)")
    parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel"], help="Select which type of MPI to generate pinning syntax (used with -ppa)")
    args = parser.parse_args()
