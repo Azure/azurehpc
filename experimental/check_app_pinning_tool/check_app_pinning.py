@@ -708,7 +708,7 @@ def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_numbe
     if app_pattern:
        print("Application ({}) Mapping/pinning".format(app_pattern))
        print("")
-       print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format("PID","Threads","Running Threads","Last core id","Core id mapping","Numa Node ids", "GPU ids"))
+       print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format("PID","Total Threads","Running Threads","Last core id","Core id mapping","Numa Node ids", "GPU ids"))
        print("{:=<12} {:=<17} {:=<17} {:=<15} {:=<17} {:=<15} {:=<15}".format("=","=","=","=","=","=","="))
        for pid in process_d["pids"]:
           threads = process_d["pids"][pid]["num_threads"]
@@ -719,7 +719,7 @@ def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_numbe
           gpus = str(list_to_ranges(process_d["pids"][pid]["gpus"]))
           print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpus))
     else:
-       print("Process/thread {} MPI Mapping/pinning syntax for {} processes and {} threads per process".format(mpi_type, total_number_processes,number_threads_per_process))
+       print("Process/thread {} MPI mapping/pinning syntax for {} processes and {} threads per process".format(mpi_type, total_number_processes,number_threads_per_process))
        print("")
        if sku_name == "Standard_HB120rs_v3" and number_threads_per_process > 1:
           print("Warning: You are planning on running a hybrid parallel application on {}, it is recommended that you use Standard_HB120-96rs_v3, Standard_HB120-64rs_v3 or Standard_HB120-32rs_v3 instead.".format(sku_name))
