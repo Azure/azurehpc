@@ -685,7 +685,7 @@ def check_number_threads_per_l3cache(total_number_processes, number_threads_per_
     return have_warning
 
 
-def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas):
+def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas):
     hostname = socket.gethostname()
     print("")
     print("Virtual Machine ({}, {}) Numa topology".format(sku_name, hostname))
@@ -718,7 +718,7 @@ def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_numbe
           numas = str(list_to_ranges(process_d["pids"][pid]["numas"]))
           gpus = str(list_to_ranges(process_d["pids"][pid]["gpus"]))
           print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpus))
-    else:
+    elif print_pinning_syntax:
        print("Process/thread {} MPI mapping/pinning syntax for {} processes and {} threads per process".format(mpi_type, total_number_processes,number_threads_per_process))
        print("")
        if sku_name == "Standard_HB120rs_v3" and number_threads_per_process > 1:
@@ -749,6 +749,7 @@ def main():
    total_number_processes = 0
    number_threads_per_process = 0
    pinning_l = []
+   process_d = {}
    number_processes_per_numa = 0
    number_cores_in_l3cache = 0
    mpi_type = "None"
@@ -764,7 +765,7 @@ def main():
    parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel"], help="Select which type of MPI to generate pinning syntax (used with -ppa)")
    args = parser.parse_args()
    force = args.force
-   if not args.application_pattern and not args.print_pinning_syntax:
+   if len(sys.argv) > 1 and not args.application_pattern and not args.print_pinning_syntax:
       print("Error: you must select either an application_name_pattern(-anp) (to see where your application is pinned)  or print_pinning_syntax (-ppa) (to see the MPI pinning syntax), -h argument will show you all argument options.")
       sys.exit(1)
    topo_d = parse_lstopo()
@@ -798,8 +799,7 @@ def main():
       have_warning = check_pinning_syntax(total_number_processes, number_threads_per_process, topo_d, l3cache_topo_d)
       (pinning_l, number_processes_per_numa, number_cores_in_l3cache) = calc_process_pinning(total_number_processes, num_numas, l3cache_topo_d)
 
-#   print(l3cache_topo_d)
-   report(args.application_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas)
+   report(args.application_pattern, args.print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas)
    check_app(args.application_pattern, topo_d, process_d, l3cache_topo_d)
 
 

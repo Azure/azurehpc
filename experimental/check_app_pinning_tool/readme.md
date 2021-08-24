@@ -83,7 +83,7 @@ You have a hybrid parallel application (called hpcapp) running on multiple virtu
 ```
 check_app_pinning.py -anp hpcapp
 
-Virtual Machine (Standard_HB120_v2, cghb120v2) Numa topology
+Virtual Machine (Standard_HB120_v2) Numa topology
 
 NumaNode id  Core ids              GPU ids
 ============ ==================== ==========
@@ -121,7 +121,7 @@ NumaNode id  Core ids              GPU ids
 
 Application (hpcapp) Mapping/pinning
 
-PID          Threads           Running Threads   Last core id     Core id mapping   Numa Node ids   GPU ids
+PID          Total Threads      Running Threads   Last core id     Core id mapping   Numa Node ids   GPU ids
 ============ ================= ================= ==============  ================= =============== ===============
 13405        7                 4                   0              0                 [0]             []
 13406        7                 4                   4              4                 [1]             []
@@ -139,7 +139,7 @@ You then test running the same HPC application on multiple ND96asr_v4 virtual ma
 ```
 ./check_app_pinning.py -anp hello
 
-Virtual Machine (cgndv4) Numa topology
+Virtual Machine (Standard_ND96asr_v4) Numa topology
 
 NumaNode id  Core ids              GPU ids
 ============ ==================== ==========
@@ -151,7 +151,7 @@ NumaNode id  Core ids              GPU ids
 
 Application (hello) Mapping/pinning
 
-PID          Threads           Running Threads   Last core id    Core id mapping   Numa Node ids   GPU ids
+PID          Total Threads      Running Threads   Last core id    Core id mapping   Numa Node ids   GPU ids
 ============ ================= ================= ==============  ================= =============== ===============
 32473        6                 0                 0                  0                 [0]             [3, 2]
 32474        6                 2                 24                 24                [1]             [1, 0]
