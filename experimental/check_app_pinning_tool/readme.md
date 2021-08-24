@@ -167,7 +167,7 @@ Warning: Virtual Machine has 8 GPU's, but only 6 threads are running
 
 For HB_v3 will also show the L3cache topology.
 
-[azureuser@cghb120v3 ~]$ ./check_app_pinning_new.py -anp hello
+[azureuser@cghb120v3 ~]$ ./check_app_pinning.py -anp hello
 
 Virtual Machine (Standard_HB120rs_v3) Numa topology
 
