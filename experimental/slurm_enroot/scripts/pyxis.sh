@@ -2,9 +2,11 @@
 #set -o pipefail
 set -x
 
-wget https://github.com/NVIDIA/pyxis/archive/refs/tags/v0.11.0.tar.gz
-tar xzf v0.11.0.tar.gz
-cd pyxis-0.11.0/
+PYXIS_VERSION=${1:-0.11.0}
+
+wget https://github.com/NVIDIA/pyxis/archive/refs/tags/v${PYXIS_VERSION}.tar.gz
+tar xzf v${PYXIS_VERSION}.tar.gz
+cd pyxis-${PYXIS_VERSION}/
 
 make install
 

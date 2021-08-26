@@ -2,10 +2,15 @@
 
 set -x
 
+ENROOT_VERSION_FULL=${1:-3.3.1-1}
+ENROOT_VERSION=${ENROOT_VERSION_FULL%-*}
+
+ENROOT_SCRATCH=${2:-/mnt/resource}
+
 arch=$(uname -m)
 yum install -y epel-release
-rpm -q enroot || yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.3.0/enroot-3.3.0-1.el7.${arch}.rpm
-rpm -q enroot+caps || yum install -y https://github.com/NVIDIA/enroot/releases/download/v3.3.0/enroot+caps-3.3.0-1.el7.${arch}.rpm
+rpm -q enroot || yum install -y https://github.com/NVIDIA/enroot/releases/download/v${ENROOT_VERSION}/enroot-${ENROOT_VERSION_FULL}.el7.${arch}.rpm
+rpm -q enroot+caps || yum install -y https://github.com/NVIDIA/enroot/releases/download/v${ENROOT_VERSION}/enroot+caps-${ENROOT_VERSION_FULL}.el7.${arch}.rpm
 
 #TODO: separate install (all nodes) and configure (compute)
 
@@ -15,10 +20,10 @@ grep namespace.unpriv_enable /etc/default/grub || sed -i.bak 's/\(GRUB_CMDLINE_L
 grub2-mkconfig -o /boot/grub2/grub.cfg
 
 # Use local temporary disk for enroot
-cat <<"EOF" > /etc/enroot/enroot.conf
-ENROOT_RUNTIME_PATH /run/enroot/user-$(id -u)
-ENROOT_CACHE_PATH /mnt/resource/enroot-cache/user-$(id -u)
-ENROOT_DATA_PATH /mnt/resource/enroot-data/user-$(id -u)
+cat <<EOF > /etc/enroot/enroot.conf
+ENROOT_RUNTIME_PATH /run/enroot/user-\$(id -u)
+ENROOT_CACHE_PATH $ENROOT_SCRATCH/enroot-cache/user-\$(id -u)
+ENROOT_DATA_PATH $ENROOT_SCRATCH/enroot-data/user-\$(id -u)
 ENROOT_TEMP_PATH /mnt/resource/enroot-temp
 ENROOT_SQUASH_OPTIONS -noI -noD -noF -noX -no-duplicates
 ENROOT_MOUNT_HOME n

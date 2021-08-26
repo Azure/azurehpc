@@ -6,6 +6,8 @@
     "variables": {
         "hpc_image": "OpenLogic:CentOS-HPC:7_9:latest",
         "slurm_version": "20.11.8",
+        "pyxis_version": "0.11.0",
+        "enroot_version": "3.3.1-1",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_NC4as_T4_v3",
@@ -122,6 +124,7 @@
         },
         {
             "script": "pyxis.sh",
+            "args": ["variables.pyxis_version"],
             "tag": "slurmctld",
             "sudo": true
         },
@@ -147,6 +150,10 @@
         },        
         {
             "script": "install_enroot.sh",
+            "args": [
+                "variables.enroot_version",
+                "/mnt/resource"
+            ],
             "tag": "enroot",
             "sudo": true,
             "reboot": true
@@ -155,14 +162,6 @@
             "script": "wait.sh",
             "args": ["120"],
             "tag": "sleep"
-        },        
-        {
-            "script": "node_healthchecks.sh",
-            "tag": "pbsclient",
-            "sudo": true,
-            "args": [
-            ],
-            "deps" : ["install-azcopy.sh","healthchecks.json"]
-        } 
+        }        
     ]
 }
