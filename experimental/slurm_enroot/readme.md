@@ -1,7 +1,8 @@
 # Build a SLURM cluster with container suppot via Pyxis/Enroot
 Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/experimental/slurm_enroot/config.json)
 
-This example will create an HPC cluster ready to run with SLURM, Enroot, and NVIDIA GPU support.
+This example will create an HPC cluster ready to run with SLURM, [Enroot](https://github.com/NVIDIA/enroot), and [Pyxis](https://github.com/NVIDIA/pyxis) plugin.
+
 
 ## Initialise the project
 
@@ -74,3 +75,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 True
 >>>
 ```
+
+## References:
+SLURM: https://slurm.schedmd.com/  
+Enroot: https://github.com/NVIDIA/enroot  
+Pyxis: https://github.com/NVIDIA/pyxis  
