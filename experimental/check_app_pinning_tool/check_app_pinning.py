@@ -265,6 +265,23 @@ def parse_lstopo():
    return topo_d
 
 
+def parse_nvidia_smi(number_gpus):
+    gpu_process_d = {}
+    for gpu_id in range(0, number_gpus):
+        cmd = ["nvidia-smi", "--id={}".format(gpu_id), "--query-compute-apps=pid", "--format=csv,noheader"]
+        print(cmd)
+        try:
+           cmdpipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except FileNotFoundError:
+           print("Error: Could not find the executable (nvidia-smi), make sure you have installed the Nvidia GPU driver.")
+           sys.exit(1)
+        gpu_pid_l = cmdpipe.stdout.readlines()
+        for gpu_pid in gpu_pid_l:
+            print(gpu_pid)
+            gpu_process_d[int(gpu_pid)] = gpu_id
+    print(gpu_process_d)
+
+
 def create_l3cache_topo(actual_sku_name):
     l3cache_topo_d = {}
     for sku_name in l3cache_coreid_d:
