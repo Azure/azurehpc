@@ -153,10 +153,10 @@ Application (hello) Mapping/pinning
 
 PID          Threads           Running Threads   Last core id    Core id mapping   Numa Node ids   GPU ids
 ============ ================= ================= ==============  ================= =============== ===============
-32473        6                 0                 0                  0                 [0]             [3, 2]
-32474        6                 2                 24                 24                [1]             [1, 0]
-32475        6                 2                 48                 48                [2]             [7, 6]
-32476        6                 2                 72                 72                [3]             [5, 4]
+32473        6                 0                 0                  0                 [0]             3
+32474        6                 2                 24                 24                [1]             1
+32475        6                 2                 48                 48                [2]             7
+32476        6                 2                 72                 72                [3]             5
 
 
 Warning: 2 threads are mapped to 1 core(s), for pid (32474)
