@@ -200,7 +200,6 @@ def get_vm_metadata():
     metadata_req = Request(metadata_url, headers={"Metadata": True})
 
     for _ in range(30):
-#        print("Fetching metadata")
         metadata_response = urlopen(metadata_req, timeout=2)
 
         try:
@@ -231,7 +230,6 @@ def parse_lstopo():
    except FileNotFoundError:
       print("Error: Could not find the executable (lstopo-on-graphics), make sure you have installed the hwloc package.")
       sys.exit(1)
-#print(cmdpipe.stderr.readline())
    topo_d = {}
    topo_d["numanode_ids"] = {}
 
@@ -247,7 +245,6 @@ def parse_lstopo():
        if "NUMANode" in row_s:
           row_l = row_s.split()
           numanode = int(row_l[2][2:])
-#          print(numanode)
           topo_d["numanode_ids"][numanode] = {}
           topo_d["numanode_ids"][numanode]["core_ids"] = []
           topo_d["numanode_ids"][numanode]["gpu_ids"] = []
@@ -261,15 +258,15 @@ def parse_lstopo():
           topo_d["numanode_ids"][numanode]["gpu_ids"].append(int(gpu_id))
    cmdpipe.stdout.close()
    cmdpipe.stderr.close()
-#   print(topo_d)
    return topo_d
 
 
-def parse_nvidia_smi(number_gpus):
-    gpu_process_d = {}
+def parse_nvidia_smi(number_gpus, process_d):
+    process_d["extra_gpu_pids"] = []
+    for pid in process_d["pids"]:
+        process_d["pids"][pid]["gpu_id"] = "None"
     for gpu_id in range(0, number_gpus):
         cmd = ["nvidia-smi", "--id={}".format(gpu_id), "--query-compute-apps=pid", "--format=csv,noheader"]
-        print(cmd)
         try:
            cmdpipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except FileNotFoundError:
@@ -277,9 +274,10 @@ def parse_nvidia_smi(number_gpus):
            sys.exit(1)
         gpu_pid_l = cmdpipe.stdout.readlines()
         for gpu_pid in gpu_pid_l:
-            print(gpu_pid)
-            gpu_process_d[int(gpu_pid)] = gpu_id
-    print(gpu_process_d)
+            if int(gpu_pid) in process_d["pids"]:
+               process_d["pids"][int(gpu_pid)]["gpu_id"] = gpu_id
+            else: 
+               process_d["extra_gpu_pids"].append(gpu_id)
 
 
 def create_l3cache_topo(actual_sku_name):
@@ -312,7 +310,6 @@ def find_threads(pids_l):
        process_d["pids"][pid] = {}
        threads_l = os.listdir(os.path.join("/proc",str(pid),"task"))
        nrthreads = find_running_threads(pid, threads_l)
-#       print("Num running threads = ",nrthreads)
        filepath = os.path.join("/proc",str(pid),"status")
        f = open(filepath)
        for line in f:
@@ -320,11 +317,9 @@ def find_threads(pids_l):
               num_threads = line.split(":")[1].strip()
               process_d["pids"][pid]["num_threads"] = num_threads
               process_d["pids"][pid]["running_threads"] = nrthreads
-#              print(num_threads)
            if "Cpus_allowed_list" in line:
               cpus_allowed = line.split(":")[1].strip()
               process_d["pids"][pid]["cpus_allowed"] = cpus_allowed
-#              print(cpus_allowed)
    return process_d
 
 
@@ -340,7 +335,7 @@ def find_process_gpus(topo_d, process_d):
       for numa_id in process_d["pids"][pid]["numas"]:
          gpus_l = find_gpus_in_numa(numa_id, topo_d)
          all_gpus_l.extend(gpus_l)
-      process_d["pids"][pid]["gpus"] = all_gpus_l
+      process_d["pids"][pid]["gpus_in_numas"] = all_gpus_l
 
 
 def find_last_core_id(process_d): 
@@ -499,7 +494,6 @@ def check_process_numa_distribution(total_num_processes, total_num_numa_domains,
     num_numa_domains = min(total_num_processes, total_num_numa_domains)
     numas_l = []
     for pid in process_d["pids"]:
-#       numas = process_d["pids"][pid]["numas"]
        for numa_id in process_d["pids"][pid]["numas"]:
           if numa_id not in numas_l:
              numas_l.append(numa_id)
@@ -563,13 +557,24 @@ def check_threads_l3cache(total_num_processes, total_num_threads, l3cache_topo_d
                     break
 
 
-def check_app(app_pattern, topo_d, process_d, l3cache_topo_d):
+def check_gpu_numa(total_number_gpus, process_d):
+    if total_number_gpus > 0:
+       for pid in process_d["pids"]:
+           gpu_id = process_d["pids"][pid]["gpu_id"]
+           gpus_in_numas =  process_d["pids"][pid]["gpus_in_numas"]
+           if gpu_id == "None":
+              print("Warning: PID ({}) is not running on any GPUs (but {} GPU's exist)".format(pid, total_number_gpus))
+           if not gpu_id == "None" and not gpu_id in gpus_in_numas:
+              print("Warning: PID ({}) is running on gpu_id {}, but it should be pinned to gpus {}".format(pid, gpu_id, gpus_in_numas))
+           if process_d["extra_gpu_pids"]:
+              print("Warning: The Following PIDS ({}) are running on the GPU's but not accounted for".format(process_d["extra_gpu_pids"]))
+
+
+def check_app(app_pattern, total_num_numa_domains, total_num_gpus, topo_d, process_d, l3cache_topo_d):
    print("")
    print("")
-   total_num_numa_domains = calc_total_num_numas(topo_d)
    total_num_l3caches = calc_total_num_l3caches(l3cache_topo_d)
    total_num_cores = calc_total_num_cores(topo_d)
-   total_num_gpus = calc_total_num_gpus(topo_d)
 
    if app_pattern:
       total_num_processes = calc_total_num_processes(process_d)
@@ -581,6 +586,7 @@ def check_app(app_pattern, topo_d, process_d, l3cache_topo_d):
       check_thread_to_gpu(total_num_threads, total_num_gpus)
       check_processes_to_l3cache(total_num_processes, total_num_l3caches, l3cache_topo_d, process_d)
       check_threads_l3cache(total_num_processes, total_num_threads, l3cache_topo_d, process_d)
+      check_gpu_numa( total_num_gpus, process_d)
 
 
 def calc_number_cores_in_l3cache(l3cache_topo_d):
@@ -702,7 +708,7 @@ def check_number_threads_per_l3cache(total_number_processes, number_threads_per_
     return have_warning
 
 
-def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas):
+def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas):
     hostname = socket.gethostname()
     print("")
     print("Virtual Machine ({}, {}) Numa topology".format(sku_name, hostname))
@@ -733,9 +739,9 @@ def report(app_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_numbe
           last_core_id = process_d["pids"][pid]["last_core_id"]
           cpus_allowed = process_d["pids"][pid]["cpus_allowed"]
           numas = str(list_to_ranges(process_d["pids"][pid]["numas"]))
-          gpus = str(list_to_ranges(process_d["pids"][pid]["gpus"]))
-          print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpus))
-    else:
+          gpu_id = process_d["pids"][pid]["gpu_id"]
+          print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpu_id))
+    elif print_pinning_syntax:
        print("Process/thread {} MPI mapping/pinning syntax for {} processes and {} threads per process".format(mpi_type, total_number_processes,number_threads_per_process))
        print("")
        if sku_name == "Standard_HB120rs_v3" and number_threads_per_process > 1:
@@ -766,6 +772,7 @@ def main():
    total_number_processes = 0
    number_threads_per_process = 0
    pinning_l = []
+   process_d = {}
    number_processes_per_numa = 0
    number_cores_in_l3cache = 0
    mpi_type = "None"
@@ -781,10 +788,12 @@ def main():
    parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel"], help="Select which type of MPI to generate pinning syntax (used with -ppa)")
    args = parser.parse_args()
    force = args.force
-   if not args.application_pattern and not args.print_pinning_syntax:
+   if len(sys.argv) > 1 and not args.application_pattern and not args.print_pinning_syntax:
       print("Error: you must select either an application_name_pattern(-anp) (to see where your application is pinned)  or print_pinning_syntax (-ppa) (to see the MPI pinning syntax), -h argument will show you all argument options.")
       sys.exit(1)
    topo_d = parse_lstopo()
+   total_num_numa_domains = calc_total_num_numas(topo_d)
+   total_num_gpus = calc_total_num_gpus(topo_d)
    l3cache_topo_d = create_l3cache_topo(sku_name)
    if args.application_pattern:
       app_pattern = args.application_pattern
@@ -793,7 +802,7 @@ def main():
       find_process_numas(topo_d, process_d)
       find_process_gpus(topo_d, process_d)
       find_last_core_id(process_d)
-   num_numas = calc_total_num_numas(topo_d)
+      parse_nvidia_smi(total_num_gpus, process_d)
    if args.print_pinning_syntax:
       (sku_found, supported_sku_names_l) = check_if_sku_is_supported(sku_name)
       if not sku_found:
@@ -813,11 +822,10 @@ def main():
       else:
           mpi_type = "openmpi"
       have_warning = check_pinning_syntax(total_number_processes, number_threads_per_process, topo_d, l3cache_topo_d)
-      (pinning_l, number_processes_per_numa, number_cores_in_l3cache) = calc_process_pinning(total_number_processes, num_numas, l3cache_topo_d)
+      (pinning_l, number_processes_per_numa, number_cores_in_l3cache) = calc_process_pinning(total_number_processes, total_num_numa_domains, l3cache_topo_d)
 
-#   print(l3cache_topo_d)
-   report(args.application_pattern, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas)
-   check_app(args.application_pattern, topo_d, process_d, l3cache_topo_d)
+   report(args.application_pattern, args.print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, total_num_numa_domains)
+   check_app(args.application_pattern,  total_num_numa_domains, total_num_gpus, topo_d, process_d, l3cache_topo_d)
 
 
 if __name__ == "__main__":
