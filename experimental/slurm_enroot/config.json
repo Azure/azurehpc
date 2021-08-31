@@ -160,7 +160,7 @@
         },
         {
             "script": "wait.sh",
-            "args": ["120"],
+            "args": ["30"],
             "tag": "sleep"
         }        
     ]

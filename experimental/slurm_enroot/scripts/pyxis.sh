@@ -22,7 +22,7 @@ echo 'required /usr/lib64/slurm/spank_pyxis.so' > /apps/slurm/plugstack.conf.d/p
 # ln -sv /apps/slurm/plugstack.conf /etc/slurm/plugstack.conf
 # ln -sv /apps/slurm/plugstack.conf.d /etc/slurm/plugstack.conf.d
 
-cat <<EOF > /apps/slurm/scripts/prolog.sh
+cat <<"EOF" > /apps/slurm/scripts/prolog.sh
 #!/bin/bash
 
 #TODO: fix the permissions - change mode=777 to owner=slurm once pyxis is set up
@@ -31,6 +31,23 @@ cat <<EOF > /apps/slurm/scripts/prolog.sh
 mkdir -pv /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp}
 chmod -v 777 /run/enroot /mnt/resource/{enroot-cache,enroot-data,enroot-temp}
 
+# Verify that NVIDIA UVM driver is running and device file is present
+# https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-verifications
+# If not, CUDA inside the container will fail
+if [ ! -c /dev/nvidia-uvm ]; then
+    echo "ERROR: NVIDIA UVM driver is not running. Starting..."
+    /sbin/modprobe nvidia-uvm
+    if [ "$?" -eq 0 ]; then
+        # Find out the major device number used by the nvidia-uvm driver
+        D=`grep nvidia-uvm /proc/devices | awk '{print $1}'`
+        mknod -m 666 /dev/nvidia-uvm c $D 0
+        echo "Started NVIDIA UVM driver."
+    else
+        exit 1
+    fi
+fi
+
+exit 0
 EOF
 
 chmod +x /apps/slurm/scripts/prolog.sh
