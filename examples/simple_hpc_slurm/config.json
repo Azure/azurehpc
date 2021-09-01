@@ -36,7 +36,6 @@
                 "nfsserver",
                 "munge",
                 "slurmctld",
-                "slurmnodes",
                 "localuser",
                 "disable-selinux"
             ]
@@ -53,7 +52,6 @@
                 "nfsclient",
                 "munge",
                 "slurmd",
-                "slurmstart",
                 "cndefault",
                 "localuser",
                 "disable-selinux"
@@ -124,17 +122,17 @@
         },
         {
             "script": "slurmnodes.sh",
-            "tag": "slurmnodes",
+            "tag": "slurmctld",
             "sudo": true
         },
         {
             "script": "slurmstart.sh",
-            "tag": "slurmstart",
+            "tag": "slurmd",
             "sudo": true
         },
         {
             "script": "node_healthchecks.sh",
-            "tag": "pbsclient",
+            "tag": "slurmd",
             "sudo": true,
             "args": [
             ],
