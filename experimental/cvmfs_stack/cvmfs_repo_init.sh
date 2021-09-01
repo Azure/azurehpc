@@ -2,13 +2,13 @@
 set -euo pipefail
 
 # # # # # # # # # # # # # # # # # # # #
-RESOURCE_GROUP_NAME=dv-buildstack
-STORAGE_ACCOUNT_NAME=dvcvmfs
-CONTAINER_NAME=repo06
-KEYVAULT_NAME=cvmfskv
-MASTERKEY_SECRET_NAME=CvmfsAzureMasterkey
-CVMFS_USER=hpcadmin
-SIGNATURE_EXPIRATION_DAYS=360
+RESOURCE_GROUP_NAME=<rg_name>
+STORAGE_ACCOUNT_NAME=<storage_account_name>
+CONTAINER_NAME=<container_name>
+KEYVAULT_NAME=<keyvault_name>
+MASTERKEY_SECRET_NAME=<master_key_secret_name>
+CVMFS_USER=<cvmfs_user>
+SIGNATURE_EXPIRATION_DAYS=<number_of_days>
 # # # # # # # # # # # # # # # # # # # #
 
 # Check that Azure CLI is installed

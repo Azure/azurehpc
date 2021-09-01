@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eou pipefail
 
-CVMFS_BLOB_URL='https://cvmfs.blob.core.windows.net'
+CVMFS_BLOB_URL='<blob_url>'
 
 sudo yum install -y epel-release
 sudo yum install -y jq
