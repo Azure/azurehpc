@@ -4,7 +4,7 @@
     "install_from": "headnode",
     "admin_user": "hpcadmin",
     "variables": {
-        "hpc_image": "OpenLogic:CentOS-HPC:7_9:latest",
+        "hpc_image": "OpenLogic:CentOS-HPC:7_9-gen2:latest",
         "slurm_version": "20.11.8",
         "pyxis_version": "0.11.0",
         "enroot_version": "3.3.1-1",
