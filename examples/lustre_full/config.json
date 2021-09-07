@@ -20,7 +20,7 @@
         "compute_instances": 2,
         "oss_instances": 2,
         "storage_account": "<NOT-SET>",
-        "storage_key": "sakey.{{variables.storage_account}}",
+        "storage_sas": "saskey.{{variables.storage_account}}.{{variables.storage_container}},rwdl,1y",
         "storage_container": "<NOT-SET>",
         "la_resourcegroup": "<NOT-SET>",
         "la_name": "<NOT-SET>",
@@ -194,9 +194,8 @@
             "args": [
                 "$(<hostlists/tags/lfsmaster)",
                 "variables.storage_account",
-                "variables.storage_key",
-                "variables.storage_container",
-                "variables.lustre_version"
+                "variables.storage_sas",
+                "variables.storage_container"
             ],
             "tag": "lfshsm",
             "sudo": true
@@ -219,10 +218,9 @@
             "script": "lfsimport.sh",
             "args": [
                 "variables.storage_account",
-                "variables.storage_key",
+                "variables.storage_sas",
                 "variables.storage_container",
-                "variables.lustre_mount",
-                "variables.lustre_version"
+                "variables.lustre_mount"
             ],
             "tag": "lfsazimport",
             "sudo": true

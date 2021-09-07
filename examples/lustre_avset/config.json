@@ -21,7 +21,7 @@
         "lustre_instances": 4,
         "low_priority": false,
         "storage_account": "<NOT-SET>",
-        "storage_key": "sakey.{{variables.storage_account}}",
+        "storage_sas": "saskey.{{variables.storage_account}}.{{variables.storage_container}},rwdl,1y",
         "storage_container": "<NOT-SET>",
         "log_analytics_lfs_name": "<NOT-SET>",
         "la_resourcegroup": "<NOT-SET>",
@@ -182,9 +182,8 @@
             "args": [
                 "lustremaster",
                 "variables.storage_account",
-                "variables.storage_key",
-                "variables.storage_container",
-                "variables.lustre_version"
+                "variables.storage_sas",
+                "variables.storage_container"
             ],
             "tag": "lustre",
             "sudo": true
@@ -202,10 +201,9 @@
             "script": "lfsimport.sh",
             "args": [
                 "variables.storage_account",
-                "variables.storage_key",
+                "variables.storage_sas",
                 "variables.storage_container",
-                "variables.lustre_mount",
-                "variables.lustre_version"
+                "variables.lustre_mount"
             ],
             "tag": "lfsazimport",
             "sudo": true

@@ -2,31 +2,18 @@
 
 # arg: $1 = lfsserver
 # arg: $2 = storage account
-# arg: $3 = storage key
+# arg: $3 = storage sas
 # arg: $4 = storage container
-# arg: $5 = lustre version (default 2.10)
 master=$1
 storage_account=$2
-storage_key=$3
+storage_sas=$3
 storage_container=$4
-lustre_version=${5-2.10}
 
-# remove the patch version
-ndots=${lustre_version//[^.]} 
-if [ "${#ndots}" = "2" ]; then
-    lustre_version=${lustre_version%.*}
-fi
-
-# adding kernel module for lustre client
-if [ "$lustre_version" = "2.10" ]; then
-    yum install -y kmod-lustre-client
-    weak-modules --add-kernel $(uname -r)
-fi
 
 if ! rpm -q lemur-azure-hsm-agent lemur-azure-data-movers; then
     yum -y install \
-        https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-1.0.0-lustre_${lustre_version}.x86_64.rpm \
-        https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-1.0.0-lustre_${lustre_version}.x86_64.rpm
+        https://azurehpc.azureedge.net/rpms/lemur-azure-hsm-agent-2.0.0-lustre_2.12.x86_64.rpm \
+        https://azurehpc.azureedge.net/rpms/lemur-azure-data-movers-2.0.0-lustre_2.12.x86_64.rpm
 fi
 
 mkdir -p /var/run/lhsmd
@@ -56,19 +43,20 @@ EOF
 chmod 600 /etc/lhsmd/agent
 
 cat <<EOF >/etc/lhsmd/lhsm-plugin-az
-az_storage_account = "$storage_account"
-az_storage_key = "$storage_key"
-
-num_threads = 32
-
-#
-# One or more archive definition is required.
-#
-archive  "az-blob" {
-    id = 1                           # Must be unique to this endpoint
-    container = "$storage_container" # Container used for this archive
-    prefix = ""                   # Optional prefix
-    num_threads = 32
+num_threads=16
+az_storage_account="$storage_account"
+az_storage_sas="?$storage_sas"
+az_kv_name=""
+az_kv_secret_name=""
+region="westeurope"
+bandwidth=0
+exportprefix=""
+archive "archive1" {
+    id=1
+    num_threads=15
+    root=""
+    compression="off"
+    container="$storage_container"
 }
 EOF
 chmod 600 /etc/lhsmd/lhsm-plugin-az
