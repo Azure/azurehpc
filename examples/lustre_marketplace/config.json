@@ -15,11 +15,19 @@
         "resource_group": "<NOT-SET>",
         "location": "westeurope",
         "image": "OpenLogic:CentOS:7_8:latest",
-        "lustreimage": "OpenLogic:CentOS:7_9:latest",
+        "lustreimage": "azurehpc:azurehpc-lustre:azurehpc-lustre-2_12:latest",
         "hpcimage": "OpenLogic:CentOS-HPC:7_8:latest",
         "compute_instances": 2,
         "lustre_instances": 4,
         "low_priority": false,
+        "storage_account": "<NOT-SET>",
+        "storage_sas": "saskey.{{variables.storage_account}}.{{variables.storage_container}},rwdl,1y",
+        "storage_container": "<NOT-SET>",
+        "log_analytics_lfs_name": "<NOT-SET>",
+        "la_resourcegroup": "<NOT-SET>",
+        "la_name": "<NOT-SET>",
+        "log_analytics_workspace": "laworkspace.{{variables.la_resourcegroup}}.{{variables.la_name}}",
+        "log_analytics_key": "lakey.{{variables.la_resourcegroup}}.{{variables.la_name}}",
         "lustre_version": "2.12.6",
         "lustre_mount": "/lustre"
     },
@@ -70,9 +78,8 @@
             "tags": [
                 "cndefault",
                 "lustre",
-                "lfsrepo",
                 "disable-selinux",
-                "ltop"
+                "lfsloganalytics"
             ]
         }
     },
@@ -129,11 +136,6 @@
             "sudo": true
         },
         {
-            "script": "lfspkgs.sh",
-            "tag": "lustre",
-            "sudo": true
-        },
-        {
             "script": "lfsmaster.sh",
             "tag": "lustre",
             "args": [
@@ -152,6 +154,17 @@
             "sudo": true
         },
         {
+            "script": "lfshsm.sh",
+            "args": [
+                "$(head -n1 hostlists/tags/lustre)",
+                "variables.storage_account",
+                "variables.storage_sas",
+                "variables.storage_container"
+            ],
+            "tag": "lustre",
+            "sudo": true
+        },
+        {
             "script": "lfsclient.sh",
             "args": [
                 "$(head -n1 hostlists/tags/lustre)",
@@ -161,11 +174,24 @@
             "sudo": true
         },
         {
-            "script": "install-ltop.sh",
+            "script": "lfsimport.sh",
             "args": [
-                "$(head -n1 hostlists/tags/lustre)"
+                "variables.storage_account",
+                "variables.storage_sas",
+                "variables.storage_container",
+                "variables.lustre_mount"
             ],
-            "tag": "ltop",
+            "tag": "lfsazimport",
+            "sudo": true
+        },
+        {
+            "script": "lfsloganalytics.sh",
+            "args": [
+                "variables.log_analytics_lfs_name",
+                "variables.log_analytics_workspace",
+                "variables.log_analytics_key"
+            ],
+            "tag": "lfsloganalytics",
             "sudo": true
         },
         {

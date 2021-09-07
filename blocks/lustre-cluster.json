@@ -18,6 +18,7 @@
     "lustre_instances": 2,
     "lustre_storage_account": "<NOT-SET>",
     "lustre_storage_container": "hsm",
+    "lustre_storage_sas": "saskey.{{variables.lustre_storage_account}}.{{variables.lustre_storage_container}},rwdl,1y",
     "lustre_version": "<NOT-SET>",
     "lustre_mount": "/lustre",
     "lustre_avset": "{{variables.resource_group}}avset",
@@ -93,7 +94,8 @@
       "script": "lfsmaster.sh",
       "tag": "lustremaster",
       "args": [
-        "/dev/sdb"
+        "/dev/sdb",
+        "variables.lustre_instances"
       ],
       "sudo": true
     },
@@ -111,9 +113,8 @@
       "args": [
         "lustremaster",
         "variables.lustre_storage_account",
-        "sakey.{{variables.lustre_storage_account}}",
-        "variables.lustre_storage_container",
-        "variables.lustre_version"
+        "variables.lustre_storage_sas",
+        "variables.lustre_storage_container"
       ],
       "tag": "lustre",
       "sudo": true

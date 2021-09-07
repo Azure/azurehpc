@@ -1,0 +1,61 @@
+pr: none
+schedules:
+- cron: "0 0 * * Sun"
+  displayName: Every Sunday midnight build
+  branches:
+    include:
+    - master
+  always: true
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - '*'
+  paths:
+    include:
+      - examples/lustre_marketplace/*
+      - scripts/lfsrepo.sh
+      - scripts/lfspkgs.sh
+      - scripts/lfsmaster.sh
+      - scripts/lfsoss.sh
+      - scripts/lfshsm.sh
+      - scripts/lfsclient.sh
+      - scripts/lfsimport.sh
+      - scripts/lfsloganalytics.sh
+    exclude:
+      - examples/lustre_marketplace/readme.md
+
+pool: Default
+
+variables:
+  - group: azhpc_build_common
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  # configuration file to use
+  - name: azhpc.config
+    value: examples/lustre_marketplace/config.json
+  # pipeline directory
+  - name: azhpc.pipeline_dir
+    value: examples/lustre_marketplace
+  # destination of scripts. Default is hpcuser@headnode:/apps
+  #azhpc.script_remote_dest: 'hpcadmin@headnode:.'
+
+# Add the variables needed in your configuration file
+# Set values below or thru pipeline variables
+  - name: azhpc.variables.compute_instances
+    value: 4
+  - name: azhpc.variables.low_priority
+    value: true
+  - name: azhpc.variables.lustre_instances
+    value: 4
+  - name: azhpc.variables.log_analytics_lfs_name
+    value: lfs
+  - name: azhpc.variables.lustre_mount
+    value: /lustre
+  
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+jobs:
+- template: ../../ci/templates/jobs/build.yml
+  parameters:
+    extra_steps: ../../../examples/lustre_marketplace/test.yml

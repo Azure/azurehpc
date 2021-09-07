@@ -722,9 +722,9 @@ class ArmTemplate:
             if ravset:
                 deps.append(f"Microsoft.Compute/availabilitySets/{ravset}")
 
-            # Add support for cyclecloud plan
+            # Add support for cyclecloud/azhpc plan
             plan = ""
-            if ros[0] == "azurecyclecloud":
+            if ros[0] == "azurecyclecloud" or ros[0] == "azhpc":
                 plan = self.__helper_arm_create_plan(rimage)
             
             if rephemeralosdisk == True:
@@ -843,6 +843,7 @@ class ArmTemplate:
         rtype = res["type"]
         rsize = res["vm_type"]
         rimage = res["image"]
+        ros = rimage.split(':')
         rinstances = res.get("instances")
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
@@ -892,6 +893,10 @@ class ArmTemplate:
             rdatadisks, rstoragesku, rstoragecache)
         imageref = self.__helper_arm_create_image_reference(rimage)
 
+        # Add support for cyclecloud/azurehpc plan
+        plan = ""
+        if ros[0] == "azurecyclecloud" or ros[0] == "azhpc":
+            plan = self.__helper_arm_create_plan(rimage)
 
         if rephemeralosdisk == True:
             osdisk = {
@@ -918,6 +923,7 @@ class ArmTemplate:
             "apiVersion": "2020-06-01",
             "name": r,
             "location": loc,
+            "plan": plan,
             "dependsOn": deps,
             "tags": rtags,
             "sku": {

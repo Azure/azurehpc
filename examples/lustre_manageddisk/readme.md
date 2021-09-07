@@ -21,7 +21,7 @@ The configuration file requires the following variables to be set:
 |-------------------------|----------------------------------------------|
 | resource_group          | The resource group for the project           |
 | storage_account         | The storage account for HSM                  |
-| storage_key             | The storage key for HSM                      |
+| storage_sas             | The storage SAS key for HSM                  |
 | storage_container       | The container to use for HSM                 |
 | log_analytics_lfs_name  | The lustre filesystem name for Log Analytics |
 | log_analytics_workspace | The log analytics workspace to use           |

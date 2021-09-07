@@ -1,11 +1,13 @@
 # Lustre Cluster
-![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/lustre_combined?branchName=master)
+![Build Status](https://azurecat.visualstudio.com/hpccat/_apis/build/status/azhpc/examples/lustre_marketplace?branchName=master)
 
-Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_combined/config.json)
+Visualisation: [config.json](https://azurehpc.azureedge.net/?o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/lustre_marketplace/config.json)
 
 This is a Lustre setup where a single VMSS is used.  Each VM in the scaleset 
 performs the function of the OSS and HSM.  THe first VM in the scaleset is also
 used for the MGS/MDS.
+
+The image used is the azhpc marketplace Lustre image.
 
 Resources:
 
@@ -22,7 +24,7 @@ The configuration file requires the following variables to be set:
 |-------------------------|----------------------------------------------|
 | resource_group          | The resource group for the project           |
 | storage_account         | The storage account for HSM                  |
-| storage_sas             | The storage SAS key for HSM                  |
+| storage_sas             | The storage sas key for HSM                  |
 | storage_container       | The container to use for HSM                 |
 | log_analytics_lfs_name  | The name to use in log analytics             |
 | log_analytics_workspace | The log analytics workspace id               |
