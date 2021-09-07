@@ -14,6 +14,7 @@
     "variables": {
         "resource_group": "<NOT-SET>",
         "location": "westeurope",
+        "vm_type": "Standard_HC44rs",
         "image": "OpenLogic:CentOS:7_9:latest",
         "hpcimage": "OpenLogic:CentOS-HPC:7_9:latest",
         "lustreimage": "OpenLogic:CentOS:7_9:latest",
@@ -43,8 +44,8 @@
         },
         "compute": {
             "type": "vmss",
-            "vm_type": "Standard_HC44rs",
-            "accelerated_networking": false,
+            "vm_type": "variables.vm_type",
+            "accelerated_networking": true,
             "instances": "variables.compute_instances",
             "image": "variables.hpcimage",
             "subnet": "compute",
