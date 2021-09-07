@@ -136,11 +136,17 @@ class ConfigFile:
             x = parts[-1].split(",")
             if len(x) == 1:
                 perm = "r"
+                dur = "2h"
+            elif len(x) == 2:
+                perm = x[1]
+                dur = "2h"
+                parts[-1] = x[0]
             else:
                 perm = x[1]
+                dur = x[2]
                 parts[-1] = x[0]
-            container = parts[2].split('/')[0]
-            saskey = azutil.get_storage_saskey(parts[1], container, perm)
+            container = x[0].split('/')[0]
+            saskey = azutil.get_storage_saskey(parts[1], container, perm, dur)
             log.debug(parts)
             path = ".".join(parts[2:])
             res = f"{url}{path}?{saskey}"
@@ -149,11 +155,18 @@ class ConfigFile:
         elif extended and prefix == "sakey":
             res = azutil.get_storage_key(parts[1])
         elif extended and prefix == "saskey":
-            x = parts[2].split(",")
+            x = parts[-1].split(",")
             if len(x) == 1:
-                x.append("r")
+                perm = "r"
+                dur = "2h"
+            elif len(x) == 2:
+                perm = x[1]
+                dur = "2h"
+            else:
+                perm = x[1]
+                dur = x[2]
             container = x[0].split('/')[0]
-            res = azutil.get_storage_saskey(parts[1], container, x[1])
+            res = azutil.get_storage_saskey(parts[1], container, perm, dur)
         elif extended and prefix == "laworkspace":
             res = azutil.get_log_analytics_workspace(parts[1], parts[2])
         elif extended and prefix == "lakey":

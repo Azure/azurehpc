@@ -273,10 +273,10 @@ For the most part the configuration is just a standard JSON file although there 
 |--------------------------------------------------------|--------------------------------------------------------------------------------|
 | `variables.<name>`                                     | Read a variable the [variables](#variables) dictionary                         |
 | `secret.<KEY-VAULT>.<SECRET-NAME>`                     | Read a [secret](#secrets) stored in an existing vault                          |
-| `sasurl.<STORAGE-ACCOUNT>.<STORAGE-PATH>,<PERMISSION>` | Create a [SAS URL](#sas-url) with permissions                                  |
+| `sasurl.<STORAGE-ACCOUNT>.<STORAGE-PATH>[,<PERMISSION>[,<DURATION>]]` | Create a [SAS URL](#sas-url) with permissions                                  |
 | `fqdn.<RESOURCE-NAME>`                                 | Retrieve a resource [FQDN](#fqdn)                                              |
 | `sakey.<STORAGE-ACCOUNT>`                              | Retrieve a [storage key](#storage-account-key)                                 |
-| `saskey.<STORAGE-ACCOUNT>.<STORAGE-PATH>,<PERMISSION>` | Create a [SAS KEY](#storage-sas-key) with permissions                          |
+| `saskey.<STORAGE-ACCOUNT>.<STORAGE-PATH>[,<PERMISSION>[,<DURATION>]]` | Create a [SAS KEY](#storage-sas-key) with permissions                          |
 | `laworkspace.<RESOURCE-GROUP>.<NAME>`                  | Retrieve a [Log Analytics workspace id](#log-analytics-workspace-id)           |
 | `lakey.<RESOURCE-GROUP>.<NAME>`                        | Retrieve a [Log Analytics key](#log-analytics-key)                             |
 | `acrkey.<ACR-REPONAME>`                                | Retrieve an [Azure Container Registry](#acr-key) key                           |
@@ -306,8 +306,7 @@ The scripts allow secrets to be stored in keyvault.  To read from keyvault use t
 
 #### SAS URL
 
-The config file can create a URL with a SAS key for a file in storage.  This is the format: `sasurl.<STORAGE-ACCOUNT>.<STORAGE-PATH>,<PERMISSION>`.
-`PERMISSIONS` are not required and is a list of letter for access permission : `r`, `w`, `d`, `l`
+The config file can create a URL with a SAS key for a file in storage.  This is the format: `sasurl.<STORAGE-ACCOUNT>.<STORAGE-PATH>[,<PERMISSION>[,<DURATION>]]`.  `PERMISSIONS` are not required and is a list of letter for access permission : `r`, `w`, `d`, `l`. `DURATION` is optional and is an integer value and a unit which can be either `h`, `d`, or `y` (for hours, days, or years).  The default for `PERMISSIONS` is `r` and the default for `DURATION` is `2h`.
 
 > Note: the `<STORAGE-PATH>` should start at the container (and *do not have a preceeding `/`*)
 
@@ -325,8 +324,8 @@ The scripts allow storage account key be retrieved. This is the format: `sakey.<
 
 #### Storage SAS Key
 
-The config file can create a SAS key for a file in storage.  This is the format: `saskey.<STORAGE-ACCOUNT>.<STORAGE-PATH>,<PERMISSION>`.
-`PERMISSIONS` are not required and is a list of letter for access permission : `r`, `w`, `d`, `l`
+The config file can create a SAS key for a file in storage.  This is the format: `saskey.<STORAGE-ACCOUNT>.<STORAGE-PATH>[,<PERMISSION>[,<DURATION>]]`.  `PERMISSIONS` are not required and is a list of letter for access permission : `r`, `w`, `d`, `l`. `DURATION` is optional and is an integer value and a unit which can be either `h`, `d`, or `y` (for hours, days, or years).  The default for `PERMISSIONS` is `r` and the default for `DURATION` is `2h`.
+
 
 > Note: the `<STORAGE-PATH>` should start at the container (and *do not have a preceeding `/`*)
 

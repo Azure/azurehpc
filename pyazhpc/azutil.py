@@ -202,10 +202,21 @@ def get_storage_key(account):
     key = out[0].decode('utf-8')
     return key
 
-def get_storage_saskey(account, container, permissions):
-    log.debug(f"creating sas key: container={container}, permissions={permissions}")
+def get_storage_saskey(account, container, permissions, duration="2h"):
+    log.debug(f"creating sas key: container={container}, permissions={permissions}, length={duration}")
     start = (datetime.datetime.utcnow() - datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    expiry = (datetime.datetime.utcnow() + datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    
+    # convert integer string to int type
+    length = int(duration[:-1])
+    unit = duration[-1]
+    if unit == "h":
+        expiry = (datetime.datetime.utcnow() + datetime.timedelta(hours=length)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    elif unit == "d":
+        expiry = (datetime.datetime.utcnow() + datetime.timedelta(days=length)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    elif unit == "y":
+        expiry = (datetime.datetime.utcnow() + datetime.timedelta(days=(length*365))).strftime("%Y-%m-%dT%H:%M:%SZ")
+    else:
+        log.error("unknown duration for saskey (format is X[h|d|y] for X hours, days or years)")
     cmd = [
         "az", "storage", "container", "generate-sas",
             "--account-name", account,
