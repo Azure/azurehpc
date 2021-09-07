@@ -189,7 +189,8 @@
       "script": "lfsmaster.sh",
       "tag": "lfsmaster",
       "args": [
-        "/dev/sdc"
+        "/dev/sdc",
+        "variables.oss_instances"
       ],
       "sudo": true
     },

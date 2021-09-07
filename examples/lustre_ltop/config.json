@@ -137,7 +137,8 @@
             "script": "lfsmaster.sh",
             "tag": "lustre",
             "args": [
-                "/dev/sdb"
+                "/dev/sdb",
+                "variables.lustre_instances"
             ],
             "sudo": true
         },
