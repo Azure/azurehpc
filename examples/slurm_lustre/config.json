@@ -153,11 +153,6 @@
             "sudo": true
         },
         {
-            "script": "lfssmb.sh",
-            "tag": "lfssmb",
-            "sudo": true
-        },
-        {
             "script": "lfsclient.sh",
             "args": [
                 "$(<hostlists/tags/lfsmaster)",
