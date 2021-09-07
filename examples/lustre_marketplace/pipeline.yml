@@ -58,4 +58,4 @@ variables:
 jobs:
 - template: ../../ci/templates/jobs/build.yml
   parameters:
-    extra_steps: ../../../examples/lustre_combined/test.yml
+    extra_steps: ../../../examples/lustre_marketplace/test.yml
