@@ -15,7 +15,7 @@
         "resource_group": "<NOT-SET>",
         "location": "westeurope",
         "image": "OpenLogic:CentOS:7_8:latest",
-        "lustreimage": "azurehpc:azurehpc-lustre-preview:azurehpc-lustre-2_12:latest",
+        "lustreimage": "azurehpc:azurehpc-lustre:azurehpc-lustre-2_12:latest",
         "hpcimage": "OpenLogic:CentOS-HPC:7_8:latest",
         "compute_instances": 2,
         "lustre_instances": 4,
