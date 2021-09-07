@@ -1,0 +1,192 @@
+{
+    "location": "variables.location",
+    "resource_group": "variables.resource_group",
+    "install_from": "headnode",
+    "admin_user": "hpcadmin",
+    "vnet": {
+        "name": "hpcvnet",
+        "address_prefix": "10.2.0.0/20",
+        "subnets": {
+            "compute": "10.2.0.0/22",
+            "storage": "10.2.4.0/24"
+        }
+    },
+    "variables": {
+        "resource_group": "<NOT-SET>",
+        "location": "westeurope",
+        "vm_type": "Standard_HC44rs",
+        "image": "OpenLogic:CentOS:7_9:latest",
+        "hpcimage": "OpenLogic:CentOS-HPC:7_9:latest",
+        "lustreimage": "OpenLogic:CentOS:7_9:latest",
+        "compute_instances": 2,
+        "oss_instances": 2,
+        "lustre_version": "2.12.7",
+        "lustre_mount": "/lustre",
+        "slurm_version": "20.11.8"
+    },
+    "resources": {
+        "headnode": {
+            "type": "vm",
+            "vm_type": "Standard_D8s_v3",
+            "accelerated_networking": true,
+            "public_ip": true,
+            "image": "variables.hpcimage",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "lfsrepo",
+                "lfsclient",
+                "localuser",
+                "slurmctld",
+                "munge",
+                "nfsserver"
+            ]
+        },
+        "compute": {
+            "type": "vmss",
+            "vm_type": "variables.vm_type",
+            "accelerated_networking": true,
+            "instances": "variables.compute_instances",
+            "image": "variables.hpcimage",
+            "subnet": "compute",
+            "tags": [
+                "disable-selinux",
+                "lfsrepo",
+                "lfsclient",
+                "localuser",
+                "slurmd",
+                "munge",
+                "nfsclient"
+            ]
+        },
+        "lfsmds": {
+            "type": "vm",
+            "vm_type": "Standard_L8s_v2",
+            "accelerated_networking": true,
+            "image": "variables.lustreimage",
+            "subnet": "storage",
+            "tags": [
+                "lfspkgs",
+                "lfsrepo",
+                "lfsmaster",
+                "disable-selinux"
+            ]
+        },
+        "lfsoss": {
+            "type": "vmss",
+            "vm_type": "Standard_L8s_v2",
+            "instances": "variables.oss_instances",
+            "accelerated_networking": true,
+            "image": "variables.lustreimage",
+            "subnet": "storage",
+            "tags": [
+                "lfspkgs",
+                "lfsrepo",
+                "lfsoss",
+                "disable-selinux"
+            ]
+        }
+    },
+    "install": [
+        {
+            "script": "disable-selinux.sh",
+            "tag": "disable-selinux",
+            "sudo": true
+        },
+        {
+            "script": "cndefault.sh",
+            "tag": "pbsclient",
+            "sudo": true
+        },
+        {
+            "script": "install-nfsserver.sh",
+            "tag": "nfsserver",
+            "args": [
+                "/share"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "nfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "nfsclient",
+            "sudo": true
+        },
+        {
+            "script": "localuser.sh",
+            "args": [
+                "$(<hostlists/tags/nfsserver)"
+            ],
+            "tag": "localuser",
+            "sudo": true
+        },
+        {
+            "script": "lfsrepo.sh",
+            "tag": "lfsrepo",
+            "args": [
+                "variables.lustre_version"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "lfspkgs.sh",
+            "tag": "lfspkgs",
+            "sudo": true
+        },
+        {
+            "script": "lfsmaster.sh",
+            "tag": "lfsmaster",
+            "args": [
+                "/dev/nvme0n1"
+            ],
+            "sudo": true
+        },
+        {
+            "script": "lfsoss.sh",
+            "args": [
+                "$(<hostlists/tags/lfsmaster)",
+                "/dev/nvme0n1"
+            ],
+            "tag": "lfsoss",
+            "sudo": true
+        },
+        {
+            "script": "lfsclient.sh",
+            "args": [
+                "$(<hostlists/tags/lfsmaster)",
+                "variables.lustre_mount"
+            ],
+            "tag": "lfsclient",
+            "sudo": true
+        },
+        {
+            "script": "munge.sh",
+            "args": ["abcdefghijklmnopqrstuvwxyz123456"],
+            "tag": "munge",
+            "sudo": true
+        },
+        {
+            "script": "slurmctld.sh",
+            "args": ["variables.slurm_version"],
+            "tag": "slurmctld",
+            "sudo": true
+        },
+        {
+            "script": "slurmd.sh",
+            "tag": "slurmd",
+            "sudo": true
+        },
+        {
+            "script": "slurmnodes.sh",
+            "tag": "slurmctld",
+            "sudo": true
+        },
+        {
+            "script": "slurmstart.sh",
+            "tag": "slurmd",
+            "sudo": true
+        }
+    ]
+}
