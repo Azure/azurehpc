@@ -14,7 +14,7 @@ trigger:
     - '*'
   paths:
     include:
-      - examples/lustre_combined/*
+      - examples/lustre_marketplace/*
       - scripts/lfsrepo.sh
       - scripts/lfspkgs.sh
       - scripts/lfsmaster.sh
@@ -24,7 +24,7 @@ trigger:
       - scripts/lfsimport.sh
       - scripts/lfsloganalytics.sh
     exclude:
-      - examples/lustre_combined/readme.md
+      - examples/lustre_marketplace/readme.md
 
 pool: Default
 
@@ -33,10 +33,10 @@ variables:
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   # configuration file to use
   - name: azhpc.config
-    value: examples/lustre_combined/config.json
+    value: examples/lustre_marketplace/config.json
   # pipeline directory
   - name: azhpc.pipeline_dir
-    value: examples/lustre_combined
+    value: examples/lustre_marketplace
   # destination of scripts. Default is hpcuser@headnode:/apps
   #azhpc.script_remote_dest: 'hpcadmin@headnode:.'
 
