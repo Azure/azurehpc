@@ -564,7 +564,12 @@ class ArmTemplate:
                     "location": loc,
                     "dependsOn": [],
                     "tags": gtags,
+                    "sku": {
+                        "name": "Standard",
+                        "tier": "Regional"
+                    },
                     "properties": {
+                        "publicIPAllocationMethod": "Static",
                         "dnsSettings": {
                             "domainNameLabel": dnsname
                         }
