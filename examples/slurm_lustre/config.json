@@ -139,7 +139,8 @@
             "script": "lfsmaster.sh",
             "tag": "lfsmaster",
             "args": [
-                "/dev/nvme0n1"
+                "/dev/nvme0n1",
+                "variables.oss_instances"
             ],
             "sudo": true
         },
