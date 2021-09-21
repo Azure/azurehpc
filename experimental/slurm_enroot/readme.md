@@ -61,10 +61,10 @@ pyxis: importing docker image ...
 root@compute000000:/#
 ```
 
-Example of using SLURM for interactive job running NVIDIA pytorch container image on GPU enabled node:
+Example of using SLURM for interactive job running NVIDIA pytorch container image on a node with at least 4 GPUs:
 
 ```
-[hpcuser@headnode ~]$ srun --container-image='nvcr.io#nvidia/pytorch:21.07-py3' --container-mount-home --pty bash
+[hpcuser@headnode ~]$ srun --gpus-per-node=4 --container-image='nvcr.io#nvidia/pytorch:21.07-py3' --container-mount-home --pty bash
 pyxis: importing docker image ...
 root@compute000000:/workspace# python
 Python 3.8.10 | packaged by conda-forge | (default, May 11 2021, 07:01:05)

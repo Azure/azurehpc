@@ -79,6 +79,8 @@ ReturnToService=2
 LaunchParameters=use_interactive_step
 #InteractiveStepOptions=--mem-per-cpu=0 --cpu_bind=no --preserve-env --pty /bin/bash
 
+GresTypes=gpu
+
 include /apps/slurm/nodes.conf
 include /apps/slurm/partitions.conf
 
