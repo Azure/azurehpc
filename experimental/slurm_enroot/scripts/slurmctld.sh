@@ -94,7 +94,7 @@ ConstrainCores=yes
 TaskAffinity=no
 ConstrainRAMSpace=yes
 ConstrainSwapSpace=no
-ConstrainDevices=no
+ConstrainDevices=yes
 
 EOF
 
