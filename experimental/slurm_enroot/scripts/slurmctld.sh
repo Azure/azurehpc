@@ -76,7 +76,7 @@ DebugFlags=PowerSave
 PrivateData=cloud
 ReturnToService=2
 
-LaunchParameters=use_interactive_step
+#LaunchParameters=use_interactive_step
 #InteractiveStepOptions=--mem-per-cpu=0 --cpu_bind=no --preserve-env --pty /bin/bash
 
 GresTypes=gpu
