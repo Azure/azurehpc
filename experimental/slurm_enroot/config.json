@@ -134,6 +134,11 @@
             "sudo": true
         },
         {
+            "script": "slurm_gres.sh",
+            "tag": "gpu",
+            "sudo": true
+        },
+        {
             "script": "slurmnodes.sh",
             "tag": "slurmctld",
             "sudo": true
