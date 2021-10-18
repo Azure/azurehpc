@@ -472,6 +472,7 @@ class ArmTemplate:
         rpip = res.get("public_ip", False)
         rdns = res.get("dns_name", None)
         rnsgallow = res.get("nsg_allow", None)
+        rnsgsourceip = res.get("nsg_source_ip", None)
         rppg = res.get("proximity_placement_group", False)
         rppgname = cfg.get("proximity_placement_group_name", None)
         raz = res.get("availability_zones", None)
@@ -661,6 +662,9 @@ class ArmTemplate:
                         nsgrules = [ nsg_security_rules["rdp"] ]
                     else:
                         nsgrules = [ nsg_security_rules["ssh"] ]
+                if rnsgsourceip:
+                    for rule in nsgrules:
+                        rule["properties"]["sourceAddressPrefix"] = rnsgsourceip
 
                 self.resources.append({
                     "type": "Microsoft.Network/networkSecurityGroups",

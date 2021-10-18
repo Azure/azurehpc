@@ -75,6 +75,7 @@
                 "scope": "resource_group"
             },
             "nsg_allow": ["rdp", "ssh", "http", "https", "grafana"],
+            "nsg_source_ip": "Source IP filter for NSG Allow rules. Default: *",
             "ephemeral_os_disk": "Set whether to use the ephermal disk for the operation system; default os false",
             "ephemeral_os_disk_placement": "Specifies the ephemeral disk placement. Possible values are: CacheDisk (default), ResourceDisk",
             "os_disk_size": "OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size",
