@@ -184,7 +184,6 @@ class ArmTemplate:
                 "type": "Microsoft.Network/routeTables/routes",
                 "apiVersion": "2019-11-01",
                 "name": f"{route_name}/{route_name}",
-                "tags": gtags,
                 "dependsOn": [
                     f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
                 ],
@@ -199,7 +198,6 @@ class ArmTemplate:
                 "type": "Microsoft.Network/virtualNetworks/subnets",
                 "apiVersion": "2019-11-01",
                 "name": f"{vnet_name}/{route_subnet}",
-                "tags": gtags,
                 "dependsOn": [
                     f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
                 ],
