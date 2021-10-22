@@ -163,13 +163,13 @@ class ArmTemplate:
                             "properties": {
                                 "addressPrefix": route_address_prefix,
                                 "nextHopType": "VirtualAppliance",
-                                "nextHopIpAddress": f"[reference('{route_next_hop}nic').ipConfigurations[0].properties.privateIPAddress]"
+                                "nextHopIpAddress": f"[reference('{route_next_hop}_nic').ipConfigurations[0].properties.privateIPAddress]"
                             }
                         }
                     ]
                 },
                 "dependsOn": [
-                    f"Microsoft.Network/networkInterfaces/{route_next_hop}nic"
+                    f"Microsoft.Network/networkInterfaces/{route_next_hop}_nic"
                 ]
             })
             self.resources.append({
@@ -182,7 +182,7 @@ class ArmTemplate:
                 "properties": {
                     "addressPrefix": route_address_prefix,
                     "nextHopType": "VirtualAppliance",
-                    "nextHopIpAddress": f"[reference('{route_next_hop}nic').ipConfigurations[0].properties.privateIPAddress]"
+                    "nextHopIpAddress": f"[reference('{route_next_hop}_nic').ipConfigurations[0].properties.privateIPAddress]"
                 }
             })
             subnet_address_prefix = cfg["vnet"]["subnets"][route_subnet]
