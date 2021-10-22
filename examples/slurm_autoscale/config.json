@@ -6,6 +6,7 @@
   "variables": {
     "image": "OpenLogic:CentOS:7.7:latest",
     "hpc_image": "OpenLogic:CentOS-HPC:7.7:latest",
+    "slurm_version": "21.08.2",
     "instances": 10,
     "location": "<NOT-SET>",
     "resource_group": "<NOT-SET>"
@@ -123,6 +124,9 @@
      {
        "script": "slurmctl.sh",
        "tag": "slurmserver",
+       "args": [
+          "variables.slurm_version"
+       ],
        "deps": [
         "suspend.sh",
         "resume.sh",

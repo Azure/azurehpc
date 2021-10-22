@@ -1,15 +1,18 @@
 #!/bin/bash
 
+slurm_version=${1:-21.08.2}
+
 yum install -y epel-release screen
 
 yum install perl-ExtUtils-MakeMaker gcc mariadb-devel openssl openssl-devel pam-devel rpm-build numactl numactl-devel hwloc hwloc-devel lua lua-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad -y
+yum install -y http-parser-devel json-c-devel
 
-if [ ! -f "slurm-19.05.5.tar.bz2" ]; then
-  wget https://download.schedmd.com/slurm/slurm-19.05.5.tar.bz2
+if [ ! -f "slurm-${slurm_version}.tar.bz2" ]; then
+  wget https://download.schedmd.com/slurm/slurm-${slurm_version}.tar.bz2
 fi
 
 if [ ! -f "/apps/rpms/slurm*.rpm" ]; then
-  rpmbuild -ta slurm-19.05.5.tar.bz2
+  rpmbuild -ta slurm-${slurm_version}.tar.bz2
   mkdir -p /apps/rpms
   cp /root/rpmbuild/RPMS/x86_64/slurm-* /apps/rpms/
 fi
@@ -74,7 +77,8 @@ DebugFlags=PowerSave
 PrivateData=cloud
 ReturnToService=2
 
-SallocDefaultCommand="srun --mem-per-cpu=0 --cpu_bind=no --preserve-env --pty $SHELL"
+LaunchParameters=use_interactive_step
+#SallocDefaultCommand="srun --mem-per-cpu=0 --cpu_bind=no --preserve-env --pty $SHELL"
 
 include /apps/slurm/nodes.conf
 include /apps/slurm/partitions.conf
