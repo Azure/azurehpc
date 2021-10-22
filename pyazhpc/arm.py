@@ -144,7 +144,6 @@ class ArmTemplate:
         # add route tables first (and keep track of mapping to subnet)
         route_table_map = {}
         for route_name in cfg["vnet"].get("routes", {}).keys():
-            # TODO : Why is this unused ?
             route_address_prefix = cfg["vnet"]["routes"][route_name]["address_prefix"]
             route_next_hop = cfg["vnet"]["routes"][route_name]["next_hop"]
             route_subnet = cfg["vnet"]["routes"][route_name]["subnet"]
@@ -162,7 +161,7 @@ class ArmTemplate:
                         {
                             "name": route_name,
                             "properties": {
-                                "addressPrefix": "1.2.3.4/32",
+                                "addressPrefix": route_address_prefix,
                                 "nextHopType": "VirtualAppliance",
                                 "nextHopIpAddress": f"[reference('{route_next_hop}nic').ipConfigurations[0].properties.privateIPAddress]"
                             }
@@ -181,7 +180,7 @@ class ArmTemplate:
                     f"[resourceId('Microsoft.Network/routeTables', '{route_name}')]"
                 ],
                 "properties": {
-                    "addressPrefix": "1.2.3.4/32",
+                    "addressPrefix": route_address_prefix,
                     "nextHopType": "VirtualAppliance",
                     "nextHopIpAddress": f"[reference('{route_next_hop}nic').ipConfigurations[0].properties.privateIPAddress]"
                 }
