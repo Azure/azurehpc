@@ -40,9 +40,10 @@ To run the ring NCCL allreduce tests (e.g on pairs of NDv4)
 
 ## How to verify NDv4 is healthy
 For The CUDA bandwidth tests all dtod, dtoh should be > 24 GB/s.
-For IB ib_write_bw (GDR) tests, bandwidth should be > 180 GB/s
+For IB ib_write_bw (GDR) tests, bandwidth should be > 180 Gb/s
 For the GPU tests, there should be 8 GPU's.
 For the misc IB tests, there should be 8 active devices and all should report 200 Gbps.
+All NCCL allreduce tests should be > 175 GB/s (8MB message size)
 
 
 ## What to do if you find a NDv4 that fails the healtchecks
