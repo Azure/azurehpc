@@ -2,8 +2,6 @@
 
 module load mpi/hpcx
 
-which mpirun
-
 HOST1=$1
 HOST2=$2
 
