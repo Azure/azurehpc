@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH -t 03:00:00
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=10
+#SBATCH --gpus-per-node=8
+#SBATCH --mem=0
+#SBATCH -o logs/%x_%j.log
+
+SCRIPT_PATH=~
+
+srun ${SCRIPT_PATH}/run_dcgmproftester11.sh
