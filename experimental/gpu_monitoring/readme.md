@@ -71,7 +71,7 @@ etc
 ```
 
 Start the GPU monitor
->Note: Remeber to edit the hostfile
+>Note: Remember to edit the hostfile
 ```
 ./start_gpu_data_collector.sh
 ```
