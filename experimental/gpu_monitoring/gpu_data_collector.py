@@ -8,6 +8,7 @@ import subprocess
 import socket
 import os
 import glob
+import struct
 
 #110: sm_app_clock (expect 1410 on A100, assume MHz)
 #110: mem_app_clock (expect 1215 on A100, assume MHz))
