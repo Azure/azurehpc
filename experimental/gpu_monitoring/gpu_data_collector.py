@@ -8,6 +8,7 @@ import subprocess
 import socket
 import os
 import glob
+import struct
 
 #110: sm_app_clock (expect 1410 on A100, assume MHz)
 #110: mem_app_clock (expect 1215 on A100, assume MHz))
@@ -98,6 +99,7 @@ def create_data_records():
             record_d['gpu_id'] = int(line_split[1])
             record_d['hostname'] = hostname
             record_d['slurm_jobid'] = slurm_jobid
+            record_d['physicalhostname'] = physicalhostname_val
             for field_name in field_name_l:
                 long_field_name = find_long_field_name(field_name)
                 indx = field_name_l.index(field_name) + 2
@@ -112,7 +114,21 @@ def get_slurm_jobid():
       jobid = int(file_l[0].split("_")[2])
       return (True, jobid)
     else:
-      return (False, None) 
+      return (False, None)
+
+
+def get_physicalhostname():
+
+    file_path='/var/lib/hyperv/.kvp_pool_3'
+    fileSize = os.path.getsize(file_path)
+    num_kv = int(fileSize /(512+2048))
+    file = open(file_path,'rb')
+    for i in range(0, num_kv):
+        key, value = struct.unpack("512s2048s",file.read(2560))
+        key = key.split(b'\x00')
+        value = value.split(b'\x00')
+        if "PhysicalHostNameFullyQualified" in str(key[0]):
+           return str(value[0])[2:][:-1] 
 
 
 
@@ -123,6 +139,7 @@ if have_jobid:
    dcgm_dmon_list_cmd_l = ['dcgmi', 'dmon', '-l']
    dcgm_dmon_fields_out = execute_cmd(dcgm_dmon_fields_cmd_l)
    dcgm_dmon_list_out = execute_cmd(dcgm_dmon_list_cmd_l)
+   physicalhostname_val = get_physicalhostname()
    data_l = create_data_records()
    print(data_l)
    body = json.dumps(data_l)
