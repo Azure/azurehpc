@@ -464,25 +464,25 @@ def check_numa_per_process(process_d):
               print("Warning: pid ({} is mapped to more than one numa domain ({})".format(pid,numas))
 
 
-def calc_number_processes_per_numa(total_number_processes, num_numa_domains):
-    if total_number_processes < num_numa_domains:
+def calc_number_processes_per_numa(number_processes_per_vm, num_numa_domains):
+    if number_processes_per_vm < num_numa_domains:
        number_processes_per_numa = 1
     else:
-       number_processes_per_numa = int(total_number_processes / num_numa_domains)
+       number_processes_per_numa = int(number_processes_per_vm / num_numa_domains)
 
     return number_processes_per_numa
 
 
-def calc_process_pinning(total_number_processes, num_numa_domains, l3cache_topo_d):
-    number_processes_per_numa = calc_number_processes_per_numa(total_number_processes, num_numa_domains)
+def calc_process_pinning(number_processes_per_vm, num_numa_domains, l3cache_topo_d):
+    number_processes_per_numa = calc_number_processes_per_numa(number_processes_per_vm, num_numa_domains)
     number_cores_in_l3cache = calc_number_cores_in_l3cache(l3cache_topo_d)
     indx = 0
     pinning_l = []
-    while len(pinning_l) < total_number_processes:
+    while len(pinning_l) < number_processes_per_vm:
         for l3cache_id in l3cache_topo_d["l3cache_ids"]:
             if indx > len(l3cache_topo_d["l3cache_ids"][l3cache_id])-1:
                continue
-            if len(pinning_l) < total_number_processes:
+            if len(pinning_l) < number_processes_per_vm:
                pinning_l.append(l3cache_topo_d["l3cache_ids"][l3cache_id][indx])
             else:
                break
@@ -599,7 +599,7 @@ def calc_number_cores_in_l3cache(l3cache_topo_d):
     return min_number_cores_in_l3cache
 
       
-def check_pinning_syntax(total_number_processes, number_threads_per_process, topo_d, l3cache_topo_d):
+def check_pinning_syntax(number_processes_per_vm, number_threads_per_process, topo_d, l3cache_topo_d):
    print("")
    print("")
    total_num_cores = calc_total_num_cores(topo_d)
@@ -608,11 +608,11 @@ def check_pinning_syntax(total_number_processes, number_threads_per_process, top
    num_numas = calc_total_num_numas(topo_d)
    have_warning = False
 
-   if check_number_of_processes(total_number_processes, number_threads_per_process, number_l3caches, num_numas, l3cache_topo_d):
+   if check_number_of_processes(number_processes_per_vm, number_threads_per_process, number_l3caches, num_numas, l3cache_topo_d):
        have_warning = True
-   if check_total_number_of_threads(total_number_processes, number_threads_per_process, total_num_cores):
+   if check_total_number_of_threads(number_processes_per_vm, number_threads_per_process, total_num_cores):
        have_warning = True
-   if check_number_threads_per_l3cache(total_number_processes, number_threads_per_process, number_l3caches, number_cores_in_l3cache):
+   if check_number_threads_per_l3cache(number_processes_per_vm, number_threads_per_process, number_l3caches, number_cores_in_l3cache):
        have_warning = True
    print("")
 
@@ -662,44 +662,44 @@ def list_to_str(l):
     return ",".join(map(str,l))
 
 
-def check_number_of_processes(total_number_processes, number_threads_per_process, number_l3caches, num_numas, l3cache_topo_d):
+def check_number_of_processes(number_processes_per_vm, number_threads_per_process, number_l3caches, num_numas, l3cache_topo_d):
     have_warning = False
-    if not total_number_processes % 2 == 0:
+    if not number_processes_per_vm % 2 == 0:
        have_warning = True
-       print("Warning: You requested an odd number of MPI processes({}), it is recommended that you select an even number for better balance and distribution.".format(total_number_processes))
-    if total_number_processes > number_l3caches and total_number_processes not in l3cache_topo_d["allowed_number_of_processes"]:
+       print("Warning: You requested an odd number of MPI processes({}), it is recommended that you select an even number for better balance and distribution.".format(number_processes_per_vm))
+    if number_processes_per_vm > number_l3caches and number_processes_per_vm not in l3cache_topo_d["allowed_number_of_processes"]:
        have_warning = True
-       print("Warning: You requested  {} MPI processes, for this SKU its recommended you use one of these process counts, {}".format(total_number_processes,l3cache_topo_d["allowed_number_of_processes"]))
-    if number_threads_per_process > 1 and total_number_processes > num_numas and not total_number_processes % num_numas == 0:
+       print("Warning: You requested  {} MPI processes, for this SKU its recommended you use one of these process counts, {}".format(number_processes_per_vm, l3cache_topo_d["allowed_number_of_processes"]))
+    if number_threads_per_process > 1 and number_processes_per_vm > num_numas and not number_processes_per_vm % num_numas == 0:
        have_warning = True
-       print("Warning: For this hybrid parallel job, the number of numa domains ({}) does not divide evenly into number of processes ({})".format(num_numas, total_number_processes))
+       print("Warning: For this hybrid parallel job, the number of numa domains ({}) does not divide evenly into number of processes ({})".format(num_numas, number_processes_per_vm))
     
     return have_warning
 
 
-def check_total_number_of_threads(total_number_processes, number_threads_per_process, total_number_cores):
+def check_total_number_of_threads(number_processes_per_vm, number_threads_per_process, total_number_cores):
     have_warning = False
-    total_number_of_threads = total_number_processes * number_threads_per_process
+    total_number_of_threads = number_processes_per_vm * number_threads_per_process
     if total_number_of_threads > total_number_cores:
        have_warning = True
-       print("Warning: You requested a total of {} threads (number of processes = {}, number of threads per process = {}), but this SKU only has {} cores".format(total_number_of_threads, total_number_processes, number_threads_per_process, total_number_cores))
+       print("Warning: You requested a total of {} threads (number of processes = {}, number of threads per process = {}), but this SKU only has {} cores".format(total_number_of_threads, number_processes_per_vm, number_threads_per_process, total_number_cores))
 
     return have_warning
 
 
-def calc_number_processes_per_l3cache(total_number_processes, number_l3caches):
-    if total_number_processes < number_l3caches:
+def calc_number_processes_per_l3cache(number_processes_per_vm, number_l3caches):
+    if number_processes_per_vm < number_l3caches:
        number_processes_per_l3cache = 1
     else:
-       number_processes_per_l3cache = total_number_processes /  number_l3caches
+       number_processes_per_l3cache = number_processes_per_vm /  number_l3caches
    
     return int(number_processes_per_l3cache)
 
 
-def check_number_threads_per_l3cache(total_number_processes, number_threads_per_process, number_l3caches, number_cores_in_l3cache):
+def check_number_threads_per_l3cache(number_processes_per_vm, number_threads_per_process, number_l3caches, number_cores_in_l3cache):
     have_warning = False
     if number_threads_per_process > 1:
-       number_processes_per_l3cache = calc_number_processes_per_l3cache(total_number_processes, number_l3caches)
+       number_processes_per_l3cache = calc_number_processes_per_l3cache(number_processes_per_vm, number_l3caches)
        number_threads_in_l3cache = number_processes_per_l3cache * number_threads_per_process
        if not number_threads_in_l3cache == number_cores_in_l3cache:
           have_warning = True
@@ -708,7 +708,7 @@ def check_number_threads_per_l3cache(total_number_processes, number_threads_per_
     return have_warning
 
 
-def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas):
+def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas):
     hostname = socket.gethostname()
     print("")
     print("Virtual Machine ({}, {}) Numa topology".format(sku_name, hostname))
@@ -742,34 +742,33 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
           gpu_id = process_d["pids"][pid]["gpu_id"]
           print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpu_id))
     elif print_pinning_syntax:
-       print("Process/thread {} MPI mapping/pinning syntax for {} processes and {} threads per process".format(mpi_type, total_number_processes,number_threads_per_process))
+       total_number_processes = total_number_vms * number_processes_per_vm
+       print("Process/thread {} MPI mapping/pinning syntax for total {} processes ( {} processes per VM and {} threads per process)".format(mpi_type, total_number_processes, number_processes_per_vm, number_threads_per_process))
        print("")
        if sku_name == "Standard_HB120rs_v3" and number_threads_per_process > 1:
           print("Warning: You are planning on running a hybrid parallel application on {}, it is recommended that you use Standard_HB120-96rs_v3, Standard_HB120-64rs_v3 or Standard_HB120-32rs_v3 instead.".format(sku_name))
           sys.exit(1)
        if have_warning and not force:
-           print("NOTE: MPI process/thread pinning syntax will NOT be displayed until the warnings above have been corrected")
+          print("NOTE: MPI process/thread pinning syntax will NOT be displayed until the warnings above have been corrected")
        else:
           if mpi_type == "openmpi":
-             if number_threads_per_process == 1:
-                print("--bind-to cpulist:ordered --cpu-list",list_to_str(pinning_syntax_l))
-             elif total_number_processes < num_numas:
-                number_processes_per_socket  = round(total_number_processes / 2)
-                print("--map-by ppr:{}:socket:pe={}".format(number_processes_per_socket, number_threads_per_process))
+             if number_threads_per_process == 1 and number_processes_per_vm == number_cores_per_vm:
+                print("-np {} --bind-to cpulist:ordered --cpu-list {}".format(total_number_processes, list_to_str(pinning_syntax_l)))
              else:
-                print("--map-by ppr:{}:numa:pe={}".format(number_processes_per_numa, number_threads_per_process))
+                print("-np {} --bind-to l3cache --map-by ppr:{}:numa".format(total_number_processes, number_processes_per_numa))
           else:
              num_l3cache = len(l3cache_topo_d["l3cache_ids"])
              if number_threads_per_process == 1:
                 print("-genv I_MPI_PIN_PROCESSOR=",list_to_str(pinning_syntax_l))
-             elif total_number_processes < num_l3cache:
+             elif number_processes_per_vm < num_l3cache:
                 print("export I_MPI_PIN_DOMAIN=auto:compact")
              else:
                 print("export I_MPI_PIN_DOMAIN={}:compact".format(number_cores_in_l3cache))
 
 
 def main():
-   total_number_processes = 0
+   total_number_vms = 0
+   number_processes_per_vm = 0
    number_threads_per_process = 0
    pinning_l = []
    process_d = {}
@@ -781,11 +780,12 @@ def main():
    sku_name = vm_metadata["compute"]["vmSize"]
    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
    parser.add_argument("-anp", "--application_name_pattern", dest="application_pattern", type=str, help="Select the application pattern to check [string]")
-   parser.add_argument("-ppa", "--print_pinning_syntax", action="store_true", help="Print MPI pinning syntax")
+   parser.add_argument("-pps", "--print_pinning_syntax", action="store_true", help="Print MPI pinning syntax")
    parser.add_argument("-f", "--force", action="store_true", help="Force printing MPI pinning syntax (i.e ignore warnings)")
-   parser.add_argument("-tnp", "--total_number_processes", dest="total_number_processes", type=int, help="Total number of MPI processes per VM (used with -ppa)")
-   parser.add_argument("-ntpp", "--number_threads_per_process", dest="number_threads_per_process", type=int, help="Number of threads per process (used with -ppa)")
-   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel"], help="Select which type of MPI to generate pinning syntax (used with -ppa)")
+   parser.add_argument("-nv", "--total_number_vms", dest="total_number_vms", type=int, default=1, help="Total number of VM's (used with -pps)")
+   parser.add_argument("-nppv", "--number_processes_per_vm", dest="number_processes_per_vm", type=int, help="Total number of MPI processes per VM (used with -pps)")
+   parser.add_argument("-ntpp", "--number_threads_per_process", dest="number_threads_per_process", type=int, help="Number of threads per process (used with -pps)")
+   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)")
    args = parser.parse_args()
    force = args.force
    if len(sys.argv) > 1 and not args.application_pattern and not args.print_pinning_syntax:
@@ -795,6 +795,7 @@ def main():
    total_num_numa_domains = calc_total_num_numas(topo_d)
    total_num_gpus = calc_total_num_gpus(topo_d)
    l3cache_topo_d = create_l3cache_topo(sku_name)
+   number_cores_per_vm = calc_total_num_cores(topo_d)
    if args.application_pattern:
       app_pattern = args.application_pattern
       pids_l = find_pids(app_pattern)
@@ -809,10 +810,14 @@ def main():
           print("Error: {} is currently not a supported SKU to determine the correct process/thread MPI pinning/mapping syntax.\n The following SKUs are supported {}".format(sku_name, supported_sku_names_l))
           sys.exit(1)
       process_d = {}
-      if args.total_number_processes:
-         total_number_processes = args.total_number_processes
+      if args.total_number_vms:
+         total_number_vms = args.total_number_vms
       else:
-         total_number_processes = calc_total_num_cores(topo_d)
+         total_number_vms = 1
+      if args.number_processes_per_vm:
+         number_processes_per_vm = args.number_processes_per_vm
+      else:
+         number_processes_per_vm = number_cores_per_vm
       if args.number_threads_per_process:
          number_threads_per_process = args.number_threads_per_process
       else:
@@ -821,10 +826,10 @@ def main():
           mpi_type = args.mpi_type
       else:
           mpi_type = "openmpi"
-      have_warning = check_pinning_syntax(total_number_processes, number_threads_per_process, topo_d, l3cache_topo_d)
-      (pinning_l, number_processes_per_numa, number_cores_in_l3cache) = calc_process_pinning(total_number_processes, total_num_numa_domains, l3cache_topo_d)
+      have_warning = check_pinning_syntax(number_processes_per_vm, number_threads_per_process, topo_d, l3cache_topo_d)
+      (pinning_l, number_processes_per_numa, number_cores_in_l3cache) = calc_process_pinning(number_processes_per_vm, total_num_numa_domains, l3cache_topo_d)
 
-   report(args.application_pattern, args.print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, total_number_processes, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, total_num_numa_domains)
+   report(args.application_pattern, args.print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, total_num_numa_domains)
    check_app(args.application_pattern,  total_num_numa_domains, total_num_gpus, topo_d, process_d, l3cache_topo_d)
 
 

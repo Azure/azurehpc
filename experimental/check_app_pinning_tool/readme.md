@@ -11,8 +11,9 @@ The HPC Application process/thread mapping/pinning checking tool has two main fe
 ## Usage
 ```
  ./check_app_pinning.py -h
-usage: check_app_pinning.py [-h] [-anp APPLICATION_PATTERN] [-ppa]
-                            [-tnp TOTAL_NUMBER_PROCESSES]
+usage: check_app_pinning.py [-h] [-anp APPLICATION_PATTERN] [-pps] [-f]
+                            [-nv TOTAL_NUMBER_VMS]
+                            [-nppv NUMBER_PROCESSES_PER_VM]
                             [-ntpp NUMBER_THREADS_PER_PROCESS]
                             [-mt {openmpi,intel}]
 
@@ -21,26 +22,28 @@ optional arguments:
   -anp APPLICATION_PATTERN, --application_name_pattern APPLICATION_PATTERN
                         Select the application pattern to check [string]
                         (default: None)
-  -ppa, --print_pinning_syntax
+  -pps, --print_pinning_syntax
                         Print MPI pinning syntax (default: False)
   -f, --force           Force printing MPI pinning syntax (i.e ignore
                         warnings) (default: False)
-  -tnp TOTAL_NUMBER_PROCESSES, --total_number_processes TOTAL_NUMBER_PROCESSES
-                        Total number of MPI processes per VM (used with -ppa)
+  -nv TOTAL_NUMBER_VMS, --total_number_vms TOTAL_NUMBER_VMS
+                        Total number of VM's (used with -pps) (default: 1)
+  -nppv NUMBER_PROCESSES_PER_VM, --number_processes_per_vm NUMBER_PROCESSES_PER_VM
+                        Total number of MPI processes per VM (used with -pps)
                         (default: None)
   -ntpp NUMBER_THREADS_PER_PROCESS, --number_threads_per_process NUMBER_THREADS_PER_PROCESS
-                        Number of threads per process (used with -ppa)
+                        Number of threads per process (used with -pps)
                         (default: None)
   -mt {openmpi,intel}, --mpi_type {openmpi,intel}
                         Select which type of MPI to generate pinning syntax
-                        (used with -ppa) (default: None)
+                        (used with -ppa) (default: openmpi)
 ```
 ## Examples
 You are on a Standard_HB120-64rs_v3 virtual machine, you would like to know the correct HPCX pinning syntax to pin 16 MPI
 processes and 4 threads per process.
 
 ```
-check_app_pinning.py -ppa -tnp 16 -ntpp 4
+check_app_pinning.py -pps -nppv 16 -ntpp 4
 
 Virtual Machine (Standard_HB120-64rs_v3, cghb64v3) Numa topology
 
@@ -71,9 +74,9 @@ L3Cache id   Core ids
 15           ['60-63']
 
 
-Process/thread openmpi MPI Mapping/pinning syntax for 16 processes and 4 threads per process
+Process/thread openmpi MPI Mapping/pinning syntax for total 16 processes ( 16 processes per VM and 4 threads per process)
 
---map-by ppr:4:numa:pe=4
+-np 16 --bind-to l3cache --map-by ppr:4:numa
 ```
 
 Note: Incorrect number of processes and threads is flagged with warnings
