@@ -36,7 +36,7 @@ optional arguments:
                         (default: None)
   -mt {openmpi,intel}, --mpi_type {openmpi,intel}
                         Select which type of MPI to generate pinning syntax
-                        (used with -ppa) (default: openmpi)
+                        (used with -pps) (default: openmpi)
 ```
 ## Examples
 You are on a Standard_HB120-64rs_v3 virtual machine, you would like to know the correct HPCX pinning syntax to pin 16 MPI
