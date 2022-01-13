@@ -1,6 +1,6 @@
-# How to tune Accelerated Networking on HB120_v2 and HB60
+# How to tune Accelerated Networking on HBv3, HBv2 and HB60
 
-The performance benefits of enabling accelerated networking on HBV3, HBv2 and HB60 can only be realized if some network tuning is applied to the front-end network.
+The performance benefits of enabling accelerated networking on HBv3, HBv2 and HB60 can only be realized if some network tuning is applied to the front-end network.
 >Note: These manual network tuning will be unnecessary once, similar network tuning are included in HPC marketplace images.
 
   - Change the number of  multi-purpose channels for the $DEVICE (see below) network device. By default the HB and HC SKU's have 31. Overall, 4 seems to give the best performance.
