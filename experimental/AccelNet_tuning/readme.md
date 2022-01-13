@@ -1,20 +1,30 @@
 # How to tune Accelerated Networking on HB120_v2 and HB60
 
-The performance benefits of enabling accelerated networking on HB120_v2 and HB60 can only be realized if some network tuning is applied to the front-end network.
+The performance benefits of enabling accelerated networking on HBV3, HBv2 and HB60 can only be realized if some network tuning is applied to the front-end network.
 >Note: These manual network tuning will be unnecessary once, similar network tuning are included in HPC marketplace images.
 
-  - Change the number of  multi-purpose channels for the eth2 network device. My default the HB and HC SKU's have 31. Overall, 4 seems to give the best performance.
+  - Change the number of  multi-purpose channels for the $DEVICE (see below) network device. By default the HB and HC SKU's have 31. Overall, 4 seems to give the best performance.
+
+Find device associated with accelerated networking virtual function.
+```
+[hpcadmin@hbv3vmss000004 ~]$ ibdev2netdev | grep an0
+mlx5_an0 port 1 ==> **enP45424s1** (Up)
+```
+>Note: The device name may change on different nodes, in this example DEVICE=enP45424s1
+
   ```bash
-  ethtool -L eth2 combined 4
+  ethtool -L $DEVICE combined 4
   ```
-  - Pin the first four multi-purpose channels of device eth2 to vNUMA 0
+  - Pin the first four multi-purpose channels of $DEVICE  to vNUMA 0
 
     First get the first four multi-purpose channel indices
   ```bash
-  ls /sys/class/net/eth2/device/msi_irqs
+  ls /sys/class/net/$DEVICE/device/msi_irqs
   53  55  57  59  61  63  65  67  69  71  73  75  77  79  81  83
 54  56  58  60  62  64  66  68  70  72  74  76  78  80  82  84
   ```
+>NOTE: It may be useful to see all irqs (see /proc/interrupts), ignore the first index (in this case 53), it is associated with a different irq.
+
   map first four multi-purpose channel to vNUMA 0
   ```bash
   echo "0" > /proc/irq/${irq_index[0]}/smp_affinity_list

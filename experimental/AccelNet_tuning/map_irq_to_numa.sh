@@ -4,11 +4,25 @@ CORE_ID_S=${1:-0}
 NUM_QP=${2:-4}
 
 
+function get_device() {
+   IFS=$'\n'
+   LINES=( $(ibdev2netdev) )
+   for ((i=0; i<${#LINES[*]}; i++)); do
+      if [[ "${LINES[$i]//"an0"}" != "${LINES[$i]}" ]]; then
+         IFS=$' \t\n'
+         LINE=( ${LINES[$i]} )
+         echo "${LINE[4]}"
+      fi
+   done
+   IFS=$' \t\n'
+}
+
+
 function get_irq_indices
 {
    cnt=0
    irq_index=()
-   for irq in `ls /sys/class/net/eth2/device/msi_irqs`
+   for irq in `ls /sys/class/net/$DEVICE/device/msi_irqs`
    do
       if [ $cnt -gt 0 ]; then
          irq_index+=($irq)
@@ -36,8 +50,8 @@ function get_core_indices
 
 function set_num_qp
 {
-ethtool -L eth2 combined $NUM_QP
-ethtool -l eth2
+ethtool -L $DEVICE combined $NUM_QP
+ethtool -l $DEVICE
 }
 
 
@@ -58,6 +72,8 @@ function map_numa_to_irq
    done
 }
 
+
+DEVICE=$(get_device)
 get_irq_indices
 calc_core_id_e
 get_core_indices
