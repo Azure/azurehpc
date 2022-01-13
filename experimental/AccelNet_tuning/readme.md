@@ -8,7 +8,7 @@ The performance benefits of enabling accelerated networking on HBV3, HBv2 and HB
 Find device associated with accelerated networking virtual function.
 ```
 [hpcadmin@hbv3vmss000004 ~]$ ibdev2netdev | grep an0
-mlx5_an0 port 1 ==> <b>enP45424s1</b> (Up)
+mlx5_an0 port 1 ==> enP45424s1 (Up)
 ```
 >Note: The device name may change on different nodes, in this example DEVICE=enP45424s1
 
