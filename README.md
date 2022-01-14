@@ -188,7 +188,6 @@ This dictionary describes the resources for the project.
 | **ephemeral_os_disk_placement** | Specifies the ephemeral disk placement. Possible values are: CacheDisk, ResourceDisk |   no     |  CacheDisk  |
 | **os_disk_size**           | OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size|   no     |         |
 | **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
-| **os_storage_sku**         | OS Storage SKU. `Premium_LRS`, `StandardSSD_LRS` or `Standard_LRS`          |   no     |Premium_LRS|
 | **overprovision**          | Allows a VMSS to provision additional VMs incase some don't start quickly   |   no     |  True   |
 | **custom_data**            | File (@file) or URL indicating the location of the cloud-init script        |   no     |  None   |
 | **proximity_placement_group**| Boolean flag for wether to include the resource in the proximity placement group with the name specified in the global section |   no     |  False  |
