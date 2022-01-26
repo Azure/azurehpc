@@ -1,7 +1,7 @@
 # Node health check integrated with CycleCloud SLURM 
 
-It is important to run healthchecks on Specialty SKU's (like NDv4(A100)) to identify unhealthy VM's and make sure they are not included in job (by for example 
-by marking the node and putting  into a drain state). Here we give an example of leveraging the built-in healthcheck hooks in SLURM and using them to run the
+It is important to run healthchecks on Specialty SKU's (like NDv4(A100)) to identify unhealthy VM's and make sure they are not included in job (for example 
+by marking the node and putting it into a drain state). Here we give an example of leveraging the built-in healthcheck hooks in SLURM and using them to run the
 LBNL Node Health check framework (https://github.com/mej/nhc). Some specific healthchecks have been written for ND96asr_v4 (40GB A100) and a Cyclecloud project
 is created to allow this healthcheck framework to be integrated in CycleCloud SLURM. This has been tested on CycleCloud 8.2.1, SLURM 2.5.0 and ubuntu-hpc 18.04 marketplace image.
 
