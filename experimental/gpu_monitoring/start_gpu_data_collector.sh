@@ -1,10 +1,11 @@
 #!/bin/bash
 
 HOSTLIST=hostlist
-INTERVAL_MINS=1
+INTERVAL_SECS=30
+DCGM_FIELD_IDS="203,252,1004"
 SCRIPT_PATH=~
-EXE_PATH="python3 ${SCRIPT_PATH}/gpu_data_collector.py \>\> /tmp/gpu_data_collector.log"
+EXE_PATH="${SCRIPT_PATH}/gpu_data_collector.py -tis $INTERVAL_SECS -dfi $DCGM_FIELD_IDS \>\> /tmp/gpu_data_collector.log"
 PDSH_RCMD_TYPE=ssh
 
 
-WCOLL=$HOSTLIST pdsh "if ! [ -f /etc/crontab.orig ]; then sudo cp /etc/crontab /etc/crontab.orig; echo "\*/$INTERVAL_MINS \\* \\* \\* \\* root $EXE_PATH" 2>&1 | sudo tee -a /etc/crontab;fi"
+WCOLL=$HOSTLIST pdsh sudo $EXE_PATH

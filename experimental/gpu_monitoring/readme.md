@@ -3,7 +3,7 @@
 GPU Monitoring is essential to get insights into how effectively your application in utilizing the GPU(s) and monitor the health of the GPU's.
 
 Basic GPU Monitoring is demonstrated utilizing Azure Monitor log analytics. The following script are provided, collect Data Center GPU Manager dmon metrics and send it to your log  analytics workspace, start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
-SLURM job ids are collected, so you can monitor for specific jobids. (Assumes exclusive jobs on nodes)
+SLURM job ids are collected, so you can monitor for specific jobids. (Assumes exclusive jobs on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded. You can use the system crontab to control the time interval for collecting data, or you can run the python collection script directly and specify the collection time interval (see the -tis argument below).
 
 ## Prerequisites
 
@@ -14,6 +14,35 @@ SLURM job ids are collected, so you can monitor for specific jobids. (Assumes ex
 - View/edit scripts to ensure all paths are correct and the log analytics workspace customer_id/shared_key are updated in the scripts, the dmon fields to monitor 
   are updated in the scripts and the crontab interval is selected (default every minute)
 
+## GPU monitoring script options
+
+```
+./gpu_data_collector.py -h
+usage: gpu_data_collector.py [-h] [-dfi DCGM_FIELD_IDS] [-nle NAME_LOG_EVENT]
+                             [-fgm] [-uc] [-tis TIME_INTERVAL_SECONDS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -dfi DCGM_FIELD_IDS, --dcgm_field_ids DCGM_FIELD_IDS
+                        Select the DCGM field ids you would like to monitor
+                        (if multiple field ids are desired then separate by commas)
+                        [string] (default: 203,252,1004)
+  -nle NAME_LOG_EVENT, --name_log_event NAME_LOG_EVENT
+                        Select a name for the log events you want to monitor
+                        (default: MyGPUMonitor)
+  -fgm, --force_gpu_monitoring
+                        Forces data to be sent to log analytics WS even if no
+                        SLURM job is running on the node (default: False)
+  -uc, --use_crontab    This script will be started by the system contab and
+                        the time interval between each data collection will be
+                        decided by the system crontab (if crontab is selected
+                        then the -tis argument will be ignored). (default:
+                        False)
+  -tis TIME_INTERVAL_SECONDS, --time_interval_seconds TIME_INTERVAL_SECONDS
+                        The time interval in seconds between each data
+                        collection (This option cannot be used with the -uc
+                        argument) (default: 30 sec)
+```
 
 ## Usage
 >Note: Please edit all scripts as outlined in the prerequisites
@@ -69,6 +98,8 @@ memory_clock                                           MMCLK            101
 etc
 
 ```
+To start the gpu monitor on a list of  nodes. The default collection time interval is 30 sec (-tis argument) and the default DCGM GPU metrics collected are
+GPU Utilization (203), GPU memory used (252) and Tensor activity (1004). You can change these options.
 
 Start the GPU monitor
 >Note: Remember to edit the hostfile
@@ -80,6 +111,20 @@ Stop the gpu_monitor
 ```
 ./stop_gpu_data_collector.sh
 ```
+>Note: The log file for gpu_data_collector.py is located in /tmp/gpu_data_collector.log
+
+Similarly, scripts are provided to use the system crontab to start the gpu data collector and decide the time interval based on the crontab parameters. In the case of crontab 
+the smallest timing interval is 60 sec. (start_gpu_data_collector_cron.sh and stop_gpu_data_collector_cron.sh
+
 Go to your log analytics workspace to monitor your GPU's and generate dashboards.
+
+A simple log analytics query to chart the average GPU utilization for a particular slurm job would be.
+
+```
+MYGPUMonitor_CL
+| where gpu_id_d in (0,1,2,3,4,5,6,7) and slurm_jobid_d == 17
+| summarize avg(gpu_utilization_d) by bin(TimeGenerated, 5m)
+| render timechart
+```
 
 ![Alt text1](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
