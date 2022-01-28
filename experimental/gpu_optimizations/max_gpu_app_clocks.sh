@@ -26,7 +26,9 @@ do
       IFS=$', '
       gpu_freq_line=( $gpu_freq_out )
       IFS=$' \t\n'
-      if [[ ${gpu_freq_line[0]} -gt ${gpu_freq_line[1]} || ${gpu_freq_line[2]} -gt ${gpu_freq_line[3]} ]]; then
+      if [[ $1 == "-l" ]]; then
+	      echo "GPU Id: $device, GPU memory freq (max,current)= (${gpu_freq_line[0]},${gpu_freq_line[1]}) MHz, GPU graphics freq (max,current) = (${gpu_freq_line[2]},${gpu_freq_line[3]}) MHz" 
+      elif [[ ${gpu_freq_line[0]} -gt ${gpu_freq_line[1]} || ${gpu_freq_line[2]} -gt ${gpu_freq_line[3]} ]]; then
          set_gpu_freq_out=$(nvidia-smi -i $device -ac ${gpu_freq_line[0]},${gpu_freq_line[2]})
          set_gpu_freq_out_rc=$?
          if [[ $set_gpu_freq_out_rc != 0 ]]; then

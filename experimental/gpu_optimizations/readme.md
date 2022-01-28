@@ -6,7 +6,7 @@ This directory contains scripts that help performance on GPU's (e.g NDv4, A100).
 
 - Tested on ND96asr_v4 (A100) running Ubuntu-HPC 18.04
 
-## Set Max application GPU clock frequencies
+## Max application GPU clock frequencies
 Setting the application GPU memory and graphics clock frequences to their maximum values can improve GPU performance.
 The script max_gpu_app_clocks.sh can set the GPU's to their maximum application GPU clock frequencies or reset to the 
 default application GPU clock frequencies (-r option).
@@ -46,4 +46,17 @@ On GPU Id 5, All done.
 On GPU Id 6, All done.
 On GPU Id 7, All done.
 ```
->Note: The -r argument to reset the application GPU clock frequencies
+
+To list the current and maximum application GPU clock frequencies.
+
+```
+sudo ./max_gpu_app_clocks.sh -l
+GPU Id: 0, GPU memory freq (max,current)= (1215,1215) MHz, GPU graphics freq (max,current) = (1410,1095) MHz
+GPU Id: 1, GPU memory freq (max,current)= (1215,1215) MHz, GPU graphics freq (max,current) = (1410,1095) MHz
+GPU Id: 2, GPU memory freq (max,current)= (1215,1215) MHz, GPU graphics freq (max,current) = (1410,1095) MHz
+GPU Id: 3, GPU memory freq (max,current)= (1215,1215) MHz, GPU graphics freq (max,current) = (1410,1095) MHz
+GPU Id: 4, GPU memory freq (max,current)= (1215,1215) MHz, GPU graphics freq (max,current) = (1410,1095) MHz
+GPU Id: 5, GPU memory freq (max,current)= (1215,1215) MHz, GPU graphics freq (max,current) = (1410,1095) MHz
+GPU Id: 6, GPU memory freq (max,current)= (1215,1215) MHz, GPU graphics freq (max,current) = (1410,1095) MHz
+GPU Id: 7, GPU memory freq (max,current)= (1215,1215) MHz, GPU graphics freq (max,current) = (1410,1095) MHz
+```
