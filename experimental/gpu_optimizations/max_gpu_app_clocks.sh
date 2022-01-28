@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Set or reset the application max GPU clock frequencies
-# If no arguments, then set Max GPU clock frequencies, if -r argment used then reset the GPU frequencies.
+# Set the application maximum GPU clock frequencies. (default, no arguments)
+# Reset the application  GPU clock frequencies. (-r argument)
+# List the application current and maximum GPU clock frequencies. (-l argument)
+
 
 GPU_QUERY="clocks.max.memory,clocks.applications.memory,clocks.max.graphics,clocks.applications.graphics"
 
