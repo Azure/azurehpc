@@ -11,7 +11,7 @@ NHC_EXE=/usr/sbin/nhc
 SLURM_CONF=/etc/slurm/slurm.conf
 SLURM_HEALTH_CHECK_INTERVAL=300
 SLURM_HEALTH_CHECK_NODE_STATE=IDLE
-NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc"
+NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc"
 
 
 function nhc_config() {
