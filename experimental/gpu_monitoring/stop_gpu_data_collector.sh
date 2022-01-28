@@ -4,4 +4,4 @@ HOSTLIST=hostlist
 PDSH_RCMD_TYPE=ssh
 
 
-WCOLL=$HOSTLIST pdsh sudo mv /etc/crontab.orig /etc/crontab
+WCOLL=$HOSTLIST pdsh sudo pkill gpu_data_collector
