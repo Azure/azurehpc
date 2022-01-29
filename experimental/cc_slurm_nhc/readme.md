@@ -13,6 +13,22 @@ is created to allow this healthcheck framework to be integrated in CycleCloud SL
 ## Design
 The Node health checks only run on IDLE SLURM nodes (not on nodes with running jobs). If a node healthcheck fails, the node will be put into a DRAIN state (All jobs using this node will be allowed to complete, but not new jobs will use this node). If the issue that caused the healthcheck to fail is resolved, the net time the node health check is run the node will be move from the DRAIN state to the IDLE state, and will now be ready to accept new jobs. This example contains an example node check for ND96asr_v4 (nd96asr_v4.conf), it should be relatively easy to create similar configuration files for other specialty SKU's like HBv3,HBv2 and HC, and run health checks for those SKU's also using this framework.
 
+## What health checks are performed?
+
+The nd96asr_v4.conf nhc configuration file specifies what health checks to perform on ND96asr_v4, which includes
+
+* Check all mounted filesystems (including shared filesystems and local NVMe SSD)
+* Check if filesystems are nearly full (OS disk and shared filesystems)
+* Check all IB interfaces
+* Check ethernet interfaces
+* Check for large loads
+* GPU, Nvidia Data Center GPU Monitor diag -r 2 (medium test)
+* GPU, Cuda bandwidth tests (dtoh and htod)
+* GPU, Basic GPU checks like lost GPU
+* GPU, Check application GPU clock frequencies
+
+Will continue to add additional tests. 
+
 ## Deployment Procedure
 
 Upload the cc_slurm_nhc to your cyclecloud storage locker.
