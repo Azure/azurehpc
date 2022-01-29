@@ -8,6 +8,8 @@ NHC_DETACHED_MODE=1
 NHC_DEBUG=0
 NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96asr_v4.conf
 NHC_EXE=/usr/sbin/nhc
+NHC_NVIDIA_HEALTHMON=dcgmi
+NHC_NVIDIA_HEALTHMON_ARGS="diag -r 2"
 SLURM_CONF=/etc/slurm/slurm.conf
 SLURM_HEALTH_CHECK_INTERVAL=300
 SLURM_HEALTH_CHECK_NODE_STATE=IDLE
@@ -34,6 +36,8 @@ function nhc_sysconfig() {
       echo "VERBOSE=$NHC_VERBOSE" >> $NHC_SYSCONFIG_FILE
       echo "DETACHED_MODE=$NHC_DETACHED_MODE" >> $NHC_SYSCONFIG_FILE
       echo "DEBUG=$NHC_DEBUG" >> $NHC_SYSCONFIG_FILE
+      echo "NVIDIA_HEALTHMON=$NHC_NVIDIA_HEALTHMON" >> $NHC_SYSCONFIG_FILE
+      echo "NVIDIA_HEALTHMON_ARGS=\"$NHC_NVIDIA_HEALTHMON_ARGS\"" >> $NHC_SYSCONFIG_FILE
    else
       echo "Warning: Did not set up NHC sysconfig (Looks like it has already been set-up)"
    fi
