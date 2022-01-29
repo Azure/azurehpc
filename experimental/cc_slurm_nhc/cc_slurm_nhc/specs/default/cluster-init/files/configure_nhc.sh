@@ -69,6 +69,7 @@ function copy_extra_test_files() {
 mkdir /var/run/nhc
 nhc_config
 nhc_sysconfig
+copy_extra_test_files
 if [[ -z $CYCLECLOUD_HOME ]]; then
    slurm_config
 fi
