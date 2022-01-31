@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Check for GPU ECC errors
+
+GPU_REMAPPED_ROWS_QUERY="remapped_rows.pending,remapped_rows.failure"
+GPU_QUERY="ecc.errors.uncorrected.volatile.sram,ecc.errors.uncorrected.aggregate.sram,ecc.errors.uncorrected.volatile.dram,ecc.errors.uncorrected.aggregate.dram"
+
+
+function collect_ecc_data() {
+
+   gpu_query_out=$(nvidia-smi --query-gpu=$GPU_QUERY --format=csv,noheader)
+   gpu_query_out_rc=$?
+   if [[ $gpu_query_out_rc != 0 ]]
+   then
+     log "$gpu_query_out"
+     die 1 "$FUNCNAME: nvidia-smi (get gpu uncorrected counts) returned error code $gpu_query_out_rc"
+   fi
+   gpu_remapped_rows_out=$(nvidia-smi --query-remapped-rows=$GPU_REMAPPED_ROWS_QUERY --format=csv,noheader)
+   gpu_remapped_rows_out_rc=$?
+   if [[ $gpu_remapped_rows_out_rc != 0 ]]
+   then
+     log "$gpu_remaped_rows_out"
+     die 1 "$FUNCNAME: nvidia-smi (get gpu remapped rows) returned error code $gpu_freq_out_rc"
+   fi
+   IFS=$'\n'
+   gpu_query_out_lines=( $gpu_query_out ) 
+   gpu_remapped_rows_query_out_lines=( $gpu_remapped_rows_out ) 
+   IFS=$' \t\n'
+}
+
+
+function check_gpu_ecc() {
+
+   collect_ecc_data
+
+   if [[ ${#gpu_query_out_lines[*]} != ${#gpu_remapped_rows_query_out_lines[*]} ]]; then
+      die 1 "$FUNCNAME: nvidia-smi (Number GPU's not correct), (${#gpu_query_out_lines[*]},${#gpu_remapped_rows_query_out_lines[*]})"
+   fi
+   for ((i=0; i<${#gpu_remapped_rows_query_out_lines[*]}; i++))
+   do
+      IFS=$', '
+      gpu_remapped_rows_query_out_line=( ${gpu_remapped_rows_query_out_lines[$i]} ) 
+      gpu_query_out_line=( ${gpu_query_out_lines[$i]} ) 
+      IFS=$' \t\n'
+      if [[ ${gpu_remapped_rows_query_out_line[0]} > 0 ]]
+      then
+         die 1 "$FUNCNAME: GPU id $i: Row remap pending"
+      fi
+      if [[ ${gpu_remapped_rows_query_out_line[1]} > 0 ]]
+      then
+         die 1 "$FUNCNAME: GPU id $i: Row remap error"
+      fi
+      dbg "GPU id $i: No GPU row remap pending or row remap errors"
+      if [[ -n $1 ]]; then
+         if [[ ${gpu_query_out_line[0]} > $1 || ${gpu_query_out_line[1]} > $1 ]]; then
+	    die 1 "$FUNCNAME: GPU id $i: High SRAM Uncorrected ECC error count, (${gpu_query_out_line[0]},${gpu_query_out_line[1]})"
+         else
+            dbg "GPU id $i: Normal SRAM Uncorrectable ECC error count, (${gpu_query_out_line[0]},${gpu_query_out_line[1]})"
+         fi
+         if [[ ${gpu_query_out_line[2]} > $1 || ${gpu_query_out_line[3]} > $1 ]]; then
+	    die 1 "$FUNCNAME: GPU id $i: High DRAM Uncorrected ECC error count, (${gpu_query_out_line[2]},${gpu_query_out_line[3]})"
+         else
+            dbg "GPU id $i: Normal DRAM Uncorrectable ECC error count, (${gpu_query_out_line[2]},${gpu_query_out_line[3]})"
+         fi
+      fi
+done
+return 0
+}
