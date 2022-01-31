@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Expected bandwidth > 22GB/s
-BANDWIDTHTEST=/usr/local/cuda/samples/1_Utilities/bandwidthTest/bandwidthTest
+BANDWIDTHTEST_EXE_PATH=/usr/local/cuda/samples/1_Utilities/bandwidthTest/bandwidthTest
+BANDWIDTHTEST=`basename $BANDWIDTHTEST_EXE_PATH`
 
 #NUMA mapping for NDv4(A100)
 GPU_NUMA=( 1 1 0 0 3 3 2 2 )
@@ -12,14 +13,14 @@ function check_cuda_bw()
 EXP_CUDA_BW=$1
 for test in "--dtoh" "--htod"
 do
-#for device in {0..7};
 for device in {0..7};
 do
    IFS=$'\n'
-   CUDA_BW=$(numactl -N ${GPU_NUMA[$device]} -m ${GPU_NUMA[$device]} $BANDWIDTHTEST --device=$device $test)
+   CUDA_BW=$(numactl -N ${GPU_NUMA[$device]} -m ${GPU_NUMA[$device]} $BANDWIDTHTEST_EXE_PATH --device=$device $test)
    CUDA_BW_RC=$?
    if [[ $CUDA_BW_RC != 0 ]]
    then
+      log "$CUDA_BW"
       die 1 "$FUNCNAME: $BANDWIDTHTEST retuned error code $CUDA_BW_RC "
       return 1
    fi
@@ -31,11 +32,10 @@ do
       IFS=$' \t\n'
       LINE=( ${CUDA_BW_LINES[$i]} )
       cuda_bandwidth=${LINE[1]}
-      log "gpu id=$device, numa domain=${GPU_NUMA[$device]}, Measured CUDA BW $cuda_bandwidth GB/s"
+      dbg "gpu id=$device: numa domain=${GPU_NUMA[$device]}, Measured CUDA BW $cuda_bandwidth GB/s"
       break
    fi
    done
-#   echo "$cuda_bandwidth < $EXP_CUDA_BW"
    if [[ $cuda_bandwidth < $EXP_CUDA_BW ]]
    then
        log "$CUDA_BW"
