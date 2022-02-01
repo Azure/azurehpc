@@ -22,6 +22,7 @@ The nd96asr_v4.conf nhc configuration file specifies what health checks to perfo
 * Check all IB interfaces
 * Check ethernet interfaces
 * Check for large loads
+* GPU, check GPU persistence mode, if disabled then attempt to enable it
 * GPU, Nvidia Data Center GPU Monitor diag -r 2 (medium test)
 * GPU, Cuda bandwidth tests (dtoh and htod)
 * GPU, Basic GPU checks like lost GPU
