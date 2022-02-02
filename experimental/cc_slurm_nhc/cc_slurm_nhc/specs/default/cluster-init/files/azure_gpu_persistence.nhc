@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Check GPU persistence mode, if not enabled, attempt to enable.
+
+PERSISTENCE_GPU_QUERY="persistence_mode"
+
+
+function collect_persistence_data() {
+
+   gpu_query_out=$(nvidia-smi --query-gpu=$PERSISTENCE_GPU_QUERY --format=csv,noheader)
+   gpu_query_out_rc=$?
+   if [[ $gpu_query_out_rc != 0 ]]; then
+     log "$gpu_query_out"
+     die 1 "$FUNCNAME: nvidia-smi (persistence mode) returned error code $gpu_query_out_rc"
+   fi
+   IFS=$'\n'
+   gpu_query_out_lines=( $gpu_query_out ) 
+   IFS=$' \t\n'
+}
+
+
+function check_gpu_persistence() {
+
+   collect_persistence_data
+
+   for ((i=0; i<${#gpu_query_out_lines[*]}; i++))
+   do
+      if [[ ${gpu_query_out_lines[$i]} == Disabled ]]; then
+         dbg "$FUNCNAME: GPU id $i: Persistence mode is disabled, will attempt to enable"
+         gpu_persistence_out=$(nvidia-smi -i $i -pm 1)
+         gpu_persistence_out_rc=$?
+         if [[ $gpu_query_out_rc != 0 ]]; then
+            log "$gpu_persistence_out"
+            die 1 "$FUNCNAME: nvidia-smi (enable persistence mode) returned error code $gpu_persistence_out_rc"
+         else
+            dbg "$gpu_persistence_out"
+         fi
+      else
+         dbg "$FUNCNAME: GPU id $i: Persistence mode is already enabled"
+      fi
+done
+return 0
+}
