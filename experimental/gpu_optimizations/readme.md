@@ -11,7 +11,7 @@ Setting the application GPU memory and graphics clock frequences to their maximu
 The script max_gpu_app_clocks.sh can set the GPU's to their maximum application GPU clock frequencies or reset to the 
 default application GPU clock frequencies (-r option).
 
-To set the application maximum GPU clock frequencies.
+To set the application maximum GPU clock frequencies (on NDv4, A100).
 
 ```
 sudo ./max_gpu_app_clocks.sh
