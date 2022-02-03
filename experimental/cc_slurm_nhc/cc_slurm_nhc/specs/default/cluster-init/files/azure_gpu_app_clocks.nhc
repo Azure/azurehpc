@@ -29,7 +29,7 @@ function check_app_gpu_clocks() {
       gpu_freq_out_line=( ${gpu_freq_out_lines[$i]} )
       IFS=$' \t\n'
       if [[ ${gpu_freq_out_line[0]} -gt ${gpu_freq_out_line[1]} || ${gpu_freq_out_line[2]} -gt ${gpu_freq_out_line[3]} ]]; then
-	 log "Warning: GPU Id: $i, GPU memory freq (max,current)= (${gpu_freq_out_line[0]},${gpu_freq_out_line[1]}) MHz, GPU graphics freq (max,current) = (${gpu_freq_out_line[2]},${gpu_freq_out_line[3]}) MHz"
+	 log "Warning: GPU Id $i: GPU memory freq (max,current)= (${gpu_freq_out_line[0]},${gpu_freq_out_line[1]}) MHz, GPU graphics freq (max,current) = (${gpu_freq_out_line[2]},${gpu_freq_out_line[3]}) MHz"
 	 log "Attempting to set application GPU clock frequencies to maximum frequencies"
          set_gpu_freq_out=$(nvidia-smi -i $i -ac ${gpu_freq_out_line[0]},${gpu_freq_out_line[2]})
          set_gpu_freq_out_rc=$?
@@ -37,10 +37,10 @@ function check_app_gpu_clocks() {
             log "$set_gpu_freq_out"
             die 1 "$FUNCNAME: nvidia-smi (set gpu max clock freqs) returned error code $set_gpu_freq_out_rc"
          fi
-         log "On GPU Id $i, $set_gpu_freq_out"
+         log "On GPU Id $i: $set_gpu_freq_out"
 	 return 0
       else
-         dbg "GPU Id $i, max application GPU clocks are already set, GPU memory is  ${gpu_freq_out_line[0]} MHz and GPU graphics is ${gpu_freq_out_line[2]} MHz"
+         dbg "GPU Id $i: max application GPU clocks are already set, GPU memory is  ${gpu_freq_out_line[0]} MHz and GPU graphics is ${gpu_freq_out_line[2]} MHz"
 	 return 0
       fi
 done
