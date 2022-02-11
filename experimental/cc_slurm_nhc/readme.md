@@ -28,6 +28,7 @@ The nd96asr_v4.conf nhc configuration file specifies what health checks to perfo
 * GPU, Basic GPU checks like lost GPU
 * GPU, Check application GPU clock frequencies
 * GPU, Check GPU ECC errors
+* Check IB bandwidth performance
 
 Will continue to add additional tests. 
 

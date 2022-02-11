@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Expected bandwidth > 180 Gbps
+
+IB_WRITE_BW_EXE_PATH=/opt/perftest-4.5/ib_write_bw
+IB_WRITE_BW=`basename $IB_WRITE_BW_EXE_PATH`
+IB_WRITE_BW_DURATION=10
+IB_WRITE_BW_ARGS="-s $(( 1 * 1024 * 1024 )) -D ${IB_WRITE_BW_DURATION} -x 0 -F --report_gbits"
+SLEEP_TIME=5
+
+HOSTNAME=`hostname`
+#NUMA mapping for NDv4(A100)
+GPU_NUMA=( 1 1 0 0 3 3 2 2 )
+
+
+
+function check_ib_bw_gdr()
+{
+EXP_IB_BW=$1
+for device in {0..3};
+do
+   IB_WRITE_BW_OUT1=$(numactl -N ${GPU_NUMA[$device]} -m ${GPU_NUMA[$device]} $IB_WRITE_BW_EXE_PATH $IB_WRITE_BW_ARGS --use_cuda=${device} -d mlx5_ib${device} > /dev/null &)
+   IB_WRITE_BW_OUT1_RC=$?
+   if [[ $IB_WRITE_BW_OUT1_RC != 0 ]]; then
+      log "$IB_WRITE_BW_OUT1"
+      die 1 "$FUNCNAME: $IB_WRITE_BW returned error code $IB_WRITE_BW_OUT1_RC"
+      return 1
+   fi
+   sleep $SLEEP_TIME
+   device_peer=$(( device+4 ))
+   IB_WRITE_BW_OUT2=$(numactl -N ${GPU_NUMA[$device_peer]} -m ${GPU_NUMA[$device_peer]} $IB_WRITE_BW_EXE_PATH $IB_WRITE_BW_ARGS --use_cuda=${device_peer} -d mlx5_ib${device_peer} $HOSTNAME)
+   IB_WRITE_BW_OUT2_RC=$?
+   if [[ $IB_WRITE_BW_OUT2_RC != 0 ]]; then
+      log "$IB_WRITE_BW_OUT2"
+      die 1 "$FUNCNAME: $IB_WRITE_BW returned error code $IB_WRITE_BW_OUT2_RC"
+      return 1
+   fi
+   IFS=$'\n'
+   IB_WRITE_BW_OUT2_LINES=( $IB_WRITE_BW_OUT2 )
+   IFS=$' \t\n'
+   for ((i=0; i<${#IB_WRITE_BW_OUT2_LINES[*]}; i++))
+   do
+      if [[ "${IB_WRITE_BW_OUT2_LINES[$i]//1048576}" != "${IB_WRITE_BW_OUT2_LINES[$i]}" ]]; then
+         LINE=( ${IB_WRITE_BW_OUT2_LINES[$i]} )
+         ib_bandwidth=${LINE[3]}
+         dbg "IB devices=mlx5_ib${device}, mlx5_ib${device_peer}: numa domains=${GPU_NUMA[$device]},${GPU_NUMA[$device_peer]}, Measured IB BW $ib_bandwidth Gbps"
+         break
+      fi
+   done
+   if [[ $ib_bandwidth < $EXP_IB_BW ]]; then
+       log "$IB_WRITE_BW_OUT2"
+       die 1 "$FUNCNAME: $IB_WRITE_BW, IB=mlx5_ib${device}, mlx5_ib${device_peer}, IB BW (expected > $EXP_IB_BW Gbps, but measured $ib_bandwidth Gbps"
+       return 1
+   fi
+done
+return 0
+}
