@@ -3,7 +3,7 @@
 # Expected bandwidth > 180 Gbps
 
 IB_WRITE_BW_EXE_PATH=/opt/perftest-4.5/ib_write_bw
-IB_WRITE_BW=`basename $IB_BANDWIDTH_EXE_PATH`
+IB_WRITE_BW=`basename $IB_WRITE_BW_EXE_PATH`
 IB_WRITE_BW_DURATION=10
 IB_WRITE_BW_ARGS="-s $(( 1 * 1024 * 1024 )) -D ${IB_WRITE_BW_DURATION} -x 0 -F --report_gbits"
 SLEEP_TIME=5
