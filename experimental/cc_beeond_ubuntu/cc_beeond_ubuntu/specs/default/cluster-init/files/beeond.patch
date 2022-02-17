@@ -1,0 +1,96 @@
+--- beeond_orig	2022-02-16 02:19:56.029230367 +0000
++++ beeond	2022-02-16 02:45:56.264430583 +0000
+@@ -9,7 +9,7 @@
+ CLIENT_BIN=beegfs-client # not really a binary, but name of config, init, etc.
+ CTL_BIN=beegfs-ctl
+ 
+-DEFAULT_LOG_PATH=/var/log
++DEFAULT_LOG_PATH=/mnt/beeond_logs
+ LOG_PATH=${DEFAULT_LOG_PATH}
+ STORAGE_LOG=${STORAGE_BIN}_${CURRENTTIME}.log
+ META_LOG=${META_BIN}_${CURRENTTIME}.log
+@@ -28,7 +28,7 @@
+ PREFERRED_MDS_FILE=/tmp/preferredMds.fod
+ PREFERRED_TARGET_FILE=/tmp/preferredTarget.fod
+ 
+-DEFAULT_STATUSFILE=/var/tmp/beeond.tmp
++DEFAULT_STATUSFILE=/tmp/beeond.tmp
+ STATUSFILE=${DEFAULT_STATUSFILE}
+ 
+ NUM_META_SERVER=1
+@@ -492,7 +492,7 @@
+       print_error_and_exit "Internal function 'start_tmpfs' called without all needes parameters"
+    fi
+ 
+-   CMD="mkdir -p ${DATAPATH} && mount -t tmpfs tmpfs ${DATAPATH}"
++   CMD="mkdir -p ${DATAPATH} && sudo mount -t tmpfs tmpfs ${DATAPATH}"
+ 
+    if [ "${USE_PDSH}" = "true" ]
+    then
+@@ -538,7 +538,7 @@
+    local CFG_FILE=${CFG_PATH}/${META_CFG_NAME}
+ 
+    local LOGFILE=${LOG_PATH}/${META_LOG}
+-   local PIDFILE=/var/run/${META_BIN}-${CURRENTTIME}.pid
++   local PIDFILE=/mnt/beeond_logs/${META_BIN}-${CURRENTTIME}.pid
+ 
+    # error checks
+    if [ "${HOSTS}" = "" ] || [ "${MGMTD}" = "" ] || [ "${DATAPATH}" = "" ]
+@@ -623,7 +623,7 @@
+    local CFG_FILE=${CFG_PATH}/${STORAGE_CFG_NAME}
+ 
+    local LOGFILE=${LOG_PATH}/${STORAGE_LOG}
+-   local PIDFILE=/var/run/${STORAGE_BIN}-${CURRENTTIME}.pid
++   local PIDFILE=/mnt/beeond_logs/${STORAGE_BIN}-${CURRENTTIME}.pid
+ 
+    # error checks
+    if [ "${HOSTS}" = "" ] || [ "${MGMTD}" = "" ] || [ "${DATAPATH}" = "" ]
+@@ -837,7 +837,7 @@
+    local CFG_FILE=${CFG_PATH}/${MGMTD_CFG_NAME}
+ 
+    local LOGFILE=${LOG_PATH}/${MGMTD_LOG}
+-   local PIDFILE=/var/run/${MGMTD_BIN}-${CURRENTTIME}.pid
++   local PIDFILE=/mnt/beeond_logs/${MGMTD_BIN}-${CURRENTTIME}.pid
+ 
+    # error checks
+    if [ "${HOST}" = "" ] || [ "${DATAPATH}" = "" ]
+@@ -893,7 +893,7 @@
+    local CLIENT_CFG_FILE=${CFG_PATH}/${CLIENT_CFG_NAME}
+ 
+    local LOGFILE=${LOG_PATH}/${CLIENT_LOG}
+-   local PIDFILE=/var/run/${HELPERD_BIN}-${CURRENTTIME}.pid
++   local PIDFILE=/mnt/beeond_logs/${HELPERD_BIN}-${CURRENTTIME}.pid
+ 
+    # error checks
+    if [ "${HOSTS}" = "" ] || [ "${MGMTD}" = "" ] || [ "${MOUNTPOINT}" = "" ]
+@@ -929,7 +929,7 @@
+ then PARAMS=\"\${PARAMS},tunePreferredMetaFile=${PREFERRED_MDS_FILE}\"; fi; \
+ if [ \"${PREFER_LOCAL}\" = \"true\" ] && [ -e \"${PREFERRED_TARGET_FILE}\" ]; \
+ then PARAMS=\"\${PARAMS},tunePreferredStorageFile=${PREFERRED_TARGET_FILE}\"; fi; \
+-mkdir -p ${MOUNTPOINT} && ${MODPROBE_CMD} && mount -t beegfs beegfs_ondemand ${MOUNTPOINT} \${PARAMS}"
++mkdir -p ${MOUNTPOINT} && sudo mount -t beegfs beegfs_ondemand ${MOUNTPOINT} \${PARAMS}"
+ 
+    if [ "${USE_PDSH}" = "true" ]
+    then
+@@ -942,7 +942,6 @@
+       execute_pdsh_cmd "${HOSTS}" "echo %h,${HELPERD_BIN},-,${LOGFILE},${PIDFILE} >> ${STATUSFILE}" "false"
+       execute_pdsh_cmd "${HOSTS}" "echo %h,${CLIENT_BIN},${MOUNTPOINT},${LOGFILE},- >> ${STATUSFILE}" "false"
+ 
+-      execute_pdsh_cmd "${HOSTS}" "${MODPROBE_CMD} || ${REBUILD_CMD}" "false"
+       execute_pdsh_cmd "${HOSTS}" "${MOUNT_CMD}" "false"
+ 
+       if [ "${PREFER_LOCAL}" = "true" ] #set target count to 1
+@@ -970,13 +969,6 @@
+             add_to_status_file "${HOST}" "${HELPERD_BIN}" "-" "${LOGFILE}" "${PIDFILE}"
+          fi
+ 
+-         if ! execute_ssh_cmd "${HOST}" "${MODPROBE_CMD}"
+-         then
+-            print_info "Module beegfs could not be loaded on host: ${HOST}. Trying to recompile \
+-from source."
+-            execute_ssh_cmd "${HOST}" "${REBUILD_CMD}"
+-         fi
+-
+          if ! execute_ssh_cmd "${HOST}" "${MOUNT_CMD}"
+          then
+             print_error_and_exit "Unable to start BeeGFS client on host: ${HOST}"
