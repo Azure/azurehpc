@@ -1,0 +1,56 @@
+--- beegfs-ondemand-stoplocal_orig	2022-02-16 23:15:22.054325221 +0000
++++ beegfs-ondemand-stoplocal	2022-02-16 23:17:48.658162391 +0000
+@@ -52,13 +52,13 @@
+ 
+       if [ "${CLEANUP}" != "true" ]
+       then
+-         fuser -k "${MOUNTPOINT}"
+-         umount -l "${MOUNTPOINT}"
++         sudo fuser -k "${MOUNTPOINT}"
++         sudo umount -l "${MOUNTPOINT}"
+ 
+          sl_checkerror $? "unmounting tmpfs"
+       else
+-         fuser -k "${MOUNTPOINT}" 2>/dev/null
+-         umount -l "${MOUNTPOINT}" 2>/dev/null
++         sudo fuser -k "${MOUNTPOINT}" 2>/dev/null
++         sudo umount -l "${MOUNTPOINT}" 2>/dev/null
+          true
+       fi
+    done < "${STATUSFILE}"
+@@ -80,13 +80,13 @@
+       sl_print_info "Unmounting ${MOUNTPOINT}"
+       if [ "${CLEANUP}" != "true" ]
+       then
+-         fuser -k "${MOUNTPOINT}" # no "sl_checkerror" after this, becuase fuser also returns
++         sudo fuser -k "${MOUNTPOINT}" # no "sl_checkerror" after this, becuase fuser also returns
+                                   # non-zero when there are no processes accessing the file system
+-         umount -l "${MOUNTPOINT}"
++         sudo umount -l "${MOUNTPOINT}"
+          sl_checkerror $? "unmounting the ondemand file system"
+       else
+-         fuser -k "${MOUNTPOINT}" 2>/dev/null
+-         umount -l "${MOUNTPOINT}" 2>/dev/null
++         sudo fuser -k "${MOUNTPOINT}" 2>/dev/null
++         sudo umount -l "${MOUNTPOINT}" 2>/dev/null
+          true # reset error code before next invocation of sl_checkerror
+       fi
+    done < "${STATUSFILE}"
+@@ -94,7 +94,7 @@
+ 
+    # try to remove the client module - this is allowed to fail, because we might have a "normal"
+    # beegfs mount somewhere in the system.
+-   rmmod beegfs 2>/dev/null || true
++   sudo rmmod beegfs 2>/dev/null || true
+ }
+ 
+ # sends a SIGTERM to a process, then waits until the process is stopped or appriximately 10 seconds
+@@ -115,7 +115,7 @@
+ 
+    for ((i=0; i<100; i++))
+    do
+-      if kill -0 "$PID" 2>/dev/null
++      if sudo kill -0 "$PID" 2>/dev/null
+       then
+          sleep 0.1
+       else
