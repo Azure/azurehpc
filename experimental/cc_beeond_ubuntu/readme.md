@@ -25,9 +25,21 @@ To start the BeeOND
 ```
 beeond start -P -n <hostfile> -d <local_ssd_mount_point> -c <BeeOND_mount_point>
 ```
-To check BeeOND is mounted (assuming BeeOND_mount_point=/beeond)
+To check BeeOND is mounted (assuming BeeOND_mount_point=/beeond, in this case a 2 node NDv4 creates a 14TB /beeond PFS)
 ```
 df -h
+Filesystem         Size  Used Avail Use% Mounted on
+udev               443G     0  443G   0% /dev
+tmpfs               89G   18M   89G   1% /run
+/dev/sda1           58G   19G   40G  32% /
+tmpfs              443G     0  443G   0% /dev/shm
+tmpfs              5.0M     0  5.0M   0% /run/lock
+tmpfs              443G     0  443G   0% /sys/fs/cgroup
+/dev/sda15         105M  4.4M  100M   5% /boot/efi
+/dev/sdb1          2.8T   90M  2.7T   1% /mnt
+/dev/md128         7.0T  7.2G  7.0T   1% /mnt/resource_nvme
+tmpfs               89G     0   89G   0% /run/user/20001
+beegfs_ondemand     14T   15G   14T   1% /beeond
 ```
 
 To stop the BeeOND PFS
