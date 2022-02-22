@@ -598,6 +598,19 @@ class ArmTemplate:
                             "direction": "Inbound"
                         }
                     },
+                    "ssh-2222":  {
+                        "name": "default-allow-ssh-2222",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "2222",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1011,
+                            "direction": "Inbound"
+                        }
+                    },
                     "http":  {
                         "name": "default-allow-http",
                         "properties": {
