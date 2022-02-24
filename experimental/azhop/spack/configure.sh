@@ -10,18 +10,18 @@ packages:
   all:
     target: [x86_64]
     providers: 
-      mpi: [hpcx]
+      mpi: [openmpi]
   openmpi:
     externals:
-    - spec: openmpi@4.0.5%gcc@9.2.0
+    - spec: openmpi@4.1.0%gcc@9.2.0
       modules:
-      - mpi/openmpi-4.0.5
+      - mpi/openmpi-4.1.0
     buildable: False
   hpcx:
     externals:
-    - spec: hpcx@2.7.4%gcc@9.2.0
+    - spec: hpcx@2.8.3%gcc@9.2.0
       modules:
-      - mpi/hpcx-v2.7.4
+      - mpi/hpcx-v2.8.3
     buildable: False
 EOF
 
