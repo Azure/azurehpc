@@ -413,10 +413,10 @@ def generate_cc_clusters(config, tmpdir):
             f.write(json.dumps(cluster_params, indent=4))
         __cyclecloud_create_cluster(cluster_template, cluster_name, cluster_json)
         
-def __rsync(sshkey, src, dst):
+def __rsync(sshkey, sshport, src, dst):
     cmd = [
         "rsync", "-a", "--timeout=60", "-e",
-            f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey}",
+            f"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {sshport} -i {sshkey}",
             src, dst
     ]
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -426,6 +426,7 @@ def __rsync(sshkey, src, dst):
 
 def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
     jb = cfg.get("install_from")
+    sshport = cfg.get("ssh_port")
     install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
         log.debug("wait for ssh on jumpbox")
@@ -435,6 +436,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
                 "ssh", 
                     "-o", "StrictHostKeyChecking=no",
                     "-o", "UserKnownHostsFile=/dev/null",
+                    "-p", str(sshport),
                     "-i", sshprivkey,
                     f"{adminuser}@{fqdn}",
                     "hostname"
@@ -451,7 +453,7 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
             time.sleep(10)
             
         log.debug("rsyncing install files")
-        __rsync(sshprivkey, tmpdir, f"{adminuser}@{fqdn}:.")
+        __rsync(sshprivkey, sshport, tmpdir, f"{adminuser}@{fqdn}:.")
 
     for idx, step in enumerate(install_steps):
         if idx == 0 and not jb:
@@ -477,13 +479,14 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
                     "ssh", 
                         "-o", "StrictHostKeyChecking=no",
                         "-o", "UserKnownHostsFile=/dev/null",
+                        "-p", str(sshport),
                         "-i", sshprivkey,
                         f"{adminuser}@{fqdn}"
                 ] + instcmd
                 res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 if res.returncode != 0:
                     log.error("invalid returncode"+_make_subprocess_error_string(res))
-                    __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
+                    __rsync(sshprivkey, sshport, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
                     sys.exit(1)
             else:
                 log.warning("skipping step as no jumpbox (install_from) is set")
@@ -502,5 +505,5 @@ def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
 
         if jb:
             log.debug("rsyncing log files back")
-            __rsync(sshprivkey, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
+            __rsync(sshprivkey, sshport, f"{adminuser}@{fqdn}:{tmpdir}/install/*.log", f"{tmpdir}/install/.")
         

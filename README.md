@@ -68,11 +68,12 @@ The following properties are global :
 | **location**                       | The region where the resources are created        |   yes    |         |
 | **resource_group**                 | The resource group to put the resources           |   yes    |         |
 | **install_from**                   | The resource where the install script will be run |   no     |         |
+| **ssh_port**                       | The port to use for SSH                           |   no     | 22      |
 | **admin_user**                     | The admin user for all resources                  |   yes    |         |
 | **proximity_placement_group_name** | The proximity group name to create                |   no     |         |
 | **global_tags**                    | Global tags to apply to all ARM resources         |   no     |         |
 
-The `azhpc-build` command will generate an install script from the configuration file.  This will be run from the `install_from` VM.  The `install_from` VM must either have a public IP address or be accessible by hostname from where `azhpc-build` is run (i.e. run `azhpc-build` from a VM on the same vnet).
+The `azhpc-build` command will generate an install script from the configuration file.  This will be run from the `install_from` VM.  The `install_from` VM must either have a public IP address or be accessible by hostname from where `azhpc-build` is run (i.e. run `azhpc-build` from a VM on the same vnet).  The `ssh_port` refers to an _additional_ port number where the ssh daemon will listen on VMs with a public IP address.  The NSG rules will only be applied to the `ssh_port` number although port 22 will be accessible from within the vnet.
 
 ### Network dictionary
 
