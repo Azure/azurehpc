@@ -167,6 +167,8 @@ def do_scp(args):
     sshkey="{}_id_rsa".format(adminuser)
     # TODO: check ssh key exists
 
+    sshport = c.read_value("ssh_port", 22)
+
     fqdn = c.get_install_from_destination()
     if not fqdn:
         log.error(f"Missing 'install_from' property")
@@ -183,7 +185,7 @@ def do_scp(args):
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null",
             "-i", sshkey,
-            "-o", f"ProxyCommand=ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {sshkey} -W %h:%p {adminuser}@{fqdn}"
+            "-o", f"ProxyCommand=ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {sshport} -i {sshkey} -W %h:%p {adminuser}@{fqdn}"
         ] + scp_args
     log.debug(" ".join([ f"'{a}'" for a in scp_cmd ]))
     os.execvp(scp_exe, scp_cmd)
@@ -201,6 +203,8 @@ def do_connect(args):
         sshuser = adminuser
     else:
         sshuser = args.user
+    
+    sshport = c.read_value("ssh_port", 22)
 
     jumpbox = c.read_value("install_from")
     if not jumpbox:
@@ -277,6 +281,7 @@ def do_connect(args):
                 "ssh", "-t", "-q",
                 "-o", "StrictHostKeyChecking=no",
                 "-o", "UserKnownHostsFile=/dev/null",
+                "-p", str(sshport),
                 "-i", ssh_private_key,
                 f"{sshuser}@{fqdn}"
             ]
@@ -289,18 +294,19 @@ def do_connect(args):
                 "-o", "StrictHostKeyChecking=no",
                 "-o", "UserKnownHostsFile=/dev/null",
                 "-i", ssh_private_key,
-                "-o", f"ProxyCommand=ssh -i {ssh_private_key} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p {sshuser}@{fqdn}",
+                "-o", f"ProxyCommand=ssh -p {sshport} -i {ssh_private_key} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p {sshuser}@{fqdn}",
                 f"{sshuser}@{target}"
             ]
             log.debug(" ".join(ssh_args + cmdline))
             os.execvp(ssh_exe, ssh_args + cmdline)
 
-def _exec_command(fqdn, sshuser, sshkey, cmdline):
+def _exec_command(fqdn, sshuser, sshport, sshkey, cmdline):
     ssh_exe = "ssh"
     ssh_args = [
         ssh_exe, "-q",
         "-o", "StrictHostKeyChecking=no",
         "-o", "UserKnownHostsFile=/dev/null",
+        "-p", str(sshport),
         "-i", sshkey,
         f"{sshuser}@{fqdn}"
     ]
@@ -314,6 +320,7 @@ def do_status(args):
 
     adminuser = c.read_value("admin_user")
     ssh_private_key="{}_id_rsa".format(adminuser)
+    sshport = c.read_value("ssh_port", 22)
 
     fqdn = c.get_install_from_destination()
     if not fqdn:
@@ -321,7 +328,7 @@ def do_status(args):
         sys.exit(1)
 
     tmpdir = "azhpc_install_" + os.path.basename(args.config_file).strip(".json")
-    _exec_command(fqdn, adminuser, ssh_private_key, f"pssh -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
+    _exec_command(fqdn, adminuser, sshport, ssh_private_key, f"pssh -h {tmpdir}/hostlists/linux -i -t 0 'printf \"%-20s%s\n\" \"$(hostname)\" \"$(uptime)\"' | grep -v SUCCESS")
 
 
 def do_run(args):
@@ -337,6 +344,8 @@ def do_run(args):
         sshuser = adminuser
     else:
         sshuser = args.user
+
+    sshport = c.read_value("ssh_port", 22)
 
     jumpbox = c.read_value("install_from")
     if not jumpbox:
@@ -368,7 +377,7 @@ def do_run(args):
 
     hostlist = " ".join(hosts)
     cmd = " ".join(args.args)
-    _exec_command(fqdn, sshuser, ssh_private_key, f"pssh -H '{hostlist}' -i -t 0 '{cmd}'")
+    _exec_command(fqdn, sshuser, sshport, ssh_private_key, f"pssh -H '{hostlist}' -i -t 0 '{cmd}'")
 
 def _create_private_key(private_key_file, public_key_file):
     if not (os.path.exists(private_key_file) and os.path.exists(public_key_file)):

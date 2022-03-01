@@ -461,6 +461,7 @@ class ArmTemplate:
 
     def _add_vm(self, cfg, r, vnet_in_deployment):
         res = cfg["resources"][r]
+        rsshport = cfg.get("ssh_port", 22)
         rtype = res["type"]
         rsize = res["vm_type"]
         rimage = res["image"]
@@ -503,6 +504,11 @@ class ArmTemplate:
         rpassword = res.get("password", "<no-password>")
         with open(adminuser+"_id_rsa.pub") as f:
             sshkey = f.read().strip()
+
+        if rsshport != 22:
+            if customdata:
+                log.error("Cannot specify custom data with a non-standard SSH port for VMs with a public IP.")
+            customdata = f"#!/bin/bash\nsed -i \"s/^#Port 22/Port 22\\nPort {rsshport}/\" /etc/ssh/sshd_config\nsemanage port -a -t ssh_port_t -p tcp {rsshport}\nsystemctl restart sshd\n"
 
         if ravset and ravset not in self.avsets:
             arm_avset = {
@@ -590,7 +596,7 @@ class ArmTemplate:
                         "properties": {
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "22",
+                            "destinationPortRange": str(rsshport),
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
