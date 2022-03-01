@@ -105,6 +105,10 @@ jq '.resource_tags+=$tags' --argjson tags "$(jq '.resource_tags' $BUILD_REPOSITO
 cp $config_file temp.json
 jq '.variables+=$variables' --argjson variables "$(jq '.variables' tags_variables.json)" temp.json > $config_file
 
+ssh_port=$(shuf -i 2000-6000 -n1)
+echo "Changing ssh port to $ssh_port"
+cp $config_file temp.json
+jq ".ssh_port=$ssh_port" temp.json > $config_file
 
 echo "********************************************************************"
 echo "*                  BUILD RESOURCES                                 *"
