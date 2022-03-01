@@ -49,6 +49,10 @@ steps:
 
         ./init.sh
 
+        ssh_port=$(shuf -i 2000-6000 -n1)
+        echo "Changing ssh port to $ssh_port"
+        sed -i "2 i \"ssh_port\": $ssh_port," config.json
+
         echo "Content of config.json"
         jq '.' config.json
         echo "Content of variables.json"
