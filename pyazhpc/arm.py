@@ -508,7 +508,7 @@ class ArmTemplate:
         if rsshport != 22:
             if customdata:
                 log.error("Cannot specify custom data with a non-standard SSH port for VMs with a public IP.")
-            customdata = f"#!/bin/bash\nsed -i \"s/^#Port 22/Port 22\\nPort {rsshport}/\" /etc/ssh/sshd_config\nsemanage port -a -t ssh_port_t -p tcp {rsshport}\nsystemctl restart sshd\n"
+            customdata = f"#!/bin/bash\nsed -i \"s/^#Port 22/Port 22\\nPort {rsshport}/\" /etc/ssh/sshd_config\nyum install -y policycoreutils-python-utils\nsemanage port -a -t ssh_port_t -p tcp {rsshport}\nsystemctl restart sshd\n"
 
         if ravset and ravset not in self.avsets:
             arm_avset = {
