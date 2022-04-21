@@ -731,7 +731,7 @@ class ArmTemplate:
 
             # Add support for cyclecloud/azhpc plan
             plan = ""
-            if ros[0] == "azurecyclecloud" or ros[0] == "azhpc":
+            if ros[0] == "azurecyclecloud" or ros[0] == "azhpc" or ros[0] == "almalinux":
                 plan = self.__helper_arm_create_plan(rimage)
             
             if rephemeralosdisk == True:
@@ -902,7 +902,7 @@ class ArmTemplate:
 
         # Add support for cyclecloud/azurehpc plan
         plan = ""
-        if ros[0] == "azurecyclecloud" or ros[0] == "azhpc":
+        if ros[0] == "azurecyclecloud" or ros[0] == "azhpc" or ros[0] == "almalinux":
             plan = self.__helper_arm_create_plan(rimage)
 
         if rephemeralosdisk == True:
