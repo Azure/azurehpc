@@ -2,16 +2,16 @@
 
 NHC_SYSCONFIG=/etc
 OS_SYSCONFIG=/etc/default
-NHC_TIMEOUT=300
+NHC_TIMEOUT=200
 NHC_VERBOSE=1
 NHC_DETACHED_MODE=1
 NHC_DEBUG=0
 NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96asr_v4.conf
 NHC_EXE=/usr/sbin/nhc
 NHC_NVIDIA_HEALTHMON=dcgmi
-NHC_NVIDIA_HEALTHMON_ARGS="diag -r 2"
+NHC_NVIDIA_HEALTHMON_ARGS="diag -r 1"
 SLURM_CONF=/etc/slurm/slurm.conf
-SLURM_HEALTH_CHECK_INTERVAL=300
+SLURM_HEALTH_CHECK_INTERVAL=200
 SLURM_HEALTH_CHECK_NODE_STATE=IDLE
 NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc azure_gpu_ecc.nhc azure_gpu_persistence.nhc azure_ib_write_bw_gdr.nhc"
 
