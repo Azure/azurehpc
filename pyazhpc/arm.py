@@ -982,6 +982,11 @@ class ArmTemplate:
             vmssres["properties"]["proximityPlacementGroup"] = {
                 "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups','{}')]".format(rppgname)
             }
+        
+        if rstoragesku == "UltraSSD_LRS":
+            vmssres["properties"]["additionalCapabilities"] = {
+                "ultraSSDEnabled": True
+            }
 
         if rlowpri:
             vmssres["properties"]["virtualMachineProfile"]["priority"] = "Spot"
