@@ -20,7 +20,7 @@ Total number of paramters = Number of GPUS * 2B + 4.5B
 ```
 pdsh -w ^/path/to/hostfile sudo </path/to/docker_setup.sh
 ```
->Note: Make sure scheduler and the compute nodes have the name GID for the docker group.
+>Note: Make sure scheduler and the compute nodes have the name GID for the docker group. Modify script update "USER".
 
 
 ## Build docker container
