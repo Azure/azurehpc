@@ -37,7 +37,7 @@ az acr build --registry <your_acr_name> --image docker/<container_name:version> 
 ```
 sbatch -N <Number of nodes> run_fairseq_moe.slrm
 ```
->Note: Modify run_fairseq_moe.slrm, updating appropriate vlaues for "DOCKER_USERNAME", "DOCKER_PASSWD", "CONTAINER_NAME" and "EXECUTE_SCRIPT". If you are using a shared filesystem, you will only need to authenicate to docker once and can remove docker login from the run_fairseq_moe.slrm script.
+>Note: Modify run_fairseq_moe.slrm, updating appropriate vlaues for "DOCKER_USERNAME", "DOCKER_PASSWD", "CONTAINER_NAME" and "EXECUTE_SCRIPT". If you are using a shared filesystem, you will only need to authenicate to docker once and can remove docker login from the run_fairseq_moe.slrm script. If you would like to do a restart of a job then comment out "rm $SAVE_DIR/*"
 
 
 ## Verify benchmark Ran ok
