@@ -1,6 +1,6 @@
 # How to run the Fairseq (MOE version) Deep learning training benchmark using docker and SLURM
 
-Details of the Meta fariseq (MOE version) deep leaning Natural language processing model can be found [here](https://github.com/pytorch/fairseq/blob/moe/README.moe.md).
+Details of the Meta fairseq (MOE version) deep leaning Natural language processing model can be found [here](https://github.com/pytorch/fairseq/blob/moe/README.moe.md).
 Mixture of experts (MOE) is a model parallel technique that enables extremely large deep learning models (> 1T parameters)
 possible on todays latest GPU's.
 
