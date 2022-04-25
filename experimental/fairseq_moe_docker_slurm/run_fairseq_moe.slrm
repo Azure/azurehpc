@@ -17,7 +17,7 @@ CONTAINER_ENV="--env SLURM_NODEID --env SLURM_NNODES --env SLURM_SUBMIT_HOST"
 CONTAINER_MOUNTS="-v $HOME:$HOME -v /opt:/workspace/opt:ro -v /mnt:/workspace/mnt"
 CONTAINER_LIMITS="--shm-size=256m --ulimit memlock=-1"
 CONTAINER_DEVICES="--privileged --ipc=host --net=host"
-SLURM_PINNING="--cpu-bind=mask_cpu:000000ffffff000000ffffff,000000ffffff000000ffffff,000000ffffff000000ffffff,000000ffffff000000ffffff,ffffff000000ffffff000000,ffffff000000ffffff000000,ffffff000000ffffff000000,ffffff000000ffffff000000"
+SLURM_PINNING="--cpu-bind=mask_cpu:ffffff000000,ffffff000000,ffffff,ffffff,ffffff000000000000000000,ffffff000000000000000000,ffffff000000000000,ffffff000000000000"
 
 EXECUTE_SCRIPT="<PATH_TO>/launch.sh"
 
