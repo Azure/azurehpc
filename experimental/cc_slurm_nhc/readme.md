@@ -7,7 +7,7 @@ is created to allow this healthcheck framework to be integrated in CycleCloud SL
 
 ## Prerequisites
 
-- CycleCloud 8.2.1 is installed, Ubuntu 18.04, SLURM 2.5.0
+- CycleCloud 8.2.1 is installed, Ubuntu 18.04, SLURM 2.5.0 (Tested with these versions, other versions may work)
 - Compute node(s), ND96asr_v4 (Running Ubuntu-hpc 18.04)
 
 ## Design
@@ -45,7 +45,7 @@ See in the CC Portal Edit-->Advanced-Settings, under Software. Also, added the f
 ```
 SuspendExcParts=hpc
 HealthCheckProgram=/usr/sbin/nhc
-HealthCheckInterval=300
+HealthCheckInterval=200
 HealthCheckNodeState=IDLE
 ```
 >Note: In my case I am disabling autoscaling (SuspendExcParts=hpc), if you have autoscaling enabled you may need to modify these scripts to prevent the 
