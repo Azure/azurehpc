@@ -208,6 +208,107 @@ class ArmTemplate:
                 }
             })
 
+        # vpn gateway 
+        vpn_gateway_name = cfg["vnet"]["gateway"].get("name", None)
+        if vpn_gateway_name:
+            log.info(f"add vpn gateway ({vpn_gateway_name})")
+            rrg = cfg["resource_group"]
+            vnetname = cfg["vnet"]["name"]
+            subnet = cfg["vnet"]["gateway"].get("subnet") 
+            aad_tenant = cfg["vnet"]["gateway"].get("aad_tenant") 
+            aad_audience = cfg["vnet"]["gateway"].get("aad_audience") 
+            aad_issuer = cfg["vnet"]["gateway"].get("aad_issuer") 
+            nicdeps = []
+            pipname = vpn_gateway_name+"_pip"
+            dnsname = azutil.get_dns_label(rrg, pipname, True)
+            if dnsname:
+                log.debug(f"dns name: {dnsname} (using existing one)")
+            else:
+                dnsname = vpn_gateway_name+str(uuid.uuid4())[:6]
+                log.debug(f"dns name: {dnsname}")
+
+            nicdeps.append("Microsoft.Network/publicIpAddresses/"+pipname)
+
+            pipres = {
+                    "type": "Microsoft.Network/publicIPAddresses",
+                    "apiVersion": "2018-01-01",
+                    "name": pipname,
+                    "location": location,
+                    "dependsOn": [],
+                    "tags": gtags,
+                    "properties": {
+                        "dnsSettings": {
+                            "domainNameLabel": dnsname
+                        }
+                    }
+            }
+            self.resources.append(pipres)
+
+            self.resources.append({
+                "type": "Microsoft.Network/virtualNetworkGateways",
+                "apiVersion": "2020-11-01",
+                "name": vpn_gateway_name,
+                "tags": gtags,
+                "location": location,
+                "properties": {
+                    "enablePrivateIpAddress": False,
+                    "ipConfigurations": [
+                        {
+                            "name": "default",
+                            "properties": {
+                                "privateIPAllocationMethod": "Dynamic",
+                                "publicIPAddress": {
+                                    "id": "[resourceId('Microsoft.Network/publicIPAddresses', '{}')]".format(pipname) 
+                                },
+                                "subnet": {
+                                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', '{}', '{}')]".format(vnetname, subnet)
+                                }
+                            }
+                        }
+                    ],
+                    "sku": {
+                        "name": "VpnGw2",
+                        "tier": "VpnGw2"
+                     },
+                    "gatewayType": "Vpn",
+                    "vpnType": "RouteBased",
+                    "enableBgp": False,
+                    "activeActive": False,
+                    "vpnClientConfiguration": {
+                        "vpnClientAddressPool": {
+                            "addressPrefixes": [
+                                "172.0.0.0/24"
+                            ]
+                        },
+                        "vpnClientProtocols": [
+                             "OpenVPN"
+                        ],
+                        "vpnAuthenticationTypes": [
+                            "AAD"
+                        ],
+                        "vpnClientRootCertificates": [],
+                        "vpnClientRevokedCertificates": [],
+                        "radiusServers": [],
+                        "vpnClientIpsecPolicies": [],
+                        "aadTenant": aad_tenant,
+                        "aadAudience": aad_audience,
+                        "aadIssuer": aad_issuer
+                     },
+                    "bgpSettings": {
+                         "asn": 65515,
+                         "bgpPeeringAddress": "10.0.4.254",
+                         "peerWeight": 0,
+                         "bgpPeeringAddresses": [
+                             {
+                                "ipconfigurationId": "[concat(resourceId('Microsoft.Network/virtualNetworkGateways', '{}'), '/ipConfigurations/default')]".format(vpn_gateway_name),
+                                "customBgpIpAddresses": []
+                             }
+                         ]
+                     },
+                     "vpnGatewayGeneration": "Generation2"
+                  }
+            })
+
     def _add_netapp(self, cfg, name, deploy_network):
         account = cfg["storage"][name]
         loc = cfg["location"]
