@@ -306,7 +306,11 @@ class ArmTemplate:
                          ]
                      },
                      "vpnGatewayGeneration": "Generation2"
-                  }
+                  },
+                  "dependsOn": [
+                            f"[resourceId('Microsoft.Network/publicIPAddresses', '{pipname}' )]",
+                            f"Microsoft.Network/virtualNetworks/{vnetname}"
+                  ]
             })
 
     def _add_netapp(self, cfg, name, deploy_network):
