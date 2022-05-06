@@ -33,7 +33,7 @@ class ConfigFile:
             if self.read_value(f"resources.{install_from}.public_ip", False):
                 dest = azutil.get_fqdn(self.read_value("resource_group"), f"{install_from}_pip")
             elif self.read_value(f"vnet.gateway.name", False):
-                dest = azutil.get_vm_private_ip(self.read_value("resource_group"), f"{install_from}")
+                dest = azutil.get_vm_private_ip(self.read_value("resource_group"), install_from)
         log.debug(f"install_from destination : {dest}")
         return dest
     
