@@ -88,6 +88,7 @@ The config file will create or reuse vnet and subnets from the config file.
 | **dns_domain**     | Private domain name to create                                                      |   no     |         |
 | **peer**           | Dictionary of [peer names](#peer-dictionary) to create                             |   no     |         |
 | **routes**         | Dictionary of [route names](#route-dictionary) to create                           |   no     |         |
+| **gateway**        | Specification of AAD based Azure VPN Gateway to create                             |   no     |         |
 
 #### Peer dictionary
 
@@ -107,6 +108,19 @@ This dictionary describes routes to be created
 | **address_prefix** | Address space (CIDR)                                                               |   yes    |         |
 | **next_hop**       | TO DOCUMENT                                                                        |   yes    |         |
 | **subnet**         | TO DOCUMENT                                                                        |   yes    |         |
+
+#### Gateway dictionary
+
+This dictionary describes the virtual network peering to be created
+
+| Name               | Description                                                                        | Required | Default |
+|--------------------|------------------------------------------------------------------------------------|----------|---------|
+| **name**           | Name of the VPN Gateway                                                            |   yes    |         |
+| **subnet**         | Subnet to be used for incoming clients of the gateway,                             |   yes    |         |
+|                    | this MUST be "GatewaySubnet" and this subnet must be defined in the subnet section |          |         |
+| **aad_tenant**     | URL of the AAD tenant as https://login.microsoftonline.com/<your Directory ID>     |   yes    |         |
+| **aad_audience**   | Application ID of the Azure VPN Enterprise registration in AAD                     |   yes    |         |
+| **aad_issuer**     | URL of the AAD issuer as https://sts.windows.net/<your Directory ID>/              |   yes    |         |
 
 Here is an example setup with four subnets:
 
