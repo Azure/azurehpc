@@ -1,0 +1,48 @@
+#!/bin/bash
+  
+# Check for IB issues by running NCCL allreduce disabling NCCL shared memory.
+# Expected performance is > 19 GB/s
+
+MPI_ARGS="-np 8 --map-by ppr:8:node -bind-to numa -mca coll_hcoll_enable 0 --allow-run-as-root"
+ENVIRON_VARS="-x LD_LIBRARY_PATH=/usr/local/nccl-rdma-sharp-plugins/lib:$LD_LIBRARY_PATH -x NCCL_IB_PCI_RELAXED_ORDERING=1 -x UCX_IB_PCI_RELAXED_ORDERING=on -x UCX_TLS=tcp -x UCX_NET_DEVICES=eth0 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_NET_GDR_LEVEL=5 -x NCCL_TOPO_FILE=/opt/microsoft/ndv4-topo.xml -x NCCL_SHM_DISABLE=1 -x NCCL_P2P_DISABLE=1"
+NCCL_ARGS="-b 500M -f 2 -g 1 -e 1G -c 1"
+
+
+function collect_nccl_allreduce_ib_loopback_data() {
+
+   nccl_allreduce_ib_loopback_out=$(source /etc/profile.d/modules.sh && module load mpi/hpcx && mpirun $MPI_ARGS $ENVIRON_VARS /opt/nccl-tests/build/all_reduce_perf $NCCL_ARGS)
+   nccl_allreduce_ib_loopback_out_rc=$?
+   if [[ $nccl_allreduce_ib_loopback_out_rc != 0 ]]; then
+      log "nccl_allreduce_ib_loopback_freq_out"
+      die 1 "$FUNCNAME: nccl_allreduce (IB loopback) returned error code $nccl_allreduce_ib_loopback_out_rc"
+   fi
+   IFS=$'\n'
+   nccl_allreduce_ib_loopback_out_lines=( $nccl_allreduce_ib_loopback_out )
+   IFS=$' \t\n'
+}
+
+
+function check_nccl_allreduce_ib_loopback() {
+
+   EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW=$1
+   collect_nccl_allreduce_ib_loopback_data
+
+   for ((i=0; i<${#nccl_allreduce_ib_loopback_out_lines[*]}; i++))
+   do
+      if [[ "${nccl_allreduce_ib_loopback_out_lines[$i]//bandwidth}" != "${nccl_allreduce_ib_loopback_out_lines[$i]}" ]]
+      then
+         IFS=$' \t\n'
+         nccl_allreduce_ib_loopback_out_line=( ${nccl_allreduce_ib_loopback_out_lines[$i]} )
+         avg_bus_bw=${nccl_allreduce_ib_loopback_out_line[5]}
+         dbg "Measured Avg NCCL allreduce ib loopback bus BW $avg_bus_bw GB/s"
+         break
+      fi
+   done
+   dbg "Measured Avg NCCL allreduce IB loopback bus BW=$avg_bus_bw, Expected NCCL allreduce IB loopback BW=$EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW"
+   if [[ $avg_bus_bw < $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW ]]
+   then
+      log "$nccl_allreduce_ib_loopback_out"
+      die 1 "$FUNCNAME: NCCL allreduce IB loopback, BUS BW (expected > $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW GB/s, but measured $avg_bus_bw GB/s"
+      return 1
+   fi
+}

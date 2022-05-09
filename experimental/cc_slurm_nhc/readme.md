@@ -29,6 +29,7 @@ The nd96asr_v4.conf nhc configuration file specifies what health checks to perfo
 * GPU, Check application GPU clock frequencies
 * GPU, Check GPU ECC errors
 * Check IB bandwidth performance
+* Check NCCL allreduce IB loopback bandwidth performance
 
 Will continue to add additional tests. 
 
@@ -39,7 +40,7 @@ Upload the cc_slurm_nhc to your cyclecloud storage locker.
 cyclecloud project upload <locker>
 ```
 
-Edit Cluster configuration in portal (or using a clustr json parameter file), to add this spec to your cluster (i.e add cluster-init project to your compute nodes)
+Edit Cluster configuration in portal (or using a cluster json parameter file), to add this spec to your cluster (i.e add cluster-init project to your compute nodes)
 See in the CC Portal Edit-->Advanced-Settings, under Software. Also, added the following to the Additional Slurm config section.
 
 ```
