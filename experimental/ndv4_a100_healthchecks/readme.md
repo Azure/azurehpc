@@ -38,6 +38,7 @@ To run the ring NCCL allreduce tests (e.g on pairs of NDv4)
 ./run_ring_nccl_allreduce.sh
 ```
 >Note: You can easily do a Ring NCCL alltoall test by just changing the executable to alltoall_perf.
+       See also the slurm version of this test (multiple NCCL tests will run in parallel using the SLURM scheduler).
 
 ## How to verify NDv4 is healthy
 For The CUDA bandwidth tests all dtod, dtoh should be > 24 GB/s.
