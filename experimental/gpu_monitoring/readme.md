@@ -102,7 +102,7 @@ To start the gpu monitor on a list of  nodes. The default collection time interv
 GPU Utilization (203), GPU memory used (252) and Tensor activity (1004). You can change these options.
 
 Start the GPU monitor
->Note: Remember to edit the hostfile, and uncomment FORCE_GPU_MONITORING="-fgm" if you want do GPU for all processes on the node and not just processes related to SLURM jobs.
+>Note: Remember to edit the hostfile, LOG_ANALYTICS_CUSTOMER_ID, LOG_ANALYTICS_SHARED_KEY and uncomment FORCE_GPU_MONITORING="-fgm" if you want do GPU for all processes on the node and not just processes related to SLURM jobs.
 ```
 ./start_gpu_data_collector.sh &
 ```
