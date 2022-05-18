@@ -3,19 +3,19 @@
 It is important to run healthchecks on Specialty SKU's (like NDv4(A100)) to identify unhealthy VM's and make sure they are not included in job (for example 
 by marking the node and putting it into a drain state). Here we give an example of leveraging the built-in healthcheck hooks in SLURM and using them to run the
 LBNL Node Health check framework (https://github.com/mej/nhc). Some specific healthchecks have been written for ND96asr_v4 (40GB A100) and a Cyclecloud project
-is created to allow this healthcheck framework to be integrated in CycleCloud SLURM. This has been tested on CycleCloud 8.2.1, SLURM 2.5.0 and ubuntu-hpc 18.04 marketplace image.
+is created to allow this healthcheck framework to be integrated in CycleCloud SLURM. This has been tested on CycleCloud 8.2.2, SLURM 2.6.4 and ubuntu-hpc 18.04 marketplace image.
 
 ## Prerequisites
 
-- CycleCloud 8.2.1 is installed, Ubuntu 18.04, SLURM 2.5.0 (Tested with these versions, other versions may work)
-- Compute node(s), ND96asr_v4 (Running Ubuntu-hpc 18.04)
+- CycleCloud 8.2.2 is installed, Ubuntu 18.04, SLURM 2.6.4 (Tested with these versions, other versions may work)
+- Compute node(s), ND96asr_v4 or ND96amsr_v4 (Running Ubuntu-hpc 18.04)
 
 ## Design
 The Node health checks only run on IDLE SLURM nodes (not on nodes with running jobs). If a node healthcheck fails, the node will be put into a DRAIN state (All jobs using this node will be allowed to complete, but not new jobs will use this node). If the issue that caused the healthcheck to fail is resolved, the net time the node health check is run the node will be move from the DRAIN state to the IDLE state, and will now be ready to accept new jobs. This example contains an example node check for ND96asr_v4 (nd96asr_v4.conf), it should be relatively easy to create similar configuration files for other specialty SKU's like HBv3,HBv2 and HC, and run health checks for those SKU's also using this framework.
 
 ## What health checks are performed?
 
-The nd96asr_v4.conf nhc configuration file specifies what health checks to perform on ND96asr_v4, which includes
+The nd96asr_v4.conf and nd96amsr_v4.conf nhc configuration file specifies what health checks to perform on ND96asr_v4 (or ND96amsr_v4), which includes
 
 * Check all mounted filesystems (including shared filesystems and local NVMe SSD)
 * Check if filesystems are nearly full (OS disk and shared filesystems)
@@ -30,8 +30,11 @@ The nd96asr_v4.conf nhc configuration file specifies what health checks to perfo
 * GPU, Check GPU ECC errors
 * Check IB bandwidth performance
 * Check NCCL allreduce IB loopback bandwidth performance
+* Check for IB link flapping
 
-Will continue to add additional tests. 
+Will continue to add additional tests.
+
+>Note: Edit configur_nhc.sh (NHC_CONF_FILE_NEW) to specify which nhc configuration file you want to use. 
 
 ## Deployment Procedure
 
