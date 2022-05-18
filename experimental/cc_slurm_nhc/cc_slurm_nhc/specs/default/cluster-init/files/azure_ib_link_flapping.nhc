@@ -30,7 +30,7 @@ if [ "$lost_carrier_line" != "" ]; then
          ((diff_hours=$diff/(60*60)))
          dbg "IB link flap time interval= $diff_hours hours"
 
-         if [ $diff_hours -lt 24 ]; then
+         if [ $diff_hours -lt $TIME_INTERVAL_HOURS ]; then
             log "$IB_FLAPPING_LINK_TEST, multiple IB link flapping events within $TIME_INTERVAL_HOURS hours($previous_stored_date, $last_date_str)"
             die 1 "$FUNCNAME: $IB_FLAPPING_LINK_TEST, multiple IB link flapping events within $TIME_INTERVAL_HOURS hours"
          else
