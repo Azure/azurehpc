@@ -209,7 +209,7 @@ class ArmTemplate:
             })
 
         # vpn gateway 
-        vpn_gateway_name = cfg["vnet"]["gateway"].get("name", None)
+        vpn_gateway_name = cfg["vnet"].get("gateway",{}).get("name", None)
         if vpn_gateway_name:
             log.info(f"add vpn gateway ({vpn_gateway_name})")
             rrg = cfg["resource_group"]
