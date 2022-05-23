@@ -31,6 +31,7 @@ The nd96asr_v4.conf and nd96amsr_v4.conf nhc configuration file specifies what h
 * Check IB bandwidth performance
 * Check NCCL allreduce IB loopback bandwidth performance
 * Check for IB link flapping
+* Check for GPU clock throttling
 
 Will continue to add additional tests.
 
