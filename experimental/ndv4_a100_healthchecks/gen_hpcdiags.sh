@@ -1,6 +1,8 @@
 #!/bin/bash
 
 #Run pre-installed hpc diagnostics and deposit the compressed tar file in OUTDIR
+#
+# takes one argument, the slurm hostname.
 
 USER=cormac
 OUTDIR=/shared/home/${USER}/hpcdiags
