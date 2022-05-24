@@ -51,13 +51,13 @@ function check_gpu_ecc() {
          die 1 "$FUNCNAME: GPU id $i: Row remap error"
       fi
       dbg "GPU id $i: No GPU row remap pending or row remap errors"
-      if [[ ${gpu_query_out_line[0]} > 0 || ${gpu_query_out_line[1]} > 0 ]]; then
+      if [[ ${gpu_query_out_line[0]} -gt 0 || ${gpu_query_out_line[1]} -gt 0 ]]; then
          die 1 "$FUNCNAME: GPU id $i: SRAM Uncorrected ECC error count, (${gpu_query_out_line[0]},${gpu_query_out_line[1]})"
       else
          dbg "GPU id $i: Normal SRAM Uncorrectable ECC error count, (${gpu_query_out_line[0]},${gpu_query_out_line[1]})"
       fi
       if [[ -n $1 ]]; then
-         if [[ ${gpu_query_out_line[2]} > $1 || ${gpu_query_out_line[3]} > $1 ]]; then
+         if [[ ${gpu_query_out_line[2]} -gt $1 || ${gpu_query_out_line[3]} -gt $1 ]]; then
 	    die 1 "$FUNCNAME: GPU id $i: High DRAM Uncorrected ECC error count, (${gpu_query_out_line[2]},${gpu_query_out_line[3]})"
          else
             dbg "GPU id $i: Normal DRAM Uncorrectable ECC error count, (${gpu_query_out_line[2]},${gpu_query_out_line[3]})"
