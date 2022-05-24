@@ -13,7 +13,7 @@ NHC_NVIDIA_HEALTHMON_ARGS="diag -r 1"
 SLURM_CONF=/etc/slurm/slurm.conf
 SLURM_HEALTH_CHECK_INTERVAL=200
 SLURM_HEALTH_CHECK_NODE_STATE=IDLE
-NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc azure_gpu_ecc.nhc azure_gpu_persistence.nhc azure_ib_write_bw_gdr.nhc azure_nccl_allreduce_ib_loopback.nhc azure_ib_link_flapping.nhc"
+NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc azure_gpu_ecc.nhc azure_gpu_persistence.nhc azure_ib_write_bw_gdr.nhc azure_nccl_allreduce_ib_loopback.nhc azure_ib_link_flapping.nhc azure_gpu_clock_throttling.nhc"
 
 
 function nhc_config() {
