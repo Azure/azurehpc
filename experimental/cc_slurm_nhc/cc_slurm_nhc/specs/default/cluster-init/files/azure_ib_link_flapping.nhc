@@ -8,7 +8,7 @@ function check_ib_link_flapping()
 {
 TIME_INTERVAL_HOURS=$1
 lost_carrier_file=/tmp/last_lost_carrier_date
-lost_carrier_line=$(grep -i "lost carrier" /var/log/syslog | tail -n 1)
+lost_carrier_line=$(grep -i "ib.*lost carrier" /var/log/syslog | tail -n 1)
 
 if [ "$lost_carrier_line" != "" ]; then
    dbg "IB link flapping entry in syslog, $lost_carrier_line"
