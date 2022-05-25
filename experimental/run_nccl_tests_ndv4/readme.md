@@ -30,3 +30,4 @@ sbatch -N <NUMBER_OF_NDV4_NODES> ./run_nccl_tests_slurm.slrm
 
 Please consult the blob post [Performance considerations for large scale deep learning training on Azure NDv4 (A100) series](https://techcommunity.microsoft.com/t5/azure-global/performance-considerations-for-large-scale-deep-learning/ba-p/2693834)
 
+>Note: For an explaination of all the environmental variables set in these NCCL test scripts, please consult the above blog post.
