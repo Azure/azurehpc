@@ -291,10 +291,13 @@ def create_l3cache_topo(actual_sku_name):
 
 
 def find_pids(pattern):
-   cmd = ["pgrep",pattern]
+   cmd = ["pgrep","-f",pattern]
+   this_pid=os.getpid()
+   this_pid_n = bytes(str(this_pid) + '\n','utf-8')
    pids_l = []
    cmdpipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    bpids_l = cmdpipe.stdout.readlines()
+   if this_pid_n in bpids_l: bpids_l.remove(this_pid_n)
    if not bpids_l:
       print("Error: Cannot find application ({}), check that it is running.".format(pattern))
       sys.exit(1)
