@@ -53,16 +53,18 @@ echo ""
 first_ip=$(head -1 $NODE_FILENAME)
 pattern=${first_ip:0:2}
 cd $OUTDIR
-grep -T "^8 " ${pattern}*latency* | sort -n -k 2 > osu_latency_report_$$.log
-grep -T 4194304 ${pattern}*bw* | sort -n -k 2 > osu_bw_report_$$.log
-grep -T 4194304 ${pattern}*bibw* | sort -n -k 2 > osu_bibw_report_$$.log
+
+grep -T 4194304 ${pattern}*bw.log | sort -n -k 2 > osu_bw_report_$$.log
+grep -T 4194304 ${pattern}*bibw.log | sort -n -k 2 > osu_bibw_report_$$.log
+grep -T "^8 " ${pattern}*latency.log | sort -n -k 2 > osu_latency_report_$$.log
 
 sort -k3 -n $OUTDIR/osu_bw_report_$$.log > bw_report.out
-sort -k3 -n $OUTDIR/osu_latency_report_$$.log > latency_report.out
 sort -k3 -n $OUTDIR/osu_bibw_report_$$.log > bibw_report.out
+sort -k3 -n $OUTDIR/osu_latency_report_$$.log > latency_report.out
 
 cat bw_report.out | head -n100
+cat bibw_report.out | head -n100
 cat latency_report.out | tail -n100
-cat allreduce_report.out | tail -n100
+
 cd $dir
 grep -i error osu_bw_test.* | tee osu_error_report.log
