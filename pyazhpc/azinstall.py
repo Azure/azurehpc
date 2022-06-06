@@ -426,7 +426,7 @@ def __rsync(sshkey, sshport, src, dst):
 
 def run(cfg, tmpdir, adminuser, sshprivkey, sshpubkey, fqdn, startstep=0):
     jb = cfg.get("install_from")
-    sshport = cfg.get("ssh_port")
+    sshport = cfg.get("ssh_port", 22)
     install_steps = [{ "script": "install_node_setup.sh" }] + cfg.get("install", [])
     if jb:
         log.debug("wait for ssh on jumpbox")
