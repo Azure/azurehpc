@@ -63,9 +63,8 @@ class ArmTemplate:
 
             self.resources.append({
                 "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-                "apiVersion": "2019-11-01",
+                "apiVersion": "2021-08-01",
                 "name": f"{vnet_name}/{peer_name}-{peer_resource_group}",
-                "tags": gtags,
                 "properties": {
                     "remoteVirtualNetwork": {
                         "id": f"[resourceId('{peer_resource_group}', 'Microsoft.Network/virtualNetworks', '{peer_vnet_name}')]"
@@ -82,7 +81,7 @@ class ArmTemplate:
 
             self.resources.append({
                 "type": "Microsoft.Resources/deployments",
-                "apiVersion": "2017-05-10",
+                "apiVersion": "2019-08-10",
                 "name": f"{peer_resource_group}peer",
                 "tags": gtags,
                 "resourceGroup": peer_resource_group,
@@ -96,9 +95,8 @@ class ArmTemplate:
                         "resources": [
                             {
                                 "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-                                "apiVersion": "2019-11-01",
+                                "apiVersion": "2021-08-01",
                                 "name": f"{peer_vnet_name}/{peer_name}-{resource_group}",
-                                "tags": gtags,
                                 "properties": {
                                     "remoteVirtualNetwork": {
                                         "id": f"[resourceId('{resource_group}', 'Microsoft.Network/virtualNetworks', '{vnet_name}')]"
