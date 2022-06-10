@@ -252,7 +252,7 @@ This describes the CycleCloud clusters configuration and projects to be uploaded
 This describes the template and parameters to be applied on a CycleCloud cluster.
 | Name       | Description                                                                          | Required | Default |
 |------------|--------------------------------------------------------------------------------------|----------|---------|
-| **template** | The name of the template used to create the cluster.                                                         |   yes    |         |
+| **template** | The name of the template or template file used to create the cluster.              |   yes    |         |
 | **parameters** | Dictionary of parameters defined in the template. The parameter list can be retrieved with the [cyclecloud export_parameters](https://docs.microsoft.com/en-us/azure/cyclecloud/cli?view=cyclecloud-7#cyclecloud-export_parameters) command |   yes    |         |
 
 For `ClusterInitSpec`definition use thie following format, and make sure to use the same spec name in the projects dictionary
