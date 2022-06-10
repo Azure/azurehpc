@@ -388,8 +388,30 @@ $CYCLECLOUD_SPEC_PATH/files/{script} {args}
         __cyclecloud_upload_project(project_dir)
 
 def __cyclecloud_create_cluster(template, name, paramfile):
+    cyclecloud_exe = os.path.join(os.environ["HOME"], "bin", "cyclecloud")
     cmd = [
-        "cyclecloud", "create_cluster", template, name,
+        cyclecloud_exe, "create_cluster", template, name,
+        "-p", paramfile, "--force"
+    ]
+
+    env = os.environ.copy()
+    if env.get("PYTHONPATH"):
+        del env["PYTHONPATH"]
+
+    res = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+
+def __cyclecloud_import_cluster(template, name, paramfile, tmpdir):
+    cyclecloud_exe = os.path.join(os.environ["HOME"], "bin", "cyclecloud")
+    template_type = template.split("_")[0]
+    log.debug(f"template_type = {template_type}")
+    shutil.copy(template, tmpdir)
+    template = os.path.join(tmpdir,template)
+    log.debug(f"template={template}")
+    cmd = [
+           cyclecloud_exe, "import_cluster", name, "-c", template_type, "-f", template,
         "-p", paramfile, "--force"
     ]
 
@@ -411,7 +433,10 @@ def generate_cc_clusters(config, tmpdir):
         cluster_json = f"{tmpdir}/{cluster_name}.json"
         with open(cluster_json, "w") as f:
             f.write(json.dumps(cluster_params, indent=4))
-        __cyclecloud_create_cluster(cluster_template, cluster_name, cluster_json)
+        if os.path.isfile(cluster_template):
+           __cyclecloud_import_cluster(cluster_template, cluster_name, cluster_json, tmpdir)
+        else:
+           __cyclecloud_create_cluster(cluster_template, cluster_name, cluster_json)
         
 def __rsync(sshkey, sshport, src, dst):
     cmd = [
