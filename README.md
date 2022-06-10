@@ -291,6 +291,7 @@ For the most part the configuration is just a standard JSON file although there 
 | `secret.<KEY-VAULT>.<SECRET-NAME>`                     | Read a [secret](#secrets) stored in an existing vault                          |
 | `sasurl.<STORAGE-ACCOUNT>.<STORAGE-PATH>[,<PERMISSION>[,<DURATION>]]` | Create a [SAS URL](#sas-url) with permissions                                  |
 | `fqdn.<RESOURCE-NAME>`                                 | Retrieve a resource [FQDN](#fqdn)                                              |
+| `ip.<RESOURCE-NAME>`                                   | Retrieve a resource [PRIVATE IP](#private-ip)                                  |
 | `sakey.<STORAGE-ACCOUNT>`                              | Retrieve a [storage key](#storage-account-key)                                 |
 | `saskey.<STORAGE-ACCOUNT>.<STORAGE-PATH>[,<PERMISSION>[,<DURATION>]]` | Create a [SAS KEY](#storage-sas-key) with permissions                          |
 | `laworkspace.<RESOURCE-GROUP>.<NAME>`                  | Retrieve a [Log Analytics workspace id](#log-analytics-workspace-id)           |
@@ -329,6 +330,12 @@ The config file can create a URL with a SAS key for a file in storage.  This is 
 #### Fqdn
 
 The scripts allow FQDN of resources to be retrieved. This is the format: `fqdn.<RESOURCE-NAME>`.
+
+> Note: this assumes the resource name to be in the same resource group than the one defined in the configuration file.
+
+#### Private IP
+
+The scripts allow PRIVATE IP of resources to be retrieved. This is the format: `ip.<RESOURCE-NAME>`.
 
 > Note: this assumes the resource name to be in the same resource group than the one defined in the configuration file.
 
