@@ -254,6 +254,7 @@ This describes the template and parameters to be applied on a CycleCloud cluster
 |------------|--------------------------------------------------------------------------------------|----------|---------|
 | **template** | The name of the template or template file used to create the cluster.              |   yes    |         |
 | **parameters** | Dictionary of parameters defined in the template. The parameter list can be retrieved with the [cyclecloud export_parameters](https://docs.microsoft.com/en-us/azure/cyclecloud/cli?view=cyclecloud-7#cyclecloud-export_parameters) command |   yes    |         |
+>Note: If template is set to a cyclecloud template file, use the following naming format <scheduler_type>_<file_name>.txt . Where scheduler_type is either "slurm" or "pbs".
 
 For `ClusterInitSpec`definition use thie following format, and make sure to use the same spec name in the projects dictionary
 ```json
