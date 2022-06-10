@@ -154,7 +154,7 @@ class ConfigFile:
             res = f"{url}{path}?{saskey}"
         elif extended and prefix == "fqdn":
             res = azutil.get_fqdn(self.read_value("resource_group"), parts[1]+"_pip")
-        elif extended and prefix == "private_ip":
+        elif extended and prefix == "ip":
             res = azutil.get_vm_private_ip(self.read_value("resource_group"), parts[1])
         elif extended and prefix == "sakey":
             res = azutil.get_storage_key(parts[1])
