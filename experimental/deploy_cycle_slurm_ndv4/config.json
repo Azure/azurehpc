@@ -179,7 +179,7 @@
           "MaxHTCExecuteCoreCount": 8,
           "NumberLoginNodes": 1,
           "AdditionalNFSExportPath": "<NOT-SET>",
-          "AdditionalNFSMountPoint": "/dataa",
+          "AdditionalNFSMountPoint": "/data",
           "HPCImageName": "variables.hpc_image",
           "configuration_slurm_shutdown_policy": "Terminate",
           "configuration_slurm_accounting_enabled": false,
