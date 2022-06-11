@@ -4,7 +4,7 @@ Here we will explain how to deploy a complete NDv4 Cluster with no public IP acc
 deploy the complete NDv4 cluster.
 
 The NDv4 cluster will consist of
-- NDv4 compute nodes running Ubunt-hpc 18.04, Max GPU app clock freqencies are set, GPU persistent mode is enabled, local NVMe SSD's are mounted.
+- NDv4 compute nodes running Ubunt-hpc 18.04, Max GPU app clock frequencies are set, GPU persistent mode is enabled, local NVMe SSD's are mounted.
 - Cyclecloud 8.2.2 with SLURM 2.6.4(pmix support) is installed and the pmix libraries are installed on NDv4 nodes.
 - Automatic recovery from a reboot enabled (e.g NVMe SSD will be remounted and GPU clock freq reset)
 - Premium SSD's used for OS disks, with larger capacity (60GB)
