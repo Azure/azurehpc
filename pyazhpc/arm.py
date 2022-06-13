@@ -81,7 +81,7 @@ class ArmTemplate:
 
             self.resources.append({
                 "type": "Microsoft.Resources/deployments",
-                "apiVersion": "2019-08-10",
+                "apiVersion": "2019-08-01",
                 "name": f"{peer_resource_group}peer",
                 "tags": gtags,
                 "resourceGroup": peer_resource_group,
