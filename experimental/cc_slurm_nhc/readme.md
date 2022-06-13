@@ -11,7 +11,7 @@ is created to allow this healthcheck framework to be integrated in CycleCloud SL
 - Compute node(s), ND96asr_v4 or ND96amsr_v4 (Running Ubuntu-hpc 18.04)
 
 ## Design
-The Node health checks only run on IDLE SLURM nodes (not on nodes with running jobs). If a node healthcheck fails, the node will be put into a DRAIN state (All jobs using this node will be allowed to complete, but not new jobs will use this node). If the issue that caused the healthcheck to fail is resolved, the net time the node health check is run the node will be move from the DRAIN state to the IDLE state, and will now be ready to accept new jobs. This example contains an example node check for ND96asr_v4 (nd96asr_v4.conf), it should be relatively easy to create similar configuration files for other specialty SKU's like HBv3,HBv2 and HC, and run health checks for those SKU's also using this framework.
+The Node health checks only run on IDLE SLURM nodes (not on nodes with running jobs). If a node healthcheck fails, the node will be put into a DRAIN state (All jobs using this node will be allowed to complete, but not new jobs will use this node). If the issue that caused the healthcheck to fail is resolved, the net time the node health check is run the node will be move from the DRAIN state to the IDLE state, and will now be ready to accept new jobs. This example contains an example node check for ND96amsr_v4 (nd96amsr_v4.conf), it should be relatively easy to create similar configuration files for other specialty SKU's like HBv3,HBv2 and HC, and run health checks for those SKU's also using this framework.
 
 ## What health checks are performed?
 
@@ -50,7 +50,7 @@ See in the CC Portal Edit-->Advanced-Settings, under Software. Also, added the f
 ```
 SuspendExcParts=hpc
 HealthCheckProgram=/usr/sbin/nhc
-HealthCheckInterval=200
+HealthCheckInterval=1200
 HealthCheckNodeState=IDLE
 ```
 >Note: In my case I am disabling autoscaling (SuspendExcParts=hpc), if you have autoscaling enabled you may need to modify these scripts to prevent the 
