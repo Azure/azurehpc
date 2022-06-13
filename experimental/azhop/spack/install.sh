@@ -2,5 +2,5 @@
 
 git clone https://github.com/spack/spack ~/spack
 cd ~/spack
-git checkout releases/v0.16
+git checkout releases/v0.18
 
