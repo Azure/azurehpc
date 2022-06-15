@@ -2,6 +2,7 @@
 packages:
   - gcc
   - jq
+  - unzip
 runcmd:
   - [ su, "-c", "git clone https://github.com/Azure/azurehpc.git", "-", hpcadmin ]
   - [ sh, "-c", "~hpcadmin/azurehpc/scripts/install-azcopy.sh" ]
