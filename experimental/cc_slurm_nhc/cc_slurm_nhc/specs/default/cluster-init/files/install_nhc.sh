@@ -20,13 +20,17 @@ function get_source() {
 
 function install_from_source() {
 
-   if ! [[ -f  /usr/bin/nfc ]] && ! [[ -d /etc/default/nhc ]]
+   if ! [[ -f  /usr/bin/nfc ]] && ! [[ -d /etc/nhc ]]
    then
       cd $TMPDIR
       get_source 
       cd nhc
       ./autogen.sh
-      ./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib
+      if [ -f /etc/centos-release ]; then
+         ./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec
+      else
+         ./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib
+      fi
       make test
       make install
 

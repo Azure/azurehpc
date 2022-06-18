@@ -1,12 +1,16 @@
 #!/bin/bash
 
 NHC_SYSCONFIG=/etc
-OS_SYSCONFIG=/etc/default
+if [ -f /etc/centos-release ]; then
+   OS_SYSCONFIG=/etc/sysconfig
+else
+   OS_SYSCONFIG=/etc/default
+fi
 NHC_TIMEOUT=200
 NHC_VERBOSE=1
 NHC_DETACHED_MODE=1
 NHC_DEBUG=0
-NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96amsr_v4.conf
+#NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96amsr_v4.conf
 NHC_EXE=/usr/sbin/nhc
 NHC_NVIDIA_HEALTHMON=dcgmi
 NHC_NVIDIA_HEALTHMON_ARGS="diag -r 1"
@@ -15,6 +19,36 @@ SLURM_HEALTH_CHECK_INTERVAL=1200
 SLURM_HEALTH_CHECK_NODE_STATE=IDLE
 NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc azure_gpu_ecc.nhc azure_gpu_persistence.nhc azure_ib_write_bw_gdr.nhc azure_nccl_allreduce_ib_loopback.nhc azure_ib_link_flapping.nhc azure_gpu_clock_throttling.nhc"
 
+
+function select_sku_conf() {
+   vm_size=`jetpack config azure.metadata.compute.vmSize | tr '[:upper:]' '[:lower:]'`
+   case $vm_size in
+        standard_nd96asr_v4)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96asr_v4.conf
+           ;;
+        standard_nd96amsr_a100_v4)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96amsr_v4.conf
+           ;;
+        standard_hb120-96rs_v3)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/hb120-96rs_v3.conf
+           ;;
+        standard_hb120-64rs_v3)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/hb120-64rs_v3.conf
+           ;;
+        standard_hb120-32rs_v3)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/hb120-32rs_v3.conf
+           ;;
+        standard_hb120-16rs_v3)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/hb120-16rs_v3.conf
+           ;;
+        standard_hb120rs_v3)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/hb120rs_v3.conf
+           ;;
+        *)
+           echo "Error: $vm_size is currently not supported in NHC"
+           exit 1
+   esac
+}
 
 function nhc_config() {
    NHC_CONFIG_FILE=${NHC_SYSCONFIG}/nhc/nhc.conf
@@ -71,6 +105,7 @@ function copy_extra_test_files() {
 
 
 mkdir /var/run/nhc
+select_sku_conf
 nhc_config
 nhc_sysconfig
 copy_extra_test_files
