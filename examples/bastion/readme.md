@@ -38,6 +38,15 @@ Allow ~15 minutes for deployment.  You are able to view the status VMs being dep
 
 Connect to the linux headnode using Azure bastion service via ssh
 
+You can login to a VM via bastion directly from your linux workstation using
+
+```
+bastion_ssh_bjumpbox.sh
+```
+>Note: You will need to edit this script to provide the BastionName, ResourceGroup, TargetResourceId, User and SshPrivateKey
+
+You can also use the Azure portal to login to you VM via bastion, see below.
+
 Locate the VM you want to connect to on the Azure portal and check "Connect".
 
 ![Alt text](/examples/bastion/images/bastion_connect.JPG?raw=true "Azure Bastion connect")

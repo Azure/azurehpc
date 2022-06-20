@@ -8,8 +8,10 @@
         "location": "southcentralus",
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_D4s_v3",
+        "vnet_name": "hpcvnet",
         "low_priority": false,
-        "bastion_subnet": "<NOT-SET>",
+        "bastion_subnet": "10.41.0.0/26",
+        "bastion_name": "bastion",
         "rm_vm_name": "jumpbox",
         "key_vault": "<NOT-SET>",
         "storage_acc": "<NOT-SET>",
@@ -19,7 +21,7 @@
     },
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
-        "name": "hpcvnet",
+        "name": "variables.vnet_name",
         "address_prefix": "10.41.0.0/20",
         "subnets": {
             "storage": "10.41.2.0/24",
@@ -45,7 +47,17 @@
             "args": [
                 "variables.vnet_resource_group",
                 "variables.location",
-                "variables.bastion_subnet"
+                "variables.bastion_subnet",
+                "variables.bastion_name",
+                "variables.vnet_name" 
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "bastion_properties.sh",
+            "args": [
+                "variables.bastion_name",
+                "variables.resource_group"
             ]
         }
     ]
