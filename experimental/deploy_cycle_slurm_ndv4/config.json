@@ -6,16 +6,14 @@
   "variables": {
     "location": "<NOT-SET>",
     "resource_group": "<NOT-SET>",
-    "bastion_resource_group": "<NOT-SET>",
     "vnet_resource_group": "variables.resource_group",
-    "bastion_vnet_resource_group": "variables.bastion_resource_group",
     "vnet_name": "<NOT-SET>",
     "admin_user": "hpcadmin",
     "image": "OpenLogic:CentOS:7.7:latest",
     "win_image": "microsoftwindowsdesktop:windows11preview:win11-21h2-ent:latest",
     "jb_vm_type": "Standard_D8s_v3",
     "key_vault": "kv{{variables.uuid}}",
-    "projectstore": "locker{{variables.uuid}}",
+    "projectstore": "lockerstore",
     "cc_image": "azurecyclecloud:azure-cyclecloud:cyclecloud8:8.2.220220329",
     "cc_vm_type": "Standard_D8s_v3",
     "cc_password_secret_name": "CycleAdminPassword",
@@ -42,10 +40,6 @@
       "vm_type": "variables.jb_vm_type",
       "accelerated_networking": true,
       "public_ip": false,
-      "nsg_allow": [
-        "ssh",
-        "rdp"
-      ],
       "image": "variables.image",
       "subnet": "admin",
       "tags": [
@@ -57,9 +51,6 @@
       "vm_type": "variables.win_vm_type",
       "accelerated_networking": true,
       "public_ip": false,
-      "nsg_allow": [
-        "rdp"
-      ],
       "password": "secret.{{variables.key_vault}}.{{variables.win_password_secret_name}}",
       "image": "variables.win_image",
       "subnet": "viz",
@@ -69,11 +60,7 @@
       "type": "vm",
       "vm_type": "variables.cc_vm_type",
       "accelerated_networking": true,
-      "public_ip": true,
-      "nsg_allow": [
-        "ssh",
-        "https"
-      ],
+      "public_ip": false,
       "image": "variables.cc_image",
       "subnet": "admin",
       "managed_identity": {
@@ -160,7 +147,7 @@
     }
   ],
   "storage": {
-    "lockername": {
+    "lockerstore": {
       "type": "storageaccount",
       "sku": "Standard_LRS"
     }
@@ -172,14 +159,14 @@
         "parameters": {
           "UsePublicNetwork": false,
           "AdditionalNAS": true,
-          "SubnetId": "{{variables.resource_group}}/hpcvnet/compute",
+          "SubnetId": "{{variables.resource_group}}/{{variables.vnet_name}}/compute",
           "Region": "{{variables.location}}",
           "MaxHPCExecuteCoreCount": 192,
           "HTCImageName": "variables.htc_image",
           "MaxHTCExecuteCoreCount": 8,
           "NumberLoginNodes": 1,
           "AdditionalNFSExportPath": "<NOT-SET>",
-          "AdditionalNFSMountPoint": "/data",
+          "AdditionalNFSMountPoint": "/apps",
           "HPCImageName": "variables.hpc_image",
           "configuration_slurm_shutdown_policy": "Terminate",
           "configuration_slurm_accounting_enabled": false,
