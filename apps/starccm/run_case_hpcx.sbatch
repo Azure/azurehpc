@@ -1,12 +1,20 @@
 #!/bin/bash
 
+#SBATCH --time=20:00:00
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=96
+#SBATCH --mem=400gb
+#SBATCH --job-name=Starccm
+#SBATCH --exclusive
+#SBATCH -o %x_%j.log
+
 # parameters that can be overridden
-APP_INSTALL_DIR=${APP_INSTALL_DIR:-/apps}
-DATA_DIR=${DATA_DIR:-/data/starccm}
-CASE=${CASE:-civil}
+APP_INSTALL_DIR=${APP_INSTALL_DIR:-/shared/apps}
+DATA_DIR=${DATA_DIR:-/shared/data/starccm}
+CASE=${CASE:-lemans_poly_17m.amg}
 OMPI=${OMPI:-openmpi4}
-STARCCM_VERSION=${STARCCM_VERSION:-16.04.007}
-PODKEY="XXXXXXXXXXXXX"
+STARCCM_VERSION=${STARCCM_VERSION:-15.02.009}
+PODKEY=""
 
 # PODKEY is required (pass in as environment variable)
 if [ -z "$PODKEY" ];
@@ -21,12 +29,24 @@ STARCCM_CASE=$DATA_DIR/${CASE}.sim
 export PATH=$INSTALL_DIR/$STARCCM_VERSION/STAR-CCM+$STARCCM_VERSION/star/bin:$PATH
 export CDLMD_LICENSE_FILE=1999@flex.cd-adapco.com
 
-mkdir $PBS_O_WORKDIR/$PBS_JOBID
-cd $PBS_O_WORKDIR/$PBS_JOBID
+## SLURM: ====> Job Node List (DO NOT MODIFY)
+echo "Slurm nodes assigned :$SLURM_JOB_NODELIST"
+echo "SLURM_JOBID="$SLURM_JOBID
+echo "SLURM_JOB_NODELIST"=$SLURM_JOB_NODELIST
+echo "SLURM_NNODES"=$SLURM_NNODES
+echo "SLURMTMPDIR="$SLURMTMPDIR
+echo "working directory = "$SLURM_SUBMIT_DIR
+echo "SLURM_NTASKS="$SLURM_NTASKS
 
-NODES=$(sort -u < $PBS_NODEFILE | wc -l)
-PPN=$(uniq -c < $PBS_NODEFILE | tail -n1 | awk '{print $1}')
-CORES=$(wc -l <$PBS_NODEFILE)
+mkdir -p $SLURM_SUBMIT_DIR/$SLURM_JOBID
+cd $SLURM_SUBMIT_DIR/$SLURM_JOBID
+
+#Prep host file
+scontrol show hostname $SLURM_NODELIST | tr 'ec' 'ic'> machinefile_${SLURM_JOB_ID}
+
+NODES=$SLURM_NNODES
+PPN=$SLURM_NTASKS_PER_NODE
+CORES=$SLURM_NTASKS
 
 export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 source /opt/hpcx-*-x86_64/hpcx-init.sh
@@ -45,7 +65,6 @@ fi
 echo $BM_OPT
 echo PPN=$PPN
 
-echo "JobID: $PBS_JOBID"
 echo "Running Starccm Benchmark case : [${starccm_case}], Nodes: ${NODES} (Total Cores: ${CORES})"
 
 if [ "$PPN" == "120" ]
@@ -78,7 +97,7 @@ fi
 starccm+ \
     -np $CORES \
     -v \
-    -machinefile $PBS_NODEFILE \
+    -machinefile machinefile_${SLURM_JOB_ID} \
     -power \
     -podkey "$PODKEY" \
     -rsh ssh \
@@ -91,4 +110,4 @@ starccm+ \
     $STARCCM_CASE -benchmark "$BM_OPT"
 
 DATE=$(date +"%Y%m%d-%H%M%S.%N")
-cp $CASE-*.xml $PBS_O_WORKDIR/${CASE}-hpcx-${NODES}n-${PPN}cpn-${CORES}c-${DATE}.xml
+cp $CASE-*.xml $SLURM_SUBMIT_DIR/${CASE}-hpcx-${NODES}n-${PPN}cpn-${CORES}c-${DATE}.xml
