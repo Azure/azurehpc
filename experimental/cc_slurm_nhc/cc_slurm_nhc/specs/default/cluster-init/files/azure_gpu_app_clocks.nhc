@@ -38,10 +38,9 @@ function check_app_gpu_clocks() {
             die 1 "$FUNCNAME: nvidia-smi (set gpu max clock freqs) returned error code $set_gpu_freq_out_rc"
          fi
          log "On GPU Id $i: $set_gpu_freq_out"
-	 return 0
       else
          dbg "GPU Id $i: max application GPU clocks are already set, GPU memory is  ${gpu_freq_out_line[0]} MHz and GPU graphics is ${gpu_freq_out_line[2]} MHz"
-	 return 0
       fi
 done
+return 0
 }
