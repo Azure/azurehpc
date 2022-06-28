@@ -13,21 +13,23 @@ Run this script on a supported GPU virtual machine.
 
 GPU ECC error report for (Standard_ND96asr_v4, slurmcycle-hpc-pg0-1)
 
-GPU id   RRP        RRE        EEUVS      EEUAS      EECVS      EECAS      EEUVD      EEUAD      EECVD      EECAD
-======== ========== ========== ========== ========== ========== ========== ========== ========== ========== ==========
-0        0          0          0          0          0          0          0          0          0          0
-1        0          0          0          0          0          0          0          0          0          0
-2        0          0          0          0          0          0          0          0          0          0
-3        0          0          0          0          0          0          0          1000001    0          0
-4        0          0          0          0          0          0          0          0          0          0
-5        0          0          0          0          0          0          0          0          0          0
-6        0          0          0          0          0          0          0          0          0          0
-7        1          1          1000       0          0          0          0          0          0          0
+GPU id   RRP        RRE        RRC        RRU        EEUVS      EEUAS      EECVS      EECAS      EEUVD      EEUAD      EECVD      EECAD
+======== ========== ========== ========== ========== ========== ========== ========== ========== ========== ========== ========== ==========
+0        0          0          0          0          0          0          0          0          0          0          0          0
+1        0          0          0          0          0          0          0          0          0          0          0          0
+2        0          0          0          0          0          0          0          0          0          0          0          0
+3        0          0          0          0          0          0          0          0          0          1000001    0          0
+4        0          0          0          0          0          0          0          0          0          0          0          0
+5        0          0          0          0          100        0          0          0          0          0          0          0
+6        0          0          0          0          0          0          0          0          0          0          0          0
+7        1          1          0          0          0          0          0          0          0          0          0          0
 
 Legend
 ==========
 RRP: Row remap pending
 RRE: Row remap error
+RRC: Row remap correctable error count
+RRU: Row remap uncorrectable error count
 EEUVS: ECC Errors uncorrectable volatile SRAM count
 EEUAS: ECC Errors uncorrectable aggregate SRAM count
 EECVS: ECC Errors correctable volatile SRAM count
@@ -39,6 +41,6 @@ EECAD: ECC Errors correctable aggregate DRAM count
 
 Warning: Detected a GPU pending row remap for GPU ID 7, please re-boot this node (slurmcycle-hpc-pg0-1) to clear this pending row remap.
 Warning: Detected a GPU row remap Error for GPU ID 7, please offline this node (slurmcycle-hpc-pg0-1), get the HPC diagnostics and submit a support request.
-Warning: Detected a GPU SRAM uncorrectable error for the volatile counter for GPU ID 7, please offline this node (slurmcycle-hpc-pg0-1), get the HPC diagnostics and submit a support request.
+Warning: Detected a GPU SRAM uncorrectable error for the volatile counter for GPU ID 5, please offline this node (slurmcycle-hpc-pg0-1), get the HPC diagnostics and submit a support request.
 Warning: Detected a very high GPU DRAM uncorrectable error count (1000001) for the aggregate counter for GPU ID 3, please offline this node (slurmcycle-hpc-pg0-1), get the HPC diagnostics and submit a support request. 
 ```
