@@ -1,6 +1,6 @@
 # Check GPU ECC errors reporting tool
 
-ECC errors are quite common on modern GPU's e.g Nvidia A100. Some GPU errors are self correctable and do not have any impact on a running application, others are more severe and can cause a job to fail. Recovering from a GPU ECC error can be confusing and not be clear if the ECC problem can be recovered or if its more serious and needs to be reported. This tool provides a convenient way to see all the relevent ECC error counters and it gives guidance on what action you should take. (e.g No action, re-boot the node or submit a support ticket). 
+ECC errors are quite common on modern GPU's e.g Nvidia A100. Some GPU errors are self correctable and do not have any impact on a running application, others are more severe and can cause a job to fail. Recovering from a GPU ECC error can be confusing and not be clear if the ECC problem can be recovered or if its more serious and needs to be reported. This tool provides a convenient way to see all the relevant ECC error counters and it gives guidance on what action you should take. (e.g No action, re-boot the node or submit a support ticket). 
 
 ## Prerequisites
 
