@@ -12,7 +12,7 @@ import csv
 from urllib.request import urlopen, Request
 
 
-ECC_COUNTER_THRESHOLD = 1000000
+ECC_COUNTER_THRESHOLD = 10000000
 supported_skus_list = ["Standard_ND96asr_v4", "Standard_ND96amsr_A100_v4"]
 
 
