@@ -36,7 +36,7 @@ def get_vm_metadata():
 
 
 def parse_nvidia_smi_remapped_rows(ecc_d):
-    GPU_REMAPPED_ROWS_QUERY = "gpu_uuid,remapped_rows.pending,remapped_rows.failure"
+    GPU_REMAPPED_ROWS_QUERY = "gpu_uuid,remapped_rows.pending,remapped_rows.failure,remapped_rows.correctable,remapped_rows.uncorrectable"
     ecc_d["gpu_uuid"] = {}
     cmd = ["nvidia-smi", "--query-remapped-rows={}".format(GPU_REMAPPED_ROWS_QUERY), "--format=csv,noheader"]
     try:
@@ -49,6 +49,8 @@ def parse_nvidia_smi_remapped_rows(ecc_d):
         ecc_d["gpu_uuid"][gpu_remapped_rows[0]] = {}
         ecc_d["gpu_uuid"][gpu_remapped_rows[0]]["RRP"] = int(gpu_remapped_rows[1])
         ecc_d["gpu_uuid"][gpu_remapped_rows[0]]["RRE"] = int(gpu_remapped_rows[2])
+        ecc_d["gpu_uuid"][gpu_remapped_rows[0]]["RRC"] = int(gpu_remapped_rows[3])
+        ecc_d["gpu_uuid"][gpu_remapped_rows[0]]["RRU"] = int(gpu_remapped_rows[4])
 
     return ecc_d
 
@@ -106,6 +108,14 @@ def check_gpu_remapped_rows_error(ecc_d, hostname):
            print("Warning: Detected a GPU row remap Error for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(gpu_id,hostname))
 
 
+def check_gpu_remapped_rows_uncorrectable(ecc_d, hostname):
+    for gpu_uuid in ecc_d["gpu_uuid"]:
+        rru = ecc_d["gpu_uuid"][gpu_uuid]["RRU"]
+        if rru > 512:
+           gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
+           print("Warning: Detected {} GPU row remap uncorrectable Errors for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(rru,gpu_id,hostname))
+
+
 def check_gpu_sram(ecc_d, hostname):
     for gpu_uuid in ecc_d["gpu_uuid"]:
         gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
@@ -124,16 +134,16 @@ def check_gpu_high_ecc_counter(ecc_d, hostname):
         gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
         if ecc_d["gpu_uuid"][gpu_uuid]["EEUVD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EEUVD"]
-           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the volatile counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EEUAD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EEUAD"]
-           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the aggregate counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECVD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EECVD"]
-           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the volatile counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECAD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EECAD"]
-           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the aggregate counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
 
 
 def check_if_sku_is_supported(actual_sku_name):
@@ -151,12 +161,14 @@ def report(ecc_d, sku_name, hostname):
     print("")
     print("GPU ECC error report for ({}, {})".format(sku_name, hostname))
     print("")
-    print("{:<8} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format("GPU id","RRP", "RRE", "EEUVS", "EEUAS", "EECVS", "EECAS", "EEUVD", "EEUAD", "EECVD", "EECAD"))
-    print("{:=<8} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10}".format("=","=","=","=","=","=","=","=","=","=","="))
+    print("{:<8} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format("GPU id","RRP", "RRE", "RRC", "RRU", "EEUVS", "EEUAS", "EECVS", "EECAS", "EEUVD", "EEUAD", "EECVD", "EECAD"))
+    print("{:=<8} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10}".format("=","=","=","=","=","=","=","=","=","=","=","=","="))
     for gpu_uuid in ecc_d["gpu_uuid"]:
        gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
        rrp = ecc_d["gpu_uuid"][gpu_uuid]["RRP"]
        rre = ecc_d["gpu_uuid"][gpu_uuid]["RRE"]
+       rrc = ecc_d["gpu_uuid"][gpu_uuid]["RRC"]
+       rru = ecc_d["gpu_uuid"][gpu_uuid]["RRU"]
        eeuvs = ecc_d["gpu_uuid"][gpu_uuid]["EEUVS"]
        eeuas = ecc_d["gpu_uuid"][gpu_uuid]["EEUAS"]
        eecvs = ecc_d["gpu_uuid"][gpu_uuid]["EECVS"]
@@ -165,12 +177,14 @@ def report(ecc_d, sku_name, hostname):
        eeuad = ecc_d["gpu_uuid"][gpu_uuid]["EEUAD"]
        eecvd = ecc_d["gpu_uuid"][gpu_uuid]["EECVD"]
        eecad = ecc_d["gpu_uuid"][gpu_uuid]["EECAD"]
-       print("{:<8} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format(gpu_id,rrp,rre,eeuvs,eeuas,eecvs,eecas,eeuvd,eeuad,eecvd,eecad))
+       print("{:<8} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format(gpu_id,rrp,rre,rrc,rru,eeuvs,eeuas,eecvs,eecas,eeuvd,eeuad,eecvd,eecad))
     print("")
     print("Legend")
     print("{:=<10}".format("="))
     print("RRP: Row remap pending")
     print("RRE: Row remap error")
+    print("RRC: Row remap correctable error count")
+    print("RRU: Row remap uncorrectable error count")
     print("EEUVS: ECC Errors uncorrectable volatile SRAM count")
     print("EEUAS: ECC Errors uncorrectable aggregate SRAM count")
     print("EECVS: ECC Errors correctable volatile SRAM count")
@@ -197,6 +211,7 @@ def main():
    report(ecc_d, sku_name, hostname)
    check_gpu_remapped_rows_pending(ecc_d, hostname)
    check_gpu_remapped_rows_error(ecc_d, hostname)
+   check_gpu_remapped_rows_uncorrectable(ecc_d, hostname)
    check_gpu_sram(ecc_d, hostname)
    check_gpu_high_ecc_counter(ecc_d, hostname)
 
