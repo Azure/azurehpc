@@ -42,5 +42,5 @@ EECAD: ECC Errors correctable aggregate DRAM count
 Warning: Detected a GPU pending row remap for GPU ID 7, please re-boot this node (slurmcycle-hpc-pg0-1) to clear this pending row remap.
 Warning: Detected a GPU row remap Error for GPU ID 7, please offline this node (slurmcycle-hpc-pg0-1), get the HPC diagnostics and submit a support request.
 Warning: Detected a GPU SRAM uncorrectable error for the volatile counter for GPU ID 5, please offline this node (slurmcycle-hpc-pg0-1), get the HPC diagnostics and submit a support request.
-Warning: Detected a very high GPU DRAM uncorrectable error count (1000001) for the aggregate counter for GPU ID 3, please offline this node (slurmcycle-hpc-pg0-1), get the HPC diagnostics and submit a support request. 
+Warning: Detected a very high GPU DRAM uncorrectable error count (1000001) for the aggregate counter for GPU ID 3, please try a reboot, if the volatile counter increases again, then offline this node (slurmcycle-hpc-pg0-1), get the HPC diagnostics and submit a support request. 
 ```
