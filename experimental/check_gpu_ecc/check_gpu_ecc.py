@@ -190,7 +190,7 @@ def report(ecc_d, sku_name, hostname):
     print("EECVS: ECC Errors correctable volatile SRAM count")
     print("EECAS: ECC Errors correctable aggregate SRAM count")
     print("EEUVD: ECC Errors uncorrectable volatile DRAM count")
-    print("EECAD: ECC Errors uncorrectable aggregate DRAM count")
+    print("EEUAD: ECC Errors uncorrectable aggregate DRAM count")
     print("EECVD: ECC Errors correctable volatile DRAM count")
     print("EECAD: ECC Errors correctable aggregate DRAM count")
     print("")
