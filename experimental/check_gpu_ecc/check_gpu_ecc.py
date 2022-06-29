@@ -134,16 +134,16 @@ def check_gpu_high_ecc_counter(ecc_d, hostname):
         gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
         if ecc_d["gpu_uuid"][gpu_uuid]["EEUVD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EEUVD"]
-           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EEUAD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EEUAD"]
-           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECVD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EECVD"]
-           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECAD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EECAD"]
-           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
 
 
 def check_if_sku_is_supported(actual_sku_name):
