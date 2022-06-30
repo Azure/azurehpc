@@ -6,7 +6,7 @@ if [ -f /etc/centos-release ]; then
 else
    OS_SYSCONFIG=/etc/default
 fi
-NHC_TIMEOUT=200
+NHC_TIMEOUT=250
 NHC_VERBOSE=1
 NHC_DETACHED_MODE=1
 NHC_DEBUG=0
