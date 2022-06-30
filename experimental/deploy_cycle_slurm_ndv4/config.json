@@ -189,6 +189,16 @@
           "HPCMaxScalesetSize": 100,
           "additional_slurm_config": "SuspendTime=-1\nHealthCheckProgram=/usr/sbin/nhc\nHealthCheckInterval=1200\nHealthCheckNodeState=IDLE",
           "SchedulerClusterInitSpecs": {},
+          "LoginClusterInitSpecs": {
+            "limits:default:1.0.0": {
+              "Order": 10000,
+              "Name": "limits:default:1.0.0",
+              "Spec": "default",
+              "Project": "limits",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            }
+          },
           "HPCClusterInitSpecs": {
             "misc_ndv4:default:1.0.0": {
               "Order": 10000,
@@ -262,6 +272,11 @@
         {
           "script": "build_perftest_gdr.sh"
         }
+      ],
+      "limits:default:1.0.0": [
+                      {
+                        "script": "set_limits.sh"
+                      }
       ]
     }
   }
