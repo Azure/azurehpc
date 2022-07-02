@@ -759,7 +759,7 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
                 print("-np {} --bind-to cpulist:ordered --cpu-list {}".format(total_number_processes, list_to_str(pinning_syntax_l)))
              else:
                 print("-np {} --bind-to l3cache --map-by ppr:{}:numa".format(total_number_processes, number_processes_per_numa))
-          else:
+          elif mpi_type == "intel":
              num_l3cache = len(l3cache_topo_d["l3cache_ids"])
              if number_threads_per_process == 1:
                 print("-genv I_MPI_PIN_PROCESSOR=",list_to_str(pinning_syntax_l))
@@ -767,6 +767,16 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
                 print("export I_MPI_PIN_DOMAIN=auto:compact")
              else:
                 print("export I_MPI_PIN_DOMAIN={}:compact".format(number_cores_in_l3cache))
+          else:
+             if number_threads_per_process == 1:
+                print("export MV2_SHOW_CPU_BINDING=1")
+                print("export MV2_CPU_BINDING_POLICY=scatter")
+                print("export MV2_CPU_BINDING_LEVEL=core")
+             else:
+                print("export MV2_SHOW_CPU_BINDING=1")
+                print("export MV2_THREADS_PER_PROCESS={}".format(number_cores_in_l3cache))
+                print("export MV2_CPU_BINDING_POLICY=hybrid")
+                print("export MV2_HYBRID_BINDING_POLICY=linear")
 
 
 def main():
@@ -788,11 +798,11 @@ def main():
    parser.add_argument("-nv", "--total_number_vms", dest="total_number_vms", type=int, default=1, help="Total number of VM's (used with -pps)")
    parser.add_argument("-nppv", "--number_processes_per_vm", dest="number_processes_per_vm", type=int, help="Total number of MPI processes per VM (used with -pps)")
    parser.add_argument("-ntpp", "--number_threads_per_process", dest="number_threads_per_process", type=int, help="Number of threads per process (used with -pps)")
-   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)")
+   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel","mvapich2"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)")
    args = parser.parse_args()
    force = args.force
    if len(sys.argv) > 1 and not args.application_pattern and not args.print_pinning_syntax:
-      print("Error: you must select either an application_name_pattern(-anp) (to see where your application is pinned)  or print_pinning_syntax (-ppa) (to see the MPI pinning syntax), -h argument will show you all argument options.")
+      print("Error: you must select either an application_name_pattern(-anp) (to see where your application is pinned)  or print_pinning_syntax (-pps) (to see the MPI pinning syntax), -h argument will show you all argument options.")
       sys.exit(1)
    topo_d = parse_lstopo()
    total_num_numa_domains = calc_total_num_numas(topo_d)

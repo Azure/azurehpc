@@ -1,7 +1,7 @@
 # HPC Application process/thread mapping/pinning checking tool
 
 Correct mapping/pinning of HPC Application processes/threads is critical for optimal performance.
-The HPC Application process/thread mapping/pinning checking tool has two main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally or it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX and Intel MPI (Currently for HPC VM's based on AMD processors (HB (v1,v2 & v3) and NDv4). This tool shows you the virtual machine NUMA topology (i.e location of code id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
+The HPC Application process/thread mapping/pinning checking tool has two main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally or it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX, Intel MPI and MVapich2 (Currently for HPC VM's based on AMD processors (HB (v1,v2 & v3) and NDv4). This tool shows you the virtual machine NUMA topology (i.e location of code id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ usage: check_app_pinning.py [-h] [-anp APPLICATION_PATTERN] [-pps] [-f]
                             [-nv TOTAL_NUMBER_VMS]
                             [-nppv NUMBER_PROCESSES_PER_VM]
                             [-ntpp NUMBER_THREADS_PER_PROCESS]
-                            [-mt {openmpi,intel}]
+                            [-mt {openmpi,intel,mvapich2}]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -34,7 +34,7 @@ optional arguments:
   -ntpp NUMBER_THREADS_PER_PROCESS, --number_threads_per_process NUMBER_THREADS_PER_PROCESS
                         Number of threads per process (used with -pps)
                         (default: None)
-  -mt {openmpi,intel}, --mpi_type {openmpi,intel}
+  -mt {openmpi,intel,mvapich2}, --mpi_type {openmpi,intel,mvapich2}
                         Select which type of MPI to generate pinning syntax
                         (used with -pps) (default: openmpi)
 ```
