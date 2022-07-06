@@ -13,7 +13,20 @@ dir=$(pwd)
 NODE_FILENAME=osu_nodes.txt
 rm -rf $NODE_FILENAME
 touch $NODE_FILENAME
-nodelist=$(sinfo -N | grep idle | grep -v "idle~" | grep -v htc | awk '{print $1}' | sort -u)
+
+queue_flag=""
+if [ "$queue" != "None" ]
+then
+    nodelist=$(sinfo -N | grep " $queue " | grep idle | grep -v "idle~" | awk '{print $1}' | sort -u)
+    queue_flag=" -p $queue"
+    echo "Queue: $queue"
+    echo "Queue flag: $queue_flag"
+    echo "Node list: $nodelist"
+
+else
+    nodelist=$(sinfo -N | grep " .*\* " | grep idle | grep -v "idle~"  | awk '{print $1}' | sort -u)
+fi
+
 echo $nodelist
 IFS=' '
 read -a nodearray <<< "$nodelist"
@@ -35,7 +48,7 @@ do
         echo "$src ===== $dst"
         continue
     else
-        sbatch --nodelist=$src,$dst --time=00:03:00 --nodes=2 --ntasks=2 --ntasks-per-node=1 --job-name=osu_bw_test --output=$OUTDIR/osu_bw_test-%j.out --exclusive run_ring_osu_bw_hpcx.slurm
+        sbatch $queue_flag --nodelist=$src,$dst --time=00:03:00 --nodes=2 --ntasks=2 --ntasks-per-node=1 --job-name=osu_bw_test --output=$OUTDIR/osu_bw_test-%j.out --exclusive run_ring_osu_bw_hpcx.slurm
         src=$dst
         sleep .5
     fi
