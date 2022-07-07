@@ -89,7 +89,7 @@ function slurm_config() {
       echo "HealthCheckNodeState=${SLURM_HEALTH_CHECK_NODE_STATE}" >> $SLURM_CONF
       grep -qi '^Epilog' $SLURM_CONF
       epilog_does_not_exist=$?
-      if [[ $NHC_EPILOG == 1 && $epilog_does_not_exist ]]; then
+      if [[ $NHC_EPILOG == 1 && $epilog_does_not_exist == 1 ]]; then
          cp $CYCLECLOUD_SPEC_PATH/files/run_nhc.sh /sched
          echo "Epilog=/sched/run_nhc.sh" >> $SLURM_CONF
       fi
