@@ -91,7 +91,7 @@ function slurm_config() {
       epilog_does_not_exist=$?
       if [[ $NHC_EPILOG == 1 && $epilog_does_not_exist ]]; then
          cp $CYCLECLOUD_SPEC_PATH/files/run_nhc.sh /sched
-         echo "Epilog=/sched/epilog.sh" >> $SLURM_CONF
+         echo "Epilog=/sched/run_nhc.sh" >> $SLURM_CONF
       fi
    else
       echo "Warning: Did not configure SLURM to use NHC (Looks like it is already set-up)"
