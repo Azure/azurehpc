@@ -69,6 +69,12 @@ DRAINED node from deallocating (i.e enable keep alive)
 You can add your own health checks to the NHC framework. An example is azure_cuda_bandwidth.nhc, which is a CUDA bandwidthtest health check specifically for GPU's.
 You just add your custom health check to /etc/nhc/scripts and modify your nhc.conf file to use it (/etc/nhc/nhc.conf).
 
+## Run NHC via SLURM Epilog
+If you need to run NHC checks after a job completes (SLURM Epilog), then set NHC_EPILOG=1 in the configure_nhc.sh script.
+
+>Note: If you run NHC via Epilog, then set HealthCheckInterval to a large value so it effectively only runs when a new node is provisioned in the cluster.
+
+
 ## Additional info
 
 The script create_nhc_src_tar.sh is included to create a tarball of the NHC github repository that you can then use when you deploy NHC using the cyclecloud cluster-init project.
