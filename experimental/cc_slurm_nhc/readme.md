@@ -72,7 +72,7 @@ You just add your custom health check to /etc/nhc/scripts and modify your nhc.co
 ## Run NHC via SLURM Epilog
 If you need to run NHC checks after a job completes (SLURM Epilog), then set NHC_EPILOG=1 in the configure_nhc.sh script.
 
->Note: If you run NHC via Epilog, then set HealthCheckInterval to a large value so it effectively only runs when a new node is allocated.
+>Note: If you run NHC via Epilog, then set HealthCheckInterval to a large value so it effectively only runs when a new node is provisioned in the cluster.
 
 
 ## Additional info
