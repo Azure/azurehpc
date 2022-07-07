@@ -16,6 +16,7 @@ NHC_NVIDIA_HEALTHMON_ARGS="diag -r 1"
 SLURM_CONF=/etc/slurm/slurm.conf
 SLURM_HEALTH_CHECK_INTERVAL=7200
 SLURM_HEALTH_CHECK_NODE_STATE=IDLE
+NHC_EPILOG=0
 NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc azure_gpu_ecc.nhc azure_gpu_persistence.nhc azure_ib_write_bw_gdr.nhc azure_nccl_allreduce_ib_loopback.nhc azure_ib_link_flapping.nhc azure_gpu_clock_throttling.nhc azure_cpu_drop_cache_mem.nhc"
 
 
@@ -86,6 +87,12 @@ function slurm_config() {
       echo "HealthCheckProgram=${NHC_EXE}" >> $SLURM_CONF
       echo "HealthCheckInterval=${SLURM_HEALTH_CHECK_INTERVAL}" >> $SLURM_CONF
       echo "HealthCheckNodeState=${SLURM_HEALTH_CHECK_NODE_STATE}" >> $SLURM_CONF
+      grep -qi '^Epilog' $SLURM_CONF
+      epilog_does_not_exist=$?
+      if [[ $NHC_EPILOG == 1 && $epilog_does_not_exist ]]; then
+         cp $CYCLECLOUD_SPEC_PATH/files/run_nhc.sh /sched
+         echo "Epilog=/sched/epilog.sh" >> $SLURM_CONF
+      fi
    else
       echo "Warning: Did not configure SLURM to use NHC (Looks like it is already set-up)"
    fi 
