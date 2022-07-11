@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # TODO: install directory
-INSTALL_DIR="/data/spectrex/"
+INSTALL_DIR="/netapps/spectrex"
 
 
 WORKING_DIR="/mnt/resource"
 CADENCE_TOOLS_BLOB=$1
-ISCAPE_FILE="IScape04.23-s012lnx86.t.Z"
+SPECTREXARCHIVE=$2
+ISCAPE_FILE="IScape04.23-s021lnx86.t.Z"
 
 cd ${WORKING_DIR}
 
@@ -40,21 +41,21 @@ download_archive()
 {
         echo "----------------------downloading archive."
         cd ${WORKING_DIR}
-        wget ${CADENCE_TOOLS_BLOB}/SpectreXArchive.tgz
-        tar -xzvf SpectreXArchive.tgz
+        wget ${CADENCE_TOOLS_BLOB}/${SPECTREXARCHIVE}
+        tar -xzvf ${SPECTREXARCHIVE}
 }
 
 install_from_archive()
 {
         echo "---------------------installing from archive."
-        cd ${WORKING_DIR}/iscape.04.23-s012/bin
+        cd ${WORKING_DIR}/iscape.04.23-s021/bin
         ./iscape.sh -batch majorAction=installfromarchive ArchiveDirectory=${WORKING_DIR}/SpectreXArchive/ InstallDirectory=${INSTALL_DIR}
 
         # generate configuration scripts
         ./iscape.sh -batch majorAction=configure InstallDirectory=${INSTALL_DIR}
 
         # complete configuration
-        /bin/sh ${INSTALL_DIR}installData/SPECTRE191_lnx86/batch_configure.sh
+        /bin/sh ${INSTALL_DIR}installData/SPECTRE201_lnx86/batch_configure.sh
         # test
         ./iscape.sh -batch majorAction=test InstallDirectory=${INSTALL_DIR}
 
