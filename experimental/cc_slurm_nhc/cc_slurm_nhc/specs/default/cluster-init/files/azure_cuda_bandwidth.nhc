@@ -7,43 +7,66 @@ BANDWIDTHTEST=`basename $BANDWIDTHTEST_EXE_PATH`
 #NUMA mapping for NDv4(A100)
 GPU_NUMA=( 1 1 0 0 3 3 2 2 )
 
-
 function check_cuda_bw()
 {
 EXP_CUDA_BW=$1
-for test in "--dtoh" "--htod"
+REPEATS="${2:-1}"
+
+for iter in $(seq 1 $REPEATS)
 do
-for device in {0..7};
-do
-   IFS=$'\n'
-   CUDA_BW=$(numactl -N ${GPU_NUMA[$device]} -m ${GPU_NUMA[$device]} $BANDWIDTHTEST_EXE_PATH --device=$device $test)
-   CUDA_BW_RC=$?
-   if [[ $CUDA_BW_RC != 0 ]]
-   then
-      log "$CUDA_BW"
-      die 1 "$FUNCNAME: $BANDWIDTHTEST retuned error code $CUDA_BW_RC "
-      return 1
-   fi
-   CUDA_BW_LINES=( $CUDA_BW )
-   for ((i=0; i<${#CUDA_BW_LINES[*]}; i++))
-   do
-   if [[ "${CUDA_BW_LINES[$i]//32000000}" != "${CUDA_BW_LINES[$i]}" ]]
-   then
-      IFS=$' \t\n'
-      LINE=( ${CUDA_BW_LINES[$i]} )
-      cuda_bandwidth=${LINE[1]}
-      dbg "gpu id=$device: numa domain=${GPU_NUMA[$device]}, Measured CUDA BW $cuda_bandwidth GB/s"
-      break
-   fi
-   done
-   if [[ $cuda_bandwidth < $EXP_CUDA_BW ]]
-   then
-       log "$CUDA_BW"
-       die 1 "$FUNCNAME: $BANDWIDTHTEST, gpu=$device, CUDA BW $test (expected > $EXP_CUDA_BW GB/s, but measured $cuda_bandwidth GB/s"
-       return 1
-   fi
+    FAIL=0
+    for test in "dtoh" "htod"
+    do
+        for device in {0..7};
+        do
+           IFS=$'\n'
+           CUDA_BW=$(numactl -N ${GPU_NUMA[$device]} -m ${GPU_NUMA[$device]} $BANDWIDTHTEST_EXE_PATH --device=$device --$test)
+           CUDA_BW_RC=$?
+           if [[ $CUDA_BW_RC != 0 ]]
+           then
+              log "$CUDA_BW"
+              die 1 "$FUNCNAME: $BANDWIDTHTEST retuned error code $CUDA_BW_RC "
+              return 1
+           fi
+           CUDA_BW_LINES=( $CUDA_BW )
+           for ((i=0; i<${#CUDA_BW_LINES[*]}; i++))
+           do
+               if [[ "${CUDA_BW_LINES[$i]//32000000}" != "${CUDA_BW_LINES[$i]}" ]]
+               then
+                   IFS=$' \t\n'
+                   LINE=( ${CUDA_BW_LINES[$i]} )
+                   cuda_bandwidth=${LINE[1]}
+                   dbg "gpu id=$device: numa domain=${GPU_NUMA[$device]}, Measured CUDA ${test^^} BW $cuda_bandwidth GB/s"
+                   break
+               fi
+           done
+
+           if [[ $cuda_bandwidth < $EXP_CUDA_BW ]]
+           then
+               FAIL=1
+               log "Iteration ${iter} of ${REPEATS} failed: gpu id=$device: numa domain=${GPU_NUMA[$device]}, Measured CUDA ${test^^} BW $cuda_bandwidth GB/s"
+               break
+           fi
+        done
+
+        if [[ $FAIL == 1 ]]
+        then
+            break
+        fi
+
+    done
+
+    if [[ $FAIL == 0 ]]
+    then
+        break
+    elif [[ $FAIL == 1 && $iter == $REPEATS ]]
+    then
+        die 1 "$FUNCNAME: $BANDWIDTHTEST, gpu=$device, CUDA BW $test (expected > $EXP_CUDA_BW GB/s, but measured $cuda_bandwidth GB/s"
+        return 1
+    fi
 done
-done
+
 IFS=$' \t\n'
 return 0
 }
+
