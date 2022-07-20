@@ -13,12 +13,14 @@ The NDv4 cluster will consist of
 - Extensive automatic pre-job healthchecks are enabled (Unhealthy nodes will be put into a DRAIN state)
 - A separate login node (separate from the scheduler is deployed)
 - Cyclecloud autoscaling is disabled.
+- Option to support containers by adding Nvidia pyxis+enroot SLURM integration
 - Windows server (winbox) is deployed to access the Cyclecloud portal via RDP
 
 ## Prerequistes
 - Bastion and jumpbox is deployed (landing zone), see examples/bastion for an example of how to deploy it.
-- Copy experimental/gpu_optimizations/max_gpu_app_clocks.sh to scripts dir
-- Copy experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files to scripts dir
+- Copy experimental/gpu_optimizations/max_gpu_app_clocks.sh to the scripts dir
+- Copy experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files to the scripts dir
+- Copy experimental/cc_slurm_pyxis_enroot/cc_slurm_pyxis_enroot/specs/default/cluster-init/files to the scripts dir (if using the config_pyxis_enroot.json config file)
 - The prereqs.json and config.json files are edited (e.g all NOT-SET sections are set).
 
 
@@ -37,6 +39,13 @@ Now deploy the rest of the infrastructure, This needs to be executed from the Ba
 ```
 $ azhpc-build --no-vnet 
 ```
+>Note: This deployment will not have container support integrated with SLURM (pyxis+enroot)
+
+To deploy with container support integrated with SLURM use the config_pyxis_enroot.json configuration file.
+```
+azhpc-build --no-vnet -c config_pyxis_enroot.json
+```
+
 
 ## Step 3 - Start the cluster in CycleCloud
 

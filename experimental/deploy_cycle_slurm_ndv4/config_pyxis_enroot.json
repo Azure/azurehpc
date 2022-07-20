@@ -187,8 +187,17 @@
           "HPCMachineType": "variables.hpc_vm_type",
           "loginMachineType": "variables.login_vm_type",
           "HPCMaxScalesetSize": 100,
-          "additional_slurm_config": "SuspendTime=-1\nHealthCheckProgram=/usr/sbin/nhc\nHealthCheckInterval=7200\nHealthCheckNodeState=IDLE",
-          "SchedulerClusterInitSpecs": {},
+          "additional_slurm_config": "SuspendTime=-1\nHealthCheckProgram=/usr/sbin/nhc\nHealthCheckInterval=200\nHealthCheckNodeState=IDLE",
+          "SchedulerClusterInitSpecs": {
+            "slurm_pyxis_enroot:default:1.0.0": {
+              "Order": 10020,
+              "Name": "slurm_pyxis_enroot:default:1.0.0",
+              "Spec": "default",
+              "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            }
+          },
           "LoginClusterInitSpecs": {
             "limits:default:1.0.0": {
               "Order": 10000,
@@ -213,6 +222,14 @@
               "Name": "nhc:default:1.0.0",
               "Spec": "default",
               "Project": "nhc",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "slurm_pyxis_enroot:default:1.0.0": {
+              "Order": 10020,
+              "Name": "slurm_pyxis_enroot:default:1.0.0",
+              "Spec": "default",
+              "Project": "slurm_pyxis_enroot",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -276,6 +293,26 @@
       "limits:default:1.0.0": [
                       {
                         "script": "set_limits.sh"
+                      }
+      ],
+      "slurm_pyxis_enroot:default:1.0.0": [
+                      {
+                        "script": "install_pyxis.sh"
+                      },
+                      {
+                        "script": "configure_pyxis.sh",
+                        "deps": [
+                                "prolog.sh"
+                        ]
+                      },
+                      {
+                        "script": "install_enroot.sh"
+                      },
+                      {
+                        "script": "install_enroot_hooks.sh"
+                      },
+                      {
+                        "script": "slurmd_pmix.sh"
                       }
       ]
     }
