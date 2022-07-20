@@ -42,19 +42,4 @@ if [ ! -c /dev/nvidia-uvm ]; then
 fi
 
 
-#Check that PMIX environmental vars are defined in /etc/sysconfig/slurmd (NCCL tests (e.g NCCL all-reduce via pyxis/enroot))
-grep -q PMIX_MCA /etc/sysconfig/slurmd
-pmix_is_not_set=$?
-if [ $pmix_is_not_set -eq 1 ]; then
-# slurmd environment variables for PMIx
-cat <<EOF >> /etc/sysconfig/slurmd
-
-PMIX_MCA_ptl=^usock
-PMIX_MCA_psec=none
-PMIX_SYSTEM_TMPDIR=/var/empty
-PMIX_MCA_gds=hash
-HWLOC_COMPONENTS=-opencl
-EOF
-fi
-
 exit 0
