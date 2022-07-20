@@ -369,6 +369,7 @@ name = {project}
         for idx, step in enumerate(config["cyclecloud"]["projects"][p]):
             script = step["script"]
             script_file = f"{scripts_dir}/{idx:02d}_{script}"
+            background = step.get("background", None)
 
             # copy script file and dependencies into files_dir
             for s in [ script ] + step.get("deps", []):
@@ -376,7 +377,13 @@ name = {project}
 
             # create cluster-init script
             args = " ".join([ f'"{arg}"' for arg in step.get("args", []) ])
-            script_content = f"""#!/bin/bash
+            if background:
+               script_content = f"""#!/bin/bash
+chmod +x $CYCLECLOUD_SPEC_PATH/files/*.sh
+$CYCLECLOUD_SPEC_PATH/files/{script} {args} &
+"""
+            else:
+               script_content = f"""#!/bin/bash
 chmod +x $CYCLECLOUD_SPEC_PATH/files/*.sh
 $CYCLECLOUD_SPEC_PATH/files/{script} {args}
 """

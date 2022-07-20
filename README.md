@@ -274,11 +274,12 @@ For `ClusterInitSpec`definition use thie following format, and make sure to use 
 This describes the CycleCloud project containing cluster-init wrapper scripts to be uploaded in the CycleCloud locker. 
 Each project name has to follow the CycleCloud naming convention `projectname:specname:i.j.k` and contains an array of scripts described below :
 
-| Name       | Description                                                                          | Required | Default |
-|------------|--------------------------------------------------------------------------------------|----------|---------|
-| **script** | The name of the script to run                                                        |   yes    |         |
-| **deps**   | A list of dependent files                                                            |   no     |         |
-| **args**   | A list containing the arguments for the script                                       |   no     |         |
+| Name             | Description                                                                          | Required | Default |
+|------------------|--------------------------------------------------------------------------------------|----------|---------|
+| **script**       | The name of the script to run                                                        |   yes    |         |
+| **deps**         | A list of dependent files                                                            |   no     |         |
+| **args**         | A list containing the arguments for the script                                       |   no     |         |
+| **background**   | Run **script** in the background (true,false)                                        |   no     |  false  |
 
 
 ### Macros in the config file
