@@ -79,6 +79,28 @@ function nhc_sysconfig() {
 }
 
 
+function update_slurm_prolog_epilog() {
+
+   prolog_epilog=$1
+   script=$2
+   grep -qi /sched/scripts/${prolog_epilog}.sh $SLURM_CONF
+   prolog_epilog_does_not_exist=$?
+   cp $CYCLECLOUD_SPEC_PATH/files/$script /sched/scripts
+   if [[ $prolog_does_not_exist == 1 ]]; then
+      if [[ $prolog_epilog == "prolog" ]]; then
+         cp $CYCLECLOUD_SPEC_PATH/files/prolog.sh /sched/scripts
+         echo "Prolog=/sched/prolog.sh" >> $SLURM_CONF
+         echo "PrologFlags=Alloc" >> $SLURM_CONF
+      elif [[ $prolog_epilog == "epilog" ]]; then
+         cp $CYCLECLOUD_SPEC_PATH/files/epilog.sh /sched/scripts
+         echo "Epilog=/sched/epilog.sh" >> $SLURM_CONF
+      fi
+   else
+      echo "/sched/scripts/$script" >> /sched/script/${prolog_epilog}.sh
+   fi
+}
+
+
 function slurm_config() {
    
    grep HealthCheckProgram $SLURM_CONF | grep -q nhc
@@ -88,18 +110,12 @@ function slurm_config() {
       echo "HealthCheckProgram=${NHC_EXE}" >> $SLURM_CONF
       echo "HealthCheckInterval=${SLURM_HEALTH_CHECK_INTERVAL}" >> $SLURM_CONF
       echo "HealthCheckNodeState=${SLURM_HEALTH_CHECK_NODE_STATE}" >> $SLURM_CONF
-      grep -qi '^Prolog' $SLURM_CONF
-      prolog_does_not_exist=$?
-      if [[ $NHC_PROLOG == 1 && $prolog_does_not_exist == 1 ]]; then
-         cp $CYCLECLOUD_SPEC_PATH/files/kill_nhc.sh /sched
-         echo "Prolog=/sched/kill_nhc.sh" >> $SLURM_CONF
-         echo "PrologFlags=Alloc" >> $SLURM_CONF
+
+      if [[ $NHC_PROLOG == 1 ]]; them
+         update_slurm_prolog_epilog prolog kill_nhc.sh
       fi
-      grep -qi '^Epilog' $SLURM_CONF
-      epilog_does_not_exist=$?
-      if [[ $NHC_EPILOG == 1 && $epilog_does_not_exist == 1 ]]; then
-         cp $CYCLECLOUD_SPEC_PATH/files/run_nhc.sh /sched
-         echo "Epilog=/sched/run_nhc.sh" >> $SLURM_CONF
+      if [[ $NHC_EPILOG == 1 ]]; them
+         update_slurm_prolog_epilog epilog run_nhc.sh
       fi
    else
       echo "Warning: Did not configure SLURM to use NHC (Looks like it is already set-up)"
