@@ -114,10 +114,10 @@ function slurm_config() {
       echo "HealthCheckInterval=${SLURM_HEALTH_CHECK_INTERVAL}" >> $SLURM_CONF
       echo "HealthCheckNodeState=${SLURM_HEALTH_CHECK_NODE_STATE}" >> $SLURM_CONF
 
-      if [[ $NHC_PROLOG == 1 ]]; them
+      if [[ $NHC_PROLOG == 1 ]]; then
          update_slurm_prolog_epilog prolog kill_nhc.sh
       fi
-      if [[ $NHC_EPILOG == 1 ]]; them
+      if [[ $NHC_EPILOG == 1 ]]; then
          update_slurm_prolog_epilog epilog run_nhc.sh
       fi
    else
