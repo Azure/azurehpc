@@ -15,6 +15,6 @@ Upload the cc_slurm_pycis_enrrot to your cyclecloud storage locker.
 cyclecloud project upload <locker>
 ```
 
-Edit Cluster configuration in portal (or using a cluster json parameter file), to add this spec to your cluster (i.e add cluster-init project to your compute nodes)
+Edit Cluster configuration in portal (or using a cluster json parameter file), to add this spec to your cluster (i.e add cluster-init project to your scheduler and compute nodes).
 See in the CC Portal Edit-->Advanced-Settings, under Software.
 
