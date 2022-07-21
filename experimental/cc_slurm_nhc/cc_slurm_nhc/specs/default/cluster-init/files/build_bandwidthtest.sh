@@ -1,8 +1,6 @@
 #!/bin/bash
 
-function is_slurm_controller() {
-   systemctl list-units --full -all | grep -q slurmctld
-}
+source common_functions.sh
 
 if ! is_slurm_controller; then
    cd /usr/local/cuda/samples/1_Utilities/bandwidthTest
