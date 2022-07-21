@@ -65,7 +65,7 @@ function check_gpu_ecc() {
       fi
       if [[ -n $1 ]]; then
          if [[ ${gpu_query_out_line[2]} -gt $1 || ${gpu_query_out_line[3]} -gt $1 || ${gpu_query_out_line[6]} -gt $1 || ${gpu_query_out_line[7]} -gt $1 ]]; then
-	    log "Warning: $FUNCNAME: GPU id $i: High DRAM Uncorrectable/correctable ECC error count detected, (${gpu_query_out_line[2]},${gpu_query_out_line[3]},${gpu_query_out_line[6]},${gpu_query_out_line[7]})"
+	    die 1 "$FUNCNAME: GPU id $i: High DRAM Uncorrectable/correctable ECC error count detected, (${gpu_query_out_line[2]},${gpu_query_out_line[3]},${gpu_query_out_line[6]},${gpu_query_out_line[7]})"
          else
             dbg "GPU id $i: Normal DRAM Uncorrectable/correctable ECC error count, (${gpu_query_out_line[2]},${gpu_query_out_line[3]},${gpu_query_out_line[6]},${gpu_query_out_line[7]})"
          fi
