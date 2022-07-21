@@ -1,8 +1,6 @@
 #!/bin/bash
 
-function is_slurm_controller() {
-   systemctl list-units --full -all | grep -q slurmctld
-}
+source common_functions.sh
 
 ENROOT_VERSION_FULL=${1:-3.4.0-1}
 ENROOT_VERSION=${ENROOT_VERSION_FULL%-*}

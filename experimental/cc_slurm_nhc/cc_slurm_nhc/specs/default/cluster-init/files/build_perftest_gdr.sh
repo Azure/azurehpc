@@ -4,11 +4,7 @@ VERSION=4.5-0.12
 VERSION_HASH=ge93c538
 INSTALL_DIR=/opt
 
-
-function is_slurm_controller() {
-   systemctl list-units --full -all | grep -q slurmctld
-}
-
+source common_functions.sh
 
 if ! is_slurm_controller; then
    apt-get install -y pciutils-dev
