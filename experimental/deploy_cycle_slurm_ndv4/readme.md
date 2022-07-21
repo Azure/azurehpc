@@ -19,7 +19,7 @@ The NDv4 cluster will consist of
 ## Prerequistes
 - Bastion and jumpbox is deployed (landing zone), see examples/bastion for an example of how to deploy it.
 - Copy experimental/gpu_optimizations/max_gpu_app_clocks.sh to the scripts dir
-- Copy experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files to the scripts dir
+- Copy experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files to the scripts dir (except prolog.sh)
 - Copy experimental/cc_slurm_pyxis_enroot/cc_slurm_pyxis_enroot/specs/default/cluster-init/files to the scripts dir (if using the config_pyxis_enroot.json config file)
 - The prereqs.json and config.json files are edited (e.g all NOT-SET sections are set).
 

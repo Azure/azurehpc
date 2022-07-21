@@ -187,13 +187,21 @@
           "HPCMachineType": "variables.hpc_vm_type",
           "loginMachineType": "variables.login_vm_type",
           "HPCMaxScalesetSize": 100,
-          "additional_slurm_config": "SuspendTime=-1\nHealthCheckProgram=/usr/sbin/nhc\nHealthCheckInterval=200\nHealthCheckNodeState=IDLE",
+          "additional_slurm_config": "SuspendTime=-1",
           "SchedulerClusterInitSpecs": {
             "slurm_pyxis_enroot:default:1.0.0": {
               "Order": 10020,
               "Name": "slurm_pyxis_enroot:default:1.0.0",
               "Spec": "default",
               "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "nhc:default:1.0.0": {
+              "Order": 10030,
+              "Name": "nhc:default:1.0.0",
+              "Spec": "default",
+              "Project": "nhc",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -217,19 +225,19 @@
               "Version": "1.0.0",
               "Locker": "azure-storage"
             },
-            "nhc:default:1.0.0": {
-              "Order": 10010,
-              "Name": "nhc:default:1.0.0",
-              "Spec": "default",
-              "Project": "nhc",
-              "Version": "1.0.0",
-              "Locker": "azure-storage"
-            },
             "slurm_pyxis_enroot:default:1.0.0": {
               "Order": 10020,
               "Name": "slurm_pyxis_enroot:default:1.0.0",
               "Spec": "default",
               "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "nhc:default:1.0.0": {
+              "Order": 10030,
+              "Name": "nhc:default:1.0.0",
+              "Spec": "default",
+              "Project": "nhc",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -280,7 +288,11 @@
             "azure_ib_write_bw_gdr.nhc",
             "azure_nccl_allreduce_ib_loopback.nhc",
             "azure_ib_link_flapping.nhc",
-            "azure_gpu_clock_throttling.nhc"
+            "azure_gpu_clock_throttling.nhc",
+            "azure_cpu_drop_cache_mem.nhc",
+            "epilog.sh",
+            "run_nhc.sh",
+            "kill_nhc.sh"
           ]
         },
         {
@@ -312,7 +324,8 @@
                         "script": "install_enroot_hooks.sh"
                       },
                       {
-                        "script": "slurmd_pmix.sh"
+                        "script": "slurmd_pmix.sh",
+                        "background": true
                       }
       ]
     }

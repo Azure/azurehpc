@@ -187,7 +187,7 @@
           "HPCMachineType": "variables.hpc_vm_type",
           "loginMachineType": "variables.login_vm_type",
           "HPCMaxScalesetSize": 100,
-          "additional_slurm_config": "SuspendTime=-1\nHealthCheckProgram=/usr/sbin/nhc\nHealthCheckInterval=7200\nHealthCheckNodeState=IDLE",
+          "additional_slurm_config": "SuspendTime=-1",
           "SchedulerClusterInitSpecs": {},
           "LoginClusterInitSpecs": {
             "limits:default:1.0.0": {
@@ -263,7 +263,11 @@
             "azure_ib_write_bw_gdr.nhc",
             "azure_nccl_allreduce_ib_loopback.nhc",
             "azure_ib_link_flapping.nhc",
-            "azure_gpu_clock_throttling.nhc"
+            "azure_gpu_clock_throttling.nhc",
+            "azure_cpu_drop_cache_mem.nhc",
+            "epilog.sh",
+            "run_nhc.sh",
+            "kill_nhc.sh"
           ]
         },
         {
