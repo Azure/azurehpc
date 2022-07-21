@@ -4,9 +4,7 @@ PYXIS_VER=0.11.1
 TMP_DIR=/tmp
 SHARED_DIR=/sched/pyxis
 
-function is_slurm_controller() {
-   systemctl list-units --full -all | grep -q slurmctld
-}
+source common_functions.sh
 
 function install_build_deps() {
    apt-get -y install gcc make
