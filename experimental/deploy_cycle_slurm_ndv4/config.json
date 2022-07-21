@@ -267,7 +267,8 @@
             "azure_cpu_drop_cache_mem.nhc",
             "epilog.sh",
             "run_nhc.sh",
-            "kill_nhc.sh"
+            "kill_nhc.sh",
+            "common_functions.sh"
           ]
         },
         {

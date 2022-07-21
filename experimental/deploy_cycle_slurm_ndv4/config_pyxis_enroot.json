@@ -292,7 +292,8 @@
             "azure_cpu_drop_cache_mem.nhc",
             "epilog.sh",
             "run_nhc.sh",
-            "kill_nhc.sh"
+            "kill_nhc.sh",
+            "common_functions.sh"
           ]
         },
         {
@@ -309,7 +310,10 @@
       ],
       "slurm_pyxis_enroot:default:1.0.0": [
                       {
-                        "script": "install_pyxis.sh"
+                        "script": "install_pyxis.sh",
+                        "deps": [
+                                "common_functions.sh"
+                        ]
                       },
                       {
                         "script": "configure_pyxis.sh",
