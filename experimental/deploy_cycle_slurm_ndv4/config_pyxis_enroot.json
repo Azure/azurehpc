@@ -188,7 +188,24 @@
           "loginMachineType": "variables.login_vm_type",
           "HPCMaxScalesetSize": 100,
           "additional_slurm_config": "SuspendTime=-1",
-          "SchedulerClusterInitSpecs": {},
+          "SchedulerClusterInitSpecs": {
+            "slurm_pyxis_enroot:default:1.0.0": {
+              "Order": 10020,
+              "Name": "slurm_pyxis_enroot:default:1.0.0",
+              "Spec": "default",
+              "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "nhc:default:1.0.0": {
+              "Order": 10030,
+              "Name": "nhc:default:1.0.0",
+              "Spec": "default",
+              "Project": "nhc",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            }
+          },
           "LoginClusterInitSpecs": {
             "limits:default:1.0.0": {
               "Order": 10000,
@@ -208,8 +225,16 @@
               "Version": "1.0.0",
               "Locker": "azure-storage"
             },
+            "slurm_pyxis_enroot:default:1.0.0": {
+              "Order": 10020,
+              "Name": "slurm_pyxis_enroot:default:1.0.0",
+              "Spec": "default",
+              "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
             "nhc:default:1.0.0": {
-              "Order": 10010,
+              "Order": 10030,
               "Name": "nhc:default:1.0.0",
               "Spec": "default",
               "Project": "nhc",
@@ -281,6 +306,30 @@
       "limits:default:1.0.0": [
                       {
                         "script": "set_limits.sh"
+                      }
+      ],
+      "slurm_pyxis_enroot:default:1.0.0": [
+                      {
+                        "script": "install_pyxis.sh",
+                        "deps": [
+                                "common_functions.sh"
+                        ]
+                      },
+                      {
+                        "script": "configure_pyxis.sh",
+                        "deps": [
+                                "prolog.sh"
+                        ]
+                      },
+                      {
+                        "script": "install_enroot.sh"
+                      },
+                      {
+                        "script": "install_enroot_hooks.sh"
+                      },
+                      {
+                        "script": "slurmd_pmix.sh",
+                        "background": true
                       }
       ]
     }
