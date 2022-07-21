@@ -45,16 +45,9 @@ Upload the cc_slurm_nhc to your cyclecloud storage locker.
 cyclecloud project upload <locker>
 ```
 
-Edit Cluster configuration in portal (or using a cluster json parameter file), to add this spec to your cluster (i.e add cluster-init project to your compute nodes)
-See in the CC Portal Edit-->Advanced-Settings, under Software. Also, added the following to the Additional Slurm config section.
+Edit Cluster configuration in portal (or using a cluster json parameter file), to add this spec to your cluster (i.e add cluster-init project to your scheduler and compute nodes) See in the CC Portal Edit-->Advanced-Settings, under Software.
 
-```
-SuspendExcParts=hpc
-HealthCheckProgram=/usr/sbin/nhc
-HealthCheckInterval=1200
-HealthCheckNodeState=IDLE
-```
->Note: In my case I am disabling autoscaling (SuspendExcParts=hpc), if you have autoscaling enabled you may need to modify these scripts to prevent the 
+>Note: In my case I am disabling autoscaling (SuspendTime=-1), if you have autoscaling enabled you may need to modify these scripts to prevent the 
 DRAINED node from deallocating (i.e enable keep alive)
 
 ## key file locations
