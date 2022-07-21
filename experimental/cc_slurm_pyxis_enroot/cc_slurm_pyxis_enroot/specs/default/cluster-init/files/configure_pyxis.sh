@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source common_functions.sh
+source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
 function link_plugstack() {
    ln -s /sched/plugstack.conf /etc/slurm/plugstack.conf

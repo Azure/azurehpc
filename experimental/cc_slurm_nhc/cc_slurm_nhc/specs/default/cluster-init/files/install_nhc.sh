@@ -7,7 +7,7 @@ TMPDIR=/tmp
 TAR_FILE=$CYCLECLOUD_SPEC_PATH/files/
 
 
-source common_functions.sh
+source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
 
 function get_source() {
