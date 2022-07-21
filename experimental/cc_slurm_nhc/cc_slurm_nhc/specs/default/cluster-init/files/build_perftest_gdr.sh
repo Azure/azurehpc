@@ -4,7 +4,7 @@ VERSION=4.5-0.12
 VERSION_HASH=ge93c538
 INSTALL_DIR=/opt
 
-source common_functions.sh
+source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
 if ! is_slurm_controller; then
    apt-get install -y pciutils-dev

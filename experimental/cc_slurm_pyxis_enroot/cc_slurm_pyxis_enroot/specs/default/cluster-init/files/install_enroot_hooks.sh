@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source common_functions.sh
+source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
 # Install extra hooks for PMIx on compute nodes
 if ! is_slurm_controller; then

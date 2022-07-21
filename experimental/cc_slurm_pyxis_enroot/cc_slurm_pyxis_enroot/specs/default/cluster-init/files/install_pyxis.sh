@@ -4,7 +4,7 @@ PYXIS_VER=0.11.1
 TMP_DIR=/tmp
 SHARED_DIR=/sched/pyxis
 
-source common_functions.sh
+source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
 function install_build_deps() {
    apt-get -y install gcc make
