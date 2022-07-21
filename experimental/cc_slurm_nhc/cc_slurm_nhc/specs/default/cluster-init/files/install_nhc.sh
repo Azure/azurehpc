@@ -7,6 +7,11 @@ TMPDIR=/tmp
 TAR_FILE=$CYCLECLOUD_SPEC_PATH/files/
 
 
+function is_slurm_controller() {
+   systemctl list-units --full -all | grep -q slurmctld
+}
+
+
 function get_source() {
 
    if [[ -f $TAR_FILE ]]
@@ -41,4 +46,6 @@ function install_from_source() {
 
 }
 
-install_from_source
+if ! is_slurm_controller; then
+   install_from_source
+fi
