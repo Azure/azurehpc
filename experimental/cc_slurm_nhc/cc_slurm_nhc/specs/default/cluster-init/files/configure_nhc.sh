@@ -13,12 +13,14 @@ NHC_DEBUG=0
 NHC_EXE=/usr/sbin/nhc
 NHC_NVIDIA_HEALTHMON=dcgmi
 NHC_NVIDIA_HEALTHMON_ARGS="diag -r 1"
-SLURM_CONF=/etc/slurm/slurm.conf
+SLURM_CONF=/sched/slurm.conf
 SLURM_HEALTH_CHECK_INTERVAL=7200
 SLURM_HEALTH_CHECK_NODE_STATE=IDLE
+NHC_PROLOG=1
 NHC_EPILOG=0
 NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc azure_gpu_ecc.nhc azure_gpu_persistence.nhc azure_ib_write_bw_gdr.nhc azure_nccl_allreduce_ib_loopback.nhc azure_ib_link_flapping.nhc azure_gpu_clock_throttling.nhc azure_cpu_drop_cache_mem.nhc"
 
+source common_functions.sh
 
 function select_sku_conf() {
    vm_size=`jetpack config azure.metadata.compute.vmSize | tr '[:upper:]' '[:lower:]'`
@@ -78,8 +80,33 @@ function nhc_sysconfig() {
 }
 
 
+function update_slurm_prolog_epilog() {
+
+   prolog_epilog=$1
+   script=$2
+   grep -qi /sched/scripts/${prolog_epilog}.sh $SLURM_CONF
+   prolog_epilog_does_not_exist=$?
+   cp $CYCLECLOUD_SPEC_PATH/files/$script /sched/scripts
+   chmod +x /sched/scripts/$script
+   if [[ $prolog_epilog_does_not_exist == 1 ]]; then
+      if [[ $prolog_epilog == "prolog" ]]; then
+         cp $CYCLECLOUD_SPEC_PATH/files/prolog.sh /sched/scripts
+         chmod +x /sched/scripts/prolog.sh
+         echo "Prolog=/sched/prolog.sh" >> $SLURM_CONF
+         echo "PrologFlags=Alloc" >> $SLURM_CONF
+      elif [[ $prolog_epilog == "epilog" ]]; then
+         cp $CYCLECLOUD_SPEC_PATH/files/epilog.sh /sched/scripts
+         chmod +x /sched/scripts/epilog.sh
+         echo "Epilog=/sched/scripts/epilog.sh" >> $SLURM_CONF
+      fi
+   else
+      echo "/sched/scripts/$script" >> /sched/script/${prolog_epilog}.sh
+   fi
+}
+
+
 function slurm_config() {
-   
+
    grep HealthCheckProgram $SLURM_CONF | grep -q nhc
    if [[ $? -eq 1 ]]
    then
@@ -87,15 +114,16 @@ function slurm_config() {
       echo "HealthCheckProgram=${NHC_EXE}" >> $SLURM_CONF
       echo "HealthCheckInterval=${SLURM_HEALTH_CHECK_INTERVAL}" >> $SLURM_CONF
       echo "HealthCheckNodeState=${SLURM_HEALTH_CHECK_NODE_STATE}" >> $SLURM_CONF
-      grep -qi '^Epilog' $SLURM_CONF
-      epilog_does_not_exist=$?
-      if [[ $NHC_EPILOG == 1 && $epilog_does_not_exist == 1 ]]; then
-         cp $CYCLECLOUD_SPEC_PATH/files/run_nhc.sh /sched
-         echo "Epilog=/sched/run_nhc.sh" >> $SLURM_CONF
+
+      if [[ $NHC_PROLOG == 1 ]]; then
+         update_slurm_prolog_epilog prolog kill_nhc.sh
+      fi
+      if [[ $NHC_EPILOG == 1 ]]; then
+         update_slurm_prolog_epilog epilog run_nhc.sh
       fi
    else
       echo "Warning: Did not configure SLURM to use NHC (Looks like it is already set-up)"
-   fi 
+   fi
 
 }
 
@@ -109,12 +137,12 @@ function copy_extra_test_files() {
    done
 }
 
-
-mkdir /var/run/nhc
-select_sku_conf
-nhc_config
-nhc_sysconfig
-copy_extra_test_files
-if [[ -z $CYCLECLOUD_HOME ]]; then
+if is_slurm_controller; then
    slurm_config
+else
+   mkdir /var/run/nhc
+   select_sku_conf
+   nhc_config
+   nhc_sysconfig
+   copy_extra_test_files
 fi

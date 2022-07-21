@@ -45,16 +45,9 @@ Upload the cc_slurm_nhc to your cyclecloud storage locker.
 cyclecloud project upload <locker>
 ```
 
-Edit Cluster configuration in portal (or using a cluster json parameter file), to add this spec to your cluster (i.e add cluster-init project to your compute nodes)
-See in the CC Portal Edit-->Advanced-Settings, under Software. Also, added the following to the Additional Slurm config section.
+Edit Cluster configuration in portal (or using a cluster json parameter file), to add this spec to your cluster (i.e add cluster-init project to your scheduler and compute nodes) See in the CC Portal Edit-->Advanced-Settings, under Software.
 
-```
-SuspendExcParts=hpc
-HealthCheckProgram=/usr/sbin/nhc
-HealthCheckInterval=1200
-HealthCheckNodeState=IDLE
-```
->Note: In my case I am disabling autoscaling (SuspendExcParts=hpc), if you have autoscaling enabled you may need to modify these scripts to prevent the 
+>Note: In my case I am disabling autoscaling (SuspendTime=-1), if you have autoscaling enabled you may need to modify these scripts to prevent the 
 DRAINED node from deallocating (i.e enable keep alive)
 
 ## key file locations
@@ -69,6 +62,10 @@ DRAINED node from deallocating (i.e enable keep alive)
 You can add your own health checks to the NHC framework. An example is azure_cuda_bandwidth.nhc, which is a CUDA bandwidthtest health check specifically for GPU's.
 You just add your custom health check to /etc/nhc/scripts and modify your nhc.conf file to use it (/etc/nhc/nhc.conf).
 
+## Kill NHC via SLURM Prolog
+To prevent NHC from running while a job is running, we have provided a script to kill NHC processes (kill_nhc.sh). You can run this script before a job starts by using the SLURM PROLOG, set NHC_PROLOG=1 in the configure_nhc.sh script to enable this prolog (default) or set it to 0 to disable it..
+
+>Note: If you run NHC via Epilog, then set HealthCheckInterval to a large value so it effectively only runs when a new node is provisioned in the cluster.
 ## Run NHC via SLURM Epilog
 If you need to run NHC checks after a job completes (SLURM Epilog), then set NHC_EPILOG=1 in the configure_nhc.sh script.
 

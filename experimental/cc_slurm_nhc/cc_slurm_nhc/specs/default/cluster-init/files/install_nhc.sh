@@ -7,6 +7,9 @@ TMPDIR=/tmp
 TAR_FILE=$CYCLECLOUD_SPEC_PATH/files/
 
 
+source common_functions.sh
+
+
 function get_source() {
 
    if [[ -f $TAR_FILE ]]
@@ -23,7 +26,7 @@ function install_from_source() {
    if ! [[ -f  /usr/bin/nfc ]] && ! [[ -d /etc/nhc ]]
    then
       cd $TMPDIR
-      get_source 
+      get_source
       cd nhc
       ./autogen.sh
       if [ -f /etc/centos-release ]; then
@@ -41,4 +44,6 @@ function install_from_source() {
 
 }
 
-install_from_source
+if ! is_slurm_controller; then
+   install_from_source
+fi

@@ -1,8 +1,8 @@
 # Run NCCL tests optimally on NDv4 (A100) 
 
 Contains a few scripts demonstrating how to run the NCCL performance tests (e.g all-reduce, all-to-all, etc) optimally
-on NDV4 (A100) running Ubuntu-hpc 18.04 marketplace image. Examples of how to run this benchmark using the SLURM scheduler
-and without the SLURM scheduler (e.g with a hostfile) are provided. The default NCCL test in all scripts is NCCL all-reduce.
+on NDV4 (A100) running Ubuntu-hpc 18.04 marketplace image. Examples of how to run this benchmark using the SLURM scheduler,
+ SLURM+pyxis+enroot (pytroch container) and without the SLURM scheduler (e.g with a hostfile) are provided. The default NCCL test in all scripts is NCCL all-reduce.
 
 >Note: You can change the NCCL test by setting the variable NCCL_TESTS_EXE to a different executable (default is all_reduce_perf)
  
@@ -25,6 +25,14 @@ Run from the scheduler or login-node.
 ```
 sbatch -N <NUMBER_OF_NDV4_NODES> ./run_nccl_tests_slurm.slrm
 ```
+
+## Run NCCL test in a pytorch container using the SLURM scheduler (e.g sbatch/srun) with pyxis+enroot
+
+Run from the scheduler or login-node.
+```
+sbatch -N <NUMBER_OF_NDV4_NODES> ./run_nccl_tests_slurm_enroot.slrm
+```
+>Note: This example uses the Nvidia pytorch container version 21.10, you can choose to use a different pytorch container.
 
 ## Expected NCCL Collective Performance on NDv4
 
