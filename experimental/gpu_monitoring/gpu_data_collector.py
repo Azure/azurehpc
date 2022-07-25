@@ -172,8 +172,8 @@ def infiniband_rate(current_counter, previous_counter, time_interval):
     if counter_delta < 0:
         ib_counter_rate = 0
     else:
-        Gbps_factor = 1024 * 1024 * 1024
-        ib_counter_rate = int((counter_delta * NUMBER_IB_LINKS) / (time_interval * Gbps_factor))
+        GBps_factor = 1024 * 1024 * 1024
+        ib_counter_rate = int((counter_delta * NUMBER_IB_LINKS) / (time_interval * GBps_factor))
     return ib_counter_rate
 
 
