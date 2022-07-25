@@ -228,7 +228,7 @@ def parse_args():
     parser.add_argument("-fgm", "--force_gpu_monitoring", action="store_true", help="Forces data to be sent to log analytics WS even if no SLURM job is running on the node")
     parser.add_argument("-ibm", "--infiniband_metrics", action="store_true", help="Collect InfiniBand metrics (default: Do not collect IB metrics)")
     parser.add_argument("-uc", "--use_crontab", action="store_true", help="This script will be started by the system contab and the time interval between each data collection will be decided by the system crontab (if crontab is selected then the  -tis argument will be ignored).")
-    parser.add_argument("-tis", "--time_interval_seconds", dest="time_interval_seconds", type=int, default=30, help="The time interval in seconds between each data collection (This option cannot be used with the -uc argument)")
+    parser.add_argument("-tis", "--time_interval_seconds", dest="time_interval_seconds", type=int, default=10, help="The time interval in seconds between each data collection (This option cannot be used with the -uc argument)")
     args = parser.parse_args()
 
     if args.use_crontab:
