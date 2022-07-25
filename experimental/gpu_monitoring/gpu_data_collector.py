@@ -160,13 +160,6 @@ def get_counter_value(file_path):
     return int(value)
 
 
-def get_counter_value(file_path):
-    file = open(file_path, "r")
-    value = file.read()
-    file.close()
-    return int(value)
-
-
 def infiniband_rate(current_counter, previous_counter, time_interval):
     counter_delta = current_counter - previous_counter
     if counter_delta < 0:
