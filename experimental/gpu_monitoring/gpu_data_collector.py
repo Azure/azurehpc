@@ -163,7 +163,7 @@ def get_counter_value(file_path):
 def infiniband_rate(current_counter, previous_counter, time_interval):
     counter_delta = current_counter - previous_counter
     if counter_delta < 0:
-        ib_counter_rate = 0
+        ib_counter_rate = int((2*64 + counter_delta) / time_interval))
     else:
         ib_counter_rate = int(counter_delta / time_interval)
     return ib_counter_rate
