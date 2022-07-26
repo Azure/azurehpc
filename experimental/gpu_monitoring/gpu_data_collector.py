@@ -36,6 +36,17 @@ import argparse
 # will be ignored.
 #shared_key = 'XXXXXXXXXXXXX'
 
+#NUMBER_IB_LINKS = 4
+IB_COUNTERS = [
+                'port_xmit_data',
+                'port_rcv_data'
+              ]
+# If need to monitor InfiniBand errors, add these counters
+#    'port_xmit_discards',
+#    'port_rcv_errors',
+#    'port_xmit_constraint_errors',
+#    'port_rcv_constraint_errors',
+
 
 # Build the API signature
 def build_signature(customer_id, shared_key, date, content_length, method, content_type, resource):
@@ -92,7 +103,7 @@ def num(s):
        return float(s)
 
 
-def create_data_records(dcgm_dmon_fields_out,hostname,have_jobid,physicalhostname_val,dcgm_dmon_list_out):
+def create_data_records(dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l):
     data_l = []
     field_name_l = []
     for line in dcgm_dmon_fields_out.splitlines():
@@ -111,6 +122,8 @@ def create_data_records(dcgm_dmon_fields_out,hostname,have_jobid,physicalhostnam
                 indx = field_name_l.index(field_name) + 2
                 record_d[long_field_name] = num(line_split[indx])
             data_l.append(record_d)
+    if ib_rates_l:
+       data_l = data_l + ib_rates_l
     return data_l
 
 
@@ -140,6 +153,48 @@ def get_physicalhostname():
            return str(value[0])[2:][:-1]
 
 
+def get_counter_value(file_path):
+    file = open(file_path, "r")
+    value = file.read()
+    file.close()
+    return int(value)
+
+
+def infiniband_rate(current_counter, previous_counter, time_interval):
+    counter_delta = current_counter - previous_counter
+    if counter_delta < 0:
+        ib_counter_rate = int((2*64 + counter_delta) / time_interval))
+    else:
+        ib_counter_rate = int(counter_delta / time_interval)
+    return ib_counter_rate
+
+
+def get_infiniband_counter_rates(ib_counters, time_interval_seconds, physicalhostname_val, have_jobid, slurm_jobid):
+    ib_counter_rates_l = []
+    ib_base_path = '/sys/class/infiniband'
+    for hca_id in os.listdir(ib_base_path):
+        if hca_id not in ib_counters:
+           ib_counters[hca_id] = {}
+        ib_counter_rates = {}
+        ib_counter_rates['hca_id'] = hca_id
+        port = os.listdir(os.path.join(ib_base_path, hca_id, 'ports'))[0]
+        ib_counter_base_path = os.path.join(ib_base_path, hca_id, 'ports', port, 'counters')
+        for ib_counter_name in IB_COUNTERS:
+            ib_counter_name_per_sec = ib_counter_name + "_" + "per_sec"
+            ib_counter_path = os.path.join(ib_counter_base_path, ib_counter_name)
+            current_ib_counter = get_counter_value(ib_counter_path)
+            if ib_counter_name in ib_counters[hca_id]:
+               ib_counter_rates[ib_counter_name_per_sec] = infiniband_rate(current_ib_counter, ib_counters[hca_id][ib_counter_name], time_interval_seconds)
+            else:
+               ib_counter_rates[ib_counter_name_per_sec] = 0
+            ib_counters[hca_id][ib_counter_name_per_sec] = current_ib_counter
+        ib_counter_rates['physicalhostname'] = physicalhostname_val
+        if have_jobid:
+           ib_counter_rates['slurm_jobid'] = slurm_jobid
+        ib_counter_rates_l.append(ib_counter_rates)
+    return ib_counter_rates_l
+
+
 def read_env_vars():
     if 'customer_id' in globals():
        customer_id = globals()['customer_id']
@@ -164,29 +219,36 @@ def parse_args():
     parser.add_argument("-dfi", "--dcgm_field_ids", dest="dcgm_field_ids", type=str, default="203,252,1004", help="Select the DCGM field ids you would like to monitor (if multiple field ids are desired then separate by commas) [string]")
     parser.add_argument("-nle", "--name_log_event", dest="name_log_event", type=str, default="MyGPUMonitor", help="Select a name for the log events you want to monitor")
     parser.add_argument("-fgm", "--force_gpu_monitoring", action="store_true", help="Forces data to be sent to log analytics WS even if no SLURM job is running on the node")
+    parser.add_argument("-ibm", "--infiniband_metrics", action="store_true", help="Collect InfiniBand metrics (default: Do not collect IB metrics)")
     parser.add_argument("-uc", "--use_crontab", action="store_true", help="This script will be started by the system contab and the time interval between each data collection will be decided by the system crontab (if crontab is selected then the  -tis argument will be ignored).")
-    parser.add_argument("-tis", "--time_interval_seconds", dest="time_interval_seconds", type=int, default=30, help="The time interval in seconds between each data collection (This option cannot be used with the -uc argument)")
+    parser.add_argument("-tis", "--time_interval_seconds", dest="time_interval_seconds", type=int, default=10, help="The time interval in seconds between each data collection (This option cannot be used with the -uc argument)")
     args = parser.parse_args()
 
     if args.use_crontab:
        use_crontab = True
     else:
        use_crontab = False
+    if args.infiniband_metrics:
+       ib_metrics = True
+    else:
+       ib_metrics = False
     time_interval_seconds = args.time_interval_seconds
     dcgm_field_ids = args.dcgm_field_ids
     force_gpu_monitoring = args.force_gpu_monitoring
     name_log_event = args.name_log_event
 
-    return (use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,name_log_event)
+    return (use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,name_log_event)
 
 
 def main():
-    (use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,name_log_event) = parse_args()
+    (use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,name_log_event) = parse_args()
     (customer_id,shared_key) = read_env_vars()
+    ib_counters = {}
+    ib_rates_l = []
 
     while True:
           (have_jobid, slurm_jobid) = get_slurm_jobid()
-
+          
           if have_jobid or force_gpu_monitoring:
              hostname = socket.gethostname()
              dcgm_dmon_fields_cmd_l = ['dcgmi', 'dmon', '-e', dcgm_field_ids, '-c', '1']
@@ -194,7 +256,9 @@ def main():
              dcgm_dmon_fields_out = execute_cmd(dcgm_dmon_fields_cmd_l)
              dcgm_dmon_list_out = execute_cmd(dcgm_dmon_list_cmd_l)
              physicalhostname_val = get_physicalhostname()
-             data_l = create_data_records(dcgm_dmon_fields_out,hostname,have_jobid,physicalhostname_val,dcgm_dmon_list_out)
+             if ib_metrics:
+                ib_rates_l = get_infiniband_counter_rates(ib_counters, time_interval_seconds, physicalhostname_val, have_jobid, slurm_jobid)
+             data_l = create_data_records(dcgm_dmon_fields_out, hostname, have_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l)
              print(data_l)
              body = json.dumps(data_l)
              post_data(customer_id, shared_key, body, name_log_event)

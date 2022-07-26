@@ -2,7 +2,7 @@
 
 GPU Monitoring is essential to get insights into how effectively your application in utilizing the GPU(s) and monitor the health of the GPU's.
 
-Basic GPU Monitoring is demonstrated utilizing Azure Monitor log analytics. The following script are provided, collect Data Center GPU Manager dmon metrics and send it to your log  analytics workspace, start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
+Basic GPU Monitoring is demonstrated utilizing Azure Monitor log analytics. The following script are provided, collect Data Center GPU Manager dmon metrics, IB metrics  and send it to your log  analytics workspace, start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
 SLURM job ids are collected, so you can monitor for specific jobids. (Assumes exclusive jobs on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded. You can use the system crontab to control the time interval for collecting data, or you can run the python collection script directly and specify the collection time interval (see the -tis argument below).
 
 ## Prerequisites
@@ -33,6 +33,8 @@ optional arguments:
   -fgm, --force_gpu_monitoring
                         Forces data to be sent to log analytics WS even if no
                         SLURM job is running on the node (default: False)
+  -ibm, --infiniband_metrics
+                        Collect InfiniBand metrics (default: Do not collect IB metrics)
   -uc, --use_crontab    This script will be started by the system contab and
                         the time interval between each data collection will be
                         decided by the system crontab (if crontab is selected
