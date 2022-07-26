@@ -36,7 +36,7 @@ import argparse
 # will be ignored.
 #shared_key = 'XXXXXXXXXXXXX'
 
-NUMBER_IB_LINKS = 4
+#NUMBER_IB_LINKS = 4
 IB_COUNTERS = [
                 'port_xmit_data',
                 'port_rcv_data'
@@ -165,8 +165,7 @@ def infiniband_rate(current_counter, previous_counter, time_interval):
     if counter_delta < 0:
         ib_counter_rate = 0
     else:
-        GBps_factor = 1024 * 1024 * 1024
-        ib_counter_rate = int((counter_delta * NUMBER_IB_LINKS) / (time_interval * GBps_factor))
+        ib_counter_rate = int(counter_delta / time_interval)
     return ib_counter_rate
 
 
@@ -181,13 +180,14 @@ def get_infiniband_counter_rates(ib_counters, time_interval_seconds, physicalhos
         port = os.listdir(os.path.join(ib_base_path, hca_id, 'ports'))[0]
         ib_counter_base_path = os.path.join(ib_base_path, hca_id, 'ports', port, 'counters')
         for ib_counter_name in IB_COUNTERS:
+            ib_counter_name_per_sec = ib_counter_name + "_" + "per_sec"
             ib_counter_path = os.path.join(ib_counter_base_path, ib_counter_name)
             current_ib_counter = get_counter_value(ib_counter_path)
             if ib_counter_name in ib_counters[hca_id]:
-               ib_counter_rates[ib_counter_name] = infiniband_rate(current_ib_counter, ib_counters[hca_id][ib_counter_name], time_interval_seconds)
+               ib_counter_rates[ib_counter_name_per_sec] = infiniband_rate(current_ib_counter, ib_counters[hca_id][ib_counter_name], time_interval_seconds)
             else:
-               ib_counter_rates[ib_counter_name] = 0
-            ib_counters[hca_id][ib_counter_name] = current_ib_counter
+               ib_counter_rates[ib_counter_name_per_sec] = 0
+            ib_counters[hca_id][ib_counter_name_per_sec] = current_ib_counter
         ib_counter_rates['physicalhostname'] = physicalhostname_val
         if have_jobid:
            ib_counter_rates['slurm_jobid'] = slurm_jobid
