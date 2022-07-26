@@ -2,7 +2,7 @@
 
 GPU Monitoring is essential to get insights into how effectively your application in utilizing the GPU(s) and monitor the health of the GPU's.
 
-Basic GPU Monitoring is demonstrated utilizing Azure Monitor log analytics. The following script are provided, collect Data Center GPU Manager dmon metrics, IB metrics  and send it to your log  analytics workspace, start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
+Basic GPU Monitoring is demonstrated utilizing Azure Monitor log analytics. The following script are provided, collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics  and send it to your log  analytics workspace, start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
 SLURM job ids are collected, so you can monitor for specific jobids. (Assumes exclusive jobs on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded. You can use the system crontab to control the time interval for collecting data, or you can run the python collection script directly and specify the collection time interval (see the -tis argument below).
 
 ## Prerequisites
@@ -18,32 +18,28 @@ SLURM job ids are collected, so you can monitor for specific jobids. (Assumes ex
 
 ```
 ./gpu_data_collector.py -h
-usage: gpu_data_collector.py [-h] [-dfi DCGM_FIELD_IDS] [-nle NAME_LOG_EVENT]
-                             [-fgm] [-uc] [-tis TIME_INTERVAL_SECONDS]
+usage: gpu_data_collector.py [-h] [-dfi DCGM_FIELD_IDS] [-nle NAME_LOG_EVENT] [-fgm] [-no_gpum] [-ibm] [-ethm] [-nfsm] [-uc] [-tis TIME_INTERVAL_SECONDS]
 
 optional arguments:
   -h, --help            show this help message and exit
   -dfi DCGM_FIELD_IDS, --dcgm_field_ids DCGM_FIELD_IDS
-                        Select the DCGM field ids you would like to monitor
-                        (if multiple field ids are desired then separate by commas)
-                        [string] (default: 203,252,1004)
+                        Select the DCGM field ids you would like to monitor (if multiple field ids are desired then separate by commas) [string] (default:
+                        203,252,1004)
   -nle NAME_LOG_EVENT, --name_log_event NAME_LOG_EVENT
-                        Select a name for the log events you want to monitor
-                        (default: MyGPUMonitor)
+                        Select a name for the log events you want to monitor (default: MyGPUMonitor)
   -fgm, --force_gpu_monitoring
-                        Forces data to be sent to log analytics WS even if no
-                        SLURM job is running on the node (default: False)
+                        Forces data to be sent to log analytics WS even if no SLURM job is running on the node (default: False)
+  -no_gpum, --no_gpu_metrics
+                        Do not collect GPU metrics (default: False)
   -ibm, --infiniband_metrics
-                        Collect InfiniBand metrics (default: Do not collect IB metrics)
-  -uc, --use_crontab    This script will be started by the system contab and
-                        the time interval between each data collection will be
-                        decided by the system crontab (if crontab is selected
-                        then the -tis argument will be ignored). (default:
-                        False)
+                        Collect InfiniBand metrics (default: False)
+  -ethm, --ethernet_metrics
+                        Collect Ethernet metrics (default: False)
+  -nfsm, --nfs_metrics  Collect NFS client side metrics (default: False)
+  -uc, --use_crontab    This script will be started by the system contab and the time interval between each data collection will be decided by the system crontab (if
+                        crontab is selected then the -tis argument will be ignored). (default: False)
   -tis TIME_INTERVAL_SECONDS, --time_interval_seconds TIME_INTERVAL_SECONDS
-                        The time interval in seconds between each data
-                        collection (This option cannot be used with the -uc
-                        argument) (default: 30 sec)
+                        The time interval in seconds between each data collection (This option cannot be used with the -uc argument) (default: 10)
 ```
 
 ## Usage
