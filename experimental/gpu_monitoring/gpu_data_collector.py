@@ -180,7 +180,7 @@ def get_counter_value(file_path):
 def counter_rate(current_counter, previous_counter, time_interval):
     counter_delta = current_counter - previous_counter
     if counter_delta < 0:
-        counter_rate = int((2*64 + counter_delta) / time_interval))
+        counter_rate = int((2*64 + counter_delta) / time_interval)
     else:
         counter_rate = int(counter_delta / time_interval)
     return counter_rate
