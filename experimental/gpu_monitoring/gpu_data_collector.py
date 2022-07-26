@@ -270,10 +270,10 @@ def get_nfs_rates(nfs_counters, time_interval_seconds, hostname, physicalhostnam
            nfs_rates = {}
            nfs_rates["nfs_mount_pt"] = mount_pt
            current_nfs_counters = get_nfs_data()
-           nfs_rates["client_read_bytes_per_sec"] = network_rate(current_nfs_counters[mount_pt]["client_read_bytes"], nfs_counters[mount_pt]["client_read_bytes"], time_interval_seconds)
-           nfs_rates["client_read_iops"] = network_rate(current_nfs_counters[mount_pt]["client_read_iop"], nfs_counters[mount_pt]["client_read_iop"], time_interval_seconds)
-           nfs_rates["client_write_bytes_per_sec"] = network_rate(current_nfs_counters[mount_pt]["client_write_bytes"], nfs_counters[mount_pt]["client_write_bytes"], time_interval_seconds)
-           nfs_rates["client_write_iops"] = network_rate(current_nfs_counters[mount_pt]["client_write_iop"], nfs_counters[mount_pt]["client_write_iop"], time_interval_seconds)
+           nfs_rates["client_read_bytes_per_sec"] = counter_rate(current_nfs_counters[mount_pt]["client_read_bytes"], nfs_counters[mount_pt]["client_read_bytes"], time_interval_seconds)
+           nfs_rates["client_read_iops"] = counter_rate(current_nfs_counters[mount_pt]["client_read_iop"], nfs_counters[mount_pt]["client_read_iop"], time_interval_seconds)
+           nfs_rates["client_write_bytes_per_sec"] = counter_rate(current_nfs_counters[mount_pt]["client_write_bytes"], nfs_counters[mount_pt]["client_write_bytes"], time_interval_seconds)
+           nfs_rates["client_write_iops"] = counter_rate(current_nfs_counters[mount_pt]["client_write_iop"], nfs_counters[mount_pt]["client_write_iop"], time_interval_seconds)
            nfs_rates['hostname'] = hostname
            nfs_rates['physicalhostname'] = physicalhostname_val
            if have_jobid:
