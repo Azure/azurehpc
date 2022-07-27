@@ -41,6 +41,8 @@ install_cli8()
     pushd cyclecloud-cli-installer/
 
     echo "Installing CLI..."
+    # Unset PYTHONPATH set by AzureHPC
+    unset PYTHONPATH
     # If az CLI is installed used the bundled version
     python_path=$(az --version | grep 'Python location' | xargs | cut -d' ' -f3)
     if [ -n "$python_path" ]; then
