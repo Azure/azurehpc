@@ -340,7 +340,7 @@ def parse_args():
     parser.add_argument("-tis", "--time_interval_seconds", dest="time_interval_seconds", type=int, default=10, help="The time interval in seconds between each data collection (This option cannot be used with the -uc argument)")
     args = parser.parse_args()
 
-   if args.no_gpu_metrics:
+    if args.no_gpu_metrics:
        no_gpu_metrics = True
     else:
        no_gpu_metrics = False
@@ -397,7 +397,7 @@ def main():
                 eth_rates_l = get_ethernet_counter_rates(eth_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if nfs_metrics:
                 nfs_rates_l = get_nfs_rates(nfs_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
-             data_l = create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l)
+             data_l = create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l)
              print(data_l)
              body = json.dumps(data_l)
              post_data(customer_id, shared_key, body, name_log_event)
