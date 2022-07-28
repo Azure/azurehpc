@@ -230,7 +230,7 @@ def get_ethernet_counter_rates(eth_counters, time_interval_seconds, hostname, ph
                   eth_counter_rates[eth_counter_name_per_sec] = counter_rate(current_eth_counter, eth_counters[eth_device][eth_counter_name], time_interval_seconds)
                else:
                   eth_counter_rates[eth_counter_name_per_sec] = 0
-               eth_counters[eth_device][eth_counter_name_per_sec] = current_eth_counter
+               eth_counters[eth_device][eth_counter_name] = current_eth_counter
            eth_counter_rates['hostname'] = hostname
            eth_counter_rates['physicalhostname'] = physicalhostname_val
            if have_jobid:
