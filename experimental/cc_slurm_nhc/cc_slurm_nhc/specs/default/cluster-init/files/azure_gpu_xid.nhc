@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Check for the following GPU Xid errors in dmesg
+XID_EC="48 56 57 58 62 63 64 65 68 69 73 74 79 80 81 92"
+GPU_XID_TEST="GPU Xid errors detected"
+
+
+function check_gpu_xid()
+{
+/bin/dmesg | grep -q "Xid"
+RC=$?
+if [ $RC == 0 ]; then
+   for XID in $XID_EC; do
+       xid_found_line=$(/bin/dmesg | grep "Xid.*: $XID," | head -n 1)
+       if [ "$xid_found_line" != "" ]; then
+          log "$GPU_XID_TEST: $xid_found_line"
+          die 1 "$FUNCNAME: $GPU_XID_TEST: $xid_found_line"
+       else
+          dbg "No GPU Xid $XID error found in dmesg"
+          return 0
+       fi
+   done
+else
+   dbg "No GPU Xid error found in dmesg"
+   return 0
+fi
+}
