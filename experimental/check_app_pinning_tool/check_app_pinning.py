@@ -110,38 +110,40 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                           },
                                          "allowed_number_of_processes": [16]
                                          },
-                    "Standard_HB120rs_v2": {"l3cache_ids":  {0: [0,1,2,3],\
-                                                             1: [4,5,6,7],\
-                                                             2: [8,9,10,11],\
-                                                             3: [12,13,14,15],\
-                                                             4: [16,17,18,19],\
-                                                             5: [20,21,22,23],\
-                                                             6: [24,25,26,27],\
-                                                             7: [28,29,30,31],\
-                                                             8: [32,33,34,35],\
-                                                             9: [36,37,38,39],\
-                                                            10: [40,41,42,43],\
-                                                            11: [44,45,46,47],\
-                                                            12: [48,49,50,51],\
-                                                            13: [52,53,54,55],\
-                                                            14: [56,57,58,59],\
-                                                            15: [60,61,62,63],\
-                                                            16: [64,65,66,67],\
-                                                            17: [68,69,70,71],\
-                                                            18: [72,73,74,75],\
-                                                            19: [76,77,78,79],\
-                                                            20: [80,81,82,83],\
-                                                            21: [84,85,86,87],\
-                                                            22: [88,89,90,91],\
-                                                            23: [92,93,94,95],\
-                                                            24: [96,97,98,99],\
-                                                            25: [100,101,102,103],\
-                                                            26: [104,105,106,107],\
-                                                            27: [108,109,110,111],\
-                                                            28: [112,113,114,115],\
-                                                            29: [116,117,118,119],\
+                    "Standard_HB120rs_v2": {"l3cache_ids":  {0: [0,1,2],\
+                                                             1: [3,4,5],\
+                                                             2: [6,7,8,9],\
+                                                             3: [10,11,12,13],\
+                                                             4: [14,15,16,17],\
+                                                             5: [18,19,20,21],\
+                                                             6: [22,23,24,25],\
+                                                             7: [26,27,28,29],\
+                                                             8: [30,31,32],\
+                                                             9: [33,34,35],\
+                                                            10: [36,37,38,39],\
+                                                            11: [40,41,42,43],\
+                                                            12: [44,45,46,47],\
+                                                            13: [48,49,50,51],\
+                                                            14: [52,53,54,55],\
+                                                            15: [56,57,58,59],\
+                                                            16: [60,61,62],\
+                                                            17: [63,64,65],\
+                                                            18: [66,67,68,69],\
+                                                            19: [70,71,72,73],\
+                                                            20: [74,75,76,77],\
+                                                            21: [78,79,80,81],\
+                                                            22: [82,83,84,85],\
+                                                            23: [86,87,88,89],\
+                                                            24: [90,91,92],\
+                                                            25: [93,94,95],\
+                                                            26: [96,97,98,99],\
+                                                            27: [100,101,102,103],\
+                                                            28: [104,105,106,107],\
+                                                            29: [108,109,110,111],\
+                                                            30: [112,113,114,115],\
+                                                            31: [116,117,118,119],\
                                                           },
-                                                "allowed_number_of_processes": [30,60,90,120]
+                                                "allowed_number_of_processes": [32,64,96,120]
                                                  },
                     "Standard_HB60rs": {"l3cache_ids":  {0: [0,1,2,3],\
                                                          1: [4,5,6,7],\
@@ -750,6 +752,9 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
        print("")
        if sku_name == "Standard_HB120rs_v3" and number_threads_per_process > 1:
           print("Warning: You are planning on running a hybrid parallel application on {}, it is recommended that you use Standard_HB120-96rs_v3, Standard_HB120-64rs_v3 or Standard_HB120-32rs_v3 instead.".format(sku_name))
+          sys.exit(1)
+       if sku_name == "Standard_HB120rs_v2" and number_threads_per_process > 1:
+          print("Warning: You are planning on running a hybrid parallel application on {}, it is recommended that you use Standard_HB120-96rs_v2, Standard_HB120-64rs_v2 or Standard_HB120-32rs_v2 instead.".format(sku_name))
           sys.exit(1)
        if have_warning and not force:
           print("NOTE: MPI process/thread pinning syntax will NOT be displayed until the warnings above have been corrected")
