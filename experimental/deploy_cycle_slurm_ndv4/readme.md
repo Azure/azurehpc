@@ -183,3 +183,6 @@ sudo chmod 777 /sched/logs
 
 The prologslurmctld.sh is located this dir.
 >Note: You will need to modify ALLOCATED_NODES_THRESHOLD
+
+To prevent the epilog.sh (from NHC) from running NHC when a job is requeued due to exceeding the compute node quota, replace the NHC epilog.sh with the one 
+in scripts/epilog.sh.
