@@ -25,6 +25,7 @@ function find_cpu_cached_mem() {
          IFS=$' \t\n'
          line=( ${meminfo_lines[$i]} )
          echo "${line[1]}"
+         break
       fi
    done
 }
@@ -39,7 +40,7 @@ function check_cpu_drop_mem_cache() {
    if [[ -n $CPU_CACHED_MEM_KB ]]; then
            current_cpu_cached_mem_kb=$(find_cpu_cached_mem)
            dbg "current_cpu_cached_mem_kb=$current_cpu_cached_mem_kb KB"
-           if [[ $current_cpu_cached_mem_kb > $CPU_CACHED_MEM_KB ]]; then
+           if [[ $current_cpu_cached_mem_kb -gt $CPU_CACHED_MEM_KB ]]; then
               dbg "$FUNCNAME: We will attempt to drop the cpu memory cache"
               cpu_drop_mem_cache_out=$(sync;echo 3 > /proc/sys/vm/drop_caches)
               cpu_drop_mem_cache_out_rc=$?
