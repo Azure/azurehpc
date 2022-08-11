@@ -34,6 +34,7 @@ The nd96asr_v4.conf and nd96amsr_v4.conf nhc configuration file specifies what h
 * Check for GPU clock throttling
 * Check if should drop CPU cached memory
 * Check for specific GPU Xid errors
+* Run single node NCCL all-reduce test
 
 Will continue to add additional tests.
 
