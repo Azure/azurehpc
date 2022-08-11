@@ -1,0 +1,48 @@
+#!/bin/bash
+  
+# Check for NVlink ssues by running NCCL allreduce.
+# Expected performance is > 228 GB/s
+
+MPI_ARGS_2="-np 8 --map-by ppr:8:node -bind-to numa -mca coll_hcoll_enable 0 --allow-run-as-root"
+ENVIRON_VARS_2="-x LD_LIBRARY_PATH=/usr/local/nccl-rdma-sharp-plugins/lib:$LD_LIBRARY_PATH -x NCCL_IB_PCI_RELAXED_ORDERING=1 -x UCX_IB_PCI_RELAXED_ORDERING=on -x UCX_TLS=tcp -x UCX_NET_DEVICES=eth0 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_TOPO_FILE=/opt/microsoft/ndv4-topo.xml"
+NCCL_ARGS_2="-b 1G -f 2 -g 1 -e 2G -c 1"
+
+
+function collect_nccl_allreduce_data() {
+
+   nccl_allreduce_out=$(source /etc/profile.d/modules.sh && module load mpi/hpcx && mpirun $MPI_ARGS_2 $ENVIRON_VARS_2 /opt/nccl-tests/build/all_reduce_perf $NCCL_ARGS_2)
+   nccl_allreduce_out_rc=$?
+   if [[ $nccl_allreduce_out_rc != 0 ]]; then
+      log "nccl_allreduce_freq_out"
+      die 1 "$FUNCNAME: nccl_allreduce returned error code $nccl_allreduce_out_rc"
+   fi
+   IFS=$'\n'
+   nccl_allreduce_out_lines=( $nccl_allreduce_out )
+   IFS=$' \t\n'
+}
+
+
+function check_nccl_allreduce() {
+
+   EXP_NCCL_ALLREDUCE_BW=$1
+   collect_nccl_allreduce_data
+
+   for ((i=0; i<${#nccl_allreduce_out_lines[*]}; i++))
+   do
+      if [[ "${nccl_allreduce_out_lines[$i]//bandwidth}" != "${nccl_allreduce_out_lines[$i]}" ]]
+      then
+         IFS=$' \t\n'
+         nccl_allreduce_out_line=( ${nccl_allreduce_out_lines[$i]} )
+         avg_bus_bw=${nccl_allreduce_out_line[5]}
+         dbg "Measured Avg NCCL allreduce bus BW $avg_bus_bw GB/s"
+         break
+      fi
+   done
+   dbg "Measured Avg NCCL allreduce bus BW=$avg_bus_bw, Expected NCCL allreduce BW=$EXP_NCCL_ALLREDUCE_BW"
+   if [[ $avg_bus_bw < $EXP_NCCL_ALLREDUCE_BW ]]
+   then
+      log "$nccl_allreduce_out"
+      die 1 "$FUNCNAME: NCCL allreduce, BUS BW (expected > $EXP_NCCL_ALLREDUCE_BW GB/s, but measured $avg_bus_bw GB/s"
+      return 1
+   fi
+}
