@@ -3,7 +3,7 @@
 ALLOCATED_NODES_THRESHOLD=64
 PROLOGSLURMCTLD_LOG=/sched/logs/prologslurmctld.log
 
-allocated_idle_str=$(sinfo -p hpc-mid -h -o "%A")
+allocated_idle_str=$(sinfo -p hpc -h -o "%A")
 IFS=$'/'
 allocated_idle_array=( $allocated_idle_str )
 IFS=$' \t\n'
