@@ -21,7 +21,7 @@
     "hpc_image": "microsoft-dsvm:ubuntu-hpc:1804:18.04.2021120101",
     "scheduler_image": "cycle.image.ubuntu18",
     "htc_image": "cycle.image.ubuntu18",
-    "hpc_vm_type": "Standard_ND96amsr_v4",
+    "hpc_vm_type": "Standard_ND96amsr_A100_v4",
     "htc_vm_type": "Standard_D4s_v3",
     "login_vm_type": "Standard_D4s_v3",
     "vm_type": "Standard_D4s_v4",
