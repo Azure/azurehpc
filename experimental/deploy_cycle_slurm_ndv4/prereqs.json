@@ -13,6 +13,7 @@
     "cc_image": "azurecyclecloud:azure-cyclecloud:cyclecloud8:8.2.220220329",
     "cc_password_secret_name": "CycleAdminPassword",
     "win_password_secret_name": "WinPassword",
+    "mariadb_password_secret_name": "MariaDBPassword",
     "bastion_resource_group": "<NOT-SET>",
     "peer_network_resource_group": "variables.bastion_resource_group",
     "peer_vnet_name": "hpcvnet"
@@ -60,6 +61,14 @@
       "args": [
         "variables.key_vault",
         "variables.win_password_secret_name"
+      ]
+    },
+    {
+      "type": "local_script",
+      "script": "create_password_in_keyvault.sh",
+      "args": [
+        "variables.key_vault",
+        "variables.mariadb_password_secret_name"
       ]
     },
     {

@@ -15,6 +15,7 @@ The NDv4 cluster will consist of
 - Cyclecloud autoscaling is disabled.
 - Option to support containers by adding Nvidia pyxis+enroot SLURM integration
 - Windows server (winbox) is deployed to access the Cyclecloud portal via RDP
+- Deploy MariaDB, access it via a private endpoint and set-up SLURM accounting
 
 ## Prerequistes
 - Bastion and jumpbox is deployed (landing zone), see examples/bastion for an example of how to deploy it.
@@ -32,6 +33,12 @@ We need to first deploy some additional prerequistes for the Cyclecloud deployme
 $ azhpc-build -c prereqs.json
 ```
 
+## Step 1b - Deploy Maria DB (Only needed if you want to enable Slurm accounting)
+
+```
+$ azhpc-build --no-vnet -c prereqs_sacct.json
+```
+
 ## Step 2 - Deploy NDv4 cluster with Cyclcloud
 
 Now deploy the rest of the infrastructure, This needs to be executed from the Bastion landing zone.
@@ -44,6 +51,10 @@ $ azhpc-build --no-vnet
 To deploy with container support integrated with SLURM use the config_pyxis_enroot.json configuration file.
 ```
 azhpc-build --no-vnet -c config_pyxis_enroot.json
+```
+To deploy with Slurm accounting enabled using a MariaDB
+```
+azhpc-build --no-vnet -c config_pyxis_enroot_sacct.json
 ```
 
 
