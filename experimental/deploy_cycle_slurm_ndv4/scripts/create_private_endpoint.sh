@@ -7,7 +7,7 @@ CONNECTION_NAME=$4
 RG=$5
 SUBSCRIPTION_ID=$6
 VNET_NAME=${7:-hpcvnet}
-SUBNET=${8:-conpute}
+SUBNET=${8:-compute}
 
 PRIVATE_CONNECTION_RESOURCE_ID="/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${MARIADB_SERVER_RG}/providers/Microsoft.DBforMariaDB/servers/${MARIADB_SERVER}"
 GROUP_ID=mariadbServer
