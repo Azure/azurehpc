@@ -1,0 +1,349 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "install_from": "jumpbox",
+  "admin_user": "hpcadmin",
+  "variables": {
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "vnet_resource_group": "variables.resource_group",
+    "vnet_name": "hpcvnet",
+    "admin_user": "hpcadmin",
+    "image": "OpenLogic:CentOS:7.7:latest",
+    "win_image": "microsoftwindowsdesktop:windows11preview:win11-21h2-ent:latest",
+    "jb_vm_type": "Standard_D8s_v3",
+    "key_vault": "kv{{variables.uuid}}",
+    "projectstore": "lockerstore",
+    "cc_image": "azurecyclecloud:azure-cyclecloud:cyclecloud8:8.2.220220329",
+    "cc_vm_type": "Standard_D8s_v3",
+    "cc_password_secret_name": "CycleAdminPassword",
+    "cc_version": "8",
+    "hpc_image": "microsoft-dsvm:ubuntu-hpc:1804:latest",
+    "scheduler_image": "cycle.image.ubuntu18",
+    "htc_image": "cycle.image.ubuntu18",
+    "hpc_vm_type": "Standard_ND96amsr_A100_v4",
+    "htc_vm_type": "Standard_D4s_v3",
+    "login_vm_type": "Standard_D4s_v3",
+    "vm_type": "Standard_D4s_v4",
+    "win_vm_type": "Standard_D4s_v4",
+    "win_password_secret_name": "WinPassword",
+    "mariadb_password_secret_name": "MariaDBPassword",
+    "configuration_slurm_accounting_url": "<NOT-SET>",
+    "configuration_slurm_accounting_user": "<NOT-SET>",
+    "nfs_address": "<NOT-SET>",
+    "nfs_shared_export_path": "<NOT-SET>",
+    "additional_nfs_address": "<NOT-SET>",
+    "additional_nfs_export_path": "<NOT-SET>",
+    "uuid": "<NOT-SET>",
+    "scheduler": "slurm"
+  },
+  "vnet": {
+    "resource_group": "variables.vnet_resource_group",
+    "name": "variables.vnet_name"
+  },
+  "resources": {
+    "jumpbox": {
+      "type": "vm",
+      "vm_type": "variables.jb_vm_type",
+      "accelerated_networking": true,
+      "public_ip": false,
+      "image": "variables.image",
+      "subnet": "admin",
+      "tags": [
+        "jumpbox"
+      ]
+    },
+    "winbox": {
+      "type": "vm",
+      "vm_type": "variables.win_vm_type",
+      "accelerated_networking": true,
+      "public_ip": false,
+      "password": "secret.{{variables.key_vault}}.{{variables.win_password_secret_name}}",
+      "image": "variables.win_image",
+      "subnet": "viz",
+      "tags": []
+    },
+    "cycleserver": {
+      "type": "vm",
+      "vm_type": "variables.cc_vm_type",
+      "accelerated_networking": true,
+      "public_ip": false,
+      "image": "variables.cc_image",
+      "subnet": "admin",
+      "managed_identity": {
+        "role": "contributor",
+        "scope": "resource_group"
+      },
+      "data_disks": [
+        0
+      ],
+      "tags": [
+        "cycle"
+      ]
+    }
+  },
+  "install": [
+    {
+      "script": "disable-selinux.sh",
+      "tag": "jumpbox",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "jumpbox",
+      "sudo": true
+    },
+    {
+      "script": "auto_netappfiles_mount.sh",
+      "tag": "jumpbox",
+      "sudo": true
+    },
+    {
+      "script": "disable-selinux.sh",
+      "tag": "cycle",
+      "sudo": true
+    },
+    {
+      "script": "cndefault.sh",
+      "tag": "cycle",
+      "sudo": true
+    },
+    {
+      "script": "support-slurm-2.6.4.sh",
+      "tag": "cycle",
+      "sudo": true,
+      "deps": [
+        "slurm-2.6.4.txt"
+      ]
+    },
+    {
+      "script": "cc_install_managed_identity.sh",
+      "tag": "cycle",
+      "sudo": true,
+      "args": [
+        "cycleserver",
+        "variables.admin_user",
+        "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}",
+        "variables.projectstore",
+        "variables.cc_version"
+      ],
+      "deps": [
+        "cyclecloud8_config.py",
+        "cyclecloud7_config.py"
+      ]
+    },
+    {
+      "type": "local_script",
+      "script": "cyclecli_install.sh",
+      "args": [
+        "ip.cycleserver",
+        "variables.admin_user",
+        "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}",
+        "variables.cc_version"
+      ]
+    },
+    {
+      "tag": "jumpbox",
+      "script": "cyclecli_install.sh",
+      "args": [
+        "ip.cycleserver",
+        "variables.admin_user",
+        "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}",
+        "variables.cc_version"
+      ]
+    }
+  ],
+  "storage": {
+    "lockerstoretst": {
+      "type": "storageaccount",
+      "sku": "Standard_LRS"
+    }
+  },
+  "cyclecloud": {
+    "clusters": {
+      "slurmcycle": {
+        "template": "slurm_cycle.txt",
+        "parameters": {
+          "configuration_slurm_accounting_enabled" : true,
+          "configuration_slurm_accounting_url" : "variables.configuration_slurm_accounting_url",
+          "configuration_slurm_accounting_user" : "variables.configuration_slurm_accounting_user",
+          "configuration_slurm_accounting_password" : "secret.{{variables.key_vault}}.{{variables.mariadb_password_secret_name}}",
+          "UsePublicNetwork": false,
+          "AdditionalNAS": true,
+          "SubnetId": "{{variables.resource_group}}/{{variables.vnet_name}}/compute",
+          "Region": "{{variables.location}}",
+          "MaxHPCExecuteCoreCount": 192,
+          "HTCImageName": "variables.htc_image",
+          "MaxHTCExecuteCoreCount": 8,
+          "NumberLoginNodes": 1,
+          "NFSType": "External",
+          "NFSAddress": "variables.nfs_address",
+          "NFSSharedExportPath": "variables.nfs_shared_export_path",
+          "NFSSharedMountOptions": "rw,hard,rsize=262144,wsize=262144,nconnect=8,vers=3,tcp",
+          "AdditonalNFSAddress": "variables.additional_nfs_address",
+          "AdditionalNFSExportPath": "variables.additional_nfs_export_path",
+          "AdditionalNFSMountPoint": "/apps",
+          "AdditionalNFSMountOptions": "rw,hard,rsize=262144,wsize=262144,nconnect=8,vers=3,tcp",
+          "HPCImageName": "variables.hpc_image",
+          "configuration_slurm_shutdown_policy": "Terminate",
+          "configuration_slurm_version": "20.11.7-1",
+          "SchedulerMachineType": "Standard_D8s_v3",
+          "ReturnProxy": false,
+          "Credentials": "azure",
+          "Autoscale": false,
+          "HTCUseLowPrio": false,
+          "SchedulerImageName": "variables.scheduler_image",
+          "HTCMachineType": "variables.htc_vm_type",
+          "HPCMachineType": "variables.hpc_vm_type",
+          "loginMachineType": "variables.login_vm_type",
+          "HPCMaxScalesetSize": 100,
+          "additional_slurm_config": "SuspendTime=-1",
+          "SchedulerClusterInitSpecs": {
+            "slurm_pyxis_enroot:default:1.0.0": {
+              "Order": 10020,
+              "Name": "slurm_pyxis_enroot:default:1.0.0",
+              "Spec": "default",
+              "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "nhc:default:1.0.0": {
+              "Order": 10030,
+              "Name": "nhc:default:1.0.0",
+              "Spec": "default",
+              "Project": "nhc",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            }
+          },
+          "LoginClusterInitSpecs": {
+            "limits:default:1.0.0": {
+              "Order": 10000,
+              "Name": "limits:default:1.0.0",
+              "Spec": "default",
+              "Project": "limits",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            }
+          },
+          "HPCClusterInitSpecs": {
+            "misc_ndv4:default:1.0.0": {
+              "Order": 10000,
+              "Name": "misc_ndv4:default:1.0.0",
+              "Spec": "default",
+              "Project": "misc_ndv4",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "slurm_pyxis_enroot:default:1.0.0": {
+              "Order": 10020,
+              "Name": "slurm_pyxis_enroot:default:1.0.0",
+              "Spec": "default",
+              "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "nhc:default:1.0.0": {
+              "Order": 10030,
+              "Name": "nhc:default:1.0.0",
+              "Spec": "default",
+              "Project": "nhc",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            }
+          },
+          "HTCClusterInitSpecs": {}
+        }
+      }
+    },
+    "projects": {
+      "misc_ndv4:default:1.0.0": [
+        {
+          "script": "setup-nvme.sh"
+        },
+        {
+          "script": "install-pmix.sh",
+          "deps": [
+            "openpmix-3.1.6.tar.gz"
+          ]
+        },
+        {
+          "script": "max_gpu_app_clocks.sh"
+        },
+        {
+          "script": "gpu_persistence_mode.sh"
+        },
+        {
+          "script": "cron_reboot.sh",
+          "deps": [
+            "reboot.sh",
+            "setup_nvme_heal.sh"
+          ]
+        }
+      ],
+      "nhc:default:1.0.0": [
+        {
+          "script": "install_nhc.sh"
+        },
+        {
+          "script": "configure_nhc.sh",
+          "deps": [
+            "nd96asr_v4.conf",
+            "nd96amsr_v4.conf",
+            "csc_nvidia_smi.nhc",
+            "azure_cuda_bandwidth.nhc",
+            "azure_gpu_app_clocks.nhc",
+            "azure_gpu_ecc.nhc",
+            "azure_gpu_persistence.nhc",
+            "azure_ib_write_bw_gdr.nhc",
+            "azure_nccl_allreduce_ib_loopback.nhc",
+            "azure_ib_link_flapping.nhc",
+            "azure_gpu_clock_throttling.nhc",
+            "azure_cpu_drop_cache_mem.nhc",
+            "azure_gpu_xid.nhc",
+            "azure_nccl_allreduce.nhc",
+            "epilog.sh",
+            "run_nhc.sh",
+            "kill_nhc.sh",
+            "common_functions.sh"
+          ]
+        },
+        {
+          "script": "build_bandwidthtest.sh"
+        },
+        {
+          "script": "build_perftest_gdr.sh"
+        }
+      ],
+      "limits:default:1.0.0": [
+                      {
+                        "script": "set_limits.sh"
+                      }
+      ],
+      "slurm_pyxis_enroot:default:1.0.0": [
+                      {
+                        "script": "install_pyxis.sh",
+                        "deps": [
+                                "common_functions.sh"
+                        ]
+                      },
+                      {
+                        "script": "configure_pyxis.sh",
+                        "deps": [
+                                "prolog.sh"
+                        ]
+                      },
+                      {
+                        "script": "install_enroot.sh"
+                      },
+                      {
+                        "script": "install_enroot_hooks.sh"
+                      },
+                      {
+                        "script": "slurmd_pmix.sh",
+                        "background": true
+                      }
+      ]
+    }
+  }
+}
