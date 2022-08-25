@@ -29,6 +29,12 @@ function check_nccl_allreduce() {
 
    for ((i=0; i<${#nccl_allreduce_out_lines[*]}; i++))
    do
+      if [[ "${nccl_allreduce_out_lines[$i]//FAILED}" != "${nccl_allreduce_out_lines[$i]}" ]]
+      then
+         log "$nccl_allreduce_out"
+         die 1 "$FUNCNAME: NCCL allreduce, Out of bounds values failed"
+         break
+      fi
       if [[ "${nccl_allreduce_out_lines[$i]//bandwidth}" != "${nccl_allreduce_out_lines[$i]}" ]]
       then
          IFS=$' \t\n'
