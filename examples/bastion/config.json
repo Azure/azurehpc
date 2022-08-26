@@ -5,39 +5,46 @@
     "admin_user": "hpcadmin",
     "variables": {
         "jumpbox_image": "OpenLogic:CentOS:7.7:latest",
-        "location": "southcentralus",
+        "win_image": "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest",
+        "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
         "vm_type": "Standard_D4s_v3",
-        "vnet_name": "hpcvnet",
+        "vnet_name": "BastionVNet",
         "low_priority": false,
-        "bastion_subnet": "10.41.0.0/26",
+        "bastion_subnet": "10.10.0.0/26",
         "bastion_name": "bastion",
-        "rm_vm_name": "jumpbox",
-        "key_vault": "<NOT-SET>",
-        "storage_acc": "<NOT-SET>",
         "vnet_resource_group": "variables.resource_group",
-        "jumpbox_pw": "secret.{{variables.key_vault}}.jumpbox_pw",
-        "customdata": "sasurl.{{variables.storage_acc}}.data/cloud-init.txt"
+        "customdata": "@cloud-init.txt",
+        "win_password": "<NOT-SET>"
     },
+    "global_tags": {},
     "vnet": {
         "resource_group": "variables.vnet_resource_group",
         "name": "variables.vnet_name",
-        "address_prefix": "10.41.0.0/20",
+        "address_prefix": "10.10.0.0/20",
         "subnets": {
-            "storage": "10.41.2.0/24",
-            "compute": "10.41.4.0/22"
+            "default": "10.10.1.0/24"
         }
     },
     "resources": {
-        "jumpbox": {
+        "bastion-jumpbox": {
             "type": "vm",
             "vm_type": "variables.vm_type",
             "public_ip": false,
             "image": "variables.jumpbox_image",
             "accelerated_networking": true,
+            "subnet": "default",
             "custom_data": "variables.customdata",
-            "subnet": "compute",
             "tags": []
+        },
+        "bastion-winbox": {
+            "type": "vm",
+            "vm_type": "variables.vm_type",
+            "public_ip": false,
+            "image": "variables.win_image",
+            "accelerated_networking": true,
+            "subnet": "default",
+            "password": "variables.win_password"
         }
     },
     "install": [
@@ -49,7 +56,7 @@
                 "variables.location",
                 "variables.bastion_subnet",
                 "variables.bastion_name",
-                "variables.vnet_name" 
+                "variables.vnet_name"
             ]
         },
         {
