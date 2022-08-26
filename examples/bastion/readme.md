@@ -1,66 +1,81 @@
-# Build a compute cluster with no public IP access, log-on using Azure Bastion
+# Deploy Azure Bastion for SSH and RDP connections to dedicated jumpbox
 
-Visualisation: [config.json](https://azurehpc.azureedge.net/o=https://raw.githubusercontent.com/Azure/azurehpc/master/examples/bastion/config.json)
+This example will create a Linux jumpbox and a Windows VM without public IP. They can be accessed via SSH and RDP respectively through the co-deployed Azure Bastion.
+Additionally, the following components are installed in the jumpbox using a cloud-init script:
+* git
+* jq
+* AzureHPC
+* azcopy
+* azcli
 
-This example will create an HPC cluster wth no public IP, you can log-in using Azure Bastion, from the Portal RDP to a Windows VM or ssh to a linux VM.
->Note: The config_no_pub_ip.json deploys an Azure Bastion, VNET and a jumpbox (no pub IP), then you can login to the jumpbox via the azure bastion and deploy the rest of your azurehpc deployment. The config_no_pub_ip.json contains an example of using cloud-init in AzureHPC. The AzureHPC prerequisites are installed on the jumpbox (with no public IP) using a cloud-init script (cloud-init.txt (Installs git, jq, AzureHPC git clone, azcopy and azcli). The Cloud-init script needs to be either uploaded to blob storage in advance or referenced in the config file by @cloud-init.txt (read-in directly).
+## Initialize the project
 
-## Initialise the project
-
-To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by compying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
+To start you need to copy this directory and update the `config.json`. AzureHPC provides the `azhpc-init` command that can automatically makes a copy of the directory and substitutes the unset variables. First run the command with the `-s` parameter to see which variables need to be set:
 
 ```
 azhpc-init -c $azhpc_dir/examples/bastion -d bastion -s
 ```
 
-The variables can be set with the `-v` option where variables are comma separated.  The output from the previous command as a starting point.  The `-d` option is required and will create a new directory name for you.  Please update to whatever `resource_group` you would like to deploy to:
+The variables can be then set with the `-v` option. Multiple variables can be specified as comma separated list. The `-d` option is required and will create a new directory (`my_bastion` in the example below) for you.
 
 ```
-azhpc-init -c $azhpc_dir/examples/bastion -d bastion -v resource_group=azurehpc-cluster
+azhpc-init -c $azhpc_dir/examples/bastion -d my_bastion -v resource_group=azurehpc-bastion,location=eastus,win_password=9S5zvbb4E9Sw
 ```
 
-> Note:  You can still update variables even if they are already set.  For example, in the command below we change the region to `westus2` and the SKU to `Standard_HC44rs`:
+`azhpc-init` also allows to update variables even if they are already set. For example, in the command below we also change the bastion name to `mybastion` and the SKU to `Standard_HC44rs`:
 
 ```
-azhpc-init -c $azhpc_dir/examples/bastion -d bastion -v location=westus2,vm_type=Standard_HC44rs,resource_group=azhpc-cluster
+azhpc-init -c $azhpc_dir/examples/bastion -d my_bastion -v resource_group=azurehpc-bastion,location=eastus,win_password=9S5zvbb4E9Sw,vm_type=Standard_HC44rs,bastion_name=mybastion
 ```
 
-## Create the cluster with no public IP
+## Create the resources
+
+In the newly created directory run `azhpc-build` to start the deployment:
 
 ```
-cd bastion
+cd my_bastion
 azhpc-build
 ```
 
-Allow ~15 minutes for deployment.  You are able to view the status VMs being deployed by running `azhpc-status` in another terminal.
+Allow about 15 minutes to completion.
 
-## Log in the cluster
+## Access the Linux jumpbox via SSH
 
-Connect to the linux headnode using Azure bastion service via ssh
+### From local shell terminal
 
-You can login to a VM via bastion directly from your linux workstation using
+The provided `bastion_ssh_jumpbox.sh` script allows to easily access the jumpbox VM via SSH.
+If you modified the name of the jumpbox VM in the `config.json` file, use your preferred editor to update the script.
+
+Simply run the script to log into the jumpbox VM:
 
 ```
-bastion_ssh_bjumpbox.sh
+./bastion_ssh_jumpbox.sh
 ```
->Note: You will need to edit this script to provide the BastionName, ResourceGroup, TargetResourceId, User and SshPrivateKey
 
-You can also use the Azure portal to login to you VM via bastion, see below.
+### From Azure Portal
 
-Locate the VM you want to connect to on the Azure portal and check "Connect".
+You can also use the Azure Portal to login to the jumpbox VM via Bastion.
 
-![Alt text](/examples/bastion/images/bastion_connect.JPG?raw=true "Azure Bastion connect")
+Locate the `bastion-jumpbox` VM on the Azure portal and click on "Connect" menu button. Select the "Bastion" option.
 
-Click the bastion option and login using your private keys.
+![Alt text](/examples/bastion/images/jumpbox_connect.png?raw=true "Jumpbox Connect menu button")
 
-![Alt text2](/examples/bastion/images/bastion_ssh.JPG?raw=true "Azure Bastion ssh")
+In the Bastion pane type `hpcadmin` in the "Username" field and select "SSH Private Key from Local File" to provide the `hpcadmin_id_rsa` private key created by AzureHPC in the directory where `azhpc-build` has been executed.
 
-Should now be on your linux headnode
+![Alt text2](/examples/bastion/images/jumpbox_bastion_ssh.png?raw=true "Azure Bastion Linux SSH")
 
-![Alt text3](/examples/bastion/images/bastion_ssh_login.JPG?raw=true "Azure Bastion ssh login")
+After selecting "Connect" at the bottom of the pane, a new browser tab will open with the jumpbox Linux terminal.
 
+## Access the Windows VM via RDP
 
-Similarly, you can use Azure bastion to login to a Windows VM using RDP
+The Windows VM can be accessed via RDP exclusively from Azure Portal.
 
-![Alt text4](/examples/bastion/images/bastion_rdp_windows.JPG?raw=true "Azure Bastion rdp windows")
+Locate the `bastion-winbox` VM on the Azure portal and click on "Connect" menu button. Select the "Bastion" option.
 
+![Alt text3](/examples/bastion/images/winbox_connect.png?raw=true "Windows VM Connect menu button")
+
+In the Bastion pane type `hpcadmin` in the "Username" field and the password indicated during the project initialization in the `win_password` variable and visible in the `config.json` file.
+
+![Alt text4](/examples/bastion/images/winbox_bastion_rdp.png?raw=true "Azure Bastion Windows RDP")
+
+After selecting "Connect" at the bottom of the pane, the Windows desktop will be accessible in a new browser tab.
