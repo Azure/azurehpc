@@ -30,6 +30,19 @@ def delete_resources(ids):
         sys.exit(1)
     return res.stdout
 
+def delete_vnet_peering(resource_group, peering_name, vnet_name):
+    cmd = [
+        "az", "network", "vnet", "peering", "delete",
+            "--resource-group", resource_group,
+            "--name", peering_name,
+            "--vnet-name", vnet_name
+    ]
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if res.returncode != 0:
+        log.error("invalid returncode"+_make_subprocess_error_string(res))
+        sys.exit(1)
+    return res.stdout
+
 def get_vm_private_ip(resource_group, vm_name):
     cmd = [
         "az", "vm", "list-ip-addresses",
@@ -123,7 +136,6 @@ def delete_resource_group(resource_group, nowait):
         log.error("invalid returncode"+_make_subprocess_error_string(res))
         sys.exit(1)
 
-
 def deploy(resource_group, arm_template):
     log.debug("deploying template")
     deployname = os.path.splitext(
@@ -205,7 +217,7 @@ def get_storage_key(account):
 def get_storage_saskey(account, container, permissions, duration="2h"):
     log.debug(f"creating sas key: container={container}, permissions={permissions}, length={duration}")
     start = (datetime.datetime.utcnow() - datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    
+
     # convert integer string to int type
     length = int(duration[:-1])
     unit = duration[-1]

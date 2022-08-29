@@ -748,6 +748,23 @@ def do_destroy(args):
         config.read_value("resource_group"), args.no_wait
     )
 
+    # Remove vnet peerings defined in other resource groups (e.g. existing assets)
+    if "peer" in config.data["vnet"]:
+        config = config.preprocess()
+
+        # Assume a single peer (len of dict_keys == 1)
+        peering_name = [*config["vnet"]["peer"]][0]
+        resource_group = config["resource_group"]
+        peer_resource_group = config["vnet"]["peer"][peering_name]["resource_group"]
+        peer_vnet_name = config["vnet"]["peer"][peering_name]["vnet_name"]
+
+        # Assume name of peer created using arm.py
+        # name: <peering-name>-<new-rg>
+        peering_name = f"{peering_name}-{resource_group}"
+
+        log.debug(f"deleting vnet peer ({peering_name} in {peer_resource_group})")
+        azutil.delete_vnet_peering(peer_resource_group, peering_name, peer_vnet_name)
+
 if __name__ == "__main__":
     azhpc_parser = argparse.ArgumentParser(prog="azhpc")
 
@@ -972,7 +989,6 @@ if __name__ == "__main__":
     slurm_suspend_parser.set_defaults(func=do_slurm_suspend)
 
     args = azhpc_parser.parse_args()
-
 
     if args.debug:
         azlog.setDebug(True)
