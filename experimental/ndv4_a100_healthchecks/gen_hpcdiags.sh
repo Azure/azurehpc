@@ -8,7 +8,7 @@ USER=cormac
 OUTDIR=/shared/home/${USER}/hpcdiags
 CLUSTER=cluster_name
 
-sudo chmod 777 /opt/azurehpc/diagnostics/gather_azhpc_vm_diagnostics.sh
+sudo chmod 775 /opt/azurehpc/diagnostics/gather_azhpc_vm_diagnostics.sh
 
 sudo rm /opt/azurehpc/diagnostics/*.tar.gz
 
