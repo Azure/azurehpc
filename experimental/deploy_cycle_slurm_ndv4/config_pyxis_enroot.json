@@ -207,9 +207,9 @@
             },
             "misc_ubuntu:default:1.0.0": {
               "Order": 10020,
-              "Name": "limits:default:1.0.0",
+              "Name": "misc_ubuntu:default:1.0.0",
               "Spec": "default",
-              "Project": "limits",
+              "Project": "misc_ubuntu",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -225,9 +225,9 @@
             },
             "misc_ubuntu:default:1.0.0": {
               "Order": 10010,
-              "Name": "limits:default:1.0.0",
+              "Name": "misc_ubuntu:default:1.0.0",
               "Spec": "default",
-              "Project": "limits",
+              "Project": "misc_ubuntu",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
