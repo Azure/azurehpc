@@ -188,13 +188,30 @@
           "loginMachineType": "variables.login_vm_type",
           "HPCMaxScalesetSize": 100,
           "additional_slurm_config": "SuspendTime=-1",
-          "SchedulerClusterInitSpecs": {},
+          "SchedulerClusterInitSpecs": {
+            "misc_ubuntu:default:1.0.0": {
+              "Order": 10000,
+              "Name": "misc_ubuntu:default:1.0.0",
+              "Spec": "default",
+              "Project": "misc_ubuntu",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            }
+          },
           "LoginClusterInitSpecs": {
             "limits:default:1.0.0": {
               "Order": 10000,
               "Name": "limits:default:1.0.0",
               "Spec": "default",
               "Project": "limits",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "misc_ubuntu:default:1.0.0": {
+              "Order": 10010,
+              "Name": "misc_ubuntu:default:1.0.0",
+              "Spec": "default",
+              "Project": "misc_ubuntu",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -279,9 +296,14 @@
         }
       ],
       "limits:default:1.0.0": [
-                      {
-                        "script": "set_limits.sh"
-                      }
+        {
+          "script": "set_limits.sh"
+        }
+      ],
+      "misc_ubuntu:default:1.0.0": [
+        {
+          "script": "disable_unattended_upgrades.sh"
+        }
       ]
     }
   }
