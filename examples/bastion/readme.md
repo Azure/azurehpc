@@ -16,16 +16,16 @@ To start you need to copy this directory and update the `config.json`. AzureHPC 
 azhpc-init -c $azhpc_dir/examples/bastion -d bastion -s
 ```
 
-The variables can be then set with the `-v` option. Multiple variables can be specified as comma separated list. The `-d` option is required and will create a new directory (`my_bastion` in the example below) for you.
+The variables can be then set with the `-v` option. Multiple variables can be specified as comma separated list. The `-d` option is required and will create a new directory (`my_bastion` in the example below) for you. For example:
 
 ```
-azhpc-init -c $azhpc_dir/examples/bastion -d my_bastion -v resource_group=azurehpc-bastion,location=eastus,win_password=9S5zvbb4E9Sw
+azhpc-init -c $azhpc_dir/examples/bastion -d my_bastion -v resource_group=azurehpc-bastion,location=eastus,win_password=9S5zvbb4E9Sw,key_vault=kv-bastion
 ```
 
 `azhpc-init` also allows to update variables even if they are already set. For example, in the command below we also change the bastion name to `mybastion` and the SKU to `Standard_HC44rs`:
 
 ```
-azhpc-init -c $azhpc_dir/examples/bastion -d my_bastion -v resource_group=azurehpc-bastion,location=eastus,win_password=9S5zvbb4E9Sw,vm_type=Standard_HC44rs,bastion_name=mybastion
+azhpc-init -c $azhpc_dir/examples/bastion -d my_bastion -v resource_group=azurehpc-bastion,location=eastus,win_password=9S5zvbb4E9Sw,key_vault=kv-bastion,vm_type=Standard_HC44rs,bastion_name=mybastion
 ```
 
 ## Create the resources
@@ -74,7 +74,7 @@ Locate the `bastion-winbox` VM on the Azure portal and click on "Connect" menu b
 
 ![Alt text3](/examples/bastion/images/winbox_connect.png?raw=true "Windows VM Connect menu button")
 
-In the Bastion pane type `hpcadmin` in the "Username" field and the password indicated during the project initialization in the `win_password` variable and visible in the `config.json` file.
+In the Bastion pane type `hpcadmin` in the "Username" field and select "Password from Azure Key Vault" as authentication type. In the three new drop down menus select the Key Vault deployed by AzureHPC and finally `WinVM-hpcadmin` as secret name.
 
 ![Alt text4](/examples/bastion/images/winbox_bastion_rdp.png?raw=true "Azure Bastion Windows RDP")
 

@@ -2,9 +2,10 @@
     "location": "variables.location",
     "resource_group": "variables.resource_group",
     "install_from": "",
-    "admin_user": "hpcadmin",
+    "admin_user": "variables.admin_user",
     "variables": {
         "jumpbox_image": "OpenLogic:CentOS:7.7:latest",
+        "admin_user": "hpcadmin",
         "win_image": "MicrosoftWindowsDesktop:Windows-10:21h1-pron:latest",
         "location": "<NOT-SET>",
         "resource_group": "<NOT-SET>",
@@ -15,7 +16,9 @@
         "bastion_name": "bastion",
         "vnet_resource_group": "variables.resource_group",
         "customdata": "@cloud-init.txt",
-        "win_password": "<NOT-SET>"
+        "win_password": "<NOT-SET>",
+        "key_vault": "<NOT-SET>",
+        "secret_name": "WinVM-{{variables.admin_user}}"
     },
     "global_tags": {},
     "vnet": {
@@ -65,6 +68,23 @@
             "args": [
                 "variables.bastion_name",
                 "variables.resource_group"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "create_keyvault.sh",
+            "args": [
+              "variables.resource_group",
+              "variables.key_vault"
+            ]
+        },
+        {
+            "type": "local_script",
+            "script": "add_password_in_keyvault.sh",
+            "args": [
+              "variables.key_vault",
+              "variables.secret_name",
+              "variables.win_password"
             ]
         }
     ]
