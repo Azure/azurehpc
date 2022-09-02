@@ -39,8 +39,22 @@ class ConfigFile:
     
     def __evaluate_dict(self, x, extended):
         ret = {}
+        updated_keys = []
         for k in x.keys():
-            ret[k] = self.__evaluate(x[k], extended)
+            # Update key names if config variable (i.e. {{variables.key}} ) used
+            if "variables." in k:
+                log.debug(f"expanding key {k}")
+                new_key = self.__evaluate(k, extended)
+                ret[new_key] = self.__evaluate(x[k], extended)
+                updated_keys.append(k)
+            else:
+                ret[k] = self.__evaluate(x[k], extended)
+
+        # Delete keys from dict that were updated
+        # - Not doing so can result in duplicate fields in deploy_*json
+        if updated_keys:
+            for old_key in updated_keys:
+                del x[old_key]
         return ret
 
     def __evaluate_list(self, x, extended):
