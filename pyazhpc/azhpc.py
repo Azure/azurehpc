@@ -1,4 +1,5 @@
 import argparse
+import copy
 import datetime
 import json
 import os
@@ -8,17 +9,16 @@ import socket
 import sys
 import textwrap
 import time
-import copy
+
+from cryptography.hazmat.backends import default_backend as crypto_default_backend
+from cryptography.hazmat.primitives import serialization as crypto_serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 import arm
 import azconfig
 import azinstall
 import azlog
 import azutil
-
-from cryptography.hazmat.primitives import serialization as crypto_serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.backends import default_backend as crypto_default_backend
 
 log = azlog.getLogger(__name__)
 

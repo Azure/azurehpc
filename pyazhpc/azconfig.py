@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import re
@@ -78,7 +79,8 @@ class ConfigFile:
             return input
 
     def preprocess(self, extended=True):
-        res = self.__evaluate(self.data, extended)
+        # copy of dict required
+        res = self.__evaluate(copy.deepcopy(self.data), extended)
         return res
 
     def read_keys(self, v):
