@@ -222,6 +222,14 @@
               "Project": "misc_ubuntu",
               "Version": "1.0.0",
               "Locker": "azure-storage"
+            },
+            "sunrpc_max_slots:default:1.0.0": {
+              "Order": 10030,
+              "Name": "sunrpc_max_slots:default:1.0.0",
+              "Spec": "default",
+              "Project": "sunrpc_max_slots",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
             }
           },
           "LoginClusterInitSpecs": {
@@ -238,6 +246,14 @@
               "Name": "misc_ubuntu:default:1.0.0",
               "Spec": "default",
               "Project": "misc_ubuntu",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "sunrpc_max_slots:default:1.0.0": {
+              "Order": 10020,
+              "Name": "sunrpc_max_slots:default:1.0.0",
+              "Spec": "default",
+              "Project": "sunrpc_max_slots",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -264,6 +280,14 @@
               "Name": "nhc:default:1.0.0",
               "Spec": "default",
               "Project": "nhc",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "sunrpc_max_slots:default:1.0.0": {
+              "Order": 10030,
+              "Name": "sunrpc_max_slots:default:1.0.0",
+              "Spec": "default",
+              "Project": "sunrpc_max_slots",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -363,6 +387,11 @@
       "misc_ubuntu:default:1.0.0": [
         {
           "script": "disable_unattended_upgrades.sh"
+        }
+      ],
+      "sunrpc_max_slots:default:1.0.0": [
+        {
+          "script": "sunrpc_tcp_max_slot_table_entries.sh"
         }
       ]
     }
