@@ -1,6 +1,14 @@
 #!/bin/bash
 
 TCP_MAX_SLOT_TABLE_ENTRIES=128
-MODPROBE_FILE=/etc/modprobe.d/sunrpc.conf
+SYSCTL_CONF=/etc/sysctl.conf
+ANF_MOUNT_POINTS="/apps /shared"
 
-echo "options sunrpc tcp_max_slot_table_entries=$TCP_MAX_SLOT_TABLE_ENTRIES" | sudo tee -a $MODPROBE_FILE > /dev/null
+echo "tcp_max_slot_table_entries=$TCP_MAX_SLOT_TABLE_ENTRIES" | sudo tee -a $SYSCTL_CONF > /dev/null
+sysctl -p
+
+for mount_point in $ANF_MOUNT_POINTS
+do
+   umount $mount_point
+   mount $mount_point
+done
