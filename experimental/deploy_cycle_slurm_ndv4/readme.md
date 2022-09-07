@@ -9,7 +9,7 @@ The NDv4 cluster will consist of
 - Automatic recovery from a reboot enabled (e.g NVMe SSD will be remounted and GPU clock freq reset)
 - Premium SSD's used for OS disks, with larger capacity (60GB)
 - Accelerated networking is enabled on NDv4
-- User home directories are mounted on Azure netapp files
+- User home directories are mounted on Azure netapp files (sunrpc kernel parameter tcp_max_slot_table_entries=128)
 - Extensive automatic pre-job healthchecks are enabled (Unhealthy nodes will be put into a DRAIN state)
 - A separate login node (separate from the scheduler is deployed)
 - Cyclecloud autoscaling is disabled.
