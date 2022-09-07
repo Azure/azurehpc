@@ -1,50 +1,65 @@
-# Deploy Azure Bastion for SSH and RDP connections to dedicated jumpbox
+# Deploy Azure Bastion for SSH and RDP connections to dedicated jumpbox VMs
 
-This example will create a Linux jumpbox and a Windows VM without public IP. They can be accessed via SSH and RDP respectively through the co-deployed Azure Bastion.
-Additionally, the following components are installed in the jumpbox using a cloud-init script:
+This example will create a Bastion service to connect to a Linux jumpbox via SSH and a Windows VM via RDP. All VMs are configured without public IP for maximum security.
+Additionally, the following components are installed in the Linux jumpbox using a cloud-init script:
 * git
 * jq
 * AzureHPC
 * azcopy
 * azcli
 
-## Initialize the project
+The Linux jumpbox supports CentOS and Ubuntu images.
 
-To start you need to copy this directory and update the `config.json`. AzureHPC provides the `azhpc-init` command that can automatically makes a copy of the directory and substitutes the unset variables. First run the command with the `-s` parameter to see which variables need to be set:
+## Step 1 - Install and initialize AzureHPC
 
-```
-azhpc-init -c $azhpc_dir/examples/bastion -d bastion -s
-```
-
-The variables can be then set with the `-v` option. Multiple variables can be specified as comma separated list. The `-d` option is required and will create a new directory (`my_bastion` in the example below) for you. For example:
+Clone the `azhpc` repository and source the `install.sh` script.
 
 ```
-azhpc-init -c $azhpc_dir/examples/bastion -d my_bastion -v resource_group=azurehpc-bastion,location=eastus,win_password=9S5zvbb4E9Sw,key_vault=kv-bastion
+git clone https://github.com/Azure/azurehpc.git
+source azurehpc/install.sh
 ```
 
-`azhpc-init` also allows to update variables even if they are already set. For example, in the command below we also change the bastion name to `mybastion` and the SKU to `Standard_HC44rs`:
+## Step 2 - Initialize the project
+
+To start you need to copy this directory in the desired working location and update the `variables.json` file with the desired parameters.
+
+| Variable                     | Value                                                                   |
+|------------------------------|-------------------------------------------------------------------------|
+| **resource_group**           | The resource group to put the resources                                 |
+| **location**                 | Azure region to deploy resources                                        |
+| **vnet_ip_range**            | IP address range in CIDR notation for Bastion VNet                      |
+| **default_subnet_ip_range**  | IP address range in CIDR notation for VMs subnet                        |
+| **bastion_subnet_ip_range**  | IP address range in CIDR notation for Bastion subnet                    |
+| **jumpbox_image**            | CentOS or Ubuntu marketplace image for Linux jumpbox                    |
+| **key_vault**                | Unique name to assign to Key Vault                                      |
+| **secret_name**              | **DO NOT MODIFY** - Name of the secret storing Windows VM user password |
+
+Then run the `init.sh` script to automatically create the `prereqs.json` and `config.json` configuration files.
+
+## Step 3 - Create the Key Vault and secret
+
+Before deploying the VMs, a Key Vault must be created containing the future Windows VM password as secret.
+This is done by AzureHPC through the `prereqs.json` configuration file. Here is the command:
 
 ```
-azhpc-init -c $azhpc_dir/examples/bastion -d my_bastion -v resource_group=azurehpc-bastion,location=eastus,win_password=9S5zvbb4E9Sw,key_vault=kv-bastion,vm_type=Standard_HC44rs,bastion_name=mybastion
+azhpc-build --no-vnet -c prereqs.json
 ```
 
-## Create the resources
+## Step 4 - Create Bastion and jumpbox VMs
 
-In the newly created directory run `azhpc-build` to start the deployment:
+To start the Bastion and jumpbox VMs deployment execute the following command:
 
 ```
-cd my_bastion
 azhpc-build
 ```
 
 Allow about 15 minutes to completion.
 
-## Access the Linux jumpbox via SSH
+## Step 5 - Access the Linux jumpbox via SSH
 
 ### From local shell terminal
 
 The provided `bastion_ssh_jumpbox.sh` script allows to easily access the jumpbox VM via SSH.
-If you modified the name of the jumpbox VM in the `config.json` file, use your preferred editor to update the script.
 
 Simply run the script to log into the jumpbox VM:
 
@@ -66,7 +81,7 @@ In the Bastion pane type `hpcadmin` in the "Username" field and select "SSH Priv
 
 After selecting "Connect" at the bottom of the pane, a new browser tab will open with the jumpbox Linux terminal.
 
-## Access the Windows VM via RDP
+## Step 6 - Access the Windows VM via RDP
 
 The Windows VM can be accessed via RDP exclusively from Azure Portal.
 
