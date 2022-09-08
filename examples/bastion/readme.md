@@ -34,7 +34,11 @@ To start you need to copy this directory in the desired working location and upd
 | **key_vault**                | Unique name to assign to Key Vault                                      |
 | **secret_name**              | **DO NOT MODIFY** - Name of the secret storing Windows VM user password |
 
-Then run the `init.sh` script to automatically create the `prereqs.json` and `config.json` configuration files.
+Then run the `init.sh` script to automatically create the `prereqs.json` and `config.json` configuration files:
+
+```
+./init.sh
+```
 
 ## Step 3 - Create the Key Vault and secret
 
