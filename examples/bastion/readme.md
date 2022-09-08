@@ -21,7 +21,7 @@ source azurehpc/install.sh
 
 ## Step 2 - Initialize the project
 
-To start you need to copy this directory in the desired working location and update the `variables.json` file with the desired parameters.
+To start you need to copy this directory in the desired working location and update the `variables.json` file with the desired parameters defining the resources to be created by AzureHPC.
 
 | Variable                     | Value                                                                   |
 |------------------------------|-------------------------------------------------------------------------|
@@ -30,7 +30,7 @@ To start you need to copy this directory in the desired working location and upd
 | **vnet_ip_range**            | IP address range in CIDR notation for Bastion VNet                      |
 | **default_subnet_ip_range**  | IP address range in CIDR notation for VMs subnet                        |
 | **bastion_subnet_ip_range**  | IP address range in CIDR notation for Bastion subnet                    |
-| **jumpbox_image**            | CentOS or Ubuntu marketplace image for Linux jumpbox                    |
+| **jumpbox_image**            | CentOS or Ubuntu marketplace image URN for Linux jumpbox (see [Azure CLI docs](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage)) |
 | **key_vault**                | Unique name to assign to Key Vault                                      |
 | **secret_name**              | **DO NOT MODIFY** - Name of the secret storing Windows VM user password |
 
