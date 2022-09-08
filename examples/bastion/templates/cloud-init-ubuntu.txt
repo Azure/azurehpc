@@ -6,4 +6,4 @@ packages:
 runcmd:
   - [ su, "-c", "git clone https://github.com/Azure/azurehpc.git", "-", hpcadmin ]
   - [ sh, "-c", "~hpcadmin/azurehpc/scripts/install-azcopy.sh" ]
-  - [ sh, "-c", "~hpcadmin/azurehpc/examples/bastion/install-azcli-ubuntu.sh" ]
+  - [ sh, "-c", "~hpcadmin/azurehpc/examples/bastion/scripts/install-azcli-ubuntu.sh" ]

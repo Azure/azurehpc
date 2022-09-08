@@ -1,0 +1,12 @@
+{
+  "variables": {
+    "resource_group": "",
+    "location": "",
+    "vnet_ip_range": "",
+    "default_subnet_ip_range": "",
+    "bastion_subnet_ip_range": "",
+    "jumpbox_image": "",
+    "key_vault": "",
+    "secret_name": "WinVM-{{variables.admin_user}}"
+  }
+}
