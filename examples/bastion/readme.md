@@ -6,7 +6,7 @@ Additionally, the following components are installed in the Linux jumpbox using 
 * jq
 * AzureHPC
 * azcopy
-* azcli
+* Azure CLI
 
 The Linux jumpbox supports CentOS and Ubuntu images.
 
