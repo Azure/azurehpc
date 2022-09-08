@@ -21,7 +21,14 @@ source azurehpc/install.sh
 
 ## Step 2 - Initialize the project
 
-To start you need to copy this directory in the desired working location and update the `variables.json` file with the desired parameters defining the resources to be created by AzureHPC.
+To start you need to copy this directory in the desired working location:
+
+```
+cp -r $azhpc_dir/examples/bastion <destination_path>
+cd <destination_path>/bastion
+```
+
+Then update the `variables.json` file with the desired parameters defining the resources to be created by AzureHPC.
 
 | Variable                     | Value                                                                   |
 |------------------------------|-------------------------------------------------------------------------|
