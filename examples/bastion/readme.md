@@ -86,7 +86,7 @@ Locate the `bastion-jumpbox` VM on the Azure portal and click on "Connect" menu 
 
 ![Alt text](/examples/bastion/images/jumpbox_connect.png?raw=true "Jumpbox Connect menu button")
 
-In the Bastion pane type `hpcadmin` in the "Username" field and select "SSH Private Key from Local File" to provide the `hpcadmin_id_rsa` private key created by AzureHPC in the directory where `azhpc-build` has been executed.
+In the Bastion pane type `hpcadmin` in the "Username" field and select "SSH Private Key from Azure Key Vault File". In the three new drop down menus select the Key Vault deployed by AzureHPC and finally `jumpbox-SSHkey-hpcadmin` as secret name.
 
 ![Alt text2](/examples/bastion/images/jumpbox_bastion_ssh.png?raw=true "Azure Bastion Linux SSH")
 
