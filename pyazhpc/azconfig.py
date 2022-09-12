@@ -22,7 +22,7 @@ class ConfigFile:
             self.file_location = "."
         with open(fname) as f:
             self.data = json.load(f)
-    
+
     def save(self, fname):
         with open(fname, "w") as f:
             json.dump(self.data, f, indent=4)
@@ -37,8 +37,10 @@ class ConfigFile:
                 dest = azutil.get_vm_private_ip(self.read_value("resource_group"), install_from)
         log.debug(f"install_from destination : {dest}")
         return dest
-    
+
     def __evaluate_dict(self, x, extended):
+        # Create deep copy of dict to avoid unintentionally deleting items if variables are used in keys
+        x = copy.deepcopy(x)
         ret = {}
         updated_keys = []
         for k in x.keys():
@@ -79,8 +81,7 @@ class ConfigFile:
             return input
 
     def preprocess(self, extended=True):
-        # copy of dict required
-        res = self.__evaluate(copy.deepcopy(self.data), extended)
+        res = self.__evaluate(self.data, extended)
         return res
 
     def read_keys(self, v):
@@ -93,10 +94,10 @@ class ConfigFile:
         except KeyError:
             log.error("read_keys : "+v+" not in config")
             sys.exit(1)
-        
+
         if type(it) is not dict:
             log.error("read_keys : "+v+" is not a dict")
-        
+
         keys = list(it.keys())
         log.debug("read_keys (exit): keys("+v+")="+",".join(keys))
         return keys
@@ -116,7 +117,7 @@ class ConfigFile:
                     else:
                         log.error("invalid path in config file ({v})")
                 it = it[x]
-            
+
             if type(it) is str:
                 res = self.process_value(it)
             else:
@@ -124,7 +125,7 @@ class ConfigFile:
         except KeyError:
             log.debug(f"using default value ({default})")
             res = default
-        
+
         log.debug("read_value (exit): "+v+"="+str(res))
 
         return res
@@ -134,9 +135,9 @@ class ConfigFile:
 
         def repl(match):
             return str(self.process_value(match.group()[2:-2], extended))
-    
+
         v = self.regex.sub(lambda m: str(self.process_value(m.group()[2:-2], extended)), v)
-        
+
         parts = v.split('.')
         prefix = parts[0]
         if len(parts) == 1:
@@ -202,6 +203,6 @@ class ConfigFile:
                     res = f.read()
             else:
                 res = v
-        
+
         log.debug("process_value (exit): "+str(v)+"="+str(res))
         return res

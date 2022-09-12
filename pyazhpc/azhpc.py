@@ -203,7 +203,7 @@ def do_connect(args):
         sshuser = adminuser
     else:
         sshuser = args.user
-    
+
     sshport = c.read_value("ssh_port", 22)
 
     jumpbox = c.read_value("install_from")
@@ -470,7 +470,7 @@ def _wait_for_deployment(resource_group, deploy_name):
                                         elif isinstance(value, list):
                                             wrapped_print(indent, str(key))
                                             pretty_print(value, indent+4)
-                                        else: 
+                                        else:
                                             wrapped_print(indent, f"{key}: {value}")
                                 else:
                                     wrapped_print(indent, str(d))
@@ -565,8 +565,8 @@ def do_slurm_resume(args):
     # first get the resource name
     resource_names, resource_list = _nodelist_expand(args.nodes)
 
-    # Create a copy of the configuration to use as template                                                                 
-    # for the final deployment configuration                                                                                
+    # Create a copy of the configuration to use as template
+    # for the final deployment configuration
     config = copy.deepcopy(config_orig)
     config["resources"] = {}
 
@@ -716,7 +716,7 @@ def do_run_install(args):
     if os.path.isdir(tmpdir):
         log.debug("removing existing tmp directory")
         shutil.rmtree(tmpdir)
-    
+
     adminuser = config["admin_user"]
     private_key_file = adminuser+"_id_rsa"
     public_key_file = adminuser+"_id_rsa.pub"
@@ -897,7 +897,7 @@ if __name__ == "__main__":
     preprocess_parser.set_defaults(func=do_preprocess)
 
     run_parser = subparsers.add_parser(
-        "run", 
+        "run",
         parents=[gopt_parser],
         add_help=False,
         description="run a command on the specified resources",
@@ -923,7 +923,7 @@ if __name__ == "__main__":
     )
 
     scp_parser = subparsers.add_parser(
-        "scp", 
+        "scp",
         parents=[gopt_parser],
         add_help=False,
         description="secure copy",
