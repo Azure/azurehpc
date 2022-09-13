@@ -49,7 +49,7 @@
     },
     {
       "type": "local_script",
-      "script": "create_password_in_keyvault.sh",
+      "script": "add_secret_in_keyvault.sh",
       "args": [
         "variables.key_vault",
         "variables.cc_password_secret_name"
@@ -57,7 +57,7 @@
     },
     {
       "type": "local_script",
-      "script": "create_password_in_keyvault.sh",
+      "script": "add_secret_in_keyvault.sh",
       "args": [
         "variables.key_vault",
         "variables.win_password_secret_name"
@@ -65,7 +65,7 @@
     },
     {
       "type": "local_script",
-      "script": "create_password_in_keyvault.sh",
+      "script": "add_secret_in_keyvault.sh",
       "args": [
         "variables.key_vault",
         "variables.mariadb_password_secret_name"
