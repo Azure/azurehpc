@@ -23,7 +23,7 @@ function get_source() {
 
 function install_from_source() {
 
-   if ! [[ -f  /usr/bin/nfc ]] && ! [[ -d /etc/nhc ]]
+   if ! [[ -f  /usr/sbin/nhc ]] && ! [[ -d /etc/nhc ]]
    then
       cd $TMPDIR
       get_source
