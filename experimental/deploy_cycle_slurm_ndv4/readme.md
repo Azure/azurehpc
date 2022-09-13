@@ -16,12 +16,14 @@ The NDv4 cluster will consist of
 - Option to support containers by adding Nvidia pyxis+enroot SLURM integration
 - Windows server (winbox) is deployed to access the Cyclecloud portal via RDP
 - Deploy MariaDB, access it via a private endpoint and set-up SLURM accounting
+- GPU Monitoring (using custom Azure log analytics), DCGMI GPU filed Ids, IB metrics
 
 ## Prerequistes
 - Bastion and jumpbox is deployed (landing zone), see examples/bastion for an example of how to deploy it.
 - Copy experimental/gpu_optimizations/max_gpu_app_clocks.sh to the scripts dir
 - Copy experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files to the scripts dir (except prolog.sh)
 - Copy experimental/cc_slurm_pyxis_enroot/cc_slurm_pyxis_enroot/specs/default/cluster-init/files to the scripts dir (if using the config_pyxis_enroot.json config file)
+- Copy experimental/gpu_monitoring/gpu_data_collector.py to the scripts dir (if want to enable GPU Monitoring, using the config_pyxis_enroot_sacct_gpu_monitoring.json config file)
 - The prereqs.json and config.json files are edited (e.g all NOT-SET sections are set).
 
 
@@ -38,6 +40,7 @@ $ azhpc-build -c prereqs.json
 ```
 $ azhpc-build --no-vnet -c prereqs_sacct.json
 ```
+>Note: If Also wish to enable GPU monitoring, then use the prereqs_sacct_la_ws.json configuration file instead.
 
 ## Step 2 - Deploy NDv4 cluster with Cyclcloud
 
@@ -56,6 +59,7 @@ To deploy with Slurm accounting enabled using a MariaDB
 ```
 azhpc-build --no-vnet -c config_pyxis_enroot_sacct.json
 ```
+>Note: if you wish to also enable GPU monitoring, then use the config_pyxis_enroot_sacct_gpu_monitoring.json configuration file.
 
 
 ## Step 3 - Start the cluster in CycleCloud
@@ -197,3 +201,24 @@ The prologslurmctld.sh is located this dir.
 
 To prevent the epilog.sh (from NHC) from running NHC when a job is requeued due to exceeding the compute node quota, replace the NHC epilog.sh with the one 
 in scripts/epilog.sh.
+
+## Notes on GPU Monitoring
+
+* You can stop the GPU monitoring service
+```
+sudo systemctl stop gpu_monitoring
+```
+
+* You can start the GPU monitoring service
+```
+sudo systemctl start gpu_monitoring
+```
+
+* Check that it is running ok
+```
+sudo systemctl status gpu_monitoring
+```
+
+* To change the GPU Monitoring environment (e.g. What metrics are monitored and at what time interval)
+  * Edit /opt/gpu_monitoring/gpu_data_collector.sh
+>Note: By default GPU utilization, GPU memory used, tensor cores active, IB data transmitted/received, Slurm JobID and physical hostname metrics, collected and the time interval is 10 seconds and only nodes with Slurm jobs running.

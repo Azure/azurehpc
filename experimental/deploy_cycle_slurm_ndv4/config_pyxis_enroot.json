@@ -306,6 +306,8 @@
             "azure_ib_link_flapping.nhc",
             "azure_gpu_clock_throttling.nhc",
             "azure_cpu_drop_cache_mem.nhc",
+            "azure_gpu_xid.nhc",
+            "azure_nccl_allreduce.nhc",
             "epilog.sh",
             "run_nhc.sh",
             "kill_nhc.sh",
