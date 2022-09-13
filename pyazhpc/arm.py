@@ -60,6 +60,21 @@ class ArmTemplate:
         for peer_name in cfg["vnet"].get("peer", {}).keys():
             peer_resource_group = cfg["vnet"]["peer"][peer_name]["resource_group"]
             peer_vnet_name = cfg["vnet"]["peer"][peer_name]["vnet_name"]
+            peer_allow_vnet_access = cfg["vnet"]["peer"][peer_name].get("peer_allow_vnet_access", True)
+            peer_allow_forwarded_traffic = cfg["vnet"]["peer"][peer_name].get("peer_allow_forwarded_traffic", True)
+            vnet_allow_vnet_access = cfg["vnet"]["peer"][peer_name].get("vnet_allow_vnet_access", True)
+            vnet_allow_forwarded_traffic = cfg["vnet"]["peer"][peer_name].get("vent_allow_forwarded_traffic", True)
+
+            if "gateway" in cfg["vnet"]["peer"][peer_name]:
+                peer_allow_gateway_transit = cfg["vnet"]["peer"][peer_name]["gateway"].get("peer_allow_gateway_transit", False)
+                peer_use_remote_gateways = cfg["vnet"]["peer"][peer_name]["gateway"].get("peer_use_remote_gateways", False)
+                vnet_allow_gateway_transit = cfg["vnet"]["peer"][peer_name]["gateway"].get("vnet_allow_gateway_transit", False)
+                vnet_use_remote_gateways = cfg["vnet"]["peer"][peer_name]["gateway"].get("vnet_use_remote_gateways", False)
+            else:
+                peer_allow_gateway_transit = False
+                peer_use_remote_gateways = False
+                vnet_allow_gateway_transit = False
+                vnet_use_remote_gateways = False
 
             self.resources.append({
                 "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
@@ -69,10 +84,10 @@ class ArmTemplate:
                     "remoteVirtualNetwork": {
                         "id": f"[resourceId('{peer_resource_group}', 'Microsoft.Network/virtualNetworks', '{peer_vnet_name}')]"
                     },
-                    "allowVirtualNetworkAccess": True,
-                    "allowForwardedTraffic": True,
-                    "allowGatewayTransit": False,
-                    "useRemoteGateways": False,
+                    "allowVirtualNetworkAccess": peer_allow_vnet_access,
+                    "allowForwardedTraffic": peer_allow_forwarded_traffic,
+                    "allowGatewayTransit": peer_allow_gateway_transit,
+                    "useRemoteGateways": peer_use_remote_gateways
                 },
                 "dependsOn": [
                     f"Microsoft.Network/virtualNetworks/{vnet_name}"
@@ -101,10 +116,10 @@ class ArmTemplate:
                                     "remoteVirtualNetwork": {
                                         "id": f"[resourceId('{resource_group}', 'Microsoft.Network/virtualNetworks', '{vnet_name}')]"
                                     },
-                                    "allowVirtualNetworkAccess": True,
-                                    "allowForwardedTraffic": True,
-                                    "allowGatewayTransit": False,
-                                    "useRemoteGateways": False
+                                    "allowVirtualNetworkAccess": vnet_allow_vnet_access,
+                                    "allowForwardedTraffic": vnet_allow_forwarded_traffic,
+                                    "allowGatewayTransit": vnet_allow_gateway_transit,
+                                    "useRemoteGateways": vnet_use_remote_gateways
                                 }
                             }
                         ],

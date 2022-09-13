@@ -94,10 +94,26 @@ The config file will create or reuse vnet and subnets from the config file.
 
 This dictionary describes the virtual network peering to be created
 
-| Name               | Description                                                                        | Required | Default |
-|--------------------|------------------------------------------------------------------------------------|----------|---------|
-| **resource_group** | Name of the resource group containing the vnet to peer to                          |   yes    |         |
-| **vnet_name**      | Name of the vnet to peer to                                                        |   yes    |         |
+| Name                             | Description                                                          | Required | Default |
+|----------------------------------|----------------------------------------------------------------------|----------|---------|
+| **resource_group**               | Name of the resource group containing the vnet to peer to            |   yes    |         |
+| **vnet_name**                    | Name of the vnet to peer to                                          |   yes    |         |
+| **peer_allow_vnet_access**       | Allow traffic from peer network to vnet                              |   no     | True    |
+| **peer_allow_forwarded_traffic** | Allow traffic forwarded from vnet to peer network                    |   no     | True    |
+| **vnet_allow_vnet_access**       | Allow traffic from vnet to peer virtual network                      |   no     | True    |
+| **vnet_allow_forwarded_traffic** | Allow traffic to be forwarded from peer virtual network to vnet      |   no     | True    |
+| **gateway**                      | Dictionary of [peer-gateway](#peer-gateway-dictionary) to create     |   no     |         |
+
+This dictionary describes the configuration of virtual nework gateway used in the peering
+
+##### Peer-Gateway dictionary
+
+| Name                           | Description                                                            | Required | Default |
+|--------------------------------|------------------------------------------------------------------------|----------|---------|
+| **peer_allow_gateway_transit** | Use the peer's gateway server                                          |   no     | False   |
+| **peer_allow_remote_gateways** | Use the vnet's gateway server                                          |   no     | False   |
+| **vnet_allow_gateway_transit** | Use the vnet's gateway server                                          |   no     | False   |
+| **vnet_allow_remote_gateways** | Use the peer's gateway server                                          |   no     | False   |
 
 #### Route dictionary
 
@@ -135,6 +151,33 @@ Here is an example setup with four subnets:
         "viz": "10.2.2.0/24",
         "storage": "10.2.3.0/24",
         "compute": "10.2.4.0/22"
+    }
+},
+...
+```
+
+An example creating a new virtual network *new-vnet* with peering to an existing network *old-vnet* with a virtual network gateway which it will
+use
+
+```json
+...
+"vnet": {
+    "name": "new-vnet",
+    "resource_group": "new-vnet-rg",
+    "address_prefix": "10.11.0.0/20",
+    "subnets": {
+        "default": "10.11.1.0/24",
+        "data": "10.11.2.0/24"
+    },
+    "peer": {
+        "old-vnet": {
+            "resource_group": "old-rg",
+            "vnet_name": "old-vnet",
+            "gateway": {
+                "peer_use_remote_gateways": true,
+                "vnet_allow_gateway_transit": true
+            }
+        }
     }
 },
 ...
