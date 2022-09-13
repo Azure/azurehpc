@@ -121,7 +121,7 @@ def create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_job
        for line in dcgm_dmon_fields_out.splitlines():
            line_split = line.split()
            if 'Entity' in line:
-              field_name_l = line_split[2:]
+              field_name_l = line_split[1:]
            if line_split[0] == 'GPU':
               record_d = {}
               record_d['gpu_id'] = int(line_split[1])
@@ -204,7 +204,7 @@ def get_infiniband_counter_rates(ib_counters, time_interval_seconds, physicalhos
                ib_counter_rates[ib_counter_name_per_sec] = counter_rate(current_ib_counter, ib_counters[hca_id][ib_counter_name], time_interval_seconds)
             else:
                ib_counter_rates[ib_counter_name_per_sec] = 0
-            ib_counters[hca_id][ib_counter_name_per_sec] = current_ib_counter
+            ib_counters[hca_id][ib_counter_name] = current_ib_counter
         ib_counter_rates['physicalhostname'] = physicalhostname_val
         if have_jobid:
            ib_counter_rates['slurm_jobid'] = slurm_jobid
