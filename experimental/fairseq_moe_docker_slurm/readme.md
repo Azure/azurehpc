@@ -15,30 +15,34 @@ Total number of paramters = Number of GPUS * 2B + 4.5B
 - Compute node(s), ND96asr_v4 (Running Ubuntu-hpc 18.04)
 - Azure container registry deployed
 
-## Docker set-up on compute nodes and scheduler
+## Enroot authentication
 
 ```
-pdsh -w ^/path/to/hostfile sudo </path/to/docker_setup.sh
+mkdir -p $HOME/.config/enroot/
+echo "machine nvcr.io login $oauthtoken password YOUR_KEY" > $HOME/.config/enroot/.credentials
 ```
->Note: Make sure scheduler and the compute nodes have the name GID for the docker group. Modify script update "USER".
+>Note: You need to get your key from [Nvidia API Key Page](https://ngc.nvidia.com/setup/api-key)
 
-
-## Build docker container
+## Build enroot squashfs image
 
 ```
-az acr build --registry <your_acr_name> --image docker/<container_name:version> .
+enroot import docker://nvcr.io/nvidia/pytorch:21.10-py3
+enroot create --name pytorch nvidia+pytorch+21.10-py3.sqsh
+enroot start --root --rw --mount .:/workspace pytorch
 ```
->Note: Make sure you are in the same directory as yur Dockerfile. Change "your_acr_name", "container_name" and 
-"version" to appropriate values for your ACR, the name/version of your container respectively.
-
+Exit the container and export the updated version
+```bash
+enroot export --output fairseq.sqsh pytorch
+enroot create --name fairseq fairseq.sqsh
+enroot list
+```
 
 ## Run fairseq_moe benchmark
 
 ```
 sbatch -N <Number of nodes> run_fairseq_moe.slrm
 ```
->Note: Modify run_fairseq_moe.slrm, updating appropriate vlaues for "DOCKER_USERNAME", "DOCKER_PASSWD", "CONTAINER_NAME" and "EXECUTE_SCRIPT". If you are using a shared filesystem, you will only need to authenicate to docker once and can remove docker login from the run_fairseq_moe.slrm script. If you would like to do a restart of a job then comment out "rm $SAVE_DIR/*"
-
+>Note: If you would like to do a restart of a job then comment out "rm $SAVE_DIR/*"
 
 ## Verify benchmark Ran ok
 
