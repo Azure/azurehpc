@@ -15,13 +15,16 @@ class ConfigFile:
         self.data = {}
         self.regex = re.compile(r'({{([^{}]*)}})')
 
-    def open(self, fname):
+    def open(self, fname, preprocess=True, preprocess_extended=False):
         log.debug("opening "+fname)
         self.file_location = os.path.dirname(fname)
         if self.file_location == "":
             self.file_location = "."
         with open(fname) as f:
             self.data = json.load(f)
+
+        if preprocess:
+            self.data = self.preprocess(extended=preprocess_extended)
 
     def save(self, fname):
         with open(fname, "w") as f:
