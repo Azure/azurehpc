@@ -4,6 +4,10 @@
     "use_variable": "variables.simple_variable",
     "double_curly_braces": "simple_variable={{variables.simple_variable}}",
     "variables": {
-        "simple_variable": 42
+        "simple_variable": 42,
+        "resource_name": "foo"
+    },
+    "resources": {
+        "variables.resource_name": "bar"
     }
 }

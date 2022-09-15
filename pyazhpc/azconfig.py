@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import re
@@ -14,14 +15,17 @@ class ConfigFile:
         self.data = {}
         self.regex = re.compile(r'({{([^{}]*)}})')
 
-    def open(self, fname):
+    def open(self, fname, preprocess=True, preprocess_extended=False):
         log.debug("opening "+fname)
         self.file_location = os.path.dirname(fname)
         if self.file_location == "":
             self.file_location = "."
         with open(fname) as f:
             self.data = json.load(f)
-    
+
+        if preprocess:
+            self.data = self.preprocess(extended=preprocess_extended)
+
     def save(self, fname):
         with open(fname, "w") as f:
             json.dump(self.data, f, indent=4)
@@ -36,11 +40,27 @@ class ConfigFile:
                 dest = azutil.get_vm_private_ip(self.read_value("resource_group"), install_from)
         log.debug(f"install_from destination : {dest}")
         return dest
-    
+
     def __evaluate_dict(self, x, extended):
+        # Create deep copy of dict to avoid unintentionally deleting items if variables are used in keys
+        x = copy.deepcopy(x)
         ret = {}
+        updated_keys = []
         for k in x.keys():
-            ret[k] = self.__evaluate(x[k], extended)
+            # Update key names if config variable (i.e. {{variables.key}} ) used
+            if "variables." in k:
+                log.debug(f"expanding key {k}")
+                new_key = self.__evaluate(k, extended)
+                ret[new_key] = self.__evaluate(x[k], extended)
+                updated_keys.append(k)
+            else:
+                ret[k] = self.__evaluate(x[k], extended)
+
+        # Delete keys from dict that were updated
+        # - Not doing so can result in duplicate fields in deploy_*json
+        if updated_keys:
+            for old_key in updated_keys:
+                del x[old_key]
         return ret
 
     def __evaluate_list(self, x, extended):
@@ -77,10 +97,10 @@ class ConfigFile:
         except KeyError:
             log.error("read_keys : "+v+" not in config")
             sys.exit(1)
-        
+
         if type(it) is not dict:
             log.error("read_keys : "+v+" is not a dict")
-        
+
         keys = list(it.keys())
         log.debug("read_keys (exit): keys("+v+")="+",".join(keys))
         return keys
@@ -100,7 +120,7 @@ class ConfigFile:
                     else:
                         log.error("invalid path in config file ({v})")
                 it = it[x]
-            
+
             if type(it) is str:
                 res = self.process_value(it)
             else:
@@ -108,7 +128,7 @@ class ConfigFile:
         except KeyError:
             log.debug(f"using default value ({default})")
             res = default
-        
+
         log.debug("read_value (exit): "+v+"="+str(res))
 
         return res
@@ -118,9 +138,9 @@ class ConfigFile:
 
         def repl(match):
             return str(self.process_value(match.group()[2:-2], extended))
-    
+
         v = self.regex.sub(lambda m: str(self.process_value(m.group()[2:-2], extended)), v)
-        
+
         parts = v.split('.')
         prefix = parts[0]
         if len(parts) == 1:
@@ -186,6 +206,6 @@ class ConfigFile:
                     res = f.read()
             else:
                 res = v
-        
+
         log.debug("process_value (exit): "+str(v)+"="+str(res))
         return res
