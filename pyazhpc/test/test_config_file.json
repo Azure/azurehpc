@@ -5,11 +5,9 @@
     "double_curly_braces": "simple_variable={{variables.simple_variable}}",
     "variables": {
         "simple_variable": 42,
-        "resource_name": "foo",
-        "resource_type": "resource-type"
+        "resource_name": "foo"
     },
     "resources": {
-        "variables.resource_name": "bar",
-        "resource-name": "variables.resource_type"
+        "variables.resource_name": "bar"
     }
 }
