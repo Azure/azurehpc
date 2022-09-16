@@ -186,7 +186,7 @@ def counter_rate(current_counter, previous_counter, time_interval):
     return counter_rate
 
 
-def get_infiniband_counter_rates(ib_counters, time_interval_seconds, physicalhostname_val, have_jobid, slurm_jobid):
+def get_infiniband_counter_rates(ib_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid):
     ib_counter_rates_l = []
     ib_base_path = '/sys/class/infiniband'
     for hca_id in os.listdir(ib_base_path):
@@ -205,6 +205,7 @@ def get_infiniband_counter_rates(ib_counters, time_interval_seconds, physicalhos
             else:
                ib_counter_rates[ib_counter_name_per_sec] = 0
             ib_counters[hca_id][ib_counter_name] = current_ib_counter
+        ib_counter_rates['hostname'] = hostname
         ib_counter_rates['physicalhostname'] = physicalhostname_val
         if have_jobid:
            ib_counter_rates['slurm_jobid'] = slurm_jobid
@@ -392,7 +393,7 @@ def main():
                 dcgm_dmon_list_out = execute_cmd(dcgm_dmon_list_cmd_l)
              physicalhostname_val = get_physicalhostname()
              if ib_metrics:
-                ib_rates_l = get_infiniband_counter_rates(ib_counters, time_interval_seconds, physicalhostname_val, have_jobid, slurm_jobid)
+                ib_rates_l = get_infiniband_counter_rates(ib_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if eth_metrics:
                 eth_rates_l = get_ethernet_counter_rates(eth_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if nfs_metrics:
