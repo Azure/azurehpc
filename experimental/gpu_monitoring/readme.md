@@ -2,8 +2,8 @@
 
 GPU Monitoring is essential to get insights into how effectively your application in utilizing the GPU(s) and monitor the health of the GPU's.
 
-Basic GPU Monitoring is demonstrated utilizing Azure Monitor log analytics. The following script are provided, collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics  and send it to your log  analytics workspace, start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
-SLURM job ids are collected, so you can monitor for specific jobids. (Assumes exclusive jobs on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded. You can use the system crontab to control the time interval for collecting data, or you can run the python collection script directly and specify the collection time interval (see the -tis argument below).
+Basic GPU Monitoring is demonstrated utilizing Azure Monitor log analytics to extract and explore your data. The following script are provided, custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics  and send it to your log  analytics workspace), start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
+SLURM job ids are collected, so you can monitor specific jobids. (Assumes exclusive jobs running on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded. You can use the system crontab to control the time interval for collecting data, or you can run the python collection script directly and specify the collection time interval (see the -tis argument below).
 
 ## Prerequisites
 
@@ -96,7 +96,7 @@ memory_clock                                           MMCLK            101
 etc
 
 ```
-To start the gpu monitor on a list of  nodes. The default collection time interval is 30 sec (-tis argument) and the default DCGM GPU metrics collected are
+To start the gpu monitor on a list of  nodes. The default collection time interval is 10 sec (-tis argument) and the default DCGM GPU metrics collected are
 GPU Utilization (203), GPU memory used (252) and Tensor activity (1004). You can change these options.
 
 Start the GPU monitor
@@ -110,19 +110,15 @@ Stop the gpu_monitor
 ./stop_gpu_data_collector.sh
 ```
 >Note: The log file for gpu_data_collector.py is located in /tmp/gpu_data_collector.log
+>Note: You can also start/stop GPU monitoring using a linux service manager (e.g systemctl), see azurehpc/experimental/experimental/deploy_cycle_slurm_ndv4 for details on how to set this up)
 
 Similarly, scripts are provided to use the system crontab to start the gpu data collector and decide the time interval based on the crontab parameters. In the case of crontab 
 the smallest timing interval is 60 sec. (start_gpu_data_collector_cron.sh and stop_gpu_data_collector_cron.sh
 
 Go to your log analytics workspace to monitor your GPU's and generate dashboards.
 
-A simple log analytics query to chart the average GPU utilization for a particular slurm job would be.
+A simple log analytics query to chart the average GPU utilization for a particular slurm job id (10) would be.
 
-```
-MYGPUMonitor_CL
-| where gpu_id_d in (0,1,2,3,4,5,6,7) and slurm_jobid_d == 17
-| summarize avg(gpu_utilization_d) by bin(TimeGenerated, 5m)
-| render timechart
-```
+![Alt text1](/experimental/gpu_monitoring/images/740m_4n_gpu_utilization_jobid.jpg?raw=true "gpu-util")
 
 ![Alt text1](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
