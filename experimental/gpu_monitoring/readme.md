@@ -119,6 +119,6 @@ Go to your log analytics workspace to monitor your GPU's and generate dashboards
 
 A simple log analytics query to chart the average GPU utilization for a particular slurm job id (10) would be.
 
-![Alt text1](/experimental/gpu_monitoring/images/740m_4n_gpu_utilization_jobid.jpg?raw=true "gpu-util")
+![Alt text1](/experimental/gpu_monitoring/images/740m-4n-gpu-utilization-jobid.jpg?raw=true "gpu-util")
 
-![Alt text1](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+![Alt text2](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
