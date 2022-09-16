@@ -117,8 +117,25 @@ the smallest timing interval is 60 sec. (start_gpu_data_collector_cron.sh and st
 
 Go to your log analytics workspace to monitor your GPU's and generate dashboards.
 
+## Examples of exploring your collected data with log analytics and kusto
+
 A simple log analytics query to chart the average GPU utilization for a particular slurm job id (10) would be.
 
 ![Alt text1](/experimental/gpu_monitoring/images/740m-4n-gpu-utilization-jobid.jpg?raw=true "gpu-util")
 
-![Alt text2](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+
+To monitor the InfiniBand bandwidth for the 8 IB devices on NDv4
+![Alt text2](/experimental/gpu_monitoring/images/740m_4n_infiniband_bw.jpg?raw=true "gpu-ib")
+
+
+To determine which hostnames are associated with a specific slurm job id
+![Alt text3](/experimental/gpu_monitoring/images/740m_4n_find_hostnames.jpg?raw=true "gpu-host")
+
+
+To determine which physical hostname a virtual host is running on
+![Alt text4](/experimental/gpu_monitoring/images/740m_4n_find_physical_hostname.jpg?raw=true "gpu-host")
+
+
+An Example Azure GPU Monitoring daskboard
+
+![Alt text5](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
