@@ -2,7 +2,7 @@
 
 GPU Monitoring is essential to get insights into how effectively your application in utilizing the GPU(s) and monitor the health of the GPU's.
 
-Basic GPU Monitoring is demonstrated utilizing Azure Monitor log analytics to extract and explore your data. The following script are provided, custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics  and send it to your log  analytics workspace), start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
+Basic GPU Monitoring is demonstrated by utilizing a custom data collection script to collect and send GPU/Job metrics to Azure Monitor log analytics, specific data can then be extracted and explored. The following script are provided, custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics  and send it to your log  analytics workspace), start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
 SLURM job ids are collected, so you can monitor specific jobids. (Assumes exclusive jobs running on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded. You can use the system crontab to control the time interval for collecting data, or you can run the python collection script directly and specify the collection time interval (see the -tis argument below).
 
 ## Prerequisites
