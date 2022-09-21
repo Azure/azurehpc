@@ -2,7 +2,7 @@
 
 GPU Monitoring is essential to get insights into how effectively your application in utilizing the GPU(s) and monitor the health of the GPU's.
 
-Basic GPU Monitoring is demonstrated by utilizing a custom data collection script to collect and send GPU/Job metrics to Azure Monitor log analytics, specific data can then be extracted and explored. The following script are provided, custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics  and send it to your log  analytics workspace), start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
+Basic GPU Monitoring is demonstrated by utilizing a custom data collection script to collect and send GPU/Job metrics to Azure Monitor log analytics, specific data can then be extracted and explored. The following script are provided, custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, CPU metrics and sends it to your log analytics workspace), start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
 SLURM job ids are collected, so you can monitor specific jobids. (Assumes exclusive jobs running on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded. You can use the system crontab to control the time interval for collecting data, or you can run the python collection script directly and specify the collection time interval (see the -tis argument below).
 
 ## Prerequisites
@@ -36,6 +36,11 @@ optional arguments:
   -ethm, --ethernet_metrics
                         Collect Ethernet metrics (default: False)
   -nfsm, --nfs_metrics  Collect NFS client side metrics (default: False)
+  -cpum, --cpu_metrics  Collects CPU metrics (e.g. user, sys, idle & iowait time
+                        (default: False)
+  -cpu_memm, --cpu_mem_metrics
+                        Collects CPU memory metrics (Default: MemTotal,
+                        MemFree (default: False)
   -uc, --use_crontab    This script will be started by the system contab and the time interval between each data collection will be decided by the system crontab (if
                         crontab is selected then the -tis argument will be ignored). (default: False)
   -tis TIME_INTERVAL_SECONDS, --time_interval_seconds TIME_INTERVAL_SECONDS
