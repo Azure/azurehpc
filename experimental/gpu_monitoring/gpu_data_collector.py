@@ -357,18 +357,38 @@ def get_cpu_loadavg_data():
     return value
 
 
-def get_cpu_data(hostname, physicalhostname_val, have_jobid, slurm_jobid):
+def get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid):
     cpu_l = []
     cpu_d = {}
     stat_l = read_file("/proc/stat")
     user_time = find_value_in_file("cpu", 1, stat_l)
-    cpu_d["cpu_user_time_user_hz"] = user_time
+    if "user_time" in cpu_counters:
+       cpu_d["cpu_user_time_user_hz"] = user_time - cpu_counters["user_time"]
+    else:
+       cpu_d["cpu_user_time_user_hz"] = 0
+    cpu_counters["user_time"] = user_time
+
     sys_time = find_value_in_file("cpu", 3, stat_l)
-    cpu_d["cpu_sys_time_user_hz"] = sys_time
+    if "sys_time" in cpu_counters:
+       cpu_d["cpu_sys_time_user_hz"] = sys_time - cpu_counters["sys_time"]
+    else:
+       cpu_d["cpu_sys_time_user_hz"] = 0
+    cpu_counters["sys_time"] = sys_time
+
     idle_time = find_value_in_file("cpu", 4, stat_l)
-    cpu_d["cpu_idle_time_user_hz"] = idle_time
+    if "idle_time" in cpu_counters:
+       cpu_d["cpu_idle_time_user_hz"] = idle_time - cpu_counters["idle_time"]
+    else:
+       cpu_d["cpu_idle_time_user_hz"] = 0
+    cpu_counters["idle_time"] = idle_time
+
     iowait_time = find_value_in_file("cpu", 5, stat_l)
-    cpu_d["cpu_iowait_time_user_hz"] = iowait_time
+    if "iowait_time" in cpu_counters:
+       cpu_d["cpu_iowait_time_user_hz"] = iowait_time - cpu_counters["iowait_time"]
+    else:
+       cpu_d["cpu_iowait_time_user_hz"] = 0
+    cpu_counters["iowait_time"] = iowait_time
+
     if have_jobid:
         cpu_d['slurm_jobid'] = slurm_jobid
     cpu_d['hostname'] = hostname
@@ -453,6 +473,7 @@ def main():
     (no_gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,eth_metrics,nfs_metrics,cpu_metrics,cpu_mem_metrics,name_log_event) = parse_args()
     (customer_id,shared_key) = read_env_vars()
     ib_counters = {}
+    cpu_counters = {}
     eth_counters = {}
     nfs_counters = {}
     ib_rates_l = []
@@ -483,7 +504,7 @@ def main():
              if cpu_mem_metrics:
                 cpu_mem_l = get_cpu_mem_data(hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if cpu_metrics:
-                cpu_l = get_cpu_data(hostname, physicalhostname_val, have_jobid, slurm_jobid)
+                cpu_l = get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              data_l = create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l,  cpu_mem_l, cpu_l)
              print(data_l)
              body = json.dumps(data_l)
