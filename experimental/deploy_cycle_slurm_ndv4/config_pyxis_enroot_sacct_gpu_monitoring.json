@@ -7,7 +7,7 @@
     "location": "<NOT-SET>",
     "resource_group": "<NOT-SET>",
     "vnet_resource_group": "variables.resource_group",
-    "vnet_name": "<NOT-SET>",
+    "vnet_name": "hpcvnet",
     "admin_user": "hpcadmin",
     "image": "OpenLogic:CentOS:7.7:latest",
     "win_image": "microsoftwindowsdesktop:windows11preview:win11-21h2-ent:latest",
@@ -18,15 +18,24 @@
     "cc_vm_type": "Standard_D8s_v3",
     "cc_password_secret_name": "CycleAdminPassword",
     "cc_version": "8",
-    "hpc_image": "microsoft-dsvm:ubuntu-hpc:1804:18.04.2021120101",
+    "hpc_image": "microsoft-dsvm:ubuntu-hpc:1804:latest",
     "scheduler_image": "cycle.image.ubuntu18",
     "htc_image": "cycle.image.ubuntu18",
-    "hpc_vm_type": "Standard_ND96amsr_v4",
+    "hpc_vm_type": "Standard_ND96amsr_A100_v4",
     "htc_vm_type": "Standard_D4s_v3",
     "login_vm_type": "Standard_D4s_v3",
     "vm_type": "Standard_D4s_v4",
     "win_vm_type": "Standard_D4s_v4",
     "win_password_secret_name": "WinPassword",
+    "mariadb_password_secret_name": "MariaDBPassword",
+    "configuration_slurm_accounting_url": "<NOT-SET>",
+    "configuration_slurm_accounting_user": "<NOT-SET>",
+    "log_analytics_ws_customer_id_secret_name": "LogAnalyticsCustomerId",
+    "log_analytics_ws_key_secret_name": "LogAnalyticsKey",
+    "nfs_address": "<NOT-SET>",
+    "nfs_shared_export_path": "<NOT-SET>",
+    "additional_nfs_address": "<NOT-SET>",
+    "additional_nfs_export_path": "<NOT-SET>",
     "uuid": "<NOT-SET>",
     "scheduler": "slurm"
   },
@@ -147,7 +156,7 @@
     }
   ],
   "storage": {
-    "lockerstore": {
+    "lockerstoretst": {
       "type": "storageaccount",
       "sku": "Standard_LRS"
     }
@@ -157,6 +166,10 @@
       "slurmcycle": {
         "template": "slurm_cycle.txt",
         "parameters": {
+          "configuration_slurm_accounting_enabled" : true,
+          "configuration_slurm_accounting_url" : "variables.configuration_slurm_accounting_url",
+          "configuration_slurm_accounting_user" : "variables.configuration_slurm_accounting_user",
+          "configuration_slurm_accounting_password" : "secret.{{variables.key_vault}}.{{variables.mariadb_password_secret_name}}",
           "UsePublicNetwork": false,
           "AdditionalNAS": true,
           "SubnetId": "{{variables.resource_group}}/{{variables.vnet_name}}/compute",
@@ -165,22 +178,21 @@
           "HTCImageName": "variables.htc_image",
           "MaxHTCExecuteCoreCount": 8,
           "NumberLoginNodes": 1,
-          "AdditionalNFSExportPath": "<NOT-SET>",
+          "NFSType": "External",
+          "NFSAddress": "variables.nfs_address",
+          "NFSSharedExportPath": "variables.nfs_shared_export_path",
+          "NFSSharedMountOptions": "rw,hard,rsize=262144,wsize=262144,nconnect=8,vers=3,tcp",
+          "AdditonalNFSAddress": "variables.additional_nfs_address",
+          "AdditionalNFSExportPath": "variables.additional_nfs_export_path",
           "AdditionalNFSMountPoint": "/apps",
+          "AdditionalNFSMountOptions": "rw,hard,rsize=262144,wsize=262144,nconnect=8,vers=3,tcp",
           "HPCImageName": "variables.hpc_image",
           "configuration_slurm_shutdown_policy": "Terminate",
-          "configuration_slurm_accounting_enabled": false,
           "configuration_slurm_version": "20.11.7-1",
           "SchedulerMachineType": "Standard_D8s_v3",
-          "NFSSharedMountOptions": "rw,hard,rsize=262144,wsize=262144,nconnect=8,vers=3,tcp",
-          "AdditionalNFSMountOptions": "rw,hard,rsize=262144,wsize=262144,nconnect=8,vers=3,tcp",
           "ReturnProxy": false,
           "Credentials": "azure",
           "Autoscale": false,
-          "NFSType": "External",
-          "NFSAddress": "<NOT-SET>",
-          "NFSSharedExportPath": "<NOT-SET>",
-          "AdditonalNFSAddress": "<NOT-SET>",
           "HTCUseLowPrio": false,
           "SchedulerImageName": "variables.scheduler_image",
           "HTCMachineType": "variables.htc_vm_type",
@@ -189,11 +201,35 @@
           "HPCMaxScalesetSize": 100,
           "additional_slurm_config": "SuspendTime=-1",
           "SchedulerClusterInitSpecs": {
-            "misc_ubuntu:default:1.0.0": {
+            "slurm_pyxis_enroot:default:1.0.0": {
               "Order": 10000,
+              "Name": "slurm_pyxis_enroot:default:1.0.0",
+              "Spec": "default",
+              "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "nhc:default:1.0.0": {
+              "Order": 10010,
+              "Name": "nhc:default:1.0.0",
+              "Spec": "default",
+              "Project": "nhc",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "misc_ubuntu:default:1.0.0": {
+              "Order": 10020,
               "Name": "misc_ubuntu:default:1.0.0",
               "Spec": "default",
               "Project": "misc_ubuntu",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "sunrpc_max_slots:default:1.0.0": {
+              "Order": 10030,
+              "Name": "sunrpc_max_slots:default:1.0.0",
+              "Spec": "default",
+              "Project": "sunrpc_max_slots",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -214,6 +250,14 @@
               "Project": "misc_ubuntu",
               "Version": "1.0.0",
               "Locker": "azure-storage"
+            },
+            "sunrpc_max_slots:default:1.0.0": {
+              "Order": 10020,
+              "Name": "sunrpc_max_slots:default:1.0.0",
+              "Spec": "default",
+              "Project": "sunrpc_max_slots",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
             }
           },
           "HPCClusterInitSpecs": {
@@ -225,11 +269,35 @@
               "Version": "1.0.0",
               "Locker": "azure-storage"
             },
-            "nhc:default:1.0.0": {
+            "slurm_pyxis_enroot:default:1.0.0": {
               "Order": 10010,
+              "Name": "slurm_pyxis_enroot:default:1.0.0",
+              "Spec": "default",
+              "Project": "slurm_pyxis_enroot",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "nhc:default:1.0.0": {
+              "Order": 10020,
               "Name": "nhc:default:1.0.0",
               "Spec": "default",
               "Project": "nhc",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "sunrpc_max_slots:default:1.0.0": {
+              "Order": 10030,
+              "Name": "sunrpc_max_slots:default:1.0.0",
+              "Spec": "default",
+              "Project": "sunrpc_max_slots",
+              "Version": "1.0.0",
+              "Locker": "azure-storage"
+            },
+            "gpu_monitoring:default:1.0.0": {
+              "Order": 10040,
+              "Name": "gpu_monitoring:default:1.0.0",
+              "Spec": "default",
+              "Project": "gpu_monitoring",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -302,9 +370,57 @@
           "script": "set_limits.sh"
         }
       ],
+      "slurm_pyxis_enroot:default:1.0.0": [
+        {
+          "script": "install_pyxis.sh",
+          "deps": [
+            "common_functions.sh"
+          ]
+        },
+        {
+          "script": "configure_pyxis.sh",
+          "deps": [
+            "prolog.sh"
+          ]
+        },
+        {
+          "script": "install_enroot.sh"
+        },
+        {
+          "script": "install_enroot_hooks.sh"
+        },
+        {
+          "script": "slurmd_pmix.sh",
+          "background": true
+        }
+      ],
       "misc_ubuntu:default:1.0.0": [
         {
           "script": "disable_unattended_upgrades.sh"
+        }
+      ],
+      "sunrpc_max_slots:default:1.0.0": [
+        {
+          "script": "sunrpc_tcp_max_slot_table_entries.sh"
+        }
+      ],
+      "gpu_monitoring:default:1.0.0": [
+        {
+          "script": "cp_gpu_monitoring_scripts.sh",
+          "deps": [
+                  "gpu_data_collector.py",
+                  "gpu_data_collector.sh"
+          ]
+        },
+        {
+          "script": "gpu_monitoring_envs.sh",
+          "args": [
+            "secret.{{variables.key_vault}}.{{variables.log_analytics_ws_customer_id_secret_name}}",
+            "secret.{{variables.key_vault}}.{{variables.log_analytics_ws_key_secret_name}}"
+          ]
+        },
+        {
+          "script": "gpu_monitoring_start.sh"
         }
       ]
     }
