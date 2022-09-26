@@ -1,4 +1,4 @@
-# How to run the Fairseq (MOE version) Deep learning training benchmark using docker and SLURM
+# How to run the Fairseq (MOE version) Deep learning training benchmark using enroot+pyxis or Docker with SLURM
 
 Details of the Meta fairseq (MOE version) deep leaning Natural language processing model can be found [here](https://github.com/pytorch/fairseq/blob/moe/README.moe.md).
 Mixture of experts (MOE) is a model parallel technique that enables extremely large deep learning models (> 1T parameters)
@@ -9,13 +9,54 @@ Size of Deep learning training model
 Total number of paramters = Number of GPUS * 2B + 4.5B
 ```
 
-## Prerequisites
+This workflow can be deployed in one of two ways. The first approach is enroot+pyxis with SLURM, and the second approach is Docker with SLURM. The details are described below.
+
+## Enroot + Pyxis with SLURM
+
+### Prerequisites
+
+- SLURM scheduler
+- Compute node(s), ND96asr_v4 (Running Ubuntu-hpc 18.04)
+- Enroot and pyxis deployed
+
+### Authenticate with NVIDIA API Key
+```bash
+mkdir -p $HOME/.config/enroot/
+echo "machine nvcr.io login $oauthtoken password YOUR_KEY" > $HOME/.config/enroot/.credentials
+```
+>Note: NVIDIA API key can be configured in the [NVIDIA NGC webpage](https://ngc.nvidia.com/setup/api-key). 
+
+### Import base image and install dependencies
+```bash
+enroot import docker://nvcr.io/nvidia/pytorch:21.10-py3
+enroot create --name pytorch nvidia+pytorch+21.10-py3.sqsh
+enroot list
+enroot start --root --rw --mount .:/workspace pytorch
+bash image.config
+```
+
+### Save the squashfs image
+```bash
+enroot export --output fairseq.sqsh pytorch
+enroot create --name fairseq fairseq.sqsh
+enroot list
+```
+
+### Submit the SLURM using run_fairseq_moe_enroot_pyxis.slrm
+```
+sbatch -N 1 run_fairseq_moe_enroot_pyxis.slrm
+```
+>Note: The job can be deployed on multiple nodes by changing the -N parameter. The number of nodes available depends on the CycleCloud cluster setup. 
+
+## Docker with SLURM
+
+### Prerequisites
 
 - SLURM scheduler
 - Compute node(s), ND96asr_v4 (Running Ubuntu-hpc 18.04)
 - Azure container registry deployed
 
-## Docker set-up on compute nodes and scheduler
+### Docker set-up on compute nodes and scheduler
 
 ```
 pdsh -w ^/path/to/hostfile sudo </path/to/docker_setup.sh
@@ -23,7 +64,7 @@ pdsh -w ^/path/to/hostfile sudo </path/to/docker_setup.sh
 >Note: Make sure scheduler and the compute nodes have the name GID for the docker group. Modify script update "USER".
 
 
-## Build docker container
+### Build docker container
 
 ```
 az acr build --registry <your_acr_name> --image docker/<container_name:version> .
@@ -32,15 +73,15 @@ az acr build --registry <your_acr_name> --image docker/<container_name:version> 
 "version" to appropriate values for your ACR, the name/version of your container respectively.
 
 
-## Run fairseq_moe benchmark
+### Run fairseq_moe benchmark
 
 ```
-sbatch -N <Number of nodes> run_fairseq_moe.slrm
+sbatch -N <Number of nodes> run_fairseq_moe_docker.slrm
 ```
->Note: Modify run_fairseq_moe.slrm, updating appropriate vlaues for "DOCKER_USERNAME", "DOCKER_PASSWD", "CONTAINER_NAME" and "EXECUTE_SCRIPT". If you are using a shared filesystem, you will only need to authenicate to docker once and can remove docker login from the run_fairseq_moe.slrm script. If you would like to do a restart of a job then comment out "rm $SAVE_DIR/*"
+>Note: Modify run_fairseq_moe_docker.slrm, updating appropriate vlaues for "DOCKER_USERNAME", "DOCKER_PASSWD", "CONTAINER_NAME" and "EXECUTE_SCRIPT". If you are using a shared filesystem, you will only need to authenicate to docker once and can remove docker login from the run_fairseq_moe_docker.slrm script. If you would like to do a restart of a job then comment out "rm $SAVE_DIR/*"
 
 
-## Verify benchmark Ran ok
+### Verify benchmark Ran ok
 
 Check the end of the SLURM output file.
 
@@ -69,7 +110,7 @@ ll": "547", "train_cuda_gb_allocated": "16.5", "train_cuda_gb_reserved": "30", "
 6698,1Bot
 ```
 
-## To adjust the runtime of benchmark
+### To adjust the runtime of benchmark
 
 In the launch.sh script increase or decrease the parameter MAX_UPDATE
 
