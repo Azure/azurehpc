@@ -12,4 +12,4 @@ SLURM_PINNING="--cpu-bind=mask_cpu:ffffff000000,ffffff000000,ffffff,ffffff,fffff
 EXECUTE_SCRIPT="launch.sh"
 CONTAINER_IMAGE="/shared/home/hpcadmin/fairseq.sqsh"
 
-srun $SLURM_PINNING --container-image $CONTAINER_IMAGE --container-mounts .:/workspace $EXECUTE_SCRIPT
+srun $SLURM_PINNING --container-image $CONTAINER_IMAGE --container-mounts .:/workspace,/opt:/workspace/opt:ro,/mnt:/workspace/mnt $EXECUTE_SCRIPT
