@@ -31,7 +31,7 @@
       "args": [
         "variables.mariadb_resource_group",
         "variables.mariadb_name",
-        "variables.mariadb_admin",
+        "variables.mariadb_admin_user_name",
         "secret.{{variables.key_vault}}.{{variables.mariadb_password_secret_name}}"
       ]
     },
