@@ -413,7 +413,7 @@
           ]
         },
         {
-          "script": "gpu_monitoring_envs.sh",
+          "script": "gpu_monitoring_env.sh",
           "args": [
             "secret.{{variables.key_vault}}.{{variables.log_analytics_ws_customer_id_secret_name}}",
             "secret.{{variables.key_vault}}.{{variables.log_analytics_ws_key_secret_name}}"
