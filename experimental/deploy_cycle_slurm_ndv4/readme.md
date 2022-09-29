@@ -41,6 +41,7 @@ We need to first deploy some additional prerequistes for the Cyclecloud deployme
 ```
 $ azhpc-build -c prereqs.json
 ```
+>Note: If GPU monitoring is to be enabled, the values for the log analytics workspace secret key and workspace ID can be found in the Azure portal log analytics workspace (Agents management --> Log Analytics agent instructions)
 
 ## Step 1c - Deploy Maria DB (Only needed if you want to enable Slurm accounting)
 
