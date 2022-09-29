@@ -172,7 +172,7 @@ $ azhpc-destroy --no-wait
 
 ## Set up priority queues with job preemption capability
 Set up multiple job partitions sharing the compute node resources, with different priorities, so jobs in the higher priority partitions can preempt 
-jobs in the lower priority partitions. In this example the partions from highest to lowest priority are hpc-high, hpc-mod (default) and hpc-low.
+jobs in the lower priority partitions. In this example the partions from highest to lowest priority are hpc-high, hpc-mid (default) and hpc-low.
 
 Add the following to the slurm.conf and execute scontrol reconfigure.
 
