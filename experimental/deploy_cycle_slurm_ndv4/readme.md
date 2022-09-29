@@ -24,23 +24,30 @@ The NDv4 cluster will consist of
 - Copy experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files to the scripts dir (except prolog.sh)
 - Copy experimental/cc_slurm_pyxis_enroot/cc_slurm_pyxis_enroot/specs/default/cluster-init/files to the scripts dir (if using the config_pyxis_enroot.json config file)
 - Copy experimental/gpu_monitoring/gpu_data_collector.py to the scripts dir (if want to enable GPU Monitoring, using the config_pyxis_enroot_sacct_gpu_monitoring.json config file)
-- The prereqs.json and config.json files are edited (e.g all NOT-SET sections are set).
+- The appropriate prereqs\*.json and config.json files are edited (e.g all NOT-SET sections are set).
 
 
-## Step 1 - Deploy keyvault, VNet+peering, Azure netapp files
+## Step 1a - Deploy Azure log analytics workspace (Only required if you plan on enabling GPU Monitoring)
+
+```
+azhpc-build --no-vnet -c prereqs_la_ws.json
+```
+>Note: We need to deploy the log analytics workspace first, so we can add the secret key and workspace Id to the keyvault (in the next step)
+
+## Step 1b - Deploy keyvault, VNet+peering, Azure netapp files
 
 We need to first deploy some additional prerequistes for the Cyclecloud deployment, for example keyvault (with passwords), Vnet with peering to the Bastion landing zone  and Azure netapp files. The following is executed from the Bastion landing zone or from the Cloud shell.
 
 ```
 $ azhpc-build -c prereqs.json
 ```
+>Note: If GPU monitoring is to be enabled, the values for the log analytics workspace secret key and workspace ID can be found in the Azure portal log analytics workspace (Agents management --> Log Analytics agent instructions)
 
-## Step 1b - Deploy Maria DB (Only needed if you want to enable Slurm accounting)
+## Step 1c - Deploy Maria DB (Only needed if you want to enable Slurm accounting)
 
 ```
 $ azhpc-build --no-vnet -c prereqs_sacct.json
 ```
->Note: If Also wish to enable GPU monitoring, then use the prereqs_sacct_la_ws.json configuration file instead.
 
 ## Step 2 - Deploy NDv4 cluster with Cyclcloud
 
