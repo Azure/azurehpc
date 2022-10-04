@@ -1,0 +1,15 @@
+#!/bin/sh
+#SBATCH --job-name=fairseq_moe
+#SBATCH --output=job.%J.out
+#SBATCH --error=job.%J.err
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=0
+#SBATCH --gpus-per-node=8
+#SBATCH --cpus-per-task=96
+
+SLURM_PINNING="--cpu-bind=mask_cpu:ffffff000000,ffffff000000,ffffff,ffffff,ffffff000000000000000000,ffffff000000000000000000,ffffff000000000000,ffffff000000000000"
+
+EXECUTE_SCRIPT="launch.sh"
+CONTAINER_IMAGE="/shared/home/hpcadmin/fairseq.sqsh"
+
+srun $SLURM_PINNING --container-image $CONTAINER_IMAGE --container-mounts .:/workspace,/opt:/workspace/opt:ro,/mnt:/workspace/mnt $EXECUTE_SCRIPT
