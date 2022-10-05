@@ -100,7 +100,7 @@ function update_slurm_prolog_epilog() {
          echo "Epilog=/sched/scripts/epilog.sh" >> $SLURM_CONF
       fi
    else
-      echo "/sched/scripts/$script" >> /sched/script/${prolog_epilog}.sh
+      echo "/sched/scripts/$script" >> /sched/scripts/${prolog_epilog}.sh
    fi
 }
 
