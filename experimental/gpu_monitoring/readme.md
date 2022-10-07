@@ -36,7 +36,7 @@ optional arguments:
   -ethm, --ethernet_metrics
                         Collect Ethernet metrics (default: False)
   -nfsm, --nfs_metrics  Collect NFS client side metrics (default: False)
-  -cpum, --cpu_metrics  Collects CPU metrics (e.g. user, sys, idle & iowait time
+  -cpum, --cpu_metrics  Collects CPU metrics (e.g. user, nice, sys, idle, iowait, irq and softirq time)
                         (default: False)
   -cpu_memm, --cpu_mem_metrics
                         Collects CPU memory metrics (Default: MemTotal,
@@ -141,6 +141,11 @@ To determine which physical hostname a virtual host is running on
 ![Alt text4](/experimental/gpu_monitoring/images/740m_4n_find_physical_hostname.jpg?raw=true "gpu-host")
 
 
-An Example Azure GPU Monitoring daskboard
+To monitor NFS client write throughput I/O activity on a volume
+![Alt text5](/experimental/gpu_monitoring/images/nfs_client_write_io.png?raw=true "nfs-client-write-io")
 
-![Alt text5](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+
+An Example Azure GPU Monitoring dashboard
+
+![Alt text6](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+

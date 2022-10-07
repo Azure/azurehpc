@@ -156,6 +156,9 @@ def create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_job
 
 def get_slurm_jobid():
     if os.path.isdir('/sys/fs/cgroup/memory/slurm'):
+      uid_file = glob.glob('/sys/fs/cgroup/memory/slurm/uid_*')
+      if uid_file:
+         user_uid = int(uid_file[0].split("_")[2])
       file_l = glob.glob('/sys/fs/cgroup/memory/slurm/uid_*/job_*')
       if file_l:
          jobid = int(file_l[0].split("_")[2])
@@ -361,33 +364,17 @@ def get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm
     cpu_l = []
     cpu_d = {}
     stat_l = read_file("/proc/stat")
-    user_time = find_value_in_file("cpu", 1, stat_l)
-    if "user_time" in cpu_counters:
-       cpu_d["cpu_user_time_user_hz"] = user_time - cpu_counters["user_time"]
-    else:
-       cpu_d["cpu_user_time_user_hz"] = 0
-    cpu_counters["user_time"] = user_time
-
-    sys_time = find_value_in_file("cpu", 3, stat_l)
-    if "sys_time" in cpu_counters:
-       cpu_d["cpu_sys_time_user_hz"] = sys_time - cpu_counters["sys_time"]
-    else:
-       cpu_d["cpu_sys_time_user_hz"] = 0
-    cpu_counters["sys_time"] = sys_time
-
-    idle_time = find_value_in_file("cpu", 4, stat_l)
-    if "idle_time" in cpu_counters:
-       cpu_d["cpu_idle_time_user_hz"] = idle_time - cpu_counters["idle_time"]
-    else:
-       cpu_d["cpu_idle_time_user_hz"] = 0
-    cpu_counters["idle_time"] = idle_time
-
-    iowait_time = find_value_in_file("cpu", 5, stat_l)
-    if "iowait_time" in cpu_counters:
-       cpu_d["cpu_iowait_time_user_hz"] = iowait_time - cpu_counters["iowait_time"]
-    else:
-       cpu_d["cpu_iowait_time_user_hz"] = 0
-    cpu_counters["iowait_time"] = iowait_time
+    cpu_counters_l = ["user_time", "nice_time", "sys_time", "idle_time", "iowait_time", "irq_time", "softirq_time"]
+    indx = 1
+    for cpu_counter in cpu_counters_l:
+        cpu_time = find_value_in_file("cpu", indx, stat_l)
+        cpu_key = "cpu_" + cpu_counter + "_user_hz"
+        if cpu_counter in cpu_counters:
+           cpu_d[cpu_key] = cpu_time - cpu_counters[cpu_counter]
+        else:
+           cpu_d[cpu_key] = 0
+        cpu_counters[cpu_counter] = cpu_time
+        indx = indx + 1
 
     if have_jobid:
         cpu_d['slurm_jobid'] = slurm_jobid
