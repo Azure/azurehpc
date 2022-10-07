@@ -92,7 +92,7 @@ function update_slurm_prolog_epilog() {
       if [[ $prolog_epilog == "prolog" ]]; then
          cp $CYCLECLOUD_SPEC_PATH/files/prolog.sh /sched/scripts
          chmod +x /sched/scripts/prolog.sh
-         echo "Prolog=/sched/prolog.sh" >> $SLURM_CONF
+         echo "Prolog=/sched/scripts/prolog.sh" >> $SLURM_CONF
          echo "PrologFlags=Alloc" >> $SLURM_CONF
       elif [[ $prolog_epilog == "epilog" ]]; then
          cp $CYCLECLOUD_SPEC_PATH/files/epilog.sh /sched/scripts
