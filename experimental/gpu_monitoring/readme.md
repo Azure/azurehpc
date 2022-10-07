@@ -145,7 +145,11 @@ To monitor NFS client write throughput I/O activity on a volume
 ![Alt text5](/experimental/gpu_monitoring/images/nfs_client_write_io.png?raw=true "nfs-client-write-io")
 
 
+To monitor CPU utilization (User, Idle, system and iowait time)
+![Alt text6](/experimental/gpu_monitoring/images/cpu_utilization.jpg?raw=true "cpu-utilization")
+
+
 An Example Azure GPU Monitoring dashboard
 
-![Alt text6](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+![Alt text7](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
 
