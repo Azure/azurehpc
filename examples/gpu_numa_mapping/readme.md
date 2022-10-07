@@ -6,7 +6,7 @@ The ND40rs_v2 vm has 8 v100 GPU's. This example sets up a GPU cluster and calcul
 
 ## Initialise the project
 
-To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by compying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
+To start you need to copy this directory and update the `config.json`.  Azurehpc provides the `azhpc-init` command that can help here by copying the directory and substituting the unset variables.  First run with the `-s` parameter to see which variables need to be set:
 
 ```
 azhpc-init -c $azhpc_dir/examples/gpu_numa_mapping -d gpu_numa_mapping -s
