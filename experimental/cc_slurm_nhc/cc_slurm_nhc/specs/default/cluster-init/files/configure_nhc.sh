@@ -18,6 +18,7 @@ SLURM_HEALTH_CHECK_INTERVAL=7200
 SLURM_HEALTH_CHECK_NODE_STATE=IDLE
 NHC_PROLOG=1
 NHC_EPILOG=0
+AUTOSCALING=0
 NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc azure_gpu_ecc.nhc azure_gpu_persistence.nhc azure_ib_write_bw_gdr.nhc azure_nccl_allreduce_ib_loopback.nhc azure_ib_link_flapping.nhc azure_gpu_clock_throttling.nhc azure_cpu_drop_cache_mem.nhc azure_gpu_xid.nhc azure_nccl_allreduce.nhc"
 
 source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
@@ -90,18 +91,17 @@ function update_slurm_prolog_epilog() {
    chmod +x /sched/scripts/$script
    if [[ $prolog_epilog_does_not_exist == 1 ]]; then
       if [[ $prolog_epilog == "prolog" ]]; then
-         cp $CYCLECLOUD_SPEC_PATH/files/prolog.sh /sched/scripts
+         echo '#!/bin/bash' > /sched/scripts/prolog.sh
          chmod +x /sched/scripts/prolog.sh
          echo "Prolog=/sched/scripts/prolog.sh" >> $SLURM_CONF
          echo "PrologFlags=Alloc" >> $SLURM_CONF
       elif [[ $prolog_epilog == "epilog" ]]; then
-         cp $CYCLECLOUD_SPEC_PATH/files/epilog.sh /sched/scripts
+         echo '#!/bin/bash' > /sched/scripts/epilog.sh
          chmod +x /sched/scripts/epilog.sh
          echo "Epilog=/sched/scripts/epilog.sh" >> $SLURM_CONF
       fi
-   else
-      echo "/sched/scripts/$script" >> /sched/scripts/${prolog_epilog}.sh
    fi
+   echo "/sched/scripts/$script" >> /sched/scripts/${prolog_epilog}.sh
 }
 
 
@@ -116,7 +116,11 @@ function slurm_config() {
       echo "HealthCheckNodeState=${SLURM_HEALTH_CHECK_NODE_STATE}" >> $SLURM_CONF
 
       if [[ $NHC_PROLOG == 1 ]]; then
-         update_slurm_prolog_epilog prolog kill_nhc.sh
+         if [[ $AUTOSCALING == 1 ]]; then
+            update_slurm_prolog_epilog prolog wait_for_nhc.sh
+         else
+            update_slurm_prolog_epilog prolog kill_nhc.sh
+         fi
       fi
       if [[ $NHC_EPILOG == 1 ]]; then
          update_slurm_prolog_epilog epilog run_nhc.sh

@@ -65,9 +65,11 @@ You can add your own health checks to the NHC framework. An example is azure_cud
 You just add your custom health check to /etc/nhc/scripts and modify your nhc.conf file to use it (/etc/nhc/nhc.conf).
 
 ## Kill NHC via SLURM Prolog
-To prevent NHC from running while a job is running, we have provided a script to kill NHC processes (kill_nhc.sh). You can run this script before a job starts by using the SLURM PROLOG, set NHC_PROLOG=1 in the configure_nhc.sh script to enable this prolog (default) or set it to 0 to disable it..
+To prevent NHC from running while a job is running, we have provided a script to kill NHC processes (kill_nhc.sh). You can run this script before a job starts by using the SLURM PROLOG, set NHC_PROLOG=1 in the configure_nhc.sh script to enable this prolog (default) or set it to 0 to disable it.
 
->Note: If you run NHC via Epilog, then set HealthCheckInterval to a large value so it effectively only runs when a new node is provisioned in the cluster.
+>Note: If you have autoscaling enabled, then set AUTOSCALING=1 in the configure_nhc.sh script, this will replace kill_nhc.sh with wait_for_nhc.sh in the prolog.sh (To allow the NHC checks to complete (by waiting) when a node is autoscaled before starting your job)
+
+
 ## Run NHC via SLURM Epilog
 If you need to run NHC checks after a job completes (SLURM Epilog), then set NHC_EPILOG=1 in the configure_nhc.sh script.
 
