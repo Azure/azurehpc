@@ -27,6 +27,8 @@ The NDv4 cluster will be configured with:
 
 Populate variables in `prereqs.json`, move to deployment directory ($OUTPUT_DIR in `.envrc-template`), and deploy (`build`).
 
+Note, if you actively connected to the VPN the connection will drop, but you can immediately reconnect.
+
 ```bash
 azhpc-init -c prereqs.json
 pushd $OUTPUT_DIR
@@ -44,6 +46,8 @@ pushd $OUTPUD_DIR
 azhpc-build -c config.json --no-vnet
 popd
 ```
+
+*Alternatively*, you can run the `deploy-cc.sh` script to perform Step 1, Step 2, and Step 3.
 
 ## Step 4 - Start the cluster in CycleCloud
 
@@ -72,7 +76,7 @@ Retrieve the CycleServer IP and password with the `azhpc-get` command
 
 ```bash
 $ azhpc-get ip.cycleserver
-ip.cycleserver = 10.20.1.5
+ip.cycleserver = 10.40.1.4
 ```
 
 Retrieve the CycleCloud admin password:
@@ -81,23 +85,15 @@ Retrieve the CycleCloud admin password:
 azhpc-get "secret.{{variables.key_vault}}.{{variables.cc_password_secret_name}}"
 ```
 
-Open the CycleCloud webapp at `ip cycleserver` as `hpcadmin` with the password retrieved above. Check that you have a `slurmcycle` cluster.
-Check that the cluster master is well started or wait until it is started.
+Open the CycleCloud webapp at `ip cycleserver` as `hpcadmin` with the password retrieved above. Ensure that the cluster `slurmcycle` exists and has either started or is starting.
 
 ## Step 5 - Connect to the login node (login-1)
 
-Connect to the jumpbox.
+
+Connect to the CycleCloud login node (login-1).
 
 ```bash
-azhpc-connect jumpbox
-[2020-07-09 12:55:09] logging directly into jumpbox5f282f.westeurope.cloudapp.azure.com
-Last login: Thu Jul  9 10:45:42 2020 from <home>
-```
-
-From the jumpbox, connect to the CycleCloud login node (login-1):
-
-```bash
-[hpcadmin@jumpbox ~]$ cyclecloud connect login-1 -c slurmcycle
+cyclecloud connect login-1 -k <path/to/hpcadmin_id_rsa> -c slurmcycle
 ```
 
 ## Step 6 - To deploy(allocate) NDv4 nodes
@@ -136,44 +132,3 @@ $ azhpc-destroy --no-wait
 [2020-06-16 17:25:20] you have 10s to change your mind and ctrl-c!
 [2020-06-16 17:25:30] too late!
 ```
-
-# Some useful SLURM customizations
-
-## Set up priority queues with job preemption capability
-Set up multiple job partitions sharing the compute node resources, with different priorities, so jobs in the higher priority partitions can preempt
-jobs in the lower priority partitions. In this example the partions from highest to lowest priority are hpc-high, hpc-mod (default) and hpc-low.
-
-Add the following to the slurm.conf and execute scontrol reconfigure.
-
-```bash
-SuspendExcParts=hpc,hpc-high,hpc-mid,hpc-low
-PreemptType=preempt/partition_prio
-PreemptMode=REQUEUE
-PreemptExemptTime=-1
-JobRequeue=1
-PartitionName=hpc-high Nodes=cluster02-hpc-pg0-[1-76] PriorityTier=65500 Default=NO DefMemPerCPU=18880 MaxTime=INFINITE State=UP
-PartitionName=hpc-mid Nodes=cluster02-hpc-pg0-[1-76] PriorityTier=32766 Default=YES DefMemPerCPU=18880 MaxTime=INFINITE State=UP
-PartitionName=hpc-low Nodes=cluster02-hpc-pg0-[1-76] PriorityTier=1 Default=NO DefMemPerCPU=18880 MaxTime=INFINITE State=UP
-```
-
-## Set up a quota limit on total number of nodes that can be allocated
-It is sometimes desirable to always leave a few nodes idle, so when a job fails due to an unhealthy node the job can be immediately restarted using one of the warm buffer nodes. The following modifications leverage the prologslurmctld to check if the total allocated node threshold will be exceeded, if that is the case then the job is requeued until there are sufficient nodes to run the job but not to exceed the threshold.
-
-In slurm.conf add location to prologslurmctld script
-
-```
-PrologSlurmctld=/sched/scripts/prologslurmctld.sh
-```
-
-Create directory for prologslurmctld logs
-
-```
-sudo mkdir /sched/logs
-sudo chmod 777 /sched/logs
-```
-
-The prologslurmctld.sh is located this dir.
->Note: You will need to modify ALLOCATED_NODES_THRESHOLD
-
-To prevent the epilog.sh (from NHC) from running NHC when a job is requeued due to exceeding the compute node quota, replace the NHC epilog.sh with the one
-in scripts/epilog.sh.

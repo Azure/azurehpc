@@ -33,26 +33,19 @@ pushd $OUTPUT_DIR > /dev/null
 azhpc build -c prereqs.json
 
 # Prep scripts for CycleCloud generation
-print_formatted "\t2. Copying required scripts for CycleCloud"
+print_formatted "\t2. Copying required scripts and config for CycleCloud"
 
-cp ../slurm_cycle.txt .
+BASE_SCRIPTS=${azhpc_dir}/experimental/deploy_cycle_slurm_ndv4/scripts/
+GPU_CLOCK_SCRIPT=${azhpc_dir}/experimental/gpu_optimizations/max_gpu_app_clocks.sh
+NHC_SCRIPTS=${azhpc_dir}/experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files
+PYXIS_SCRIPTS=${azhpc_dir}/experimental/cc_slurm_pyxis_enroot/cc_slurm_pyxis_enroot/specs/default/cluster-init/files
 
 mkdir -p scripts
-
-BASE_SCRIPTS=${azhpc}/experimental/deploy_cycle_slurm_ndv4/scripts/
 cp $BASE_SCRIPTS/* scripts/
-
-GPU_CLOCK_SCRIPT=${azhpc_dir}/experimental/gpu_optimizations/max_gpu_app_clocks.sh
 cp $GPU_CLOCK_SCRIPT scripts/
-
-NHC_SCRIPTS=${azhpc_dir}/experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files
 cp $NHC_SCRIPTS/* scripts/
-# do not need prolog.sh per readme for deploy_cycle_slurm_ndv4
-rm -f scripts/prolog.sh
-
-PYXIS_SCRIPTS=${azhpc_dir}/experimental/cc_slurm_pyxis_enroot/cc_slurm_pyxis_enroot/specs/default/cluster-init/files
-print_formatted "Copying ${PYXIS_SCRIPTS}"
 cp $PYXIS_SCRIPTS/* scripts/
+cp ../slurm_cycle.txt .
 
 popd > /dev/null
 
