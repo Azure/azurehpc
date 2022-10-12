@@ -1,0 +1,81 @@
+{
+  "location": "variables.location",
+  "resource_group": "variables.resource_group",
+  "admin_user": "variables.admin_user",
+  "variables": {
+    "project_prefix": "<NOT-SET>",
+    "location": "<NOT-SET>",
+    "resource_group": "<NOT-SET>",
+    "vnet_resource_group": "variables.resource_group",
+    "vnet_name": "{{variables.project_prefix}}-hpcvnet",
+    "vnet_address_prefix": "<NOT-SET>",
+    "key_vault": "<NOT-SET>",
+    "admin_user": "hpcadmin",
+    "cc_image": "azurecyclecloud:azure-cyclecloud:cyclecloud8:8.2.220220329",
+    "cc_password_secret_name": "{{variables.resource_group}}-cc-pw",
+    "peer_vnet_resource_group": "<NOT-SET>",
+    "peer_vnet_name": "<NOT-SET>"
+  },
+  "vnet": {
+    "name": "variables.vnet_name",
+    "resource_group": "variables.vnet_resource_group",
+    "address_prefix": "{{variables.vnet_address_prefix}}.0.0/20",
+    "subnets": {
+        "admin": "{{variables.vnet_address_prefix}}.1.0/24",
+        "netapp": "{{variables.vnet_address_prefix}}.2.0/24",
+        "storage": "{{variables.vnet_address_prefix}}.3.0/24",
+        "viz": "{{variables.vnet_address_prefix}}.4.0/24",
+        "compute": "{{variables.vnet_address_prefix}}.8.0/22"
+    },
+    "peer": {
+      "variables.peer_vnet_name": {
+        "resource_group": "variables.peer_vnet_resource_group",
+        "vnet_name": "variables.peer_vnet_name",
+        "gateway": {
+            "peer_use_remote_gateways": true,
+            "vnet_allow_gateway_transit": true
+        }
+      }
+    }
+  },
+  "resources": {},
+  "install": [
+    {
+      "type": "local_script",
+      "script": "add_secret_in_keyvault.sh",
+      "args": [
+        "variables.key_vault",
+        "variables.cc_password_secret_name"
+      ]
+    },
+    {
+      "type": "local_script",
+      "script": "az_image_accept_terms.sh",
+      "args": [
+        "variables.cc_image"
+      ]
+    }
+  ],
+  "storage": {
+    "{{variables.resource_group}}-anf": {
+      "type": "anf",
+      "subnet": "netapp",
+      "pools": {
+        "{{variables.project_prefix}}-anfpool": {
+          "size": 4,
+          "service_level": "Premium",
+          "volumes": {
+            "{{variables.project_prefix}}-shared": {
+              "size": 2,
+              "mount": "/shared"
+            },
+            "{{variables.project_prefix}}-apps": {
+              "size": 2,
+              "mount": "/apps"
+            }
+          }
+        }
+      }
+    }
+  }
+}

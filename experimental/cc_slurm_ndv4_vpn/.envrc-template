@@ -1,0 +1,24 @@
+export LOCATION=<NOT-SET>
+export PROJECT_PREFIX=<NOT-SET>
+# Where to run azhpc-build from
+export OUTPUT_DIR=<NOT-SET>
+
+# Resources that already exists
+export PEER_VNET_NAME=<NOT-SET>
+export PEER_VNET_RESOURCE_GROUP=<NOT-SET>
+export KEY_VAULT=<NOT-SET>
+export KEY_VAULT_RESOURCE_GROUP=<NOT-SET>
+
+# New resources for CycleCloud
+export RESOURCE_GROUP=<NOT-SET>
+export PROJECT_STORE=<NOT-SET>
+# ${PROJECT_PREFIX}-<mount> in prereqs.json + config.json
+# - NFS_ADD_EXPORT_PATH=${PROJECT_PREFIX}-apps
+# - NFS_EXPORT_PATH=${PROJECT_PREFIX}-shared
+# NetApp IPs will be .4 on NFS subnet
+# - e.g. subnet 10.40.2.0/24 -> 10.40.2.4
+export VNET_ADDRESS_PREFIX="10.40"
+export NFS_ADDRESS="10.40.2.4"
+# Need to change when you add a new password because it returns 1 if password exists
+# Or can use random, e.g. RANDOM=$(date +%s%N | cut -b10-19)
+export CC_PW_NAME=<NOT-SET>
