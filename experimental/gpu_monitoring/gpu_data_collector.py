@@ -156,9 +156,6 @@ def create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_job
 
 def get_slurm_jobid():
     if os.path.isdir('/sys/fs/cgroup/memory/slurm'):
-      uid_file = glob.glob('/sys/fs/cgroup/memory/slurm/uid_*')
-      if uid_file:
-         user_uid = int(uid_file[0].split("_")[2])
       file_l = glob.glob('/sys/fs/cgroup/memory/slurm/uid_*/job_*')
       if file_l:
          jobid = int(file_l[0].split("_")[2])
