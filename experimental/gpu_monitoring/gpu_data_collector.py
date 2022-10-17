@@ -403,33 +403,36 @@ def get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm
 
 def get_disk_data(disk_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid, time_interval_sec):
     disk_l = []
-    disk_d = {}
     disk_indx_l = [3, 5, 6, 7, 9, 10]
-    disk_l = read_file("/proc/diskstat")
+    diskstats_l = read_file("/proc/diskstats")
     disk_counters_l = ["read_completed", "read_sectors", "read_time_ms", "write_completed", "write_sectors", "write_time_ms"]
-    for disk_line in disk_l:
+    for disk_line in diskstats_l:
+        disk_d = {}
         disk_device_name = find_str_in_line(disk_line, 2)
+        if "loop" in disk_device_name:
+           continue
         disk_d['disk_name'] = disk_device_name
         disk_d['disk_time_interval_secs'] = time_interval_sec
+        if disk_device_name not in disk_counters:
+           disk_counters[disk_device_name] = {}
         indx = 0
         for disk_counter in disk_counters_l:
             disk_value = find_value_in_line(disk_line, disk_indx_l[indx])
             disk_key = "disk_" + disk_counter
-            if disk_counter in disk_counters:
-               disk_d[disk_key] = disk_value - disk_counters[disk_counter]
+            if disk_counter in disk_counters[disk_device_name]:
+               disk_d[disk_key] = disk_value - disk_counters[disk_device_name][disk_counter]
             else:
                disk_d[disk_key] = 0
-            disk_counters[disk_counter] = disk_value
+            disk_counters[disk_device_name][disk_counter] = disk_value
             indx = indx + 1
 
-    if have_jobid:
-        disk_d['slurm_jobid'] = slurm_jobid
-    cpu_d['hostname'] = hostname
-    cpu_d['physicalhostname'] = physicalhostname_val
-    cpu_d['loadavg'] = get_cpu_loadavg_data()
-    cpu_l.append(cpu_d)
+        if have_jobid:
+           disk_d['slurm_jobid'] = slurm_jobid
+        disk_d['hostname'] = hostname
+        disk_d['physicalhostname'] = physicalhostname_val
+        disk_l.append(disk_d)
 
-    return cpu_l
+    return disk_l
 
 
 def read_env_vars():
@@ -514,10 +517,10 @@ def main():
     cpu_counters = {}
     eth_counters = {}
     nfs_counters = {}
+    disk_counters = {}
     ib_rates_l = []
     eth_rates_l = []
     nfs_rates_l = []
-    disk_counters = []
     disk_l = []
     cpu_mem_l = []
     cpu_l = []
