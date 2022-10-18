@@ -97,6 +97,8 @@ function update_slurm_prolog_epilog() {
          echo "PrologFlags=Alloc" >> $SLURM_CONF
       elif [[ $prolog_epilog == "epilog" ]]; then
          echo '#!/bin/bash' > /sched/scripts/epilog.sh
+         echo 'TIMESTAMP=$(/bin/date "+%Y%m%d %H:%M:%S")' >> /sched/scripts/epilog.sh
+         echo 'echo "${TIMESTAMP} [epilog] NHC check started at job termination" >> /var/log/nhc.log' >> /sched/scripts/epilog.sh
          chmod +x /sched/scripts/epilog.sh
          echo "Epilog=/sched/scripts/epilog.sh" >> $SLURM_CONF
       fi
