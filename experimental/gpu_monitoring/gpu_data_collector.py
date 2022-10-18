@@ -120,7 +120,7 @@ def num(s):
        return float(s)
 
 
-def create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l, cpu_mem_l, cpu_l):
+def create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l):
     data_l = []
     field_name_l = []
     if not no_gpu_metrics:
@@ -146,6 +146,8 @@ def create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_job
        data_l = data_l + eth_rates_l
     if nfs_rates_l:
        data_l = data_l + nfs_rates_l
+    if disk_l:
+       data_l = data_l + disk_l
     if cpu_mem_l:
        data_l = data_l + cpu_mem_l
     if cpu_l:
@@ -324,6 +326,13 @@ def read_file(file_path):
     return file_lines_l
 
 
+def find_line_in_file(find_string, file_lines_l):
+    for line in file_lines_l:
+        if line.find(find_string) >= 0:
+            break
+    return line
+
+
 def find_value_in_file(find_string, index, file_lines_l):
     value = 0
     for line in file_lines_l:
@@ -331,6 +340,14 @@ def find_value_in_file(find_string, index, file_lines_l):
             value = line.split()[index]
             break
     return int(value)
+
+
+def find_value_in_line(line, index):
+    return int(line.split()[index])
+
+
+def find_str_in_line(line, index):
+    return line.split()[index]
 
 
 def get_cpu_mem_data(hostname, physicalhostname_val, have_jobid, slurm_jobid):
@@ -361,10 +378,11 @@ def get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm
     cpu_l = []
     cpu_d = {}
     stat_l = read_file("/proc/stat")
+    cpu_line = find_line_in_file("cpu", stat_l)
     cpu_counters_l = ["user_time", "nice_time", "sys_time", "idle_time", "iowait_time", "irq_time", "softirq_time"]
     indx = 1
     for cpu_counter in cpu_counters_l:
-        cpu_time = find_value_in_file("cpu", indx, stat_l)
+        cpu_time = find_value_in_line(cpu_line, indx)
         cpu_key = "cpu_" + cpu_counter + "_user_hz"
         if cpu_counter in cpu_counters:
            cpu_d[cpu_key] = cpu_time - cpu_counters[cpu_counter]
@@ -381,6 +399,40 @@ def get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm
     cpu_l.append(cpu_d)
 
     return cpu_l
+
+
+def get_disk_data(disk_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid, time_interval_sec):
+    disk_l = []
+    disk_indx_l = [3, 5, 6, 7, 9, 10]
+    diskstats_l = read_file("/proc/diskstats")
+    disk_counters_l = ["read_completed", "read_sectors", "read_time_ms", "write_completed", "write_sectors", "write_time_ms"]
+    for disk_line in diskstats_l:
+        disk_d = {}
+        disk_device_name = find_str_in_line(disk_line, 2)
+        if "loop" in disk_device_name:
+           continue
+        disk_d['disk_name'] = disk_device_name
+        disk_d['disk_time_interval_secs'] = time_interval_sec
+        if disk_device_name not in disk_counters:
+           disk_counters[disk_device_name] = {}
+        indx = 0
+        for disk_counter in disk_counters_l:
+            disk_value = find_value_in_line(disk_line, disk_indx_l[indx])
+            disk_key = "disk_" + disk_counter
+            if disk_counter in disk_counters[disk_device_name]:
+               disk_d[disk_key] = disk_value - disk_counters[disk_device_name][disk_counter]
+            else:
+               disk_d[disk_key] = 0
+            disk_counters[disk_device_name][disk_counter] = disk_value
+            indx = indx + 1
+
+        if have_jobid:
+           disk_d['slurm_jobid'] = slurm_jobid
+        disk_d['hostname'] = hostname
+        disk_d['physicalhostname'] = physicalhostname_val
+        disk_l.append(disk_d)
+
+    return disk_l
 
 
 def read_env_vars():
@@ -411,6 +463,7 @@ def parse_args():
     parser.add_argument("-ibm", "--infiniband_metrics", action="store_true", help="Collect InfiniBand metrics")
     parser.add_argument("-ethm", "--ethernet_metrics", action="store_true", help="Collect Ethernet metrics")
     parser.add_argument("-nfsm", "--nfs_metrics", action="store_true", help="Collect NFS client side metrics")
+    parser.add_argument("-diskm", "--disk_metrics", action="store_true", help="Collect disk device metrics")
     parser.add_argument("-cpum", "--cpu_metrics", action="store_true", help="Collects CPU metrics (e.g. user, sys, idle & iowait time)")
     parser.add_argument("-cpu_memm", "--cpu_mem_metrics", action="store_true", help="Collects CPU memory metrics (Default: MemTotal, MemFree)")
     parser.add_argument("-uc", "--use_crontab", action="store_true", help="This script will be started by the system contab and the time interval between each data collection will be decided by the system crontab (if crontab is selected then the  -tis argument will be ignored).")
@@ -437,6 +490,10 @@ def parse_args():
        nfs_metrics = True
     else:
        nfs_metrics = False
+    if args.disk_metrics:
+       disk_metrics = True
+    else:
+       disk_metrics = False
     if args.cpu_metrics:
        cpu_metrics = True
     else:
@@ -450,19 +507,21 @@ def parse_args():
     force_gpu_monitoring = args.force_gpu_monitoring
     name_log_event = args.name_log_event
 
-    return (no_gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,eth_metrics,nfs_metrics,cpu_metrics,cpu_mem_metrics,name_log_event)
+    return (no_gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,name_log_event)
 
 
 def main():
-    (no_gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,eth_metrics,nfs_metrics,cpu_metrics,cpu_mem_metrics,name_log_event) = parse_args()
+    (no_gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,name_log_event) = parse_args()
     (customer_id,shared_key) = read_env_vars()
     ib_counters = {}
     cpu_counters = {}
     eth_counters = {}
     nfs_counters = {}
+    disk_counters = {}
     ib_rates_l = []
     eth_rates_l = []
     nfs_rates_l = []
+    disk_l = []
     cpu_mem_l = []
     cpu_l = []
     dcgm_dmon_fields_out = []
@@ -489,7 +548,9 @@ def main():
                 cpu_mem_l = get_cpu_mem_data(hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if cpu_metrics:
                 cpu_l = get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid)
-             data_l = create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l,  cpu_mem_l, cpu_l)
+             if disk_metrics:
+                disk_l = get_disk_data(disk_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid, time_interval_seconds)
+             data_l = create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l)
              print(data_l)
              body = json.dumps(data_l)
              post_data(customer_id, shared_key, body, name_log_event)
