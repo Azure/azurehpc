@@ -152,12 +152,12 @@ You then test running the same HPC application on multiple ND96asr_v4 virtual ma
 
 Virtual Machine (cgndv4) Numa topology
 
-NumaNode id  Core ids              GPU ids
-============ ==================== ==========
-0            ['0-23']             [3, 2]
-1            ['24-47']            [1, 0]
-2            ['48-71']            [7, 6]
-3            ['72-95']            [5, 4]
+NumaNode id  Core ids    (Mask)                       GPU ids
+============ ======================================= ==========
+0            ['0-23']   (0xffffff)                   [3, 2]
+1            ['24-47']  (0xffffff000000)             [1, 0]
+2            ['48-71']  (0xffffff000000000000)       [7, 6]
+3            ['72-95']  (0xffffff000000000000000000) [5, 4]
 
 
 Application (hello) Mapping/pinning
