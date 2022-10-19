@@ -47,12 +47,12 @@ check_app_pinning.py -pps -nppv 16 -ntpp 4
 
 Virtual Machine (Standard_HB120-64rs_v3, cghb64v3) Numa topology
 
-NumaNode id  Core ids              GPU ids
-============ ==================== ==========
-0            ['0-15']             []
-1            ['16-31']            []
-2            ['32-47']            []
-3            ['48-63']            []
+NumaNode id  Core ids   (Mask)                             GPU ids   
+============ ============================================ ==========
+0            ['0-15']  (0xffff)                           []        
+1            ['16-31'] (0xffff0000)                       []        
+2            ['32-47'] (0xffff00000000)                   []        
+3            ['48-63'] (0xffff000000000000)               [] 
 
 L3Cache id   Core ids
 ============ ====================
