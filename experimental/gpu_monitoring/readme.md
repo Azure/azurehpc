@@ -150,7 +150,10 @@ To monitor CPU utilization (User, Idle, system and iowait time)
 ![Alt text6](/experimental/gpu_monitoring/images/cpu_utilization.jpg?raw=true "cpu-utilization")
 
 
+To monitor Disk I/O (e.g local NVMe SSD's or attched disks)
+![Alt text6](/experimental/gpu_monitoring/images/disk_io.jpg?raw=true "disk_io")
+
+
 An Example Azure GPU Monitoring dashboard
 
-![Alt text7](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
-
+![Alt text8](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
