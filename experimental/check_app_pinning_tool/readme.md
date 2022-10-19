@@ -88,12 +88,12 @@ check_app_pinning.py -anp hpcapp
 
 Virtual Machine (Standard_HB120_v2, cghb120v2) Numa topology
 
-NumaNode id  Core ids              GPU ids
-============ ==================== ==========
-0            ['0-29']             []
-1            ['30-59']            []
-2            ['60-89']            []
-3            ['90-119']           []
+NumaNode id  Core ids   (Mask)                             GPU ids   
+============ ============================================ ==========
+0            ['0-29']  (0x3fffffff)                       []        
+1            ['30-59'] (0xfffffffc0000000)                []        
+2            ['60-89'] (0x3fffffff000000000000000)        []        
+3            ['90-119'](0xfffffffc0000000000000000000000) [] 
 
 L3Cache id   Core ids
 ============ ====================
