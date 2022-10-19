@@ -182,12 +182,12 @@ For HB_v3 will also show the L3cache topology.
 
 Virtual Machine (Standard_HB120rs_v3) Numa topology
 
-NumaNode id  Core ids              GPU ids
-============ ==================== ==========
-0            ['0-29']             []
-1            ['30-59']            []
-2            ['60-89']            []
-3            ['90-119']           []
+NumaNode id  Core ids   (Mask)                             GPU ids   
+============ ============================================ ==========
+0            ['0-29']  (0x3fffffff)                       []        
+1            ['30-59'] (0xfffffffc0000000)                []        
+2            ['60-89'] (0x3fffffff000000000000000)        []        
+3            ['90-119'](0xfffffffc0000000000000000000000) []
 
 L3Cache id   Core ids
 ============ ====================
