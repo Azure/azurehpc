@@ -13,6 +13,6 @@ RUN apt-get -y install build-essential \
     && pip install hydra-core==1.0.7 omegaconf==2.0.6 \
     && pip install boto3
 
-COPY fairseq_moe.sh megatron-lm.sh .
+COPY fairseq_moe.sh megatron-lm.sh ./
 RUN ./fairseq_moe.sh \
     && ./megatron-lm.sh
