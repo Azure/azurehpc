@@ -154,9 +154,9 @@ az ml environment create --file pytorch_env.yml
 
 ### Submit the job to AML
 ```bash
-python run_fairseq_moe_aml.py
+python run_fairseq_moe_aml.py --work-space= --subscription-id= --resource-group= --cluster-name= --environment-name= --environment-version= --training-file-path= --experiment-name=
 ```
->Note: Replace the user-defined variables in `run_fairseq_moe_aml.py` before you submit it to the AML workspace. 
+>Note: All command line arguments need to be set before you can submit the job to AML. 
 
 ### Sample output from AML experiment
 ```bash
