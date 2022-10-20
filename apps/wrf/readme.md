@@ -9,6 +9,40 @@ After installation, to create clusters, CycleCloud will need to use a [“Manage
 ## Create NFS Storage cluster
 -	It can be possible to include an external NFS share at this point (in the example, I have shared from an NFS cluster using on CycleCloud template)
 
+Add Picture1
+Add Picture2
+Add Picture3
+
+Changes:
+-	Change OS to use CentOS 7 versions
+-	Use +300GB storage size (space to download WRF data)
+-	Change cloud-init
+
+```
+#!/bin/bash
+
+set -x
+yum install -y epel-release
+yum install -y Lmod at
+systemctl enable --now atd.service
+cat <<EOF>/mnt/exportfs.sh
+#!/bin/bash
+set -x
+mkdir -p /mnt/exports/data /mnt/exports/apps
+sudo exportfs -o rw,sync,no_root_squash 10.4.0.0/20:/mnt/exports/data
+sudo exportfs -o rw,sync,no_root_squash 10.4.0.0/20:/mnt/exports/apps
+EOF
+chmod 755 /mnt/exportfs.sh
+at now + 2 minute -f /mnt/exportfs.sh
+```
+
+Connect to NFS storage cluster and check mounts:
+```
+# check mount
+sudo exportfs -s
+showmount -e 10.4.4.4
+```
+
 ## Prerequisites
 
 Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up. Spack is installed (See [here](../spack/readme.md) for details).
