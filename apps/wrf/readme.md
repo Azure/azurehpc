@@ -1,4 +1,13 @@
-## Install and run WRF v4 and WPS v4
+## Install and run WRF v4 and WPS v4 - Setup guide
+
+## Install Azure CycleCloud
+CycleCloud can be installed via Azure Marketplace, see this link:
+[Quickstart - Install via Marketplace - Azure CycleCloud | Microsoft Docs](https://learn.microsoft.com/en-us/azure/cyclecloud/qs-install-marketplace?view=cyclecloud-8)
+
+After installation, to create clusters, CycleCloud will need to use a [“Managed Identity”](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/managed-identities?view=cyclecloud-8) or “Service Principal” (either of which may need access granting via IT), to create/destroy resources.  Managed Identities is the route preferred if CycleCloud will only be creating clusters in a single Azure subscription. 
+
+## Create NFS Storage cluster
+-	It can be possible to include an external NFS share at this point (in the example, I have shared from an NFS cluster using on CycleCloud template)
 
 ## Prerequisites
 
