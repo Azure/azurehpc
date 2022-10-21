@@ -88,4 +88,16 @@ Create storage account from the Azure Portal:
 - Open the browser and access the CycleCloud Portal using the DNS Label created above or the public IP of the CycleCloud VM.
 - Follow the steps described [here](https://learn.microsoft.com/en-us/azure/cyclecloud/qs-install-marketplace?view=cyclecloud-8#log-into-the-cyclecloud-application-server)
 
-##7. Import Cluster Template
+##7. Install CycleCloud CLI
+- Follow these steps to [Install CycleCloud CLI](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/install-cyclecloud-cli?view=cyclecloud-8)
+```
+wget wget https://<your CycleCloud domain name>/static/tools/cyclecloud-cli.zip --no-check-certificate
+unzip cyclecloud-cli.zip
+cd cyclecloud-cli-installer
+./install.sh
+```
+- Initialize CycleCloud CLI
+  1. Initialize the server with cyclecloud initialize. You will be prompted for the CycleServer URL, which is the FQDN of your application server. Enter it in the format https://FQDN.
+  2. The installed Azure CycleCloud server uses either a Let's Encrypt SSL certificate, or a self-signed certificate. Type yes when asked to allow the certificate.
+  3. Log in with the same username and password used for the CycleCloud web interface.
+  4. Test that the CycleCloud CLI is working with cyclecloud show_cluster.
