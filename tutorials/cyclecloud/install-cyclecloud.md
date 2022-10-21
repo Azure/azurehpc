@@ -3,8 +3,8 @@
 Before you start, define which **Subscription**, **Resource Group**, **Region** and **Virtual Network** you will use to deploy your CycleCloud environment. 
 
 ##1. Create VNET
-Here we are creating a new Virtual Network for the CycleCloud environment. For this basic setup, we are using only CycleCloud and Compute subnets. But use can create all subnets in the scripts for future advanced scenarios.
-Change the variables values if you want to or use the default ones.
+Here we are creating a new Virtual Network for the CycleCloud environment. For this basic setup, we are using only CycleCloud and Compute subnets. But, you can create all subnets in this script, for future advanced scenarios.
+You can use the default variable values below or change it, if you want to.
 ```
 ##################################################
 # Variables
