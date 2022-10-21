@@ -4,15 +4,13 @@ Before you start, define which **Subscription**, **Resource Group**, **Region** 
 
 ##1. Create VNET
 Here we are creating a new Virtual Network for the CycleCloud environment. For this basic setup, we are using only CycleCloud and Compute subnets. But use can create all subnets in the scripts for future advanced scenarios.
+Change the variables values if you want to or use the default ones.
 ```
 ##################################################
 # Variables
 ##################################################
 Location="southcentralus"
 RG_VNET="rg-wrf-poc-$Location"
-
-#Location="eastus"
-#RG_VNET="rg-hpc-eastus-test"
 
 # VNET HPC 
 VNET_NAME="vnet-wrf-poc-$Location"
