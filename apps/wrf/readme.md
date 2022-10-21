@@ -2,7 +2,8 @@
 
 ## Prerequisites
 
-Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up. Spack is installed (See [here](../spack/readme.md) for details).
+TODO:
+Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up. (See [here] for details).
 
 
 ## Install Azure CycleCloud
