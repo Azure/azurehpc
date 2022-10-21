@@ -1,16 +1,10 @@
 # Install and run WRF v4 and WPS v4 - Setup guide
 
-## Prerequisites
-
-TODO:
-Cluster is built with the desired configuration for networking, storage, compute etc. You can see the tutorial or examples folder in this repo for how to set this up. (See [here] for details).
-
-
 ## Install Azure CycleCloud
 
 Follow the steps to [Install and Setup CycleCloud](../../tutorials/cyclecloud/install-cyclecloud.md)
  
- 
+
 ## Create NFS Storage cluster
 -	It can be possible to include an external NFS share at this point (in the example, I have shared from an NFS cluster using on CycleCloud template)
 
