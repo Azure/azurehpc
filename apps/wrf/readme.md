@@ -1,6 +1,7 @@
-## Install and run WRF v4 and WPS v4 - Setup guide
+# Install and run WRF v4 and WPS v4 - Setup guide
 
 ## Install Azure CycleCloud
+
 CycleCloud can be installed via Azure Marketplace, see this link:
 [Quickstart - Install via Marketplace - Azure CycleCloud | Microsoft Docs](https://learn.microsoft.com/en-us/azure/cyclecloud/qs-install-marketplace?view=cyclecloud-8)
 
@@ -40,8 +41,22 @@ Connect to NFS storage cluster and check mounts:
 ```
 # check mount
 sudo exportfs -s
-showmount -e 10.4.4.4
 ```
+
+## Setup WRF cluster using HBv2 VM
+Summary of steps:
+-	Start NFS storage cluster on CycleCloud
+-	Import WRF cluster template 
+-	Start WRF cluster using HBv2 VM 
+-	Prepare required folders
+-	Install WRF/WPS 4 software (via “azurehpc” scripts) 
+-	Download data for WRF 4
+-	Edit data locations in WRF config files
+-	Generate WRF 4 input files, change permissions
+-	Run WRF 4  applications for testing
+
+
+
 
 ## Prerequisites
 
