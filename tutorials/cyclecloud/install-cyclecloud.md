@@ -2,7 +2,7 @@
 
 Before you start, define which **Subscription**, **Resource Group**, **Region** and **Virtual Network** you will use to deploy your CycleCloud environment. 
 
-##1. Create VNET
+## 1. Create VNET
 Here we are creating a new Virtual Network for the CycleCloud environment. For this basic setup, we are using only CycleCloud and Compute subnets. But, you can create all subnets in this script, for future advanced scenarios.
 You can use the default variable values below or change it, if you want to.
 ```
@@ -53,7 +53,7 @@ az network vnet subnet create --address-prefix $SUBNET_NAME_VISUALIZATION_CIDR -
     --resource-group $RG_VNET --vnet-name $VNET_NAME
 ```
 
-##2. Create CycleCloud from Portal 
+## 2. Create CycleCloud from Azure Portal 
 
 CycleCloud can be installed via Azure Marketplace, see [Quickstart - Install via Marketplace - Azure CycleCloud | Microsoft Docs](https://learn.microsoft.com/en-us/azure/cyclecloud/qs-install-marketplace?view=cyclecloud-8):
 1. Choose your subscription from the Subscription dropdown
@@ -65,11 +65,11 @@ CycleCloud can be installed via Azure Marketplace, see [Quickstart - Install via
 7. If you are planning on using [Managed Identities](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) (recommended), Select the Management tab and enable System assigned managed identity.
 8. Click on the Review button and then the Create button
 
-##3. Assign Contributor role on the subscription to managed-identity 
+## 3. Assign Contributor role on the subscription to managed-identity 
 From Azure Portal, go to Subscriptions and assign Contributor role to the CycleCloud VM managed Identity (Subscription > Access control (IAM) > Add > Add role assignment).
 >You need to have **Owner** permission on the Subscription 
 
-##4. Configure DNS name label for public IP (optional)
+## 4. Configure DNS name label for public IP (optional)
 You can define a DNS Name for the CycleCloud VM public IP, it can facilitate the access to the VM. 
 Go to CycleCloud VM and click in DNS Name:
 ![DNS-Label1](images/DNS-Label1.jpg)
@@ -77,18 +77,18 @@ Go to CycleCloud VM and click in DNS Name:
 Add a DNS Name and save:
 ![DNS-Label2](images/DNS-Label2.jpg)
 
-##4. Create storage account
+## 5. Create a storage account
 Cyclecloud requires a storage account for [locker access](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/storage-blobs?view=cyclecloud-8). 
 Create storage account from the Azure Portal: 
 - Select the Subscription, Resource Group, Region you defined previously. 
 - Define a **Name**, set **Performance** as Standard, **Redundancy** as LRS. 
 - Keep all other settings with default values and create it.
 
-##6. Setup CycleCloud portal
+## 6. Setup CycleCloud Portal
 - Open the browser and access the CycleCloud Portal using the DNS Label created above or the public IP of the CycleCloud VM.
 - Follow the steps described [here](https://learn.microsoft.com/en-us/azure/cyclecloud/qs-install-marketplace?view=cyclecloud-8#log-into-the-cyclecloud-application-server)
 
-##7. Install CycleCloud CLI
+## 7. Install CycleCloud CLI
 - Follow these steps to [Install CycleCloud CLI](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/install-cyclecloud-cli?view=cyclecloud-8)
 ```
 wget wget https://<your CycleCloud domain name>/static/tools/cyclecloud-cli.zip --no-check-certificate
