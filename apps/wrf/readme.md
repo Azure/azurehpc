@@ -20,9 +20,8 @@ Follow the steps to [Install and Setup CycleCloud](../../tutorials/cyclecloud/in
 Changes:
 - Change OS to use CentOS 7 versions
 - Use +300GB storage size (space to download WRF data)
-- Change cloud-init
-- Confirm the IP address of your NFS storage
-
+- Change cloud-init as following:
+- Confirm the IP address of your NFS storage and change it  below accordingly:
 
 ```
 #!/bin/bash
@@ -42,7 +41,7 @@ chmod 755 /mnt/exportfs.sh
 at now + 2 minute -f /mnt/exportfs.sh
 ```
 
-Connect to NFS storage cluster and check mounts:
+Connect to NFS storage cluster and check the mounts are correct:
 ```
 # check mount
 sudo exportfs -s
@@ -53,7 +52,6 @@ Summary of steps:
 -	Start NFS storage cluster on CycleCloud
 -	Import WRF cluster template 
 -	Start WRF cluster using HBv2 VM 
--	Prepare required folders
 -	Install WRF/WPS 4 software (via “azurehpc” scripts) 
 -	Download data for WRF 4
 -	Edit data locations in WRF config files
@@ -64,9 +62,10 @@ Summary of steps:
 ### Import custom CycleCloud template for WRF
 
 Follow the procedures [here](https://docs.microsoft.com/en-us/azure/cyclecloud/tutorials/modify-cluster-template?view=cyclecloud-8#import-the-new-cluster-template) to upload the Cycle Cloud custom template created for WRF.
-
 Use the template: [opbswrf-template.txt](opbswrf-template.txt) 
-
+```
+cyclecloud import_template opbswrf -f opbswrf-template.txt --force
+``` 
 After you import the template, you will see the WRF template in CycleCloud Portal:
 
 ![Import-Template1](images/Import-Template1.png)
@@ -74,9 +73,9 @@ After you import the template, you will see the WRF template in CycleCloud Porta
 ### Create new WRF cluster
 Choose the WRF Cluster name:
 ![Create-WRF-Cluster1](images/Create-WRF-Cluster1.png)
-Choose the SKUs you want use for testing and subnet:
+Choose the SKUs you want use for testing and the subnet for the compute VMs:
 ![Create-WRF-Cluster2](images/Create-WRF-Cluster2a.png)
-Check Additional NFS Mount and change to the correct NFS IP address. Don’t need to change NFS Mount Point and NFS Export Path
+Check **Additional NFS Mount** options and change to the correct NFS IP address. Don’t need to change NFS Mount Point and NFS Export Path
 ![Create-WRF-Cluster3](images/Create-WRF-Cluster3.png)
 
 Keep the default value for the other parameters, save it and start the cluster.
@@ -91,8 +90,15 @@ Click Add.
 
 Ssh to the Execute Node (HBv2 VM) and run the following commands:
 
-**Important**: need to be root user to run all commands below.
-
+**Important 1**: You must have the /apps and /data volumes correctly mounted. It is required for WRF setup scripts:
+```
+df -h
+[azureadmin@ip-0A040406 ~]$ df -h
+Filesystem                                   Size  Used Avail Use% Mounted on
+10.4.4.5:/mnt/exports/data                   300G   21G  280G   7% /data
+10.4.4.5:/mnt/exports/apps                   300G   21G  280G   7% /apps
+```
+**Important 2**: You need to be root user to run all commands below.
 ```
 # need to be root user for building everything
 sudo su -   
@@ -123,9 +129,6 @@ vi env-variables
 ```
 And copy the content below to this file and save it:
 ```
-# Keep as root
-#sudo su -
-
 SKU_TYPE=hbv2
 #INPUTDIR=/data/wrfdata
 INPUTDIR=/apps/${SKU_TYPE}/wrf-openmpi/WRF-4.1.5/run
@@ -156,6 +159,8 @@ fi
 ```
 Run the command:
 ```
+# Keep as root
+#sudo su -
 source /data/azurehpc/apps/wrf/env-variables
 ```
 
@@ -219,8 +224,9 @@ mkdir /data/wrfdata/gfs_files
 cd /data/wrfdata/gfs_files
 python download_gfs_files.py <password used to register in rda site>
 
-chown -R azureadmin:azureadmin /data
-chown -R azureadmin:azureadmin /apps
+# grant permission
+chmod -R 777 /data
+chmod -R 777 /apps
 ```
 
 ### Generate WRF4 Input Files
@@ -301,8 +307,10 @@ ls -l /apps/hbv2/wrf-openmpi/WRF-4.1.5/run/*_d0*
 
 #### Change Permissions on Files
 ```
-chown -R azureadmin:azureadmin /data
-chown -R azureadmin:azureadmin /apps
+#chown -R azureadmin:azureadmin /data
+#chown -R azureadmin:azureadmin /apps
+chmod -R 777 /data
+chmod -R 777 /apps
 ```
 
 ## Running and Testing

@@ -77,6 +77,8 @@ Go to CycleCloud VM and click in DNS Name:
 Add a DNS Name and save:
 ![DNS-Label2](images/DNS-Label2.jpg)
 
+In case you want to setup CycleCloud in environments with limited internet access, check this article: [Operating in a locked down network](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/running-in-locked-down-network?view=cyclecloud-8).
+
 ## 5. Create a storage account
 Cyclecloud requires a storage account for [locker access](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/storage-blobs?view=cyclecloud-8). 
 Create storage account from the Azure Portal: 
@@ -89,7 +91,7 @@ Create storage account from the Azure Portal:
 - Follow the steps described [here](https://learn.microsoft.com/en-us/azure/cyclecloud/qs-install-marketplace?view=cyclecloud-8#log-into-the-cyclecloud-application-server)
 
 ## 7. Install CycleCloud CLI
-- Follow these steps to [Install CycleCloud CLI](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/install-cyclecloud-cli?view=cyclecloud-8)
+- Follow these steps to [Install CycleCloud CLI](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/install-cyclecloud-cli?view=cyclecloud-8):
 ```
 wget wget https://<your CycleCloud domain name>/static/tools/cyclecloud-cli.zip --no-check-certificate
 unzip cyclecloud-cli.zip
