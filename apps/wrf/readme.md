@@ -71,7 +71,8 @@ Download azurehpc GitHub repository
 ```
 ## Download azurehpc GitHub repository
 cd /data
-git clone https://github.com/Azure/azurehpc.git
+#git clone https://github.com/Azure/azurehpc.git
+git clone https://github.com/marcusgaspar/azurehpc.git
 ```
 
 Follow the procedures [here](https://docs.microsoft.com/en-us/azure/cyclecloud/tutorials/modify-cluster-template?view=cyclecloud-8#import-the-new-cluster-template) to upload the Cycle Cloud custom template created for WRF.
