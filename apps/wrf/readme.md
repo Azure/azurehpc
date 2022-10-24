@@ -67,7 +67,7 @@ Summary of steps:
 
 ### Import custom CycleCloud template for WRF
 
-Download azurehpc GitHub repository
+After start NFS storage cluster, ssh to it and download azurehpc GitHub repository
 ```
 ## Download azurehpc GitHub repository
 cd /data
