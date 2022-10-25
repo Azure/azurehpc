@@ -232,10 +232,6 @@ Run the commands and be sure of copying the download_gfs_files.py the folder bel
 mkdir /data/wrfdata/gfs_files
 cd /data/wrfdata/gfs_files
 python download_gfs_files.py <password used to register in rda site>
-
-# grant permission to users that will run the WRF to access the files. 
-chown -R azureadmin:cyclecloud /data
-chown -R azureadmin:cyclecloud /apps
 ```
 
 ### Generate WRF4 Input Files
@@ -315,13 +311,17 @@ ls -l /apps/hbv2/wrf-openmpi/WRF-4.1.5/run/*_d0*
 ```
 
 #### Change Permissions on Files
+Grant permission to users that will run the WRF to access the files on /data and /apps. 
+For my environment, I used azureadmin as CycleCloud admin. 
+Change the user below accordingly.     
+
 ```
 # grant permission to users that will run the WRF to access the files. 
-chown -R azureadmin:cyclecloud /data
-chown -R azureadmin:cyclecloud /apps
+chown -R <your admin user>:cyclecloud /data
+chown -R <your admin user>:cyclecloud /apps
 ```
 
-**Once you get here, you completed the WRF v4 setup!**
+**If you get here, you have completed the WRF v4 setup!**
 
 Now you can shutdown and terminate the HBv2 worker node used to perform these setup procedures.
 
