@@ -460,6 +460,15 @@ cd ~/test10
 
 qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
+### Validate Job Status
+To validate the status of the job submission, you can use:
+```
+# check jobs history
+qstat -x
+
+# check jobs history showing the wall clock duration
+qstat -xG
+```
 
 
 
