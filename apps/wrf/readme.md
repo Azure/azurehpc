@@ -321,7 +321,7 @@ chown -R azureadmin:cyclecloud /data
 chown -R azureadmin:cyclecloud /apps
 ```
 
-Once you get here, you completed the WRF v4 setup!
+**Once you get here, you completed the WRF v4 setup!**
 Now you can shutdown and terminate the HBv2 worker node used to perform these setup procedures.
 
 ## Running and Testing
