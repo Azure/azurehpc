@@ -339,7 +339,7 @@ Connect to head node of WRF Cluster and submit WRF v4 simulation job:
   - MPI processes per node: 30 
 ```
 mkdir ~/test1
-cd ~/teste1
+cd ~/test1
 
 qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -352,7 +352,7 @@ qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "
   - MPI processes per node: 30 
 ```
 mkdir ~/test2
-cd ~/teste2
+cd ~/test2
 
 qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -365,7 +365,7 @@ qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
   - MPI processes per node: 30 
 ```
 mkdir ~/test3
-cd ~/teste3
+cd ~/test3
 
 qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -378,7 +378,7 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "
   - MPI processes per node: 60 
 ```
 mkdir ~/test4
-cd ~/teste4
+cd ~/test4
 
 qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -391,7 +391,7 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
   - MPI processes per node: 60 
 ```
 mkdir ~/test5
-cd ~/teste5
+cd ~/test5
 
 qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -404,7 +404,7 @@ qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
   - MPI processes per node: 64 
 ```
 mkdir ~/test6
-cd ~/teste6
+cd ~/test6
 
 qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -417,7 +417,7 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
   - MPI processes per node: 64 
 ```
 mkdir ~/test7
-cd ~/teste7
+cd ~/test7
 
 qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -430,7 +430,7 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
   - MPI processes per node: 60
 ```
 mkdir ~/test8
-cd ~/teste8
+cd ~/test8
 
 qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -443,7 +443,7 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
   - MPI processes per node: 120
 ```
 mkdir ~/test9
-cd ~/teste9
+cd ~/test9
 
 qsub -l select=3:nodearray=execute1:ncpus=120:mpiprocs=120,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
@@ -456,7 +456,7 @@ qsub -l select=3:nodearray=execute1:ncpus=120:mpiprocs=120,place=scatter:excl -v
   - MPI processes per node: 64
 ```
 mkdir ~/test10
-cd ~/teste10
+cd ~/test10
 
 qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
