@@ -321,6 +321,9 @@ chown -R azureadmin:cyclecloud /data
 chown -R azureadmin:cyclecloud /apps
 ```
 
+Once you get here, you completed the WRF v4 setup!
+Now you can shutdown and terminate the HBv2 worker node used to perform these setup procedures.
+
 ## Running and Testing
 
 Connect to head node of WRF Cluster and submit WRF v4 simulation job:
@@ -451,8 +454,8 @@ qsub -l select=3:nodearray=execute1:ncpus=120:mpiprocs=120,place=scatter:excl -v
   - Processes per node: 64 
   - MPI processes per node: 64
 ```
-mkdir ~/test9
-cd ~/teste9
+mkdir ~/test10
+cd ~/teste10
 
 qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
