@@ -30,7 +30,7 @@
     "scheduler": "slurm",
     "nfs_add_export_path": "{{variables.project_prefix}}-apps",
     "nfs_export_path": "{{variables.project_prefix}}-shared",
-    "nfs_address": "10.40.2.4"
+    "nfs_address": "<NOT-SET>"
   },
   "vnet": {
     "resource_group": "variables.vnet_resource_group",

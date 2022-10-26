@@ -57,9 +57,12 @@ location=$LOCATION,\
 resource_group=$RESOURCE_GROUP,\
 projectstore=$PROJECT_STORE,\
 key_vault=$KEY_VAULT,\
-cc_password_secret_name=$CC_PW_NAME
+cc_password_secret_name=$CC_PW_NAME,\
+nfs_address=$NFS_ADDRESS
 
 # - Need to build in OUTPUT_DIR
 pushd $OUTPUT_DIR > /dev/null
+# Often need to sleep to ensure permissions have propagated
+sleep 30
 azhpc build -c config.json --no-vnet
 popd > /dev/null
