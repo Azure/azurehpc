@@ -336,20 +336,20 @@ Connect to head node of WRF Cluster and submit WRF v4 simulation job:
   - User: azureadmin
   - Nodes: 1 
   - Processes per node: 60 
-  - MPI processes per node: 30 
+  - MPI processes per node: 60 
 ```
 mkdir ~/test1
 cd ~/test1
 
-qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 2 
   - SKU: Standard_HB120rs_v2
   - User: azureadmin
-  - Nodes: 2 
+  - Nodes: **2** 
   - Processes per node: 60 
-  - MPI processes per node: 30 
+  - MPI processes per node: 60 
 ```
 mkdir ~/test2
 cd ~/test2
@@ -360,48 +360,48 @@ qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 - Test 3 
   - SKU: Standard_HB120rs_v2
   - User: azureadmin
-  - Nodes: 3 
+  - Nodes: **3** 
   - Processes per node: 60 
-  - MPI processes per node: 30 
+  - MPI processes per node: 60 
 ```
 mkdir ~/test3
 cd ~/test3
 
-qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
-- Test 4 
+- Test 4
   - SKU: Standard_HB120rs_v2
   - User: azureadmin
-  - Nodes: 3 
+  - Nodes: **4** 
   - Processes per node: 60 
   - MPI processes per node: 60 
 ```
 mkdir ~/test4
 cd ~/test4
 
-qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 5
-  - SKU: Standard_HB120rs_v2
+  - SKU: Standard_**HB120rs_v3**
   - User: azureadmin
-  - Nodes: 4 
+  - Nodes: **3** 
   - Processes per node: 60 
-  - MPI processes per node: 60 
+  - MPI processes per node: 60
 ```
 mkdir ~/test5
 cd ~/test5
 
-qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 6
-  - SKU: Standard_HB120-64rs_v3
+  - SKU: Standard_**HB120-64rs_v3**
   - User: azureadmin
   - Nodes: 3 
-  - Processes per node: 64 
-  - MPI processes per node: 64 
+  - Processes per node: **64** 
+  - MPI processes per node: **64** 
 ```
 mkdir ~/test6
 cd ~/test6
@@ -410,11 +410,11 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 ```
 
 - Test 7
-  - SKU: Standard_HB120-64rs_v2
+  - SKU: Standard_**HB120rs_v3**
   - User: azureadmin
   - Nodes: 3 
   - Processes per node: 64 
-  - MPI processes per node: 64 
+  - MPI processes per node: 64
 ```
 mkdir ~/test7
 cd ~/test7
@@ -423,24 +423,24 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 ```
 
 - Test 8
-  - SKU: Standard_HB120rs_v3
+  - SKU: Standard_**HB120-64rs_v2**
   - User: azureadmin
   - Nodes: 3 
-  - Processes per node: 60 
-  - MPI processes per node: 60
+  - Processes per node: 64 
+  - MPI processes per node: 64 
 ```
 mkdir ~/test8
 cd ~/test8
 
-qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 9
-  - SKU: Standard_HB120rs_v3
+  - SKU: Standard_**HB120rs_v3**
   - User: azureadmin
   - Nodes: 3 
-  - Processes per node: 120 
-  - MPI processes per node: 120
+  - Processes per node: **120** 
+  - MPI processes per node: **120**
 ```
 mkdir ~/test9
 cd ~/test9
@@ -448,18 +448,6 @@ cd ~/test9
 qsub -l select=3:nodearray=execute1:ncpus=120:mpiprocs=120,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
-- Test 10
-  - SKU: Standard_HB120rs_v3
-  - User: azureadmin
-  - Nodes: 3 
-  - Processes per node: 64 
-  - MPI processes per node: 64
-```
-mkdir ~/test10
-cd ~/test10
-
-qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
-```
 ### Validate Job Status
 To validate the status of the job submission, you can use:
 ```
