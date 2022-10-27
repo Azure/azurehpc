@@ -319,6 +319,8 @@ Change the user below accordingly.
 # grant permission to users that will run the WRF to access the files. 
 chown -R <your admin user>:cyclecloud /data
 chown -R <your admin user>:cyclecloud /apps
+chmod -R g+w /data
+chmod -R g+w /apps
 ```
 
 **If you get here, you have completed the WRF v4 setup!**
