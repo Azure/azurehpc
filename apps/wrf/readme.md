@@ -181,7 +181,7 @@ References:
 - [azurehpc/apps/wrf](https://www2.mmm.ucar.edu/wrf/users/download/get_sources_wps_geog.html)
 - [Static data downloads from ucar.edu](https://www2.mmm.ucar.edu/wrf/users/download/get_sources_wps_geog.html)
 
-Run the commands below to download WPS v4 geopraphical static data for WPS v4:
+Run the commands below to download geopraphical static data for WPS v4:
 ```
 # Keep as root
 #sudo su -
@@ -312,7 +312,7 @@ ls -l /apps/hbv2/wrf-openmpi/WRF-4.1.5/run/*_d0*
 
 #### Change Permissions on Files
 Grant permission to users that will run the WRF to access the files on /data and /apps. 
-For my environment, I used azureadmin as CycleCloud admin. 
+For my environment, I used "azureadmin" as CycleCloud admin. 
 Change the user below accordingly.     
 
 ```
@@ -333,7 +333,6 @@ Connect to head node of WRF Cluster and submit WRF v4 simulation job:
 
 - Test 1 
   - SKU: Standard_HB120rs_v2
-  - User: azureadmin
   - Nodes: 1 
   - Processes per node: 60 
   - MPI processes per node: 60 
@@ -346,7 +345,6 @@ qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 
 - Test 2 
   - SKU: Standard_HB120rs_v2
-  - User: azureadmin
   - Nodes: **2** 
   - Processes per node: 60 
   - MPI processes per node: 60 
@@ -359,7 +357,6 @@ qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 
 - Test 3 
   - SKU: Standard_HB120rs_v2
-  - User: azureadmin
   - Nodes: **3** 
   - Processes per node: 60 
   - MPI processes per node: 60 
@@ -372,7 +369,6 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 
 - Test 4
   - SKU: Standard_HB120rs_v2
-  - User: azureadmin
   - Nodes: **4** 
   - Processes per node: 60 
   - MPI processes per node: 60 
@@ -385,7 +381,6 @@ qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 
 - Test 5
   - SKU: Standard_**HB120rs_v3**
-  - User: azureadmin
   - Nodes: **3** 
   - Processes per node: 60 
   - MPI processes per node: 60
@@ -398,7 +393,6 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 
 - Test 6
   - SKU: Standard_**HB120-64rs_v3**
-  - User: azureadmin
   - Nodes: 3 
   - Processes per node: **64** 
   - MPI processes per node: **64** 
@@ -411,7 +405,6 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 
 - Test 7
   - SKU: Standard_**HB120rs_v3**
-  - User: azureadmin
   - Nodes: 3 
   - Processes per node: 64 
   - MPI processes per node: 64
@@ -424,7 +417,6 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 
 - Test 8
   - SKU: Standard_**HB120-64rs_v2**
-  - User: azureadmin
   - Nodes: 3 
   - Processes per node: 64 
   - MPI processes per node: 64 
@@ -437,7 +429,6 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 
 - Test 9
   - SKU: Standard_**HB120rs_v3**
-  - User: azureadmin
   - Nodes: 3 
   - Processes per node: **120** 
   - MPI processes per node: **120**
@@ -456,6 +447,9 @@ qstat -x
 
 # check jobs history showing the wall clock duration
 qstat -xG
+
+# check jobs history showing the execution details 
+qstat -xf
 ```
 
 
