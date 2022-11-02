@@ -1,5 +1,5 @@
 #!/bin/bash
-  
+
 # Check for IB issues by running NCCL allreduce disabling NCCL shared memory.
 # Expected performance is > 19 GB/s
 
@@ -21,28 +21,36 @@ function collect_nccl_allreduce_ib_loopback_data() {
    IFS=$' \t\n'
 }
 
-
 function check_nccl_allreduce_ib_loopback() {
 
    EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW=$1
-   collect_nccl_allreduce_ib_loopback_data
+   REPEATS="${2:-1}"
 
-   for ((i=0; i<${#nccl_allreduce_ib_loopback_out_lines[*]}; i++))
+   for iter in $(seq 1 $REPEATS)
    do
-      if [[ "${nccl_allreduce_ib_loopback_out_lines[$i]//bandwidth}" != "${nccl_allreduce_ib_loopback_out_lines[$i]}" ]]
+      collect_nccl_allreduce_ib_loopback_data
+
+      for ((i=0; i<${#nccl_allreduce_ib_loopback_out_lines[*]}; i++))
+      do
+         if [[ "${nccl_allreduce_ib_loopback_out_lines[$i]//bandwidth}" != "${nccl_allreduce_ib_loopback_out_lines[$i]}" ]]
+         then
+            IFS=$' \t\n'
+            nccl_allreduce_ib_loopback_out_line=( ${nccl_allreduce_ib_loopback_out_lines[$i]} )
+            avg_bus_bw=${nccl_allreduce_ib_loopback_out_line[5]}
+            dbg "Measured Avg NCCL allreduce ib loopback bus BW $avg_bus_bw GB/s (expected >=$EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW GB/s)"
+            break
+         fi
+      done
+
+      if [[ $avg_bus_bw < $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW ]]
       then
-         IFS=$' \t\n'
-         nccl_allreduce_ib_loopback_out_line=( ${nccl_allreduce_ib_loopback_out_lines[$i]} )
-         avg_bus_bw=${nccl_allreduce_ib_loopback_out_line[5]}
-         dbg "Measured Avg NCCL allreduce ib loopback bus BW $avg_bus_bw GB/s"
-         break
+         dbg "$nccl_allreduce_ib_loopback_out"
+         log "Iteration ${iter} of ${REPEATS} failed: NCCL allreduce IB loopback bandwidth $avg_bus_bw GB/s < $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW GB/s"
+      else
+         return 0
       fi
-   done
-   dbg "Measured Avg NCCL allreduce IB loopback bus BW=$avg_bus_bw, Expected NCCL allreduce IB loopback BW=$EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW"
-   if [[ $avg_bus_bw < $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW ]]
-   then
-      log "$nccl_allreduce_ib_loopback_out"
-      die 1 "$FUNCNAME: NCCL allreduce IB loopback, BUS BW (expected > $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW GB/s, but measured $avg_bus_bw GB/s"
-      return 1
-   fi
+  done
+
+  die 1 "$FUNCNAME: NCCL allreduce, BUS BW (expected >=$EXP_NCCL_ALLREDUCE_BW GB/s, but measured $avg_bus_bw GB/s)"
+  return 1
 }
