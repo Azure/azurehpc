@@ -23,6 +23,10 @@ do
    IB_WRITE_BW_OUT1_RC=$?
    if [[ $IB_WRITE_BW_OUT1_RC != 0 ]]; then
       log "$IB_WRITE_BW_OUT1"
+      PORT=$(echo $IB_WRITE_BW_OUT1 | grep -oP '(?<=port\s)\w+')
+      NETSTAT_OUT=$(netstat -lnp | grep $PORT)
+      log "Running: netstat -lnp | grep $PORT:"
+      log "$NETSTAT_OUT"
       die 1 "$FUNCNAME: $IB_WRITE_BW returned error code $IB_WRITE_BW_OUT1_RC"
       return 1
    fi
@@ -32,6 +36,10 @@ do
    IB_WRITE_BW_OUT2_RC=$?
    if [[ $IB_WRITE_BW_OUT2_RC != 0 ]]; then
       log "$IB_WRITE_BW_OUT2"
+      PORT=$(echo $IB_WRITE_BW_OUT2 | grep -oP '(?<=port\s)\w+')
+      NETSTAT_OUT=$(netstat -lnp | grep $PORT)
+      log "Running: netstat -lnp | grep $PORT:"
+      log "$NETSTAT_OUT"
       die 1 "$FUNCNAME: $IB_WRITE_BW returned error code $IB_WRITE_BW_OUT2_RC"
       return 1
    fi
