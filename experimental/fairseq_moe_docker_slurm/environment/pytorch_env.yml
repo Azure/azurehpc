@@ -1,0 +1,5 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: fairseq
+version: v10172022_1
+build:
+  path: ./context/
