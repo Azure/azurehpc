@@ -720,13 +720,13 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
     print("")
     print("Virtual Machine ({}, {}) Numa topology".format(sku_name, hostname))
     print("")
-    print("{:<12} {:<44}  {:<10}".format("NumaNode id", "Core ids   (Mask)", "GPU ids"))
-    print("{:=<12} {:=<44} {:=<10}".format("=","=", "="))
+    print("{:<12} {:<10} {:<34} {:<10}".format("NumaNode id", "Core ids", "Mask", "GPU ids"))
+    print("{:=<12} {:=<10} {:=<34} {:=<10}".format("=", "=", "=", "="))
     for numnode_id in topo_d["numanode_ids"]:
        core_ids_l = str(list_to_ranges(topo_d["numanode_ids"][numnode_id]["core_ids"]))
        numa_mask = topo_d["numanode_ids"][numnode_id]["mask"]
        gpu_ids_l = str(list_to_ranges(topo_d["numanode_ids"][numnode_id]["gpu_ids"]))
-       print("{:<12} {:<10}{:<34} {:<10}".format(numnode_id, core_ids_l, '('+numa_mask+')', gpu_ids_l))
+       print("{:<12} {:<10} {:<34} {:<10}".format(numnode_id, core_ids_l, numa_mask, gpu_ids_l))
     print("")
     if l3cache_topo_d:
        print("{:<12} {:<20}".format("L3Cache id","Core ids"))
