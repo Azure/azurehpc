@@ -689,7 +689,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "3389",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1000,
@@ -702,7 +702,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": str(rsshport),
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1010,
@@ -715,7 +715,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1020,
@@ -728,7 +728,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "443",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1030,
@@ -741,7 +741,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "3000",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1040,
@@ -754,7 +754,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "42966",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1050,
@@ -772,11 +772,11 @@ class ArmTemplate:
                         nsgrules = [ nsg_security_rules["ssh"] ]
                 if rnsgsourceip:
                     for rule in nsgrules:
-                        rule["properties"]["sourceAddressPrefix"] = rnsgsourceip
+                        rule["properties"]["sourceAddressPrefixes"] = rnsgsourceip
 
                 self.resources.append({
                     "type": "Microsoft.Network/networkSecurityGroups",
-                    "apiVersion": "2015-06-15",
+                    "apiVersion": "2017-06-01",
                     "name": nsgname,
                     "location": loc,
                     "dependsOn": [],
