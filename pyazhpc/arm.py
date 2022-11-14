@@ -772,10 +772,13 @@ class ArmTemplate:
                         nsgrules = [ nsg_security_rules["ssh"] ]
                 if rnsgsourceip:
                     for rule in nsgrules:
-                        if "*" in rnsgsourceip:
-                            rnsgsourceip = [ "0.0.0.0/0" ]
                         if isinstance(rnsgsourceip, str):
-                            rnsgsourceip = list(rnsgsourceip.split(" "))
+                            log.warning("Converting deprecated string syntax for 'nsg_source_ip' to list")
+                            if "*" in rnsgsourceip:
+                                rnsgsourceip = [ "0.0.0.0/0" ]
+                            else:
+                                rnsgsourceip = [ rnsgsourceip ]
+
                         rule["properties"]["sourceAddressPrefixes"] = rnsgsourceip
 
                 self.resources.append({
