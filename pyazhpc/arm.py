@@ -760,6 +760,19 @@ class ArmTemplate:
                             "priority": 1050,
                             "direction": "Inbound"
                         }
+                    },
+                    "vnc":  {
+                        "name": "default-allow-vnc",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "4060",
+                            "sourceAddressPrefixes": [ "0.0.0.0/0" ],
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1060,
+                            "direction": "Inbound"
+                        }
                     }
                 }
 
