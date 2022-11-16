@@ -702,7 +702,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "3389",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": [ "0.0.0.0/0" ],
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1000,
@@ -715,7 +715,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": str(rsshport),
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": [ "0.0.0.0/0" ],
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1010,
@@ -728,7 +728,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": [ "0.0.0.0/0" ],
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1020,
@@ -741,7 +741,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "443",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": [ "0.0.0.0/0" ],
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1030,
@@ -754,7 +754,7 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "3000",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": [ "0.0.0.0/0" ],
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1040,
@@ -767,10 +767,23 @@ class ArmTemplate:
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
                             "destinationPortRange": "42966",
-                            "sourceAddressPrefix": "*",
+                            "sourceAddressPrefixes": [ "0.0.0.0/0" ],
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
                             "priority": 1050,
+                            "direction": "Inbound"
+                        }
+                    },
+                    "vnc":  {
+                        "name": "default-allow-vnc",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "4060",
+                            "sourceAddressPrefixes": [ "0.0.0.0/0" ],
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1060,
                             "direction": "Inbound"
                         }
                     }
@@ -785,11 +798,18 @@ class ArmTemplate:
                         nsgrules = [ nsg_security_rules["ssh"] ]
                 if rnsgsourceip:
                     for rule in nsgrules:
-                        rule["properties"]["sourceAddressPrefix"] = rnsgsourceip
+                        if isinstance(rnsgsourceip, str):
+                            log.warning("Converting deprecated string syntax for 'nsg_source_ip' to list")
+                            if "*" in rnsgsourceip:
+                                rnsgsourceip = [ "0.0.0.0/0" ]
+                            else:
+                                rnsgsourceip = [ rnsgsourceip ]
+
+                        rule["properties"]["sourceAddressPrefixes"] = rnsgsourceip
 
                 self.resources.append({
                     "type": "Microsoft.Network/networkSecurityGroups",
-                    "apiVersion": "2015-06-15",
+                    "apiVersion": "2017-06-01",
                     "name": nsgname,
                     "location": loc,
                     "dependsOn": [],
@@ -849,7 +869,7 @@ class ArmTemplate:
 
             # Add support for cyclecloud/azhpc plan
             plan = ""
-            if ros[0] == "azurecyclecloud" or ros[0] == "azhpc" or ros[0] == "almalinux":
+            if ros[0] == "azurecyclecloud" or ros[0] == "azhpc" or ros[0] == "almalinux" or ros[0] == "erockyenterprisesoftwarefoundationinc1653071250513":
                 plan = self.__helper_arm_create_plan(rimage)
             
             if rephemeralosdisk == True:
@@ -1020,7 +1040,7 @@ class ArmTemplate:
 
         # Add support for cyclecloud/azurehpc plan
         plan = ""
-        if ros[0] == "azurecyclecloud" or ros[0] == "azhpc" or ros[0] == "almalinux":
+        if ros[0] == "azurecyclecloud" or ros[0] == "azhpc" or ros[0] == "almalinux" or ros[0] == "erockyenterprisesoftwarefoundationinc1653071250513":
             plan = self.__helper_arm_create_plan(rimage)
 
         if rephemeralosdisk == True:

@@ -241,7 +241,7 @@ This dictionary describes the resources for the project.
 | **low_priority**           | Boolean flag to se Spot Instance (Eviction = Delete)                        |   no     |  False  |
 | **managed_identity**       | [Managed Identity property](#managed-identity-property) to use              |   no     |         |
 | **nsg_allow**              | Enabled pre-defined NSG rules `ssh`, `rdp`, `http`, `https`, `zcentral` or `grafana` (**vm only**) |   no     | ssh/rdp |
-| **nsg_source_ip**          | Set source IP filter for NSG Allow rule. Default is allow all               |   no     |  *      |
+| **nsg_source_ip**          | Set source IP filter for NSG Allow rule. Default is allow all               |   no     |  [ "0.0.0.0/0" ]      |
 | **ephemeral_os_disk**      | Set whether to use the ephermal disk for the operation system               |   no     |  False  |
 | **ephemeral_os_disk_placement** | Specifies the ephemeral disk placement. Possible values are: CacheDisk, ResourceDisk |   no     |  CacheDisk  |
 | **os_disk_size**           | OS Disk size in GB. This is only needed if you want to use a non default size or increase the OS disk size|   no     |         |
