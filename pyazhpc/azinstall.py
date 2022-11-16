@@ -271,7 +271,7 @@ def __copy_script(name, dest):
             log.debug(f"using azhpc script ({name})")
             shutil.copy(f"{os.getenv('azhpc_dir')}/scripts/{name}", dest)
     else:
-        log.error(f"cannot find script/dir ({name})")
+        log.error(f"cannot find scripts/dir ({name})")
         sys.exit(1)
 
 
