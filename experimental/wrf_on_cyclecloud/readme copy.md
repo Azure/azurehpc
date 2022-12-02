@@ -1,35 +1,116 @@
-# Install and run WPS and WRF v4 - Setup guide
+# Install and run WRF v4 and WPS v4 - Setup guide
+
+Summary of this procedure:
+- Installs CycleCloud environment from scratch
+- Creates NFS storage server using CycleCloud cluster template
+- Installs WRF/WPS v4 software (via “azurehpc” scripts)
+- Submit jobs to run WRF v4 application for testing
   
 ## Prerequisites
 
-- You need a cluster built with the desired configuration for networking, storage, compute etc. You can use the tutorial in this repo with an end-to-end instructions to setup a lab environment on Cycle Cloud to run WPS and WRF v4. (See [Install and run WPS and WRF v4 - end-to-end setup guide](../../experimental/wrf_on_cyclecloud/readme.md) for details).   
-- As this procedure uses HBv2 VMs to run WRFv4 simulations, you may need to request quota increase for this type of SKU in the subscription and region you will deploy the environment. You can use different SKU if you want to.
-- You need to download/clone the azurehpc GitHub repository 
-- This installation procedure requires you have 2 folders mounted /apps and /data on your storage solution
+- As this procedure uses HBv2 VMs to run WRFv4 simulations, you may need to request quota increase for this type of SKU in the subscription and region you will deploy the environment. 
 
-### Summary of steps:
--	Install WPS/WRF v4 software (from “azurehpc” scripts) 
--	Download data for WRF v4
--	Edit data locations in WRF config files
--	Generate WRF v4 input files, change permissions
--	Run WRF v4  applications for testing
 
-### Install WPS/WRF v4 software (via “azurehpc” scripts)
+## Install Azure CycleCloud
 
-Spin up and SSH to a Worker Node VM (HBv2). 
+Follow the steps to [Install and Setup CycleCloud](../../tutorials/cyclecloud/install-cyclecloud.md)
+ 
+ 
+## Create NFS Storage cluster
+-	It can be possible to include an external NFS share at this point (in the example, I have shared from an NFS cluster using on CycleCloud template)
 
-**Important 1**: You must have the /apps and /data volumes correctly mounted on head and worker nodes. It is required for WRF setup scripts.
+![NFS-Cluster1](images/NFS-Cluster1.png)
+![NFS-Cluster2](images/NFS-Cluster2.png)
+![NFS-Cluster3](images/NFS-Cluster3.png)
 
-**Important 2**: You need to be root user to run all commands below.
+Changes:
+- Change OS to use CentOS 7 versions
+- Use +300GB storage size (space to download WRF data)
+- Change cloud-init as following:
+- Confirm the IP address of your NFS storage and change it below accordingly:
 
-Be sure you have downloaded azurehpc GitHub repository in /data folder:
 ```
+#!/bin/bash
+
+set -x
+yum install -y epel-release
+yum install -y Lmod at
+systemctl enable --now atd.service
+cat <<EOF>/mnt/exportfs.sh
+#!/bin/bash
+set -x
+mkdir -p /mnt/exports/data /mnt/exports/apps
+sudo exportfs -o rw,sync,no_root_squash 10.4.0.0/20:/mnt/exports/data
+sudo exportfs -o rw,sync,no_root_squash 10.4.0.0/20:/mnt/exports/apps
+EOF
+chmod 755 /mnt/exportfs.sh
+at now + 2 minute -f /mnt/exportfs.sh
+```
+
+Connect to NFS storage cluster and check the mounts are correct:
+```
+# check mount
+sudo exportfs -s
+```
+
+## Setup WRF cluster using HBv2 VM
+Summary of steps:
+-	Start NFS storage cluster on CycleCloud
+-	Import WRF cluster template (from “azurehpc” scripts) 
+-	Start WRF cluster using HBv2 VM 
+-	Install WRF/WPS 4 software (from “azurehpc” scripts) 
+-	Download data for WRF 4
+-	Edit data locations in WRF config files
+-	Generate WRF 4 input files, change permissions
+-	Run WRF 4  applications for testing
+
+
+### Import custom CycleCloud template for WRF
+
+After start NFS storage cluster, ssh to it and download azurehpc GitHub repository
+```
+## Download azurehpc GitHub repository
 cd /data
 #git clone https://github.com/Azure/azurehpc.git
 git clone https://github.com/marcusgaspar/azurehpc.git
 ```
 
-Then, run the following commands:
+Follow the procedures [here](https://docs.microsoft.com/en-us/azure/cyclecloud/tutorials/modify-cluster-template?view=cyclecloud-8#import-the-new-cluster-template) to upload the Cycle Cloud custom template created for WRF.
+Use the template: [opbswrf-template.txt](opbswrf-template.txt) 
+```
+## Import CycleCloud template
+cd /data/azurehpc/apps/wrf/
+cyclecloud import_template opbswrf -f opbswrf-template.txt --force
+``` 
+After you import the template, you will see the WRF template in CycleCloud Portal:
+
+![Import-Template1](images/Import-Template1.png)
+
+### Create new WRF cluster
+Choose the WRF Cluster name:
+![Create-WRF-Cluster1](images/Create-WRF-Cluster1.png)
+
+Choose the SKUs you want use for testing and the subnet for the compute VMs:
+![Create-WRF-Cluster2](images/Create-WRF-Cluster2a.png)
+
+Check **Additional NFS Mount** options and change to the correct NFS IP address, related to your environment. Don’t need to change NFS Mount Point and NFS Export Path
+![Create-WRF-Cluster3](images/Create-WRF-Cluster3.png)
+
+Keep the default value for the other parameters, save it and start the cluster.
+
+### Spin Execute Node with HBv2
+After the cluster is up and running, start a worker node using HBv2 VM:
+![Start-WRF-Cluster1](images/Start-WRF-Cluster1.png)
+![Start-WRF-Cluster2](images/Start-WRF-Cluster2.png)
+Click Add.
+
+### Install WRF/WPS 4 software (via “azurehpc” scripts)
+
+Ssh to the Execute Node (HBv2 VM) and run the following commands:
+
+**Important 1**: You must have the /apps and /data volumes correctly mounted on head and worker nodes. It is required for WRF setup scripts.
+
+**Important 2**: You need to be root user to run all commands below.
 ```
 # need to be root user for building everything
 sudo su -   
@@ -49,9 +130,39 @@ cd /data/azurehpc/apps/wrf/
 ./build_wps.sh openmpi hbv2
 ```
 
-Run the command to source the env-variables file:
+Create the env-variables file:
 ```
 ###### Source Variables
+cd /data/azurehpc/apps/wrf
+vi env-variables
+```
+And copy the content below to this file and save it:
+```
+SKU_TYPE=hbv2
+SHARED_APP=${SHARED_APP:-/apps}
+
+if ! rpm -q python3; then
+    sudo yum install -y python3
+fi
+source /etc/profile.d/modules.sh
+export MODULEPATH=${SHARED_APP}/modulefiles/${SKU_TYPE}:$MODULEPATH
+module use ${SHARED_APP}/modulefiles
+module load spack/spack
+source $SPACK_SETUP_ENV
+spack load netcdf-fortran^openmpi
+spack load hdf5^openmpi
+spack load perl
+module use /usr/share/Modules/modulefiles
+module load mpi/openmpi-4.1.0
+module load gcc-9.2.0
+module load wrf/4.1.5-openmpi
+mpi_options="-x LD_LIBRARY_PATH "
+if [ -n $LD_PRELOAD ]; then
+    mpi_options+="-x LD_PRELOAD"
+fi
+```
+Run the command:
+```
 # Keep as root
 #sudo su -
 source /data/azurehpc/apps/wrf/env-variables
@@ -209,11 +320,11 @@ chmod -R g+w /apps
 
 **If you get here, you have completed the WRF v4 setup!**
 
-Now you can shutdown and terminate the worker node (HBv2) used to perform these setup procedures.
+Now you can shutdown and terminate the HBv2 worker node used to perform these setup procedures.
 
 ## Running and Testing
 
-Connect to head node of your cluster and submit WRF v4 simulation job:
+Connect to head node of WRF Cluster and submit WRF v4 simulation job:
 
 > Where SKU_TYPE is the sku type you are running on and INPUTDIR contains the location of wrf input files (namelist.input, wrfbdy_d01 and wrfinput_d01)
 
@@ -221,55 +332,55 @@ Connect to head node of your cluster and submit WRF v4 simulation job:
   - SKU: Standard_HB120rs_v2
   - Nodes: 1 
   - Processes per node: 60 
-  - MPI processes per node: 30 
+  - MPI processes per node: 60 
 ```
 mkdir ~/test1
 cd ~/test1
 
-qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 2 
   - SKU: Standard_HB120rs_v2
   - Nodes: **2** 
   - Processes per node: 60 
-  - MPI processes per node: 30 
+  - MPI processes per node: 60 
 ```
 mkdir ~/test2
 cd ~/test2
 
-qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 3 
   - SKU: Standard_HB120rs_v2
   - Nodes: **3** 
   - Processes per node: 60 
-  - MPI processes per node: 30 
+  - MPI processes per node: 60 
 ```
 mkdir ~/test3
 cd ~/test3
 
-qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 4
   - SKU: Standard_HB120rs_v2
-  - Nodes: 3
+  - Nodes: **4** 
   - Processes per node: 60 
-  - MPI processes per node: **60**
+  - MPI processes per node: 60 
 ```
 mkdir ~/test4
 cd ~/test4
 
-qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 5
-  - SKU: **Standard_HB120rs_v3**
-  - Nodes: 3 
+  - SKU: Standard_**HB120rs_v3**
+  - Nodes: **3** 
   - Processes per node: 60 
-  - MPI processes per node: 60 
+  - MPI processes per node: 60
 ```
 mkdir ~/test5
 cd ~/test5
@@ -278,22 +389,22 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 ```
 
 - Test 6
-  - SKU: **Standard_HB120rs_v2**
-  - Nodes: **4** 
-  - Processes per node: 60 
-  - MPI processes per node: 60 
+  - SKU: Standard_**HB120-64rs_v3**
+  - Nodes: 3 
+  - Processes per node: **64** 
+  - MPI processes per node: **64** 
 ```
 mkdir ~/test6
 cd ~/test6
 
-qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 7
-  - SKU: **Standard_HB120-64rs_v2**
-  - Nodes: **3** 
-  - Processes per node: **64** 
-  - MPI processes per node: **64** 
+  - SKU: Standard_**HB120rs_v3**
+  - Nodes: 3 
+  - Processes per node: 64 
+  - MPI processes per node: 64
 ```
 mkdir ~/test7
 cd ~/test7
@@ -302,10 +413,10 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 ```
 
 - Test 8
-  - SKU: **Standard_HB120-64rs_v3**
+  - SKU: Standard_**HB120-64rs_v2**
   - Nodes: 3 
   - Processes per node: 64 
-  - MPI processes per node: 64
+  - MPI processes per node: 64 
 ```
 mkdir ~/test8
 cd ~/test8
@@ -314,33 +425,16 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 ```
 
 - Test 9
-  - SKU: **Standard_HB120rs_v3**
-  - Nodes: 3 
-  - Processes per node: 64 
-  - MPI processes per node: 64 
-```
-mkdir ~/test9
-cd ~/test9
-
-qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
-```
-
-- Test 10
-  - SKU: Standard_HB120rs_v3
+  - SKU: Standard_**HB120rs_v3**
   - Nodes: 3 
   - Processes per node: **120** 
   - MPI processes per node: **120**
 ```
-mkdir ~/test10
-cd ~/test10
+mkdir ~/test9
+cd ~/test9
 
 qsub -l select=3:nodearray=execute1:ncpus=120:mpiprocs=120,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
-
-### Test Results
-In the graph below you can compare the execution time from tests performed, with different number of nodes, cores, mpicores and SKUs:
-![Import-Template1](images/wrf-test-results.png)
-
 
 ### Validate Job Status
 To validate the status of the job submission, you can use:
