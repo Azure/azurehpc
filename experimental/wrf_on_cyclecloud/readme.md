@@ -103,5 +103,5 @@ Click Add.
 
 Now you have a WRF cluster properly configured and running in Cycle Cloud. 
 
-You can follow the instructions here to finish the WPS/WRF installation: [Install and run WPS and WRF v4 - Setup guide](../../wrf/README.md) 
+You can follow the instructions here to finish the WPS/WRF installation: [Install and run WPS and WRF v4 - Setup guide](/apps/wrf/readme.md) 
 
