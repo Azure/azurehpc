@@ -56,7 +56,7 @@ sudo exportfs -s
 Summary of steps:
 -	Import WRF cluster template (from “azurehpc” scripts) 
 -	Start WRF cluster using HBv2 VM 
--	Install WRF/WPS v4 software (from “azurehpc” scripts) 
+-	Install WPS/WRF v4 software (from “azurehpc” scripts) 
 
 
 ### Import custom CycleCloud template for WRF
