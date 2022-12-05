@@ -25,8 +25,7 @@ Spin up and SSH to a Worker Node VM (HBv2).
 Be sure you have downloaded azurehpc GitHub repository in /data folder:
 ```
 cd /data
-#git clone https://github.com/Azure/azurehpc.git
-git clone https://github.com/marcusgaspar/azurehpc.git
+git clone https://github.com/Azure/azurehpc.git
 ```
 
 Then, run the following commands:
