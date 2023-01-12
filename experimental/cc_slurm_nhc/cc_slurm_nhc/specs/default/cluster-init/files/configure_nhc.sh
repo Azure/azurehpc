@@ -87,6 +87,9 @@ function update_slurm_prolog_epilog() {
    script=$2
    grep -qi /sched/scripts/${prolog_epilog}.sh $SLURM_CONF
    prolog_epilog_does_not_exist=$?
+   if ! [ -d /sched/scripts ]; then
+        mkdir /sched/scripts
+   fi
    cp $CYCLECLOUD_SPEC_PATH/files/$script /sched/scripts
    chmod +x /sched/scripts/$script
    if [[ $prolog_epilog_does_not_exist == 1 ]]; then
