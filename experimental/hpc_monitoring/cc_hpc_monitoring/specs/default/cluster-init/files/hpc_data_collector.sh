@@ -11,6 +11,7 @@ source /etc/profile.d/hpc_monitoring.sh
 
 ${SCRIPT_DIR}/hpc_data_collector.py \
                                     -nle $LOG_EVENT_NAME \
+                                    -fhm \
                                     -gpum \
                                     -dfi $DCGMI_FIELDS \
                                     -cpum \
