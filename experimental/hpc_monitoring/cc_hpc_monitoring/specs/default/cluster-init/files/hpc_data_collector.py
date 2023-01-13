@@ -350,7 +350,7 @@ def find_str_in_line(line, index):
     return line.split()[index]
 
 
-def get_gpu_data(time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid):
+def get_gpu_data(dcgm_field_ids, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid):
     gpu_l = []
     gpu_field_name_l = []
 
@@ -568,7 +568,7 @@ def main():
 #                dcgm_dmon_list_cmd_l = ['dcgmi', 'dmon', '-l']
 #                dcgm_dmon_fields_out = execute_cmd(dcgm_dmon_fields_cmd_l)
 #                dcgm_dmon_list_out = execute_cmd(dcgm_dmon_list_cmd_l)
-                gpu_l = get_gpu_data(time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
+                gpu_l = get_gpu_data(dcgm_field_ids, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if ib_metrics:
                 ib_rates_l = get_infiniband_counter_rates(ib_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if eth_metrics:
