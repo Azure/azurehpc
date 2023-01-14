@@ -124,22 +124,6 @@ def create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu
     data_l = []
     if gpu_l:
        data_l = data_l + gpu_l
-#       for line in dcgm_dmon_fields_out.splitlines():
-#           line_split = line.split()
-#           if 'Entity' in line:
-#              field_name_l = line_split[1:]
-#           if line_split[0] == 'GPU':
-#              record_d = {}
-#              record_d['gpu_id'] = int(line_split[1])
-#              record_d['hostname'] = hostname
-#              if have_jobid:
-#                 record_d['slurm_jobid'] = slurm_jobid
-#              record_d['physicalhostname'] = physicalhostname_val
-#              for field_name in field_name_l:
-#                  long_field_name = find_long_field_name(field_name,dcgm_dmon_list_out)
-#                  indx = field_name_l.index(field_name) + 2
-#                  record_d[long_field_name] = num(line_split[indx])
-#              data_l.append(record_d)
     if ib_rates_l:
        data_l = data_l + ib_rates_l
     if eth_rates_l:
