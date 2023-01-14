@@ -114,8 +114,8 @@ etc
 ```
 The preferred way to set-up HPC/AI Cluster monitoring is to upload the cc_hpc_monitoring project to a cyclecloud locker, run the project on the compute nodes only. This will set-up and start the HPC/AI cluster monitoring via a managed service (you can easily start and stop the service.
 
-```
 * To Start the HPC/AI cluster monitoring service
+```
 sudo systemctl start gpu_monitoring
 ```
 
@@ -136,12 +136,12 @@ Other scripts are provided to start/stop HPC/AI cluster monitoring manually with
 
 Stop the gpu_monitor
 ```
-./stop_gpu_data_collector.sh
+./stop_hpc_data_collector.sh
 ```
->Note: The log file for gpu_data_collector.py is located in /tmp/gpu_data_collector.log
+>Note: The log file for gpu_data_collector.py is located in /tmp/hpc_data_collector.log
 
 Similarly, scripts are provided to use the system crontab to start the gpu data collector and decide the time interval based on the crontab parameters. In the case of crontab 
-the smallest timing interval is 60 sec. (start_gpu_data_collector_cron.sh and stop_gpu_data_collector_cron.sh
+the smallest timing interval is 60 sec. (start_hpc_data_collector_cron.sh and stop_hpc_data_collector_cron.sh
 
 Go to your log analytics workspace to monitor your GPU's and generate dashboards.
 
@@ -172,7 +172,7 @@ To monitor CPU utilization (User, Idle, system and iowait time)
 ![Alt text6](/experimental/hpc_monitoring/images/cpu_utilization.jpg?raw=true "cpu-utilization")
 
 
-To monitor Disk I/O (e.g local NVMe SSD's or attched disks)
+To monitor Disk I/O (e.g local NVMe SSD's or attached disks)
 ![Alt text6](/experimental/hpc_monitoring/images/disk_io.jpg?raw=true "disk_io")
 
 
