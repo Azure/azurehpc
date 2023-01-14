@@ -1,51 +1,61 @@
-# GPU Monitoring
+# HPC/AI Cluster Monitoring
 
-GPU Monitoring is essential to get insights into how effectively your application in utilizing the GPU(s) and monitor the health of the GPU's.
+HPC/AI cluster Monitoring is essential to get insights into how effectively your application in utilizing various hardware resources such as GPU(s), CPU(s), Network bandwidth (Infiniband and Ethernet) and Storage (local and NFS) and monitor the health of the HPC/AI Cluster.
 
-Basic GPU Monitoring is demonstrated by utilizing a custom data collection script to collect and send GPU/Job metrics to Azure Monitor log analytics, specific data can then be extracted and explored. The following script are provided, custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, Disk I/O metrics, CPU metrics and sends it to your log analytics workspace), start/stop GPU Monitoring (using crontab) and generate a load to test the GPU monitoring.
-SLURM job ids are collected, so you can monitor specific jobids. (Assumes exclusive jobs running on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded. You can use the system crontab to control the time interval for collecting data, or you can run the python collection script directly and specify the collection time interval (see the -tis argument below).
+HPC/AI cluster Monitoring is demonstrated by utilizing a custom data collection script to collect and send CPU, GPU, Network and Storage metrics to Azure Monitor log analytics, specific data can then be extracted and explored using Kusto. The following custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, Disk I/O metrics, CPU metrics and sends it to your log analytics workspace), start/stop GPU Monitoring (using managed system services).
+SLURM job ids are also collected, so you can monitor specific jobids. (Assumes exclusive jobs running on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded.
 
 ## Prerequisites
 
-- Tested on Ubuntu-HPC 18.04
+- Tested on Ubuntu-HPC 18.04 and 20.04
 - SLURM scheduler
 - Azure log analytics account and workspace.
-- pdsh is installed
-- View/edit scripts to ensure all paths are correct and the log analytics workspace customer_id/shared_key are updated in the scripts, the dmon fields to monitor 
-  are updated in the scripts and the crontab interval is selected (default every minute)
+- pdsh is installed (only required if pdsh is used to manually start-up HPC monitoring)
+- View/edit scripts to ensure all paths are correct and the log analytics workspace customer_id/shared_key are updated in the scripts.
 
-## GPU monitoring script options
+## HPC/AI cluster monitoring script options
 
 ```
-./gpu_data_collector.py -h
-usage: gpu_data_collector.py [-h] [-dfi DCGM_FIELD_IDS] [-nle NAME_LOG_EVENT] [-fgm] [-no_gpum] [-ibm] [-ethm] [-nfsm] [-uc] [-tis TIME_INTERVAL_SECONDS]
+./hpc_data_collector.py -h
+usage: hpc_data_collector.py [-h] [-dfi DCGM_FIELD_IDS] [-nle NAME_LOG_EVENT]
+                             [-fhm] [-gpum] [-ibm] [-ethm] [-nfsm] [-diskm]
+                             [-cpum] [-cpu_memm] [-uc]
+                             [-tis TIME_INTERVAL_SECONDS]
 
 optional arguments:
   -h, --help            show this help message and exit
   -dfi DCGM_FIELD_IDS, --dcgm_field_ids DCGM_FIELD_IDS
-                        Select the DCGM field ids you would like to monitor (if multiple field ids are desired then separate by commas) [string] (default:
-                        203,252,1004)
+                        Select the DCGM field ids you would like to monitor
+                        (if multiple field ids are desired then separate by
+                        commas) [string] (default: 203,252,1004)
   -nle NAME_LOG_EVENT, --name_log_event NAME_LOG_EVENT
-                        Select a name for the log events you want to monitor (default: MyGPUMonitor)
-  -fgm, --force_gpu_monitoring
-                        Forces data to be sent to log analytics WS even if no SLURM job is running on the node (default: False)
-  -no_gpum, --no_gpu_metrics
-                        Do not collect GPU metrics (default: False)
+                        Select a name for the log events you want to monitor
+                        (default: MyGPUMonitor)
+  -fhm, --force_hpc_monitoring
+                        Forces data to be sent to log analytics WS even if no
+                        SLURM job is running on the node (default: False)
+  -gpum, --gpu_metrics  Collect GPU metrics (default: False)
   -ibm, --infiniband_metrics
                         Collect InfiniBand metrics (default: False)
   -ethm, --ethernet_metrics
                         Collect Ethernet metrics (default: False)
   -nfsm, --nfs_metrics  Collect NFS client side metrics (default: False)
-  -diskm, --disk_metrics  Collect disk device metrics (default: False)
-  -cpum, --cpu_metrics  Collects CPU metrics (e.g. user, nice, sys, idle, iowait, irq and softirq time)
-                        (default: False)
+  -diskm, --disk_metrics
+                        Collect disk device metrics (default: False)
+  -cpum, --cpu_metrics  Collects CPU metrics (e.g. user, sys, idle & iowait
+                        time) (default: False)
   -cpu_memm, --cpu_mem_metrics
                         Collects CPU memory metrics (Default: MemTotal,
-                        MemFree (default: False)
-  -uc, --use_crontab    This script will be started by the system contab and the time interval between each data collection will be decided by the system crontab (if
-                        crontab is selected then the -tis argument will be ignored). (default: False)
+                        MemFree) (default: False)
+  -uc, --use_crontab    This script will be started by the system contab and
+                        the time interval between each data collection will be
+                        decided by the system crontab (if crontab is selected
+                        then the -tis argument will be ignored). (default:
+                        False)
   -tis TIME_INTERVAL_SECONDS, --time_interval_seconds TIME_INTERVAL_SECONDS
-                        The time interval in seconds between each data collection (This option cannot be used with the -uc argument) (default: 10)
+                        The time interval in seconds between each data
+                        collection (This option cannot be used with the -uc
+                        argument) (default: 10)
 ```
 
 ## Usage
@@ -102,13 +112,26 @@ memory_clock                                           MMCLK            101
 etc
 
 ```
-To start the gpu monitor on a list of  nodes. The default collection time interval is 10 sec (-tis argument) and the default DCGM GPU metrics collected are
-GPU Utilization (203), GPU memory used (252) and Tensor activity (1004). You can change these options.
+The preferred way to set-up HPC/AI Cluster monitoring is to upload the cc_hpc_monitoring project to a cyclecloud locker, run the project on the compute nodes only. This will set-up and start the HPC/AI cluster monitoring via a managed service (you can easily start and stop the service.
 
-Start the GPU monitor
+```
+* To Start the HPC/AI cluster monitoring service
+sudo systemctl start gpu_monitoring
+```
+
+* To stop the HPC/AI cluster monitoring service
+```
+sudo systemctl stop gpu_monitoring
+```
+
+* To change the HPC/AI cluster Monitoring environment (e.g. What metrics are monitored and at what time interval)
+  * Edit /opt/hpc_monitoring/hpc_data_collector.sh
+>Note: By default GPU metrics, CPU metrics, IB metrics, ethernet metrics and storage metrics, Slurm JobID and physical hostname metrics, collected and the time interval is 10 seconds. See /var/log/syslog for logging information.
+
+Other scripts are provided to start/stop HPC/AI cluster monitoring manually with pdsh.
 >Note: Remember to edit the hostfile, LOG_ANALYTICS_CUSTOMER_ID, LOG_ANALYTICS_SHARED_KEY and uncomment FORCE_GPU_MONITORING="-fgm" if you want do GPU for all processes on the node and not just processes related to SLURM jobs.
 ```
-./start_gpu_data_collector.sh &
+./start_hpc_data_collector.sh &
 ```
 
 Stop the gpu_monitor
@@ -116,7 +139,6 @@ Stop the gpu_monitor
 ./stop_gpu_data_collector.sh
 ```
 >Note: The log file for gpu_data_collector.py is located in /tmp/gpu_data_collector.log
->Note: You can also start/stop GPU monitoring using a linux service manager (e.g systemctl), see azurehpc/experimental/experimental/deploy_cycle_slurm_ndv4 for details on how to set this up)
 
 Similarly, scripts are provided to use the system crontab to start the gpu data collector and decide the time interval based on the crontab parameters. In the case of crontab 
 the smallest timing interval is 60 sec. (start_gpu_data_collector_cron.sh and stop_gpu_data_collector_cron.sh
@@ -127,33 +149,33 @@ Go to your log analytics workspace to monitor your GPU's and generate dashboards
 
 A simple log analytics query to chart the average GPU utilization for a particular slurm job id (10) would be.
 
-![Alt text1](/experimental/gpu_monitoring/images/740m-4n-gpu-utilization-jobid.jpg?raw=true "gpu-util")
+![Alt text1](/experimental/hpc_monitoring/images/740m-4n-gpu-utilization-jobid.jpg?raw=true "gpu-util")
 
 
 To monitor the InfiniBand bandwidth for the 8 IB devices on NDv4
-![Alt text2](/experimental/gpu_monitoring/images/740m_4n_infiniband_bw.jpg?raw=true "gpu-ib")
+![Alt text2](/experimental/hpc_monitoring/images/740m_4n_infiniband_bw.jpg?raw=true "gpu-ib")
 
 
 To determine which hostnames are associated with a specific slurm job id
-![Alt text3](/experimental/gpu_monitoring/images/740m_4n_find_hostnames.jpg?raw=true "gpu-host")
+![Alt text3](/experimental/hpc_monitoring/images/740m_4n_find_hostnames.jpg?raw=true "gpu-host")
 
 
 To determine which physical hostname a virtual host is running on
-![Alt text4](/experimental/gpu_monitoring/images/740m_4n_find_physical_hostname.jpg?raw=true "gpu-host")
+![Alt text4](/experimental/hpc_monitoring/images/740m_4n_find_physical_hostname.jpg?raw=true "gpu-host")
 
 
 To monitor NFS client write throughput I/O activity on a volume
-![Alt text5](/experimental/gpu_monitoring/images/nfs_client_write_io.png?raw=true "nfs-client-write-io")
+![Alt text5](/experimental/hpc_monitoring/images/nfs_client_write_io.png?raw=true "nfs-client-write-io")
 
 
 To monitor CPU utilization (User, Idle, system and iowait time)
-![Alt text6](/experimental/gpu_monitoring/images/cpu_utilization.jpg?raw=true "cpu-utilization")
+![Alt text6](/experimental/hpc_monitoring/images/cpu_utilization.jpg?raw=true "cpu-utilization")
 
 
 To monitor Disk I/O (e.g local NVMe SSD's or attched disks)
-![Alt text6](/experimental/gpu_monitoring/images/disk_io.jpg?raw=true "disk_io")
+![Alt text6](/experimental/hpc_monitoring/images/disk_io.jpg?raw=true "disk_io")
 
 
 An Example Azure GPU Monitoring dashboard
 
-![Alt text8](/experimental/gpu_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+![Alt text8](/experimental/hpc_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
