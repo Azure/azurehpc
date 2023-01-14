@@ -116,12 +116,12 @@ The preferred way to set-up HPC/AI Cluster monitoring is to upload the cc_hpc_mo
 
 * To Start the HPC/AI cluster monitoring service
 ```
-sudo systemctl start gpu_monitoring
+sudo systemctl start hpc_monitoring
 ```
 
 * To stop the HPC/AI cluster monitoring service
 ```
-sudo systemctl stop gpu_monitoring
+sudo systemctl stop hpc_monitoring
 ```
 
 * To change the HPC/AI cluster Monitoring environment (e.g. What metrics are monitored and at what time interval)
