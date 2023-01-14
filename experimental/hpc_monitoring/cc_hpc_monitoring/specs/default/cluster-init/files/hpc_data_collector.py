@@ -564,10 +564,6 @@ def main():
              hostname = socket.gethostname()
              physicalhostname_val = get_physicalhostname()
              if gpu_metrics:
-#                dcgm_dmon_fields_cmd_l = ['dcgmi', 'dmon', '-e', dcgm_field_ids, '-c', '1']
-#                dcgm_dmon_list_cmd_l = ['dcgmi', 'dmon', '-l']
-#                dcgm_dmon_fields_out = execute_cmd(dcgm_dmon_fields_cmd_l)
-#                dcgm_dmon_list_out = execute_cmd(dcgm_dmon_list_cmd_l)
                 gpu_l = get_gpu_data(dcgm_field_ids, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if ib_metrics:
                 ib_rates_l = get_infiniband_counter_rates(ib_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
