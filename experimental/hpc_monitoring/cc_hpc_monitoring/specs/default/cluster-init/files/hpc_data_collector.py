@@ -16,7 +16,7 @@ import time
 import argparse
 
 
-# Some useful DCGM field ID's
+# Some useful DCGM field ID's (for GPU monitoring)
 #110: sm_app_clock (expect 1410 on A100, assume MHz)
 #110: mem_app_clock (expect 1215 on A100, assume MHz))
 #150: gpu_temp (in C)
@@ -120,26 +120,10 @@ def num(s):
        return float(s)
 
 
-def create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l):
+def create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l):
     data_l = []
-    field_name_l = []
-    if not no_gpu_metrics:
-       for line in dcgm_dmon_fields_out.splitlines():
-           line_split = line.split()
-           if 'Entity' in line:
-              field_name_l = line_split[1:]
-           if line_split[0] == 'GPU':
-              record_d = {}
-              record_d['gpu_id'] = int(line_split[1])
-              record_d['hostname'] = hostname
-              if have_jobid:
-                 record_d['slurm_jobid'] = slurm_jobid
-              record_d['physicalhostname'] = physicalhostname_val
-              for field_name in field_name_l:
-                  long_field_name = find_long_field_name(field_name,dcgm_dmon_list_out)
-                  indx = field_name_l.index(field_name) + 2
-                  record_d[long_field_name] = num(line_split[indx])
-              data_l.append(record_d)
+    if gpu_l:
+       data_l = data_l + gpu_l
     if ib_rates_l:
        data_l = data_l + ib_rates_l
     if eth_rates_l:
@@ -350,6 +334,35 @@ def find_str_in_line(line, index):
     return line.split()[index]
 
 
+def get_gpu_data(dcgm_field_ids, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid):
+    gpu_l = []
+    gpu_field_name_l = []
+
+    dcgm_dmon_fields_cmd_l = ['dcgmi', 'dmon', '-e', dcgm_field_ids, '-c', '1']
+    dcgm_dmon_list_cmd_l = ['dcgmi', 'dmon', '-l']
+    dcgm_dmon_fields_out = execute_cmd(dcgm_dmon_fields_cmd_l)
+    dcgm_dmon_list_out = execute_cmd(dcgm_dmon_list_cmd_l)
+
+    for line in dcgm_dmon_fields_out.splitlines():
+        line_split = line.split()
+        if 'Entity' in line:
+           gpu_field_name_l = line_split[1:]
+        if line_split[0] == 'GPU':
+           record_d = {}
+           record_d['gpu_id'] = int(line_split[1])
+           record_d['hostname'] = hostname
+           if have_jobid:
+              record_d['slurm_jobid'] = slurm_jobid
+           record_d['physicalhostname'] = physicalhostname_val
+           for field_name in gpu_field_name_l:
+               long_field_name = find_long_field_name(field_name,dcgm_dmon_list_out)
+               indx = gpu_field_name_l.index(field_name) + 2
+               record_d[long_field_name] = num(line_split[indx])
+           gpu_l.append(record_d)
+
+    return gpu_l
+
+
 def get_cpu_mem_data(hostname, physicalhostname_val, have_jobid, slurm_jobid):
     cpu_mem_l = []
     cpu_mem_d = {}
@@ -458,8 +471,8 @@ def parse_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-dfi", "--dcgm_field_ids", dest="dcgm_field_ids", type=str, default="203,252,1004", help="Select the DCGM field ids you would like to monitor (if multiple field ids are desired then separate by commas) [string]")
     parser.add_argument("-nle", "--name_log_event", dest="name_log_event", type=str, default="MyGPUMonitor", help="Select a name for the log events you want to monitor")
-    parser.add_argument("-fgm", "--force_gpu_monitoring", action="store_true", help="Forces data to be sent to log analytics WS even if no SLURM job is running on the node")
-    parser.add_argument("-no_gpum", "--no_gpu_metrics", action="store_true", help="Do not collect GPU metrics")
+    parser.add_argument("-fhm", "--force_hpc_monitoring", action="store_true", help="Forces data to be sent to log analytics WS even if no SLURM job is running on the node")
+    parser.add_argument("-gpum", "--gpu_metrics", action="store_true", help="Collect GPU metrics")
     parser.add_argument("-ibm", "--infiniband_metrics", action="store_true", help="Collect InfiniBand metrics")
     parser.add_argument("-ethm", "--ethernet_metrics", action="store_true", help="Collect Ethernet metrics")
     parser.add_argument("-nfsm", "--nfs_metrics", action="store_true", help="Collect NFS client side metrics")
@@ -470,10 +483,10 @@ def parse_args():
     parser.add_argument("-tis", "--time_interval_seconds", dest="time_interval_seconds", type=int, default=10, help="The time interval in seconds between each data collection (This option cannot be used with the -uc argument)")
     args = parser.parse_args()
 
-    if args.no_gpu_metrics:
-       no_gpu_metrics = True
+    if args.gpu_metrics:
+       gpu_metrics = True
     else:
-       no_gpu_metrics = False
+       gpu_metrics = False
     if args.use_crontab:
        use_crontab = True
     else:
@@ -504,14 +517,14 @@ def parse_args():
        cpu_mem_metrics = False
     time_interval_seconds = args.time_interval_seconds
     dcgm_field_ids = args.dcgm_field_ids
-    force_gpu_monitoring = args.force_gpu_monitoring
+    force_hpc_monitoring = args.force_hpc_monitoring
     name_log_event = args.name_log_event
 
-    return (no_gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,name_log_event)
+    return (gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_hpc_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,name_log_event)
 
 
 def main():
-    (no_gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_gpu_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,name_log_event) = parse_args()
+    (gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_hpc_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,name_log_event) = parse_args()
     (customer_id,shared_key) = read_env_vars()
     ib_counters = {}
     cpu_counters = {}
@@ -524,20 +537,18 @@ def main():
     disk_l = []
     cpu_mem_l = []
     cpu_l = []
+    gpu_l = []
     dcgm_dmon_fields_out = []
     dcgm_dmon_list_out = []
 
     while True:
           (have_jobid, slurm_jobid) = get_slurm_jobid()
           
-          if have_jobid or force_gpu_monitoring:
+          if have_jobid or force_hpc_monitoring:
              hostname = socket.gethostname()
-             if not no_gpu_metrics:
-                dcgm_dmon_fields_cmd_l = ['dcgmi', 'dmon', '-e', dcgm_field_ids, '-c', '1']
-                dcgm_dmon_list_cmd_l = ['dcgmi', 'dmon', '-l']
-                dcgm_dmon_fields_out = execute_cmd(dcgm_dmon_fields_cmd_l)
-                dcgm_dmon_list_out = execute_cmd(dcgm_dmon_list_cmd_l)
              physicalhostname_val = get_physicalhostname()
+             if gpu_metrics:
+                gpu_l = get_gpu_data(dcgm_field_ids, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if ib_metrics:
                 ib_rates_l = get_infiniband_counter_rates(ib_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if eth_metrics:
@@ -550,7 +561,7 @@ def main():
                 cpu_l = get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if disk_metrics:
                 disk_l = get_disk_data(disk_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid, time_interval_seconds)
-             data_l = create_data_records(no_gpu_metrics, dcgm_dmon_fields_out, hostname, have_jobid, slurm_jobid, physicalhostname_val, dcgm_dmon_list_out, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l)
+             data_l = create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l)
              print(data_l)
              body = json.dumps(data_l)
              post_data(customer_id, shared_key, body, name_log_event)
