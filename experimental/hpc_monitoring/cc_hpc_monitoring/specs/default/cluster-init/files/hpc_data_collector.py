@@ -324,8 +324,8 @@ def get_scheduled_events_data():
     data = resp.json()
 
     record_d = {}
-    record_d["EventResources"] = []
     for event_d in data["Events"]:
+        record_d["EventResources"] = []
         record_d["EventId"] = event_d["EventId"]
         record_d["EventStatus"] = event_d["EventStatus"]
         record_d["EventType"] = event_d["EventType"]
