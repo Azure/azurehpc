@@ -605,7 +605,7 @@ def main():
                 cpu_l = get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if disk_metrics:
                 disk_l = get_disk_data(disk_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid, time_interval_seconds)
-             if echeduled_event_metrics:
+             if scheduled_event_metrics:
                 event_l = get_scheduled_events_data()
              data_l = create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l, event_l)
              print(data_l)
