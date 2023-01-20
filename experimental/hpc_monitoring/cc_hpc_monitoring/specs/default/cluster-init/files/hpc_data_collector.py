@@ -329,12 +329,11 @@ def get_scheduled_events_data():
         record_d["EventId"] = event_d["EventId"]
         record_d["EventStatus"] = event_d["EventStatus"]
         record_d["EventType"] = event_d["EventType"]
-        record_d["EventType"] = event_d["EventType"]
         record_d["EventResourceType"] = event_d["ResourceType"]
         record_d["EventResources"] = event_d["Resources"]
         record_d["EventNotBefore"] = event_d["NotBefore"]
         record_d["EventDescription"] = event_d["Description"]
-        record_d["EventSource"] = event_d["Platform"]
+        record_d["EventSource"] = event_d["EventSource"]
         record_d["EventDurationInSeconds"] = event_d["DurationInSeconds"]
     if record_d:
        events_l.append(record_d)
