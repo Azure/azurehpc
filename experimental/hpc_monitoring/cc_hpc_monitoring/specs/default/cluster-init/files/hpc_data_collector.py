@@ -315,7 +315,6 @@ def confirm_scheduled_event(event_id):
 
 
 def get_scheduled_events_data(last_DocumentIncarnation):
-    print("last_DocumentIncarnation=",last_DocumentIncarnation)
     events_l =[]
     metadata_scheduledevents_url ="http://169.254.169.254/metadata/scheduledevents"
     scheduledevents_header = {'Metadata' : 'true'}
@@ -324,26 +323,10 @@ def get_scheduled_events_data(last_DocumentIncarnation):
     resp = requests.get(metadata_scheduledevents_url, headers = scheduledevents_header, params = scheduledevents_params)
     data = resp.json()
     current_DocumentIncarnation = data["DocumentIncarnation"]
-    print("current_DocumentIncarnation=",current_DocumentIncarnation)
   
     if current_DocumentIncarnation != last_DocumentIncarnation: 
-#       record_d = {}
        for event_d in data["Events"]:
            events_l.append(event_d)
-#           record_d["EventResources"] = []
-#           record_d["EventId"] = event_d["EventId"]
-#           record_d["EventStatus"] = event_d["EventStatus"]
-#           record_d["EventType"] = event_d["EventType"]
-#           record_d["EventResourceType"] = event_d["ResourceType"]
-#           record_d["EventResources"] = event_d["Resources"]
-#           record_d["EventNotBefore"] = event_d["NotBefore"]
-#           record_d["EventDescription"] = event_d["Description"]
-#           record_d["EventSource"] = event_d["EventSource"]
-#           record_d["EventDurationInSeconds"] = event_d["DurationInSeconds"]
-#    if record_d:
-#    if data["Events"]:
-#       events_l.append(record_d)
-    print(events_l,current_DocumentIncarnation)
 
     return events_l,current_DocumentIncarnation
 
