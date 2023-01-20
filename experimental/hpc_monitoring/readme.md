@@ -176,9 +176,13 @@ To monitor CPU utilization (User, Idle, system and iowait time)
 
 
 To monitor Disk I/O (e.g local NVMe SSD's or attached disks)
-![Alt text6](/experimental/hpc_monitoring/images/disk_io.jpg?raw=true "disk_io")
+![Alt text7](/experimental/hpc_monitoring/images/disk_io.jpg?raw=true "disk_io")
 
+
+To check and see if a Spot (low priority) VM was evicted (similarly other scheduled events can be monitored, use the "-eventm" command-line argument to monitor all scheduled events)
+
+![Alt text8](/experimental/hpc_monitoring/images/spot_eviction.jpg?raw=true "spot_eviction")
 
 An Example Azure GPU Monitoring dashboard
 
-![Alt text8](/experimental/hpc_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+![Alt text9](/experimental/hpc_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
