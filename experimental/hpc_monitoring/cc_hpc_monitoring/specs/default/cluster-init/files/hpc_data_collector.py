@@ -323,7 +323,7 @@ def get_scheduled_events_data(last_DocumentIncarnation):
 
     resp = requests.get(metadata_scheduledevents_url, headers = scheduledevents_header, params = scheduledevents_params)
     data = resp.json()
-    current_DocumentInarnation = data["DocumentIncarnation"]
+    current_DocumentIncarnation = data["DocumentIncarnation"]
     print("current_DocumentIncarnation=",current_DocumentIncarnation)
   
     if current_DocumentIncarnation != last_DocumentIncarnation: 
@@ -343,9 +343,9 @@ def get_scheduled_events_data(last_DocumentIncarnation):
 #    if record_d:
 #    if data["Events"]:
 #       events_l.append(record_d)
-    print(events_l,current_DocumentInarnation)
+    print(events_l,current_DocumentIncarnation)
 
-    return events_l,current_DocumentInarnation
+    return events_l,current_DocumentIncarnation
 
 
 def read_file(file_path):
@@ -614,7 +614,7 @@ def main():
              if disk_metrics:
                 disk_l = get_disk_data(disk_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid, time_interval_seconds)
              if scheduled_event_metrics:
-                event_l,last_DocumentIncarnation = get_scheduled_events_data()
+                event_l,last_DocumentIncarnation = get_scheduled_events_data(last_DocumentIncarnation)
              data_l = create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l, event_l)
              print(data_l)
              if data_l:
