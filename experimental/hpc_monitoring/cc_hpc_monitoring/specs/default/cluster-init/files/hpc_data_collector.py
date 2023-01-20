@@ -322,7 +322,7 @@ def get_scheduled_events_data():
 
     resp = requests.get(metadata_scheduledevents_url, headers = scheduledevents_header, params = scheduledevents_params)
     data = resp.json()
-
+    
     record_d = {}
     for event_d in data["Events"]:
         record_d["EventResources"] = []
@@ -336,7 +336,8 @@ def get_scheduled_events_data():
         record_d["EventDescription"] = event_d["Description"]
         record_d["EventSource"] = event_d["Platform"]
         record_d["EventDurationInSeconds"] = event_d["DurationInSeconds"]
-    events_l.append(record_d)
+    if record_d:
+       events_l.append(record_d)
 
     return events_l
 
@@ -609,8 +610,9 @@ def main():
                 event_l = get_scheduled_events_data()
              data_l = create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l, event_l)
              print(data_l)
-             body = json.dumps(data_l)
-             post_data(customer_id, shared_key, body, name_log_event)
+             if data_l:
+                body = json.dumps(data_l)
+                post_data(customer_id, shared_key, body, name_log_event)
 
           if use_crontab:
              break
