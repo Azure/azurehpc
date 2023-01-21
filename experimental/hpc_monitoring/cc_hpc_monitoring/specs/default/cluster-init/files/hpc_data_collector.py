@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 import json
 import requests
@@ -120,7 +120,7 @@ def num(s):
        return float(s)
 
 
-def create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l):
+def create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l, event_l):
     data_l = []
     if gpu_l:
        data_l = data_l + gpu_l
@@ -136,6 +136,8 @@ def create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu
        data_l = data_l + cpu_mem_l
     if cpu_l:
        data_l = data_l + cpu_l
+    if event_l:
+       data_l = data_l + event_l
 
     return data_l
 
@@ -303,6 +305,32 @@ def get_nfs_rates(nfs_counters, time_interval_seconds, hostname, physicalhostnam
     return nfs_rates_l
 
 
+def confirm_scheduled_event(event_id):
+    payload = json.dumps({"StartRequests": [{"EventId": event_id }]})
+    response = requests.post(metadata_url,
+                            headers= header,
+                            params = query_params,
+                            data = payload)
+    return response.status_code
+
+
+def get_scheduled_events_data(last_DocumentIncarnation):
+    events_l =[]
+    metadata_scheduledevents_url ="http://169.254.169.254/metadata/scheduledevents"
+    scheduledevents_header = {'Metadata' : 'true'}
+    scheduledevents_params = {'api-version':'2020-07-01'}
+
+    resp = requests.get(metadata_scheduledevents_url, headers = scheduledevents_header, params = scheduledevents_params)
+    data = resp.json()
+    current_DocumentIncarnation = data["DocumentIncarnation"]
+  
+    if current_DocumentIncarnation != last_DocumentIncarnation: 
+       for event_d in data["Events"]:
+           events_l.append(event_d)
+
+    return events_l,current_DocumentIncarnation
+
+
 def read_file(file_path):
     f = open(file_path, "r")
     file_lines_l = f.readlines()
@@ -334,7 +362,7 @@ def find_str_in_line(line, index):
     return line.split()[index]
 
 
-def get_gpu_data(dcgm_field_ids, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid):
+def get_gpu_data(dcgm_field_ids, hostname, physicalhostname_val, have_jobid, slurm_jobid):
     gpu_l = []
     gpu_field_name_l = []
 
@@ -479,6 +507,7 @@ def parse_args():
     parser.add_argument("-diskm", "--disk_metrics", action="store_true", help="Collect disk device metrics")
     parser.add_argument("-cpum", "--cpu_metrics", action="store_true", help="Collects CPU metrics (e.g. user, sys, idle & iowait time)")
     parser.add_argument("-cpu_memm", "--cpu_mem_metrics", action="store_true", help="Collects CPU memory metrics (Default: MemTotal, MemFree)")
+    parser.add_argument("-eventm", "--scheduled_event_metrics", action="store_true", help="Collects Azure/user scheduled events metrics")
     parser.add_argument("-uc", "--use_crontab", action="store_true", help="This script will be started by the system contab and the time interval between each data collection will be decided by the system crontab (if crontab is selected then the  -tis argument will be ignored).")
     parser.add_argument("-tis", "--time_interval_seconds", dest="time_interval_seconds", type=int, default=10, help="The time interval in seconds between each data collection (This option cannot be used with the -uc argument)")
     args = parser.parse_args()
@@ -515,16 +544,20 @@ def parse_args():
        cpu_mem_metrics = True
     else:
        cpu_mem_metrics = False
+    if args.scheduled_event_metrics:
+       scheduled_event_metrics = True
+    else:
+       scheduled_event_metrics = False
     time_interval_seconds = args.time_interval_seconds
     dcgm_field_ids = args.dcgm_field_ids
     force_hpc_monitoring = args.force_hpc_monitoring
     name_log_event = args.name_log_event
 
-    return (gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_hpc_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,name_log_event)
+    return (gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_hpc_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,scheduled_event_metrics,name_log_event)
 
 
 def main():
-    (gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_hpc_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,name_log_event) = parse_args()
+    (gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_hpc_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,scheduled_event_metrics,name_log_event) = parse_args()
     (customer_id,shared_key) = read_env_vars()
     ib_counters = {}
     cpu_counters = {}
@@ -538,8 +571,10 @@ def main():
     cpu_mem_l = []
     cpu_l = []
     gpu_l = []
+    event_l = []
     dcgm_dmon_fields_out = []
     dcgm_dmon_list_out = []
+    last_DocumentIncarnation = -1
 
     while True:
           (have_jobid, slurm_jobid) = get_slurm_jobid()
@@ -548,7 +583,7 @@ def main():
              hostname = socket.gethostname()
              physicalhostname_val = get_physicalhostname()
              if gpu_metrics:
-                gpu_l = get_gpu_data(dcgm_field_ids, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
+                gpu_l = get_gpu_data(dcgm_field_ids, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if ib_metrics:
                 ib_rates_l = get_infiniband_counter_rates(ib_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if eth_metrics:
@@ -561,10 +596,13 @@ def main():
                 cpu_l = get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if disk_metrics:
                 disk_l = get_disk_data(disk_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid, time_interval_seconds)
-             data_l = create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l)
+             if scheduled_event_metrics:
+                event_l,last_DocumentIncarnation = get_scheduled_events_data(last_DocumentIncarnation)
+             data_l = create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l, event_l)
              print(data_l)
-             body = json.dumps(data_l)
-             post_data(customer_id, shared_key, body, name_log_event)
+             if data_l:
+                body = json.dumps(data_l)
+                post_data(customer_id, shared_key, body, name_log_event)
 
           if use_crontab:
              break

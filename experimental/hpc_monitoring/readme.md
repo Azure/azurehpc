@@ -2,7 +2,7 @@
 
 HPC/AI cluster Monitoring is essential to get insights into how effectively your application in utilizing various hardware resources such as GPU(s), CPU(s), Network bandwidth (Infiniband and Ethernet) and Storage (local and NFS) and monitor the health of the HPC/AI Cluster.
 
-HPC/AI cluster Monitoring is demonstrated by utilizing a custom data collection script to collect and send CPU, GPU, Network and Storage metrics to Azure Monitor log analytics, specific data can then be extracted and explored using Kusto. The following custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, Disk I/O metrics, CPU metrics and sends it to your log analytics workspace), start/stop GPU Monitoring (using managed system services).
+HPC/AI cluster Monitoring is demonstrated by utilizing a custom data collection script to collect and send CPU, GPU, Network and Storage metrics to Azure Monitor log analytics, specific data can then be extracted and explored using Kusto. The following custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, Disk I/O metrics, CPU metrics, scheduled events and sends it to your log analytics workspace), start/stop GPU Monitoring (using managed system services).
 SLURM job ids are also collected, so you can monitor specific jobids. (Assumes exclusive jobs running on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded.
 
 ## Prerequisites
@@ -19,7 +19,7 @@ SLURM job ids are also collected, so you can monitor specific jobids. (Assumes e
 ./hpc_data_collector.py -h
 usage: hpc_data_collector.py [-h] [-dfi DCGM_FIELD_IDS] [-nle NAME_LOG_EVENT]
                              [-fhm] [-gpum] [-ibm] [-ethm] [-nfsm] [-diskm]
-                             [-cpum] [-cpu_memm] [-uc]
+                             [-cpum] [-cpu_memm] [-eventm] [-uc]
                              [-tis TIME_INTERVAL_SECONDS]
 
 optional arguments:
@@ -47,6 +47,9 @@ optional arguments:
   -cpu_memm, --cpu_mem_metrics
                         Collects CPU memory metrics (Default: MemTotal,
                         MemFree) (default: False)
+  -eventm, --scheduled_event_metrics
+                        Collects Azure/user scheduled events metrics (default:
+                        False)
   -uc, --use_crontab    This script will be started by the system contab and
                         the time interval between each data collection will be
                         decided by the system crontab (if crontab is selected
@@ -173,9 +176,13 @@ To monitor CPU utilization (User, Idle, system and iowait time)
 
 
 To monitor Disk I/O (e.g local NVMe SSD's or attached disks)
-![Alt text6](/experimental/hpc_monitoring/images/disk_io.jpg?raw=true "disk_io")
+![Alt text7](/experimental/hpc_monitoring/images/disk_io.jpg?raw=true "disk_io")
 
+
+To check and see if a Spot (low priority) VM was evicted (similarly other scheduled events can be monitored, use the "-eventm" command-line argument to monitor all scheduled events)
+
+![Alt text8](/experimental/hpc_monitoring/images/spot_eviction.jpg?raw=true "spot_eviction")
 
 An Example Azure GPU Monitoring dashboard
 
-![Alt text8](/experimental/hpc_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+![Alt text9](/experimental/hpc_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
