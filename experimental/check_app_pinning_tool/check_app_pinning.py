@@ -226,7 +226,7 @@ def one_numa(row_l):
 
 
 def parse_lstopo():
-   cmd = ["lstopo-no-graphics", "--no-caches"]
+   cmd = ["lstopo-no-graphics", "--no-caches", "--taskset"]
    try:
       cmdpipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    except FileNotFoundError:
@@ -247,12 +247,14 @@ def parse_lstopo():
        if "NUMANode" in row_s:
           row_l = row_s.split()
           numanode = int(row_l[2][2:])
+          numanode_mask = row_l[-1].split("=")[1][:-3]
           topo_d["numanode_ids"][numanode] = {}
           topo_d["numanode_ids"][numanode]["core_ids"] = []
           topo_d["numanode_ids"][numanode]["gpu_ids"] = []
+          topo_d["numanode_ids"][numanode]["mask"] = numanode_mask
        if "Core" in row_s:
           row_l = row_s.split()
-          core_id = re.findall(r'\d+',row_l[-1])[0]
+          core_id = re.findall(r'\d+',row_l[-2])[0]
           topo_d["numanode_ids"][numanode]["core_ids"].append(int(core_id))
        if re.search(r'GPU.*card', row_s):
           row_l = row_s.split()
@@ -718,12 +720,13 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
     print("")
     print("Virtual Machine ({}, {}) Numa topology".format(sku_name, hostname))
     print("")
-    print("{:<12} {:<20}  {:<10}".format("NumaNode id","Core ids", "GPU ids"))
-    print("{:=<12} {:=<20} {:=<10}".format("=","=", "="))
+    print("{:<12} {:<10} {:<34} {:<10}".format("NumaNode id", "Core ids", "Mask", "GPU ids"))
+    print("{:=<12} {:=<10} {:=<34} {:=<10}".format("=", "=", "=", "="))
     for numnode_id in topo_d["numanode_ids"]:
        core_ids_l = str(list_to_ranges(topo_d["numanode_ids"][numnode_id]["core_ids"]))
+       numa_mask = topo_d["numanode_ids"][numnode_id]["mask"]
        gpu_ids_l = str(list_to_ranges(topo_d["numanode_ids"][numnode_id]["gpu_ids"]))
-       print("{:<12} {:<20} {:<10}".format(numnode_id,core_ids_l, gpu_ids_l))
+       print("{:<12} {:<10} {:<34} {:<10}".format(numnode_id, core_ids_l, numa_mask, gpu_ids_l))
     print("")
     if l3cache_topo_d:
        print("{:<12} {:<20}".format("L3Cache id","Core ids"))

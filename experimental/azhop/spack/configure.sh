@@ -1,7 +1,12 @@
 #!/bin/bash
-OPENMPI_VERSION=4.1.1
-HPCX_VERSION=2.9.0
-GCC_VERSION=9.2.0
+OPENMPI_VERSION=$(ls /opt | grep openmpi- | cut -d '-' -f2)
+HPCX_VERSION=$(ls /opt | grep hpcx- | cut -d '-' -f2)
+HPCX_VERSION=${HPCX_VERSION#v}
+GCC_VERSION=$(ls /opt | grep gcc- | cut -d '-' -f2)
+
+echo "Configuring for OpenMPI Version $OPENMPI_VERSION"
+echo "Configuring for HPCX Version $HPCX_VERSION"
+echo "Configuring for GCC version $GCC_VERSION"
 
 . ~/spack/share/spack/setup-env.sh
 

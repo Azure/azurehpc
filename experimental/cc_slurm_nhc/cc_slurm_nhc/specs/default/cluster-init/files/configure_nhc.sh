@@ -87,6 +87,9 @@ function update_slurm_prolog_epilog() {
    script=$2
    grep -qi /sched/scripts/${prolog_epilog}.sh $SLURM_CONF
    prolog_epilog_does_not_exist=$?
+   if ! [ -d /sched/scripts ]; then
+        mkdir /sched/scripts
+   fi
    cp $CYCLECLOUD_SPEC_PATH/files/$script /sched/scripts
    chmod +x /sched/scripts/$script
    if [[ $prolog_epilog_does_not_exist == 1 ]]; then
@@ -97,6 +100,8 @@ function update_slurm_prolog_epilog() {
          echo "PrologFlags=Alloc" >> $SLURM_CONF
       elif [[ $prolog_epilog == "epilog" ]]; then
          echo '#!/bin/bash' > /sched/scripts/epilog.sh
+         echo 'TIMESTAMP=$(/bin/date "+%Y%m%d %H:%M:%S")' >> /sched/scripts/epilog.sh
+         echo 'echo "${TIMESTAMP} [epilog] NHC check started at job termination" >> /var/log/nhc.log' >> /sched/scripts/epilog.sh
          chmod +x /sched/scripts/epilog.sh
          echo "Epilog=/sched/scripts/epilog.sh" >> $SLURM_CONF
       fi

@@ -7,7 +7,7 @@ INSTALL_DIR=/opt
 source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
 if ! is_slurm_controller; then
-   apt-get install -y pciutils-dev
+   apt-get install -y libpci-dev
    cd ${INSTALL_DIR}
    wget https://github.com/linux-rdma/perftest/releases/download/v${VERSION}/perftest-${VERSION}.${VERSION_HASH}.tar.gz
    tar xvf perftest-${VERSION}.${VERSION_HASH}.tar.gz

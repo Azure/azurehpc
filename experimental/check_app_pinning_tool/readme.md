@@ -47,12 +47,12 @@ check_app_pinning.py -pps -nppv 16 -ntpp 4
 
 Virtual Machine (Standard_HB120-64rs_v3, cghb64v3) Numa topology
 
-NumaNode id  Core ids              GPU ids
-============ ==================== ==========
-0            ['0-15']             []
-1            ['16-31']            []
-2            ['32-47']            []
-3            ['48-63']            []
+NumaNode id  Core ids   (Mask)                             GPU ids   
+============ ============================================ ==========
+0            ['0-15']  (0xffff)                           []        
+1            ['16-31'] (0xffff0000)                       []        
+2            ['32-47'] (0xffff00000000)                   []        
+3            ['48-63'] (0xffff000000000000)               [] 
 
 L3Cache id   Core ids
 ============ ====================
@@ -88,12 +88,12 @@ check_app_pinning.py -anp hpcapp
 
 Virtual Machine (Standard_HB120_v2, cghb120v2) Numa topology
 
-NumaNode id  Core ids              GPU ids
-============ ==================== ==========
-0            ['0-29']             []
-1            ['30-59']            []
-2            ['60-89']            []
-3            ['90-119']           []
+NumaNode id  Core ids   (Mask)                             GPU ids   
+============ ============================================ ==========
+0            ['0-29']  (0x3fffffff)                       []        
+1            ['30-59'] (0xfffffffc0000000)                []        
+2            ['60-89'] (0x3fffffff000000000000000)        []        
+3            ['90-119'](0xfffffffc0000000000000000000000) [] 
 
 L3Cache id   Core ids
 ============ ====================
@@ -152,12 +152,12 @@ You then test running the same HPC application on multiple ND96asr_v4 virtual ma
 
 Virtual Machine (cgndv4) Numa topology
 
-NumaNode id  Core ids              GPU ids
-============ ==================== ==========
-0            ['0-23']             [3, 2]
-1            ['24-47']            [1, 0]
-2            ['48-71']            [7, 6]
-3            ['72-95']            [5, 4]
+NumaNode id  Core ids    (Mask)                       GPU ids
+============ ======================================= ==========
+0            ['0-23']   (0xffffff)                   [3, 2]
+1            ['24-47']  (0xffffff000000)             [1, 0]
+2            ['48-71']  (0xffffff000000000000)       [7, 6]
+3            ['72-95']  (0xffffff000000000000000000) [5, 4]
 
 
 Application (hello) Mapping/pinning
@@ -182,12 +182,12 @@ For HB_v3 will also show the L3cache topology.
 
 Virtual Machine (Standard_HB120rs_v3) Numa topology
 
-NumaNode id  Core ids              GPU ids
-============ ==================== ==========
-0            ['0-29']             []
-1            ['30-59']            []
-2            ['60-89']            []
-3            ['90-119']           []
+NumaNode id  Core ids   (Mask)                             GPU ids   
+============ ============================================ ==========
+0            ['0-29']  (0x3fffffff)                       []        
+1            ['30-59'] (0xfffffffc0000000)                []        
+2            ['60-89'] (0x3fffffff000000000000000)        []        
+3            ['90-119'](0xfffffffc0000000000000000000000) []
 
 L3Cache id   Core ids
 ============ ====================
