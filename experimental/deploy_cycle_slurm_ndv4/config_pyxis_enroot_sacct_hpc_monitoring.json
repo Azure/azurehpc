@@ -293,11 +293,11 @@
               "Version": "1.0.0",
               "Locker": "azure-storage"
             },
-            "gpu_monitoring:default:1.0.0": {
+            "hpc_monitoring:default:1.0.0": {
               "Order": 10040,
-              "Name": "gpu_monitoring:default:1.0.0",
+              "Name": "hpc_monitoring:default:1.0.0",
               "Spec": "default",
-              "Project": "gpu_monitoring",
+              "Project": "hpc_monitoring",
               "Version": "1.0.0",
               "Locker": "azure-storage"
             }
@@ -404,23 +404,23 @@
           "script": "sunrpc_tcp_max_slot_table_entries.sh"
         }
       ],
-      "gpu_monitoring:default:1.0.0": [
+      "hpc_monitoring:default:1.0.0": [
         {
-          "script": "cp_gpu_monitoring_scripts.sh",
+          "script": "cp_hpc_monitoring_scripts.sh",
           "deps": [
-                  "gpu_data_collector.py",
-                  "gpu_data_collector.sh"
+                  "hpc_data_collector.py",
+                  "hpc_data_collector.sh"
           ]
         },
         {
-          "script": "gpu_monitoring_env.sh",
+          "script": "hpc_monitoring_env.sh",
           "args": [
             "secret.{{variables.key_vault}}.{{variables.log_analytics_ws_customer_id_secret_name}}",
             "secret.{{variables.key_vault}}.{{variables.log_analytics_ws_key_secret_name}}"
           ]
         },
         {
-          "script": "gpu_monitoring_start.sh"
+          "script": "hpc_monitoring_start.sh"
         }
       ]
     }
