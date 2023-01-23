@@ -16,14 +16,14 @@ The NDv4 cluster will consist of
 - Option to support containers by adding Nvidia pyxis+enroot SLURM integration
 - Windows server (winbox) is deployed to access the Cyclecloud portal via RDP
 - Deploy MariaDB, access it via a private endpoint and set-up SLURM accounting
-- GPU Monitoring (using custom Azure log analytics), DCGMI GPU filed Ids, IB metrics
+- HPC/AI cluster Monitoring (using custom Azure log analytics), DCGMI GPU filed Ids, Infinband, Ethernet, CPU, Storage and scheduled event metrics.
 
 ## Prerequistes
 - Bastion and jumpbox is deployed (landing zone), see examples/bastion for an example of how to deploy it.
 - Copy experimental/gpu_optimizations/max_gpu_app_clocks.sh to the scripts dir
 - Copy experimental/cc_slurm_nhc/cc_slurm_nhc/specs/default/cluster-init/files to the scripts dir (except prolog.sh)
 - Copy experimental/cc_slurm_pyxis_enroot/cc_slurm_pyxis_enroot/specs/default/cluster-init/files to the scripts dir (if using the config_pyxis_enroot.json config file)
-- Copy experimental/gpu_monitoring/gpu_data_collector.py to the scripts dir (if want to enable GPU Monitoring, using the config_pyxis_enroot_sacct_gpu_monitoring.json config file)
+- Copy experimental/hpc_monitoring/cc_hpc_monitoring/specs/default/cluster-init/files/* to the scripts dir (if want to enable HPC/AI Cluster Monitoring, using the config_pyxis_enroot_sacct_hpc_monitoring.json config file)
 - The appropriate prereqs\*.json and config.json files are edited (e.g all NOT-SET sections are set).
 
 
@@ -66,7 +66,7 @@ To deploy with Slurm accounting enabled using a MariaDB
 ```
 azhpc-build --no-vnet -c config_pyxis_enroot_sacct.json
 ```
->Note: if you wish to also enable GPU monitoring, then use the config_pyxis_enroot_sacct_gpu_monitoring.json configuration file.
+>Note: if you wish to also enable HPC/AI cluster monitoring, then use the config_pyxis_enroot_sacct_hpc_monitoring.json configuration file.
 
 
 ## Step 3 - Start the cluster in CycleCloud
@@ -209,23 +209,23 @@ The prologslurmctld.sh is located this dir.
 To prevent the epilog.sh (from NHC) from running NHC when a job is requeued due to exceeding the compute node quota, replace the NHC epilog.sh with the one 
 in scripts/epilog.sh.
 
-## Notes on GPU Monitoring
+## Notes on HPC/AI Cluster Monitoring
 
-* You can stop the GPU monitoring service
+* You can stop the HPC/AI cluster monitoring service
 ```
-sudo systemctl stop gpu_monitoring
+sudo systemctl stop hpc_monitoring
 ```
 
-* You can start the GPU monitoring service
+* You can start the HPC/AI cluster monitoring service
 ```
-sudo systemctl start gpu_monitoring
+sudo systemctl start hpc_monitoring
 ```
 
 * Check that it is running ok
 ```
-sudo systemctl status gpu_monitoring
+sudo systemctl status hpc_monitoring
 ```
 
-* To change the GPU Monitoring environment (e.g. What metrics are monitored and at what time interval)
-  * Edit /opt/gpu_monitoring/gpu_data_collector.sh
->Note: By default GPU utilization, GPU memory used, tensor cores active, IB data transmitted/received, Slurm JobID and physical hostname metrics, collected and the time interval is 10 seconds and only nodes with Slurm jobs running.
+* To change the HPC/AI cluster Monitoring environment (e.g. What metrics are monitored and at what time interval)
+  * Edit /opt/hpc_monitoring/hpc_data_collector.sh
+>Note: By default GPU utilization, GPU memory used, tensor cores active, IB/Ethernet data transmitted/received, CPU, Storage,  Slurm JobID and physical hostname metrics, collected and the time interval is 10 seconds.
