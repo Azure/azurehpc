@@ -1,6 +1,11 @@
 #!/bin/bash
 
-pid=`ps -ef | grep -v kill_nhc | grep nhc | tr -s ' ' | cut -d ' ' -f2 | head -n 1`
+while [ ! -f /usr/sbin/nhc ];do
+sleep 2
+echo "[Prolog] waiting for /usr/sbin/nhc" >> /var/log/nhc.log
+done
+
+pid=`ps -ef | grep -v grep | grep /usr/sbin/nhc | tr -s ' ' | cut -d ' ' -f2 | head -n 1`
 
 while ps -p $pid > /dev/null 2>&1
 do
