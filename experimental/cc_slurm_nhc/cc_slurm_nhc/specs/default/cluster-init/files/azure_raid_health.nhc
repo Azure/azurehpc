@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Check for the health of a RAID array of a specified size associated to a given mount point
+
+function check_raid()
+{
+    MOUNT_PATH=$1
+    ARRAY_SIZE=$2
+
+    MOUNT=$(grep "${MOUNT_PATH} " /proc/mounts)
+    [ $? != 0 ] && die 1 "${MOUNT_PATH} not a valid mount point" && return 1
+
+    DEVICE=$(echo ${MOUNT} | awk '{print $1}')
+    dbg "Found device $DEVICE mounted at ${MOUNT_PATH}"
+
+    mdadm --detail ${DEVICE} > /dev/null
+    [ $? != 0 ] && die 1 "Device ${DEVICE} does not appear to be a RAID array" && return 1
+
+    RAID_STATE=$(mdadm --detail ${DEVICE} | awk '/State :/ {print $3}')
+    if [ "${RAID_STATE}" == 'clean' ]; then
+        dbg "RAID device ${DEVICE} is clean"
+    else
+        die 1 "RAID device ${DEVICE} is not in clean state (${RAID_STATE})"
+        return 1
+    fi
+    RAID_DEVICES=$(sudo mdadm --detail ${DEVICE} | awk '/Working Devices :/ {print $4}')
+    if [ "${RAID_DEVICES}" == ${ARRAY_SIZE} ]; then
+        dbg "Found ${RAID_DEVICES} RAID devices in array ${DEVICE} "
+    else
+            die 1 "RAID device ${DEVICE} reported ${RAID_DEVICES} devices (expected ${ARRAY_SIZE})"
+        return 1
+    fi
+
+    TESTFILE=$(mktemp -p ${MOUNT_PATH} -t nhc_checkraid_XXXXXXXX.tmp)
+    if [ $? == 0 ]; then
+        dbg "File ${TESTFILE} successfully created"
+    else
+        die 1 "Cannot create file ${TESTFILE}"
+        return 1
+    fi
+
+    rm ${TESTFILE}
+    if [ $? == 0 ]; then
+        dbg "File ${TESTFILE} successfully deleted"
+    else
+        die 1 "Cannot delete file ${TESTFILE}"
+        return 1
+    fi
+
+    return 0
+}
