@@ -16,4 +16,9 @@ done
 
 TIMESTAMP=$(/bin/date '+%Y%m%d %H:%M:%S')
 echo "${TIMESTAMP} [prolog] NHC processes finished and job can start" >> /var/log/nhc.log
-exit 0
+
+if [ -f /var/run/nhc/nhc.status ]; then
+   exit 1
+else
+   exit 0
+fi
