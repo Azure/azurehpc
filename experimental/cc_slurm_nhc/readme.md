@@ -67,11 +67,11 @@ You just add your custom health check to /etc/nhc/scripts and modify your nhc.co
 ## Kill NHC via SLURM Prolog
 To prevent NHC from running while a job is running, we have provided a script to kill NHC processes (kill_nhc.sh). You can run this script before a job starts by using the SLURM PROLOG, set NHC_PROLOG=1 in the configure_nhc.sh script to enable this prolog (default) or set it to 0 to disable it.
 
->Note: If you have autoscaling enabled, then set AUTOSCALING=1 in the configure_nhc.sh script, this will replace kill_nhc.sh with wait_for_nhc.sh in the prolog.sh (To allow the NHC checks to complete (by waiting) when a node is autoscaled before starting your job)
+>Note: If you have autoscaling enabled, then set AUTOSCALING=1 in the configure_nhc.sh script, this will replace kill_nhc.sh with wait_for_nhc.sh in the prolog.sh (To allow the NHC checks to complete (by waiting) when a node is autoscaled before starting your job. There is an additional prolog option when AUTOSCALING=1. If PROLOG_NOHOLD_REQUEUE=1 and NHC fails, the slurm job will be requeued with no hold (i.e It will attempt to allocate new nodes for the job), the default behavior is to requeue with a hold.)
 
 
 ## Run NHC via SLURM Epilog
-If you need to run NHC checks after a job completes (SLURM Epilog), then set NHC_EPILOG=1 in the configure_nhc.sh script.
+If you need to run NHC checks after a job completes (SLURM Epilog), then set NHC_EPILOG=1 in the configure_nhc.sh script. The NHC will only run via EPILOG (after job) only if its an exclusive job (i.e no other jobs are running on the node).
 
 >Note: If you run NHC via Epilog, then set HealthCheckInterval to a large value so it effectively only runs when a new node is provisioned in the cluster.
 
