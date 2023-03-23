@@ -2,7 +2,7 @@
 
 HPC/AI cluster Monitoring is essential to get insights into how effectively your application in utilizing various hardware resources such as GPU(s), CPU(s), Network bandwidth (Infiniband and Ethernet) and Storage (local and NFS) and monitor the health of the HPC/AI Cluster.
 
-HPC/AI cluster Monitoring is demonstrated by utilizing a custom data collection script to collect and send CPU, GPU, Network and Storage metrics to Azure Monitor log analytics, specific data can then be extracted and explored using Kusto. The following custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, Disk I/O metrics, CPU metrics, scheduled events and sends it to your log analytics workspace), start/stop GPU Monitoring (using managed system services).
+HPC/AI cluster Monitoring is demonstrated by utilizing a custom data collection script to collect and send CPU, GPU, Network and Storage metrics to Azure Monitor log analytics, specific data can then be extracted and explored using Kusto. The following custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, Disk I/O metrics, Filesystem inode metrics, CPU metrics, scheduled events and sends it to your log analytics workspace), start/stop GPU Monitoring (using managed system services).
 SLURM job ids are also collected, so you can monitor specific jobids. (Assumes exclusive jobs running on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded.
 
 ## Prerequisites
@@ -19,7 +19,7 @@ SLURM job ids are also collected, so you can monitor specific jobids. (Assumes e
 ./hpc_data_collector.py -h
 usage: hpc_data_collector.py [-h] [-dfi DCGM_FIELD_IDS] [-nle NAME_LOG_EVENT]
                              [-fhm] [-gpum] [-ibm] [-ethm] [-nfsm] [-diskm]
-                             [-cpum] [-cpu_memm] [-eventm] [-uc]
+                             [-inodem] [-cpum] [-cpu_memm] [-eventm] [-uc]
                              [-tis TIME_INTERVAL_SECONDS]
 
 optional arguments:
@@ -42,6 +42,8 @@ optional arguments:
   -nfsm, --nfs_metrics  Collect NFS client side metrics (default: False)
   -diskm, --disk_metrics
                         Collect disk device metrics (default: False)
+  -inodem, --inode_metrics
+                        Collect filesystem inode metrics (default: False)
   -cpum, --cpu_metrics  Collects CPU metrics (e.g. user, sys, idle & iowait
                         time) (default: False)
   -cpu_memm, --cpu_mem_metrics
