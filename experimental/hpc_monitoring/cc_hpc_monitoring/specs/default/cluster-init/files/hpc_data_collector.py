@@ -120,7 +120,7 @@ def num(s):
        return float(s)
 
 
-def create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l, event_l):
+def create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, inode_l, cpu_mem_l, cpu_l, event_l):
     data_l = []
     if gpu_l:
        data_l = data_l + gpu_l
@@ -132,6 +132,8 @@ def create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu
        data_l = data_l + nfs_rates_l
     if disk_l:
        data_l = data_l + disk_l
+    if inode_l:
+       data_l = data_l + inode_l
     if cpu_mem_l:
        data_l = data_l + cpu_mem_l
     if cpu_l:
@@ -259,6 +261,47 @@ def get_nfs_data():
            nfs_d[nfs_mount_pt]["client_write_iop"] = int(client_write_iop)
            nfs_d[nfs_mount_pt]["client_write_bytes"] = int(client_write_bytes)
     return nfs_d
+
+
+def run_df_inode():
+    df_d = {}
+    cmd_l = ['df', '-i']
+    df_out = execute_cmd(cmd_l)
+    df_out_l = df_out.splitlines()
+    for line in df_out_l:
+        line_split = line.split()
+        filesystem = line_split[0]
+        inode_used_pc = line_split[4]
+        if filesystem == "Filesystem" or inode_used_pc == "-":
+           continue
+        df_d[filesystem] = {}
+        inode_total = line_split[1]
+        inode_used = line_split[2]
+        inode_free = line_split[3]
+        mount_pt = line_split[5]
+        df_d[filesystem]["inode_total"] = int(inode_total)
+        df_d[filesystem]["inode_used"] = int(inode_used)
+        df_d[filesystem]["inode_free"] = int(inode_free)
+        df_d[filesystem]["inode_used_pc"] = int(inode_used_pc[:-1])
+    return df_d
+
+
+def get_inode_data(hostname, physicalhostname_val, have_jobid, slurm_jobid):
+    inode_l = []
+    df_inode_d = run_df_inode()
+    for filesystem in df_inode_d:
+        inode_d = {}
+        inode_d['hostname'] = hostname
+        inode_d['physicalhostname'] = physicalhostname_val
+        if have_jobid:
+           inode_d['slurm_jobid'] = slurm_jobid
+        inode_d["inode_filesystem"] = filesystem
+        inode_d["inode_total"] = df_inode_d[filesystem]["inode_total"]
+        inode_d["inode_used"] = df_inode_d[filesystem]["inode_used"]
+        inode_d["inode_free"] = df_inode_d[filesystem]["inode_free"]
+        inode_d["inode_used_pc"] = df_inode_d[filesystem]["inode_used_pc"]
+        inode_l.append(inode_d)
+    return inode_l
 
 
 def get_nfs_rates(nfs_counters, time_interval_seconds, hostname, physicalhostname_val, have_jobid, slurm_jobid):
@@ -505,6 +548,7 @@ def parse_args():
     parser.add_argument("-ethm", "--ethernet_metrics", action="store_true", help="Collect Ethernet metrics")
     parser.add_argument("-nfsm", "--nfs_metrics", action="store_true", help="Collect NFS client side metrics")
     parser.add_argument("-diskm", "--disk_metrics", action="store_true", help="Collect disk device metrics")
+    parser.add_argument("-inodem", "--inode_metrics", action="store_true", help="Collect filesystem inode metrics")
     parser.add_argument("-cpum", "--cpu_metrics", action="store_true", help="Collects CPU metrics (e.g. user, sys, idle & iowait time)")
     parser.add_argument("-cpu_memm", "--cpu_mem_metrics", action="store_true", help="Collects CPU memory metrics (Default: MemTotal, MemFree)")
     parser.add_argument("-eventm", "--scheduled_event_metrics", action="store_true", help="Collects Azure/user scheduled events metrics")
@@ -536,6 +580,10 @@ def parse_args():
        disk_metrics = True
     else:
        disk_metrics = False
+    if args.inode_metrics:
+       inode_metrics = True
+    else:
+       inode_metrics = False
     if args.cpu_metrics:
        cpu_metrics = True
     else:
@@ -553,7 +601,7 @@ def parse_args():
     force_hpc_monitoring = args.force_hpc_monitoring
     name_log_event = args.name_log_event
 
-    return (gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_hpc_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,cpu_metrics,cpu_mem_metrics,scheduled_event_metrics,name_log_event)
+    return (gpu_metrics,use_crontab,time_interval_seconds,dcgm_field_ids,force_hpc_monitoring,ib_metrics,eth_metrics,nfs_metrics,disk_metrics,inode_metrics,cpu_metrics,cpu_mem_metrics,scheduled_event_metrics,name_log_event)
 
 
 def main():
@@ -568,6 +616,7 @@ def main():
     eth_rates_l = []
     nfs_rates_l = []
     disk_l = []
+    inode_l = []
     cpu_mem_l = []
     cpu_l = []
     gpu_l = []
@@ -596,6 +645,8 @@ def main():
                 cpu_l = get_cpu_data(cpu_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if disk_metrics:
                 disk_l = get_disk_data(disk_counters, hostname, physicalhostname_val, have_jobid, slurm_jobid, time_interval_seconds)
+             if inode_metrics:
+                inode_l = get_inode_data(hostname, physicalhostname_val, have_jobid, slurm_jobid)
              if scheduled_event_metrics:
                 event_l,last_DocumentIncarnation = get_scheduled_events_data(last_DocumentIncarnation)
              data_l = create_data_records(gpu_l, ib_rates_l, eth_rates_l, nfs_rates_l, disk_l, cpu_mem_l, cpu_l, event_l)
