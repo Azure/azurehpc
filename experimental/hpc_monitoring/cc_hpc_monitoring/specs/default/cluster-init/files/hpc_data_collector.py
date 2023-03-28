@@ -272,7 +272,7 @@ def run_df():
         line_split = line.split()
         df_filesystem = line_split[0]
         df_inode_used_pc = line_split[4]
-        if filesystem == "Filesystem" or df_inode_used_pc == "-":
+        if df_filesystem == "Filesystem" or df_inode_used_pc == "-":
            continue
         df_d[df_filesystem] = {}
         df_inode_total = line_split[1]
@@ -291,7 +291,7 @@ def run_df():
         df_d[df_filesystem]["df_used_KB"] = int(df_used_KB)
         df_d[df_filesystem]["df_avail_KB"] = int(df_avail_KB)
         df_d[df_filesystem]["df_used_pc"] = int(df_used_pc[:-1])
-        df_d[df_filesystem]["df_mount_pt"] = int(df_mount_pt)
+        df_d[df_filesystem]["df_mount_pt"] = df_mount_pt
     return df_d
 
 
