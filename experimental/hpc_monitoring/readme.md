@@ -188,3 +188,8 @@ To check and see if a Spot (low priority) VM was evicted (similarly other schedu
 An Example Azure GPU Monitoring dashboard
 
 ![Alt text9](/experimental/hpc_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+
+## Example of setting an Alert
+Azure monitoring has built in alertng capability, which you can define and set an alert rule for any of the data you are collecting in your log analytics workspace. We show an example of how to set an alert (e.g email, SMS) when the inode count on local NVME exceeds 90%). It is also possible to take some action when the alert is trigger (e.g. run an Azure function)
+![Alt text10](/experimental/hpc_monitoring/images/create_alert_rule.jpg?raw=true "create-alert")
+![Alt text11](/experimental/hpc_monitoring/images/alert_rule_message.jpg?raw=true "alert-message")
