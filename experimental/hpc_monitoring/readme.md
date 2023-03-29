@@ -2,7 +2,7 @@
 
 HPC/AI cluster Monitoring is essential to get insights into how effectively your application in utilizing various hardware resources such as GPU(s), CPU(s), Network bandwidth (Infiniband and Ethernet) and Storage (local and NFS) and monitor the health of the HPC/AI Cluster.
 
-HPC/AI cluster Monitoring is demonstrated by utilizing a custom data collection script to collect and send CPU, GPU, Network and Storage metrics to Azure Monitor log analytics, specific data can then be extracted and explored using Kusto. The following custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, Disk I/O metrics, Filesystem inode metrics, CPU metrics, scheduled events and sends it to your log analytics workspace), start/stop GPU Monitoring (using managed system services).
+HPC/AI cluster Monitoring is demonstrated by utilizing a custom data collection script to collect and send CPU, GPU, Network and Storage metrics to Azure Monitor log analytics, specific data can then be extracted and explored using Kusto. The following custom data collection python script (collect Data Center GPU Manager dmon metrics, IB metrics, Ethernet metrics, NFS I/O metrics, Disk I/O metrics, Filesystem (usage and inode) metrics, CPU metrics, scheduled events and sends it to your log analytics workspace), start/stop GPU Monitoring (using managed system services).
 SLURM job ids are also collected, so you can monitor specific jobids. (Assumes exclusive jobs running on nodes). The physical hostnames of the hosts on which the VM's are running are also recorded.
 
 ## Prerequisites
@@ -19,7 +19,7 @@ SLURM job ids are also collected, so you can monitor specific jobids. (Assumes e
 ./hpc_data_collector.py -h
 usage: hpc_data_collector.py [-h] [-dfi DCGM_FIELD_IDS] [-nle NAME_LOG_EVENT]
                              [-fhm] [-gpum] [-ibm] [-ethm] [-nfsm] [-diskm]
-                             [-inodem] [-cpum] [-cpu_memm] [-eventm] [-uc]
+                             [-dfm] [-cpum] [-cpu_memm] [-eventm] [-uc]
                              [-tis TIME_INTERVAL_SECONDS]
 
 optional arguments:
@@ -42,8 +42,8 @@ optional arguments:
   -nfsm, --nfs_metrics  Collect NFS client side metrics (default: False)
   -diskm, --disk_metrics
                         Collect disk device metrics (default: False)
-  -inodem, --inode_metrics
-                        Collect filesystem inode metrics (default: False)
+  -dfm, --df_metrics
+                        Collect filesystem (usage and inode) metrics (default: False)
   -cpum, --cpu_metrics  Collects CPU metrics (e.g. user, sys, idle & iowait
                         time) (default: False)
   -cpu_memm, --cpu_mem_metrics
@@ -188,3 +188,8 @@ To check and see if a Spot (low priority) VM was evicted (similarly other schedu
 An Example Azure GPU Monitoring dashboard
 
 ![Alt text9](/experimental/hpc_monitoring/images/gpu-dash.png?raw=true "gpu-dash")
+
+## Example of setting an Alert
+Azure monitoring has built in alertng capability, which you can define and set an alert rule for any of the data you are collecting in your log analytics workspace. We show an example of how to set an alert (e.g email, SMS) when the inode count on local NVME exceeds 90%). It is also possible to take some action when the alert is trigger (e.g. run an Azure function)
+![Alt text10](/experimental/hpc_monitoring/images/create_alert_rule.jpg?raw=true "create-alert")
+![Alt text11](/experimental/hpc_monitoring/images/alert_rule_message.jpg?raw=true "alert-message")
