@@ -17,7 +17,6 @@ if [ $RC == 0 ]; then
           die 1 "$FUNCNAME: $GPU_XID_TEST: $xid_found_line"
        else
           dbg "No GPU Xid $XID error found in dmesg"
-          return 0
        fi
    done
 else
