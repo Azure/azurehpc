@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check for the following GPU Xid errors in dmesg
-XID_EC="48 56 57 58 62 63 64 65 68 69 73 74 79 80 81 92"
+XID_EC="48 56 57 58 62 63 64 65 68 69 73 74 79 80 81 92 119 120"
 GPU_XID_TEST="GPU Xid errors detected"
 
 
