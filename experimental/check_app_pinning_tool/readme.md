@@ -223,10 +223,13 @@ Warning: threads corresponding to process 11588 are mapped to multiple L3cache(s
 [azureuser@cghb120v3 ~]$
 ```
 
+
 You can also use this pinning tool directly in an MPI script to pass and use the optimal pinning parameters to mpirun.
 The following files will be created in your current working directory.
+```
 AZ_MPI_NP  : File containing the total number of mpi processes
-AZ_MPI_ARGS : The Optimal MPI command pinnings arguments (for openmpi, Intel MPI or Mvapich2)
+AZ_MPI_ARGS : File containing the Optimal MPI command pinnings arguments (for openmpi, Intel MPI or Mvapich2)
+```
 
 Add the following lines to your mpi run script to run 16 processes and 6 threads per process on a HB120-96rs_v3 (using hpcx or openmpi)
 
