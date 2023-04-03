@@ -751,6 +751,9 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
           print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpu_id))
     elif print_pinning_syntax:
        total_number_processes = total_number_vms * number_processes_per_vm
+       f = open("AZ_MPI_NP", "w")
+       f.write(str(total_number_processes))
+       f.close
        print("Process/thread {} MPI mapping/pinning syntax for total {} processes ( {} processes per VM and {} threads per process)".format(mpi_type, total_number_processes, number_processes_per_vm, number_threads_per_process))
        print("")
        if sku_name == "Standard_HB120rs_v3" and number_threads_per_process > 1:
@@ -762,30 +765,34 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
        if have_warning and not force:
           print("NOTE: MPI process/thread pinning syntax will NOT be displayed until the warnings above have been corrected")
        else:
+          f = open("AZ_MPI_ARGS", "w")
           if mpi_type == "openmpi":
              if number_threads_per_process == 1 and number_processes_per_vm == number_cores_per_vm:
-                print("-np {} --bind-to cpulist:ordered --cpu-list {}".format(total_number_processes, list_to_str(pinning_syntax_l)))
+                az_mpi_args = "--bind-to cpulist:ordered --cpu-list {} -report-bindings".format(list_to_str(pinning_syntax_l))
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
              else:
-                print("-np {} --bind-to l3cache --map-by ppr:{}:numa".format(total_number_processes, number_processes_per_numa))
+                az_mpi_args = "--bind-to l3cache --map-by ppr:{}:numa -report-bindings".format(number_processes_per_numa)
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
           elif mpi_type == "intel":
              num_l3cache = len(l3cache_topo_d["l3cache_ids"])
              if number_threads_per_process == 1:
-                print("-genv I_MPI_PIN_PROCESSOR=",list_to_str(pinning_syntax_l))
+                az_mpi_args = "-genv I_MPI_PIN_PROCESSOR {} -genv FI_PROVIDER mlx -genv I_MPI_COLL_EXTERNAL 1 -genv I_MPI_DEBUG 6".format(list_to_str(pinning_syntax_l))
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
              elif number_processes_per_vm < num_l3cache:
-                print("export I_MPI_PIN_DOMAIN=auto:compact")
+                az_mpi_args = "-genv I_MPI_PIN_DOMAIN {} -genv FI_PROVIDER mlx -genv I_MPI_COLL_EXTERNAL 1 -genv I_MPI_DEBUG 6".format("auto:compact")
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
              else:
-                print("export I_MPI_PIN_DOMAIN={}:compact".format(number_cores_in_l3cache))
+                az_mpi_args = "-genv I_MPI_PIN_DOMAIN {}:compact -genv FI_PROVIDER mlx -genv I_MPI_COLL_EXTERNAL 1 -genv I_MPI_DEBUG 6".format(number_cores_in_l3cache)
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
           else:
              if number_threads_per_process == 1:
-                print("export MV2_SHOW_CPU_BINDING=1")
-                print("export MV2_CPU_BINDING_POLICY=scatter")
-                print("export MV2_CPU_BINDING_LEVEL=core")
+                az_mpi_args = "-genv MV2_SHOW_CPU_BINDING=1 -genv MV2_CPU_BINDING_POLICY=scatter -genv MV2_CPU_BINDING_LEVEL=core"
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
              else:
-                print("export MV2_SHOW_CPU_BINDING=1")
-                print("export MV2_THREADS_PER_PROCESS={}".format(number_cores_in_l3cache))
-                print("export MV2_CPU_BINDING_POLICY=hybrid")
-                print("export MV2_HYBRID_BINDING_POLICY=linear")
-
+                az_mpi_args = "-genv MV2_SHOW_CPU_BINDING=1 -genv MV2_THREADS_PER_PROCESS={} -genv MV2_CPU_BINDING_POLICY=hybrid -genv MV2_HYBRID_BINDING_POLICY=linear".format(number_cores_in_l3cache)
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
+          f.write(az_mpi_args)
+          f.close
 
 def main():
    total_number_vms = 0
