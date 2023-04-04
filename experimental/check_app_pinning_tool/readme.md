@@ -283,3 +283,25 @@ srun $AZ_MPI_ARGS mpi_executable
 ```
 >Note: AZ_MPI_ARGS="--mpi=pmix --cpu-bind=mask_cpu:0x3f,0xfc0,0x3f000,0xfc0000,0x3f000000,0xfc0000000,0x3f000000000,0xfc0000000000,0x3f000000000000,0xfc0000000000000,0x3f000000000000000,0xfc0000000000000000,0x3f000000000000000000,0xfc0000000000000000000,0x3f000000000000000000000,0xfc0000000000000000000000 --ntasks-per-node=16"
 
+
+Example of Slurm/srun integration, run 8 processes on NDm_A100_v4 using srun (Slurm Scheduler).
+
+```
+#!/bin/bash
+#SBATCH --mem=0
+#SBATCH --ntasks-per-node=8
+#SBATCH --exclusive
+
+module load gcc-9.2.0
+module load mpi/hpcx
+
+export SLURM_CPU_BIND=verbose
+export OMP_NUM_THREADS=1
+
+check_app_pinning.py -pps -nv $SLURM_NNODES -nppv $SLURM_NTASKS_PER_NODE -ntpp $OMP_NUM_THREADS -mt srun
+AZ_MPI_NP=$(cat AZ_MPI_NP)
+AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
+
+srun $AZ_MPI_ARGS mpi_executable
+```
+>Note: AZ_MPI_ARGS="--mpi=pmix --cpu-bind=mask_cpu:0xffffff000000,0xffffff000000,0xffffff,0xffffff,0xffffff000000000000000000,0xffffff000000000000000000,0xffffff000000000000,0xffffff000000000000 --ntasks-per-node=8 --gpus-per-node=8"
