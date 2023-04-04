@@ -883,7 +883,7 @@ def main():
    number_threads_per_process = 0
    pinning_l = []
    slurm_pinning_l = []
-   slurm_mask_l = []
+   slurm_mask_str = ""
    process_d = {}
    number_processes_per_numa = 0
    number_cores_in_l3cache = 0
