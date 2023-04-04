@@ -541,7 +541,7 @@ def convert_range_to_mask(core_id_range_l):
 
 
 def create_gpu_numa_mask_str(topo_d, total_num_gpus):
-   gpu_numa_mask_l = ""
+   gpu_numa_mask_str = ""
    for gpu_id in range(0,total_num_gpus):
        for numa_id in topo_d["numanode_ids"]:
            gpu_ids_l = topo_d["numanode_ids"][numa_id]["gpu_ids"]
