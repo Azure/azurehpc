@@ -1,7 +1,7 @@
 # HPC Application process/thread mapping/pinning checking tool
 
 Correct mapping/pinning of HPC Application processes/threads is critical for optimal performance.
-The HPC Application process/thread mapping/pinning checking tool has three main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally, it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX, Intel MPI and Mvapich2 (Currently for HPC VM's based on AMD processors (HB (v1,v2 & v3) and NDv4) and you can use this tool directly in an mpi run script to pass and use the optimal mpi pinning arguments. This tool shows you the virtual machine NUMA topology (i.e location of core id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
+The HPC Application process/thread mapping/pinning checking tool has three main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally, it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX, Intel MPI and Mvapich2 (Currently for HPC VM's based on AMD processors (HB (v1,v2 & v3) and NDv4) and you can use this tool directly in an mpi run script (or slurm/srun) to pass and use the optimal mpi pinning arguments. This tool shows you the virtual machine NUMA topology (i.e location of core id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
 
 ## Prerequisites
 
@@ -34,9 +34,10 @@ optional arguments:
   -ntpp NUMBER_THREADS_PER_PROCESS, --number_threads_per_process NUMBER_THREADS_PER_PROCESS
                         Number of threads per process (used with -pps)
                         (default: None)
-  -mt {openmpi,intel,mvapich2}, --mpi_type {openmpi,intel,mvapich2}
+  -mt {openmpi,intel,mvapich2,srun}, --mpi_type {openmpi,intel,mvapich2,srun}
                         Select which type of MPI to generate pinning syntax
-                        (used with -pps) (default: openmpi)
+                        (used with -pps)(select srun when you are using a
+                        SLURM scheduler) (default: openmpi)
 ```
 ## Examples
 You are on a Standard_HB120-64rs_v3 virtual machine, you would like to know the correct HPCX pinning syntax to pin 16 MPI
@@ -259,3 +260,48 @@ To run 16 processes and 6 threads using Intel MPI on HB120-96rs_v3, just add -mt
 check_app_pinning.py -pps -nv 1 -nppv 16 -ntpp $OMP_NUM_THREADS -mt intel
 ```
 >Note: AZ_MPI_NP=16 and AZ_MPI_ARGS="-genv I_MPI_PIN_DOMAIN 6:compact -genv FI_PROVIDER mlx -genv I_MPI_COLL_EXTERNAL 1 -genv I_MPI_DEBUG 6"
+
+Example of Slurm/srun integration, run 16 processes and 6 threads on HB120-96rs_v3 using srun with a Slurm scheduler.
+
+```
+#!/bin/bash
+#SBATCH --mem=0
+#SBATCH --ntasks-per-node=16
+#SBATCH --exclusive
+
+module load gcc-9.2.0
+module load mpi/hpcx
+
+export SLURM_CPU_BIND=verbose
+export OMP_NUM_THREADS=6
+
+check_app_pinning.py -pps -nv $SLURM_NNODES -nppv $SLURM_NTASKS_PER_NODE -ntpp $OMP_NUM_THREADS -mt srun
+AZ_MPI_NP=$(cat AZ_MPI_NP)
+AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
+
+srun $AZ_MPI_ARGS mpi_executable
+```
+>Note: AZ_MPI_ARGS="--mpi=pmix --cpu-bind=mask_cpu:0x3f,0xfc0,0x3f000,0xfc0000,0x3f000000,0xfc0000000,0x3f000000000,0xfc0000000000,0x3f000000000000,0xfc0000000000000,0x3f000000000000000,0xfc0000000000000000,0x3f000000000000000000,0xfc0000000000000000000,0x3f000000000000000000000,0xfc0000000000000000000000 --ntasks-per-node=16"
+
+
+Example of Slurm/srun integration, run 8 processes on NDm_A100_v4 using srun (Slurm Scheduler).
+
+```
+#!/bin/bash
+#SBATCH --mem=0
+#SBATCH --ntasks-per-node=8
+#SBATCH --exclusive
+
+module load gcc-9.2.0
+module load mpi/hpcx
+
+export SLURM_CPU_BIND=verbose
+export OMP_NUM_THREADS=1
+
+check_app_pinning.py -pps -nv $SLURM_NNODES -nppv $SLURM_NTASKS_PER_NODE -ntpp $OMP_NUM_THREADS -mt srun
+AZ_MPI_NP=$(cat AZ_MPI_NP)
+AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
+
+srun $AZ_MPI_ARGS mpi_executable
+```
+>Note: AZ_MPI_ARGS="--mpi=pmix --cpu-bind=mask_cpu:0xffffff000000,0xffffff000000,0xffffff,0xffffff,0xffffff000000000000000000,0xffffff000000000000000000,0xffffff000000000000,0xffffff000000000000 --ntasks-per-node=8 --gpus-per-node=8"

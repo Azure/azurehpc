@@ -226,7 +226,7 @@ def one_numa(row_l):
 
 
 def parse_lstopo():
-   cmd = ["lstopo-no-graphics", "--no-caches", "--taskset"]
+   cmd = ["lstopo-no-graphics", "--no-caches", "--taskset", "--whole-io"]
    try:
       cmdpipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    except FileNotFoundError:
@@ -256,10 +256,10 @@ def parse_lstopo():
           row_l = row_s.split()
           core_id = re.findall(r'\d+',row_l[-2])[0]
           topo_d["numanode_ids"][numanode]["core_ids"].append(int(core_id))
-       if re.search(r'GPU.*card', row_s):
+       if re.search(r' {10,}GPU.*card', row_s):
           row_l = row_s.split()
           gpu_id = re.findall(r'\d+',row_l[-1])[0]
-          topo_d["numanode_ids"][numanode]["gpu_ids"].append(int(gpu_id))
+          topo_d["numanode_ids"][numanode]["gpu_ids"].append(int(gpu_id)-1)
    cmdpipe.stdout.close()
    cmdpipe.stderr.close()
    return topo_d
@@ -497,6 +497,80 @@ def calc_process_pinning(number_processes_per_vm, num_numa_domains, l3cache_topo
     return (pinning_l, number_processes_per_numa, number_cores_in_l3cache)
 
 
+def calc_slurm_pinning(number_processes_per_numa, topo_2_d):
+    slurm_pinning_l = []
+    for numa_id in topo_2_d["numanode_ids"]:
+        numa_pinning_l = []
+        indx = 0
+        while len(numa_pinning_l) < number_processes_per_numa:
+            for l3cache_id in topo_2_d["numanode_ids"][numa_id]["l3cache_ids"]:
+                if indx > len(topo_2_d["numanode_ids"][numa_id]["l3cache_ids"][l3cache_id])-1:
+                   continue
+                if len(numa_pinning_l) < number_processes_per_numa:
+                   numa_pinning_l.append(topo_2_d["numanode_ids"][numa_id]["l3cache_ids"][l3cache_id][indx])
+                else:
+                   break
+            indx += 1
+        slurm_pinning_l += numa_pinning_l
+    return (slurm_pinning_l)
+
+
+def calc_slurm_pin_range(slurm_pinning_l, num_threads):
+    core_id_range_l = []
+    for core_id in slurm_pinning_l:
+        range_end = core_id + num_threads - 1
+        core_id_range = str(core_id) + "-" + str(range_end)
+        core_id_range_l.append(core_id_range)
+    return core_id_range_l
+
+
+def execute_cmd(cmd_l):
+    proc = subprocess.Popen(cmd_l, stdout=subprocess.PIPE, universal_newlines=True)
+    cmd_out, errs = proc.communicate()
+    return cmd_out
+
+
+def convert_range_to_mask(core_id_range_l):
+    slurm_mask_str = ""
+    for core_id_range in core_id_range_l:
+        hwloc_calc_arg = 'core:' + core_id_range
+        cmd_l = ['hwloc-calc', "--taskset", hwloc_calc_arg]
+        hwloc_calc_out = execute_cmd(cmd_l)
+        slurm_mask_str += "," + hwloc_calc_out.rstrip()
+    return slurm_mask_str[1:]
+
+
+def create_gpu_numa_mask_str(topo_d, total_num_gpus):
+   gpu_numa_mask_str = ""
+   for gpu_id in range(0,total_num_gpus):
+       for numa_id in topo_d["numanode_ids"]:
+           gpu_ids_l = topo_d["numanode_ids"][numa_id]["gpu_ids"]
+           if gpu_id in gpu_ids_l:
+              gpu_numa_mask_str += "," + topo_d["numanode_ids"][numa_id]["mask"]
+              break
+   return gpu_numa_mask_str[1:]
+
+
+def l3cache_id_in_numa(l3cache_l, numa_core_l):
+    for core_id in l3cache_l:
+        if core_id in numa_core_l:
+           return True
+        else:
+           return False
+
+
+def create_topo_2_d(topo_d, l3cache_topo_d):
+    topo_2_d = {}
+    topo_2_d = topo_d
+    for numa_id in topo_2_d["numanode_ids"]:
+        topo_2_d["numanode_ids"][numa_id]["l3cache_ids"] = {}
+        for l3cache_id in l3cache_topo_d["l3cache_ids"]:
+            if l3cache_id_in_numa(l3cache_topo_d["l3cache_ids"][l3cache_id], topo_d["numanode_ids"][numa_id]["core_ids"]):
+               topo_2_d["numanode_ids"][numa_id]["l3cache_ids"][l3cache_id] = l3cache_topo_d["l3cache_ids"][l3cache_id]
+
+    return topo_2_d
+
+
 def check_process_numa_distribution(total_num_processes, total_num_numa_domains, process_d):
     num_numa_domains = min(total_num_processes, total_num_numa_domains)
     numas_l = []
@@ -715,7 +789,7 @@ def check_number_threads_per_l3cache(number_processes_per_vm, number_threads_per
     return have_warning
 
 
-def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas):
+def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_syntax_l, slurm_pinning_l, slurm_mask_str, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas, total_num_gpus):
     hostname = socket.gethostname()
     print("")
     print("Virtual Machine ({}, {}) Numa topology".format(sku_name, hostname))
@@ -773,6 +847,15 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
              else:
                 az_mpi_args = "--bind-to l3cache --map-by ppr:{}:numa -report-bindings".format(number_processes_per_numa)
                 print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
+          elif mpi_type == "srun":
+             if total_num_gpus == 0 or total_num_gpus != number_processes_per_vm:
+                az_mpi_args = "--mpi=pmix --cpu-bind=mask_cpu:{} --ntasks-per-node={}".format(slurm_mask_str, number_processes_per_vm)
+                print("core id pinning: {}\n".format(slurm_pinning_l))
+                print("srun {}".format(az_mpi_args))
+             else:
+                gpu_numa_mask_str = create_gpu_numa_mask_str(topo_d, total_num_gpus)
+                az_mpi_args = "--mpi=pmix --cpu-bind=mask_cpu:{} --ntasks-per-node={} --gpus-per-node={}".format(gpu_numa_mask_str, number_processes_per_vm, total_num_gpus)
+                print("srun {}".format(az_mpi_args))
           elif mpi_type == "intel":
              num_l3cache = len(l3cache_topo_d["l3cache_ids"])
              if number_threads_per_process == 1:
@@ -799,6 +882,8 @@ def main():
    number_processes_per_vm = 0
    number_threads_per_process = 0
    pinning_l = []
+   slurm_pinning_l = []
+   slurm_mask_str = ""
    process_d = {}
    number_processes_per_numa = 0
    number_cores_in_l3cache = 0
@@ -813,7 +898,7 @@ def main():
    parser.add_argument("-nv", "--total_number_vms", dest="total_number_vms", type=int, default=1, help="Total number of VM's (used with -pps)")
    parser.add_argument("-nppv", "--number_processes_per_vm", dest="number_processes_per_vm", type=int, help="Total number of MPI processes per VM (used with -pps)")
    parser.add_argument("-ntpp", "--number_threads_per_process", dest="number_threads_per_process", type=int, help="Number of threads per process (used with -pps)")
-   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel","mvapich2"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)")
+   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel","mvapich2","srun"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)(select srun when you are using a SLURM scheduler)")
    args = parser.parse_args()
    force = args.force
    if len(sys.argv) > 1 and not args.application_pattern and not args.print_pinning_syntax:
@@ -857,7 +942,14 @@ def main():
       have_warning = check_pinning_syntax(number_processes_per_vm, number_threads_per_process, topo_d, l3cache_topo_d)
       (pinning_l, number_processes_per_numa, number_cores_in_l3cache) = calc_process_pinning(number_processes_per_vm, total_num_numa_domains, l3cache_topo_d)
 
-   report(args.application_pattern, args.print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, total_num_numa_domains)
+   if mpi_type == "srun":
+      if total_num_gpus == 0 or total_num_gpus != number_processes_per_vm:
+         topo_2_d = create_topo_2_d(topo_d, l3cache_topo_d)
+         slurm_pinning_l = calc_slurm_pinning(number_processes_per_numa, topo_2_d)
+         slurm_pinning_l = calc_slurm_pin_range(slurm_pinning_l, number_threads_per_process)
+         slurm_mask_str = convert_range_to_mask(slurm_pinning_l)
+
+   report(args.application_pattern, args.print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_l, slurm_pinning_l, slurm_mask_str, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, total_num_numa_domains, total_num_gpus)
    check_app(args.application_pattern,  total_num_numa_domains, total_num_gpus, topo_d, process_d, l3cache_topo_d)
 
 
