@@ -856,6 +856,13 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
                 gpu_numa_mask_str = create_gpu_numa_mask_str(topo_d, total_num_gpus)
                 az_mpi_args = "--mpi=pmix --cpu-bind=mask_cpu:{} --ntasks-per-node={} --gpus-per-node={}".format(gpu_numa_mask_str, number_processes_per_vm, total_num_gpus)
                 print("srun {}".format(az_mpi_args))
+          elif mpi_type == "bsub":
+             if number_threads_per_process == 1
+                az_mpi_args = "-R \"span[ptile={} affinity[core(1):membind=localonly:distribute=balance".format(number_processes_per_vm)
+                print("bsub {}".format(az_mpi_args))
+             else:
+                az_mpi_args = "-R \"span[ptile={} affinity[core({}, same=numa):membind=localonly:distribute=balance".format(number_processes_per_vm, number_cores_in_l3cache)
+                print("bsub {}".format(az_mpi_args))
           elif mpi_type == "intel":
              num_l3cache = len(l3cache_topo_d["l3cache_ids"])
              if number_threads_per_process == 1:
@@ -898,7 +905,7 @@ def main():
    parser.add_argument("-nv", "--total_number_vms", dest="total_number_vms", type=int, default=1, help="Total number of VM's (used with -pps)")
    parser.add_argument("-nppv", "--number_processes_per_vm", dest="number_processes_per_vm", type=int, help="Total number of MPI processes per VM (used with -pps)")
    parser.add_argument("-ntpp", "--number_threads_per_process", dest="number_threads_per_process", type=int, help="Number of threads per process (used with -pps)")
-   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel","mvapich2","srun"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)(select srun when you are using a SLURM scheduler)")
+   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel","mvapich2","srun","bsub"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)(select srun when you are using a SLURM scheduler adn bsub with using an LSF scheduler)")
    args = parser.parse_args()
    force = args.force
    if len(sys.argv) > 1 and not args.application_pattern and not args.print_pinning_syntax:

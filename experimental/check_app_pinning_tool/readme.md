@@ -1,7 +1,7 @@
 # HPC Application process/thread mapping/pinning checking tool
 
 Correct mapping/pinning of HPC Application processes/threads is critical for optimal performance.
-The HPC Application process/thread mapping/pinning checking tool has three main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally, it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX, Intel MPI and Mvapich2 (Currently for HPC VM's based on AMD processors (HB (v1,v2 & v3) and NDv4) and you can use this tool directly in an mpi run script (or slurm/srun) to pass and use the optimal mpi pinning arguments. This tool shows you the virtual machine NUMA topology (i.e location of core id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
+The HPC Application process/thread mapping/pinning checking tool has three main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally, it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX, Intel MPI and Mvapich2 (Currently for HPC VM's based on AMD processors (HB (v1,v2 & v3) and NDv4) and you can use this tool directly in an mpi run script (or slurm/srun, LSF/bsub) to pass and use the optimal mpi pinning arguments. This tool shows you the virtual machine NUMA topology (i.e location of core id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
 
 ## Prerequisites
 
@@ -34,7 +34,7 @@ optional arguments:
   -ntpp NUMBER_THREADS_PER_PROCESS, --number_threads_per_process NUMBER_THREADS_PER_PROCESS
                         Number of threads per process (used with -pps)
                         (default: None)
-  -mt {openmpi,intel,mvapich2,srun}, --mpi_type {openmpi,intel,mvapich2,srun}
+  -mt {openmpi,intel,mvapich2,srun}, --mpi_type {openmpi,intel,mvapich2,srun,bsub}
                         Select which type of MPI to generate pinning syntax
                         (used with -pps)(select srun when you are using a
                         SLURM scheduler) (default: openmpi)
@@ -305,3 +305,52 @@ AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
 srun $AZ_MPI_ARGS mpi_executable
 ```
 >Note: AZ_MPI_ARGS="--mpi=pmix --cpu-bind=mask_cpu:0xffffff000000,0xffffff000000,0xffffff,0xffffff,0xffffff000000000000000000,0xffffff000000000000000000,0xffffff000000000000,0xffffff000000000000 --ntasks-per-node=8 --gpus-per-node=8"
+
+Example of LSF/bsub integration, run 96 processes on HB120-96rs_v3 using bsub with an LSF scheduler.
+
+```
+check_app_pinning.py -pps -nv 1 -nppv 96 -ntpp 1 -mt bsub
+AZ_MPI_NP=$(cat AZ_MPI_NP)
+AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
+
+bsub -n $AZ_MPI_NP $AZ_MPI_ARGS blaunch <executable>
+```
+>Note: AZ_MPI_ARGS="-R span[ptile=96] affinity[core(1):membind=localonly:distribute=balance]" and AZ_MPI_NP=96. blaunch is a parallel executable launching tools provide by LSF.
+
+
+Example of LSF/bsub integration, run 16 processes and 6 threads per process on HB120-96rs_v3 using bsub with an LSF scheduler.
+
+```
+check_app_pinning.py -pps -nv 1 -nppv 96 -ntpp 1 -ntpp 6 -mt bsub
+AZ_MPI_NP=$(cat AZ_MPI_NP)
+AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
+
+bsub -n $AZ_MPI_NP $AZ_MPI_ARGS blaunch <executable>
+```
+>Note: AZ_MPI_ARGS="-R span[ptile=16] affinity[core(6, same=numa):membind=localonly:distribute=balance]" and AZ_MPI_NP=16
+```
+
+You can verify the LSF affinity setting by examining the affinity hostfile defined by LSB_AFFINITY_HOSTFILE or Affinity setting for each task using RM_CPUTASK0, RM_CPUTASK1, etc environmental variables.
+
+```
+cat $LSB_AFFINITY_HOSTFILE
+ip-0a15080a 0,1,2,3,4,5 0 1
+ip-0a15080a 6,7,8,9,10,11 0 1
+ip-0a15080a 12,13,14,15,16,17 0 1
+ip-0a15080a 18,19,20,21,22,23 0 1
+ip-0a15080a 24,25,26,27,28,29 1 1
+ip-0a15080a 30,31,32,33,34,35 1 1
+ip-0a15080a 36,37,38,39,40,41 1 1
+ip-0a15080a 42,43,44,45,46,47 1 1
+ip-0a15080a 48,49,50,51,52,53 2 1
+ip-0a15080a 54,55,56,57,58,59 2 1
+ip-0a15080a 60,61,62,63,64,65 2 1
+ip-0a15080a 66,67,68,69,70,71 2 1
+ip-0a15080a 72,73,74,75,76,77 3 1
+ip-0a15080a 78,79,80,81,82,83 3 1
+ip-0a15080a 84,85,86,87,88,89 3 1
+ip-0a15080a 90,91,92,93,94,95 3 1
+
+echo $RM_CPUTASK1
+0,1,2,3,4,5
+```
