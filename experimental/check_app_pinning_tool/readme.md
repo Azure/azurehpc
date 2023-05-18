@@ -355,3 +355,32 @@ ip-0a15080a 90,91,92,93,94,95 3 1
 echo $RM_CPUTASK1
 0,1,2,3,4,5
 ```
+
+You can also check the LSF affinity setting for a running job.
+
+```
+bjobs -l -aff <jobID>
+
+AFFINITY:
+                     CPU BINDING                          MEMORY BINDING
+                     ------------------------             --------------------
+ HOST                TYPE   LEVEL  EXCL   IDS             POL   NUMA SIZE
+ ip-0a150809         core   -      -      /0/0/0          local 0    0.0MB
+                                          /0/0/1
+                                          /0/0/2
+                                          /0/0/3
+                                          /0/0/4
+                                          /0/0/5
+ ip-0a150809         core   -      -      /0/0/8          local 0    0.0MB
+                                          /0/0/9
+                                          /0/0/10
+                                          /0/0/11
+                                          /0/0/12
+                                          /0/0/13
+ ip-0a150809         core   -      -      /0/0/16         local 0    0.0MB
+                                          /0/0/17
+                                          /0/0/18
+                                          /0/0/19
+                                          /0/0/20
+                                          /0/0/21
+```
