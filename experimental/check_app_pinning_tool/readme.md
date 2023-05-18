@@ -321,13 +321,14 @@ bsub -n $AZ_MPI_NP $AZ_MPI_ARGS blaunch <executable>
 Example of LSF/bsub integration, run 16 processes and 6 threads per process on HB120-96rs_v3 using bsub with an LSF scheduler.
 
 ```
-check_app_pinning.py -pps -nv 1 -nppv 96 -ntpp 1 -ntpp 6 -mt bsub
+check_app_pinning.py -pps -nv 1 -nppv 16 -ntpp 1 -ntpp 6 -mt bsub
 AZ_MPI_NP=$(cat AZ_MPI_NP)
 AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
 
 bsub -n $AZ_MPI_NP $AZ_MPI_ARGS blaunch <executable>
 ```
 >Note: AZ_MPI_ARGS="-R span[ptile=16] affinity[core(6, same=numa):membind=localonly:distribute=balance]" and AZ_MPI_NP=16
+check_app_pinning.py needs to be run on the compute VM (In this example on HB120-96rs_v3)
 ```
 
 You can verify the LSF affinity setting by examining the affinity hostfile defined by LSB_AFFINITY_HOSTFILE or Affinity setting for each task using RM_CPUTASK0, RM_CPUTASK1, etc environmental variables.

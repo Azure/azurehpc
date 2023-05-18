@@ -857,11 +857,11 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
                 az_mpi_args = "--mpi=pmix --cpu-bind=mask_cpu:{} --ntasks-per-node={} --gpus-per-node={}".format(gpu_numa_mask_str, number_processes_per_vm, total_num_gpus)
                 print("srun {}".format(az_mpi_args))
           elif mpi_type == "bsub":
-             if number_threads_per_process == 1
-                az_mpi_args = "-R \"span[ptile={} affinity[core(1):membind=localonly:distribute=balance".format(number_processes_per_vm)
+             if number_threads_per_process == 1:
+                az_mpi_args = "-R \"span[ptile={}] affinity[core(1):membind=localonly:distribute=balance\"".format(number_processes_per_vm)
                 print("bsub {}".format(az_mpi_args))
              else:
-                az_mpi_args = "-R \"span[ptile={} affinity[core({}, same=numa):membind=localonly:distribute=balance".format(number_processes_per_vm, number_cores_in_l3cache)
+                az_mpi_args = "-R \"span[ptile={}] affinity[core({}, same=numa):membind=localonly:distribute=balance\"".format(number_processes_per_vm, number_cores_in_l3cache)
                 print("bsub {}".format(az_mpi_args))
           elif mpi_type == "intel":
              num_l3cache = len(l3cache_topo_d["l3cache_ids"])
