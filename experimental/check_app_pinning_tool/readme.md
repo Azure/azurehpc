@@ -313,7 +313,7 @@ check_app_pinning.py -pps -nv 1 -nppv 96 -ntpp 1 -mt bsub
 AZ_MPI_NP=$(cat AZ_MPI_NP)
 AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
 
-bsub -n $AZ_MPI_NP $AZ_MPI_ARGS blaunch <executable>
+bsub -n $AZ_MPI_NP "$AZ_MPI_ARGS" blaunch <executable>
 ```
 >Note: AZ_MPI_ARGS="-R span[ptile=96] affinity[core(1):membind=localonly:distribute=balance]" and AZ_MPI_NP=96. blaunch is a parallel executable launching tools provide by LSF.
 
@@ -325,7 +325,7 @@ check_app_pinning.py -pps -nv 1 -nppv 16 -ntpp 1 -ntpp 6 -mt bsub
 AZ_MPI_NP=$(cat AZ_MPI_NP)
 AZ_MPI_ARGS=$(cat AZ_MPI_ARGS)
 
-bsub -n $AZ_MPI_NP $AZ_MPI_ARGS blaunch <executable>
+bsub -n $AZ_MPI_NP "$AZ_MPI_ARGS" blaunch <executable>
 ```
 >Note: AZ_MPI_ARGS="-R span[ptile=16] affinity[core(6, same=numa):membind=localonly:distribute=balance]" and AZ_MPI_NP=16
 check_app_pinning.py needs to be run on the compute VM (In this example on HB120-96rs_v3)
