@@ -37,7 +37,7 @@ optional arguments:
   -mt {openmpi,intel,mvapich2,srun}, --mpi_type {openmpi,intel,mvapich2,srun,bsub}
                         Select which type of MPI to generate pinning syntax
                         (used with -pps)(select srun when you are using a
-                        SLURM scheduler) (default: openmpi)
+                        SLURM scheduler and bsub when using an LSF scheduler) (default: openmpi)
 ```
 ## Examples
 You are on a Standard_HB120-64rs_v3 virtual machine, you would like to know the correct HPCX pinning syntax to pin 16 MPI
@@ -343,7 +343,7 @@ bsub -n $AZ_MPI_NP "$AZ_MPI_ARGS" blaunch <executable>
 ```
 >Note: AZ_MPI_ARGS="-R span[ptile=16] affinity[core(6, same=numa):membind=localonly:distribute=balance]" and AZ_MPI_NP=16
 check_app_pinning.py needs to be run on the compute VM (In this example on HB120-96rs_v3)
-```
+
 
 You can verify the LSF affinity setting by examining the affinity hostfile defined by LSB_AFFINITY_HOSTFILE or Affinity setting for each task using RM_CPUTASK0, RM_CPUTASK1, etc environmental variables.
 
