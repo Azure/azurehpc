@@ -355,15 +355,18 @@ def find_last_core_id(process_d):
    
 
 def conv_indx_str_to_list(indx_str):
-    indx_l = []
-    if "-" in indx_str:
-       indx_str_l = indx_str.split("-")
-       return list(range(int(indx_str_l[0]),int(indx_str_l[1])+1))
-    elif "," in indx_str:
-       return list(map(int, indx_str.split(",")))
-    else:
-       indx_l.append(int(indx_str))
-       return indx_l
+   if "," in indx_str:
+      parts = indx_str.split(",")
+   else:
+      parts = [indx_str]
+   indx_l = []
+   for part in parts:
+      if "-" in part:
+         indx_str_l = part.split("-")
+         indx_l += list(range(int(indx_str_l[0]),int(indx_str_l[1])+1))
+      else:
+         indx_l.append(int(part))
+   return indx_l
 
 
 def find_numas(cpus_allowed, topo_d):
