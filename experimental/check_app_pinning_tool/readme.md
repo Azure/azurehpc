@@ -306,7 +306,7 @@ srun $AZ_MPI_ARGS mpi_executable
 ```
 >Note: AZ_MPI_ARGS="--mpi=pmix --cpu-bind=mask_cpu:0xffffff000000,0xffffff000000,0xffffff,0xffffff,0xffffff000000000000000000,0xffffff000000000000000000,0xffffff000000000000,0xffffff000000000000 --ntasks-per-node=8 --gpus-per-node=8"
 
-##LSF integration (using affinity syntax)
+## LSF integration (using affinity syntax)
 To use LSF affinity setting, you will need to enable affinity support on Compute nodes, by updating the lsb.hosts file.
 ```
 FILE=/sched/lsf/conf/lsbatch/cyclecloud/configdir/lsb.hosts
