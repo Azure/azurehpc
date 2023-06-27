@@ -1,7 +1,7 @@
 # HPC Application process/thread mapping/pinning checking tool
 
 Correct mapping/pinning of HPC Application processes/threads is critical for optimal performance.
-The HPC Application process/thread mapping/pinning checking tool has three main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally, it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX, Intel MPI and Mvapich2 (Currently for HPC VM's based on AMD processors (HB (v1,v2 & v3) and NDv4) and you can use this tool directly in an mpi run script (or slurm/srun, LSF/bsub) to pass and use the optimal mpi pinning arguments. This tool shows you the virtual machine NUMA topology (i.e location of core id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
+The HPC Application process/thread mapping/pinning checking tool has three main features, it allows you to quickly verify that the processes/threads associated with your HPC Application are mapped/pinned correctly/optimally, it can generate the MPI process/thread pinning syntax for OpenMPI/HPCX, Intel MPI and Mvapich2 (Currently for HPC VM's based on AMD processors (HX, HB (v1,v2,v3 & v4) and NDv4) and you can use this tool directly in an mpi run script (or slurm/srun, LSF/bsub) to pass and use the optimal mpi pinning arguments. This tool shows you the virtual machine NUMA topology (i.e location of core id's, GPU's and NUMA domains), where the processes/threads associated with your HPC Application are mapped/pinned and warnings if they are not mapped/pinned optimally.
 
 ## Prerequisites
 
