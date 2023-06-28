@@ -17,7 +17,7 @@ First, log-on to Compute node (Needs to have MPI environment)
 ```
 ./run_nccl_tests_nc96v4.sh <NUMBER_OF_MPI_PROCESSES> <HOSTFILE>
 ```
->Note: Each NC96v4 should have 4 MPI processes (so on 2 NC96v4, NUM_OF_MPI_PROCESSES=8), the HOSTFILE is a text hostfile, each line has 1 IP address). Use the run_nccl_tests_nc48v4.sh script to run on NC48v4 (2 A100).
+>Note: Each NC96v4 should have 4 MPI processes (so on 2 NC96v4, NUM_OF_MPI_PROCESSES=8), the HOSTFILE is a text hostfile, each line has 1 IP address). Use the run_nccl_tests_nc48v4.sh script to run on NC48v4 (2 A100). Make sure you use the correct topology/graph files and the paths to these files are correct.
 
 ## Run NCCL test using the SLURM scheduler (e.g sbatch/srun)
 
