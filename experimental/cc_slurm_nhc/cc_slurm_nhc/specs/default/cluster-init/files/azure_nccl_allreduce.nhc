@@ -31,7 +31,7 @@ function find_vm() {
            ENVIRON_VARS_2="-x NCCL_IB_DISABLE=1 -x NCCL_TOPO_FILE=/opt/microsoft/ncv4/nc48v4-topo.xml -x NCCL_GRAPH_FILE=/opt/microsoft/ncv4/nc48v4-graph.xml"
            ;;
         *)
-           exit 1
+           MPI_MODULE="NotFound"
    esac
 }
 
@@ -57,6 +57,10 @@ function check_nccl_allreduce() {
 
    if [ -f /opt/cycle/jetpack/bin/jetpack ]; then
       find_vm
+      if [ $MPI_MODULE=="NotFound" ]; then
+         log "Warning : $vm_size is not supported, NCCL test skipped"
+         return 0
+      fi
    else
       log "Warning: NHC is not running in Azure Cyclecloud, skip NCCL allreduce test."
       return 0
