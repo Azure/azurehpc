@@ -34,6 +34,12 @@ function select_sku_conf() {
         standard_nd96amsr_a100_v4)
            NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96amsr_v4.conf
            ;;
+        standard_nc96ads_a100_v4)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nc96ads_v4.conf
+           ;;
+        standard_nc48ads_a100_v4)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nc48ads_v4.conf
+           ;;
         standard_hb120-96rs_v3)
            NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/hb120-96rs_v3.conf
            ;;
