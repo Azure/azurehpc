@@ -57,7 +57,7 @@ function check_nccl_allreduce() {
 
    if [ -f /opt/cycle/jetpack/bin/jetpack ]; then
       find_vm
-      if [ $MPI_MODULE=="NotFound" ]; then
+      if [ $MPI_MODULE == "NotFound" ]; then
          log "Warning : $vm_size is not supported, NCCL test skipped"
          return 0
       fi

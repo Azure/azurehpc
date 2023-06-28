@@ -39,7 +39,7 @@ REPEATS="${2:-1}"
 
 if [ -f /opt/cycle/jetpack/bin/jetpack ]; then
    find_vm_gpu_numa
-   if [ $NUM_GPU_DEVICES=="NotFound" ]; then
+   if [ $NUM_GPU_DEVICES == "NotFound" ]; then
       log "Warning : $vm_size is not supported, CUDA Bandwidth test skipped"
       return 0
    fi
