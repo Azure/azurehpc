@@ -9,6 +9,7 @@ on NCV4 (A100) running Ubuntu-hpc 20.04 marketplace image. Examples of how to ru
 ## Prerequisites
 
 - Ubuntu-hpc 20.04, SLURM 22.05.3-1 (Tested with Cyclecloud 8.4)
+- In Ubuntu-hpc image NCCL_TOPO_FILE environmental variable is commented out in /etc/nccl.conf
 - Compute node(s), NC96ads_A100_v4 or NC48ads_A100_v4 (Running Ubuntu-hpc 20.04)
 
 ## Run NCCL test using MPI and hostfile (No Scheduler)
@@ -28,6 +29,6 @@ sbatch -N <NUMBER_OF_NDV4_NODES> ./run_nccl_tests_slurm_nc96v4.slrm
 
 ## Expected NCCL Collective Performance on NC_A100_v4
 
-![Alt text1](/experimental/run_nccl_tests_ncv4/images/nccl_allreduce_nc96v4.jpg?raw=true "nccl_nc96v4")
+![Alt text1](/experimental/run_nccl_tests_ncv4/images/nccl_allreduce_nc96v4_2.jpg?raw=true "nccl_nc96v4")
 
-![Alt text2](/experimental/run_nccl_tests_ncv4/images/nccl_allreduce_nc48v4.jpg?raw=true "nccl_nc48v4")
+![Alt text2](/experimental/run_nccl_tests_ncv4/images/nccl_allreduce_nc48v4_2.jpg?raw=true "nccl_nc48v4")

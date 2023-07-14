@@ -11,8 +11,6 @@ NCCL_TESTS_EXE=all_reduce_perf
 
 export NCCL_DEBUG=INFO \
 NCCL_TOPO_FILE=/opt/microsoft/ncv4/topo.xml \
-NCCL_GRAPH_FILE=/opt/microsoft/ncv4/graph.xml \
-NCCL_GRAPH_REGISTER=1 \
 NCCL_IB_DISABLE=1
 
 source /etc/profile.d/modules.sh
