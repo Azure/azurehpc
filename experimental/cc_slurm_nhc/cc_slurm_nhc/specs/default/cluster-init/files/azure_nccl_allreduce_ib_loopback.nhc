@@ -42,7 +42,7 @@ function check_nccl_allreduce_ib_loopback() {
          fi
       done
 
-      if [[ $avg_bus_bw < $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW ]]
+      if (( $(echo "$avg_bus_bw < $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW" | bc -l) ))
       then
          dbg "$nccl_allreduce_ib_loopback_out"
          log "Iteration ${iter} of ${REPEATS} failed: NCCL allreduce IB loopback bandwidth $avg_bus_bw GB/s < $EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW GB/s"
@@ -51,6 +51,6 @@ function check_nccl_allreduce_ib_loopback() {
       fi
   done
 
-  die 1 "$FUNCNAME: NCCL allreduce, BUS BW (expected >=$EXP_NCCL_ALLREDUCE_BW GB/s, but measured $avg_bus_bw GB/s)"
+  die 1 "$FUNCNAME: NCCL allreduce, BUS BW (expected >=$EXP_NCCL_ALLREDUCE_IB_LOOPBACK_BW GB/s, but measured $avg_bus_bw GB/s)"
   return 1
 }
