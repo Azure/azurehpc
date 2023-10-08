@@ -1,0 +1,53 @@
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: hpc-diags-job1
+spec:
+  minAvailable: 1
+  schedulerName: volcano
+  plugins:
+    ssh: []
+    svc: []
+  tasks:
+    - replicas: 1
+      name: mpiworker
+      template:
+        spec:
+          containers:
+            - command:
+                - /bin/bash
+                - -c
+                - |
+                  chmod 775 /workspace/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh
+                  echo -e "y" | /workspace/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh --dir=/tmp
+              image: cgacr2.azurecr.io/pytorch_nccl_tests_2303_2:latest
+              securityContext:
+                capabilities:
+                  add: ["IPC_LOCK"]
+              name: mpiworker
+              ports:
+                - containerPort: 22
+                  name: mpijob-port
+              workingDir: /workspace
+              resources:
+                requests:
+                  nvidia.com/mlnxnics: 8
+                limits:
+                  nvidia.com/mlnxnics: 8
+              volumeMounts:
+              - mountPath: /dev/shm
+                name: shm
+              - mountPath: /tmp
+                name: tmp
+          restartPolicy: OnFailure
+          terminationGracePeriodSeconds: 0
+          volumes:
+          - name: shm
+            emptyDir:
+              medium: Memory
+              sizeLimit: 8Gi
+          - name: tmp
+            hostPath:
+              path: /tmp
+              type: Directory
+---
