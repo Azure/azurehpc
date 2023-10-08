@@ -8,3 +8,4 @@ Contains a Dockerfile and sample AKS manifest yaml files to run hpc-diagnostics 
 - Downloaded ndv4-topo.xml file
 - Downloaded OSU benchmark tarball
 
+>Note: hpc-diagnostics tarball will on the AKS host in /tmp
