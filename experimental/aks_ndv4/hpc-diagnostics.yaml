@@ -18,9 +18,8 @@ spec:
                 - /bin/bash
                 - -c
                 - |
-                  chmod 775 /workspace/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh
                   echo -e "y" | /workspace/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh --dir=/tmp
-              image: cgacr2.azurecr.io/pytorch_nccl_tests_2303_2:latest
+              image: cgacr2.azurecr.io/pytorch_nccl_tests_2303_3:latest
               securityContext:
                 capabilities:
                   add: ["IPC_LOCK"]
@@ -39,6 +38,8 @@ spec:
                 name: shm
               - mountPath: /tmp
                 name: tmp
+              - mountPath: /var
+                name: var
           restartPolicy: OnFailure
           terminationGracePeriodSeconds: 0
           volumes:
@@ -49,5 +50,9 @@ spec:
           - name: tmp
             hostPath:
               path: /tmp
+              type: Directory
+          - name: var
+            hostPath:
+              path: /var
               type: Directory
 ---
