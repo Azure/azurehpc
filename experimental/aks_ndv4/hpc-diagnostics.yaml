@@ -10,36 +10,38 @@ spec:
     svc: []
   tasks:
     - replicas: 1
-      name: mpiworker
+      name: hpc-diagnostics
       template:
         spec:
           containers:
             - command:
-                - /bin/bash
-                - -c
+                - nsenter
+                - --target
+                - "1"
+                - --mount
+                - --uts
+                - --ipc
+                - --net
+                - --pid
+                - --
+                - bash 
+                - -exc
                 - |
-                  echo -e "y" | /workspace/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh --dir=/tmp
-              image: cgacr2.azurecr.io/pytorch_nccl_tests_2303_3:latest
-              securityContext:
-                capabilities:
-                  add: ["IPC_LOCK"]
-              name: mpiworker
-              ports:
-                - containerPort: 22
-                  name: mpijob-port
-              workingDir: /workspace
+                  cd /tmp
+                  git clone https://github.com/Azure/azhpc-diagnostics.git
+                  apt install -y nvidia-utils-525 infiniband-diags
+                  chmod 775 /tmp/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh
+                  echo -e "y" | /tmp/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh --dir=/tmp
+              image: ubuntu:22.04
+              name: hpc-diagnostics
+              workingDir: /tmp
               resources:
                 requests:
                   nvidia.com/mlnxnics: 8
                 limits:
                   nvidia.com/mlnxnics: 8
-              volumeMounts:
-              - mountPath: /dev/shm
-                name: shm
-              - mountPath: /tmp
-                name: tmp
-              - mountPath: /var
-                name: var
+              securityContext:
+                privileged: true
           restartPolicy: OnFailure
           terminationGracePeriodSeconds: 0
           volumes:
@@ -47,12 +49,7 @@ spec:
             emptyDir:
               medium: Memory
               sizeLimit: 8Gi
-          - name: tmp
-            hostPath:
-              path: /tmp
-              type: Directory
-          - name: var
-            hostPath:
-              path: /var
-              type: Directory
+          hostNetwork: true
+          hostPID: true 
+          hostIPC: true
 ---
