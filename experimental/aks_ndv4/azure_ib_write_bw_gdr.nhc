@@ -1,0 +1,86 @@
+#!/bin/bash
+
+IB_WRITE_BW_EXE_GDR_PATH="/opt/azurehpc/test/nhc/perftest-4.5/ib_write_bw"
+SLEEP_TIME=5
+
+HOSTNAME=`hostname`
+
+function run_ib_bw_gdr(){
+
+   EXP_IB_BW=$1
+   SKU=$2
+   PORTARG=$3
+   device=$4
+   REPEATS=$5
+
+   #NUMA mapping
+   GPU_NUMA=( 0 0 0 0 0 0 0 0 )
+   if [[ "$SKU" == "nd96asr_v4" || "$SKU" == "nd96amsr_v4" ]]; then
+      IB_NUMA=( 3 3 2 0 2 1 0 1 )
+   elif [[ "$SKU" == "nd96isr_v5" ]]; then
+      GPU_NUMA=( 0 0 0 0 1 1 1 1 )
+   fi
+   MESSAGE_SIZE=8388608
+
+   IB_WRITE_BW=`basename $IB_WRITE_BW_EXE_GDR_PATH`
+   IB_WRITE_BW_ARGS="-p $PORTARG -s $MESSAGE_SIZE -x 0 -F --report_gbits  --perform_warm_up"
+
+   for iter in $(seq 1 $REPEATS)
+   do
+
+   IB_WRITE_BW_OUT1=$(numactl -N ${IB_NUMA[$device]} -m ${IB_NUMA[$device]} $IB_WRITE_BW_EXE_GDR_PATH $IB_WRITE_BW_ARGS -d mlx5_${device} > /dev/null &)
+   IB_WRITE_BW_OUT1_RC=$?
+   if [[ $IB_WRITE_BW_OUT1_RC != 0 ]]; then
+         NETSTAT_OUT=$(netstat -lnp | grep $PORTARG)
+         log "Running: netstat -lnp | grep $PORTARG:"
+         log "$NETSTAT_OUT"
+         die 1 "$FUNCNAME: $IB_WRITE_BW returned error code $IB_WRITE_BW_OUT1_RC"
+         return 1
+  fi
+  sleep $SLEEP_TIME
+  device_peer=$(( device+4 ))
+  IB_WRITE_BW_OUT2=$(numactl -N ${IB_NUMA[$device_peer]} -m ${IB_NUMA[$device_peer]} $IB_WRITE_BW_EXE_GDR_PATH $IB_WRITE_BW_ARGS -d mlx5_${device_peer} $HOSTNAME)
+  IB_WRITE_BW_OUT2_RC=$?
+  if [[ $IB_WRITE_BW_OUT2_RC != 0 ]]; then
+         NETSTAT_OUT=$(netstat -lnp | grep $PORTARG)
+         log "Running: netstat -lnp | grep $PORTARG:"
+         log "$NETSTAT_OUT"
+         die 1 "$FUNCNAME: $IB_WRITE_BW returned error code $IB_WRITE_BW_OUT2_RC"
+         return 1
+  fi
+  IFS=$'\n'
+  IB_WRITE_BW_OUT2_LINES=( $IB_WRITE_BW_OUT2 )
+  IFS=$' \t\n'
+  for ((i=0; i<${#IB_WRITE_BW_OUT2_LINES[*]}; i++))
+  do
+         if [[ "${IB_WRITE_BW_OUT2_LINES[$i]//$MESSAGE_SIZE}" != "${IB_WRITE_BW_OUT2_LINES[$i]}" ]]; then
+                LINE=( ${IB_WRITE_BW_OUT2_LINES[$i]} )
+                ib_bandwidth=${LINE[3]}
+      dbg "IB devices=mlx5_${device}, mlx5_${device_peer}: numa domains=${IB_NUMA[$device]},${IB_NUMA[$device_peer]}, Measured IB BW $ib_bandwidth Gbps"
+                break
+         fi
+  done
+  if [[ $ib_bandwidth < $EXP_IB_BW ]]; then
+    log "$IB_WRITE_BW_OUT2"
+    log "Iteration ${iter} of ${REPEATS}: Failed: $IB_WRITE_BW, IB=mlx5_${device}, mlx5_${device_peer}, IB BW (expected > $EXP_IB_BW Gbps, but measured $ib_bandwidth Gbps"
+  else
+    return 0
+  fi
+  done
+
+  die 1 "$FUNCNAME: $IB_WRITE_BW, IB=mlx5_${device}, mlx5_${device_peer}, IB BW (expected > $EXP_IB_BW Gbps, but measured $ib_bandwidth Gbps"
+  return 1
+}
+
+function check_ib_bw_gdr(){
+   EXP_IB_BW=$1
+   SKU=$2
+   REPEATS="${3:-1}"
+   port_numbers=(18510 18511 18512 18513 )
+   pid_array=()
+   for device in {0..3};
+   do
+      run_ib_bw_gdr $EXP_IB_BW $SKU ${port_numbers[$device]} $device $REPEATS
+   done
+   return 0
+}
