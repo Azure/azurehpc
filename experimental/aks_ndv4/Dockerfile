@@ -11,16 +11,17 @@ RUN apt-get -y install net-tools
 RUN apt-get -y install pciutils
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 RUN apt-get -y install hwloc
+COPY download_and_verify.sh .
+COPY install_mellanoxofed.sh .
+RUN ./install_mellanoxofed.sh
 COPY nccl-tests.sh .
 RUN ./nccl-tests.sh
 COPY ndv4-topo.xml .
-COPY osu-micro-benchmarks-7.0.1.sh .
-RUN ./osu-micro-benchmarks-7.0.1.sh
 COPY hpc-diagnostics.sh .
 RUN ./hpc-diagnostics.sh
 COPY azure_nccl_allreduce.nhc .
 COPY azure_nccl_allreduce_ib_loopback.nhc .
-COPY custom-test-setup.sh .
+COPY azure_ib_write_bw_gdr.nhc .
 COPY azurehpc-health-checks.sh .
 RUN ./azurehpc-health-checks.sh
 COPY nd96asr_v4.conf azurehpc-health-checks/conf
