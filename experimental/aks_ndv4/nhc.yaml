@@ -1,0 +1,61 @@
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: nhc-job1
+spec:
+  minAvailable: 1
+  schedulerName: volcano
+  plugins:
+    ssh: []
+    svc: []
+  tasks:
+    - replicas: 1
+      name: mpiworker
+      template:
+        spec:
+          hostNetwork: true
+          containers:
+            - command:
+                - /bin/bash
+                - -c
+                - |
+                  /workspace/azurehpc-health-checks/run-health-checks.sh -v
+                  cat /workspace/health.log
+              image: cgacr2.azurecr.io/pytorch_nccl_tests_2303_3:latest
+              securityContext:
+                capabilities:
+                  add: ["IPC_LOCK"]
+                privileged: true
+              name: mpiworker
+              ports:
+                - containerPort: 22
+                  name: mpijob-port
+              workingDir: /workspace
+              resources:
+                requests:
+                  nvidia.com/mlnxnics: 8
+                limits:
+                  nvidia.com/mlnxnics: 8
+              volumeMounts:
+              - mountPath: /dev/shm
+                name: shm
+              - mountPath: /tmp
+                name: tmp
+              - mountPath: /var/log
+                name: log
+          restartPolicy: OnFailure
+          terminationGracePeriodSeconds: 0
+          volumes:
+          - name: shm
+            emptyDir:
+              medium: Memory
+              sizeLimit: 8Gi
+          - name: tmp
+            hostPath:
+              path: /tmp
+              type: Directory
+          - name: log
+            hostPath:
+              path: /var/log
+              type: Directory
+---
