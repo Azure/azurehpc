@@ -28,6 +28,7 @@ spec:
                 - -exc
                 - |
                   cd /tmp
+                  [ -d azhpc-diagnostics ] && rm -rf azhpc-diagnostics
                   git clone https://github.com/Azure/azhpc-diagnostics.git
                   apt install -y nvidia-utils-525 infiniband-diags
                   chmod 775 /tmp/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh

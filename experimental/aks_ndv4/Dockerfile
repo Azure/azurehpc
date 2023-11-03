@@ -17,8 +17,6 @@ RUN ./install_mellanoxofed.sh
 COPY nccl-tests.sh .
 RUN ./nccl-tests.sh
 COPY ndv4-topo.xml .
-COPY hpc-diagnostics.sh .
-RUN ./hpc-diagnostics.sh
 COPY azure_nccl_allreduce.nhc .
 COPY azure_nccl_allreduce_ib_loopback.nhc .
 COPY azure_ib_write_bw_gdr.nhc .
