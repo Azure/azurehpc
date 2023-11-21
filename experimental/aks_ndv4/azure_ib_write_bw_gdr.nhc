@@ -14,11 +14,11 @@ function run_ib_bw_gdr(){
    REPEATS=$5
 
    #NUMA mapping
-   GPU_NUMA=( 0 0 0 0 0 0 0 0 )
+   IB_NUMA=( 0 0 0 0 0 0 0 0 )
    if [[ "$SKU" == "nd96asr_v4" || "$SKU" == "nd96amsr_v4" ]]; then
       IB_NUMA=( 3 3 2 0 2 1 0 1 )
    elif [[ "$SKU" == "nd96isr_v5" ]]; then
-      GPU_NUMA=( 0 0 0 0 1 1 1 1 )
+      IB_NUMA=( 0 0 0 0 1 1 1 1 )
    fi
    MESSAGE_SIZE=8388608
 
