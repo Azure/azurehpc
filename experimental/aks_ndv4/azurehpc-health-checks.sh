@@ -3,7 +3,6 @@
 apt install -y sudo
 git clone https://github.com/Azure/azurehpc-health-checks.git
 
-cp custom-test-setup.sh /workspace/azurehpc-health-checks/customTests/custom-test-setup.sh
 cp azure_nccl_allreduce.nhc /workspace/azurehpc-health-checks/customTests
 cp azure_nccl_allreduce_ib_loopback.nhc /workspace/azurehpc-health-checks/customTests
 cp azure_ib_write_bw_gdr.nhc /workspace/azurehpc-health-checks/customTests
