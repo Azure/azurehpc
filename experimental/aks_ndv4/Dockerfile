@@ -9,11 +9,11 @@ RUN apt-get -y install openssh-server
 RUN apt-get -y install kmod
 RUN apt-get -y install net-tools
 RUN apt-get -y install pciutils
-RUN apt-get -y install libibverbs-dev
-RUN apt-get -y install librdmacm-dev
-RUN apt-get -y install libibumad-dev
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 RUN apt-get -y install hwloc
+COPY download_and_verify.sh .
+COPY install_mellanoxofed.sh .
+RUN ./install_mellanoxofed.sh
 COPY nccl-tests.sh .
 RUN ./nccl-tests.sh
 COPY ndv4-topo.xml .
