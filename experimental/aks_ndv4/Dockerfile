@@ -23,3 +23,4 @@ COPY azure_ib_write_bw_gdr.nhc .
 COPY azurehpc-health-checks.sh .
 RUN ./azurehpc-health-checks.sh
 COPY nd96asr_v4.conf azurehpc-health-checks/conf
+COPY nd96amsr_a100_v4.conf azurehpc-health-checks/conf
