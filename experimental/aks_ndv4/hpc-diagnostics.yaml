@@ -33,6 +33,7 @@ spec:
                   apt install -y nvidia-utils-525 infiniband-diags
                   chmod 775 /tmp/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh
                   echo -e "y" | /tmp/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh --dir=/tmp
+                  sleep 1800
               image: ubuntu:22.04
               name: hpc-diagnostics
               workingDir: /tmp
