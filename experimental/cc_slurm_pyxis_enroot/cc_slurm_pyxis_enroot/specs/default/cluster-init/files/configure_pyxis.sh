@@ -21,8 +21,9 @@ function install_prolog() {
    cp ${CYCLECLOUD_SPEC_PATH}/files/prolog.sh /sched/scripts/prolog.sh
    chown slurm:slurm /sched/scripts/prolog.sh
    chmod 755 /sched/scripts/prolog.sh
-   echo 'Prolog=/sched/scripts/prolog.sh' >> /sched/slurm.conf
-   echo 'PrologFlags=Alloc' >> /sched/slurm.conf
+   echo >> /etc/slurm/slurm.conf
+   echo 'Prolog=/sched/scripts/prolog.sh' >> /etc/slurm/slurm.conf
+   echo 'PrologFlags=Alloc' >> /etc/slurm/slurm.conf
 }
 
 if is_slurm_controller; then
