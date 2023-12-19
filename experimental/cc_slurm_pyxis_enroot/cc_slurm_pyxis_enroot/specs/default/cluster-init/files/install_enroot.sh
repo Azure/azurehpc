@@ -2,7 +2,7 @@
 
 source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
-ENROOT_VERSION_FULL=${1:-3.4.0-1}
+ENROOT_VERSION_FULL=${1:-3.4.1-1}
 ENROOT_VERSION=${ENROOT_VERSION_FULL%-*}
 
 # Install enroot RPM packages on compute nodes
