@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYXIS_VER=0.11.1
+PYXIS_VER=0.16.1
 TMP_DIR=/tmp
 SHARED_DIR=/sched/pyxis
 
@@ -26,6 +26,9 @@ function install_from_source() {
    mkdir -p ${SHARED_DIR}
    cp -fv /usr/local/lib/slurm/spank_pyxis.so ${SHARED_DIR}
 
+   # Make sure /usr/lib64/slurm directory exists
+   mkdir -p /usr/lib64/slurm
+
    # Install Pyxis Slurm plugin
    cp -fv /usr/local/lib/slurm/spank_pyxis.so /usr/lib64/slurm
    chmod +x /usr/lib64/slurm/spank_pyxis.so
@@ -36,9 +39,13 @@ function install_from_source() {
 }
 
 function install_compute_node() {
+   mkdir -p /usr/lib64/slurm
    cp -v /sched/pyxis/spank_pyxis.so /usr/lib64/slurm
    chmod +x /usr/lib64/slurm/spank_pyxis.so
 }
+
+# Ensure there are no broken dependencies
+NEEDRESTART_MODE=a apt-get --yes --fix-broken install
 
 if is_slurm_controller; then
    install_from_source
