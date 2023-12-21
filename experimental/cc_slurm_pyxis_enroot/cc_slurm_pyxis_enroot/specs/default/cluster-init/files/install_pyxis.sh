@@ -10,15 +10,10 @@ function install_build_deps() {
    apt-get -y install gcc make
 }
 
-function get_source() {
-   wget https://github.com/NVIDIA/pyxis/archive/refs/tags/v${PYXIS_VER}.tar.gz
-   tar xzf v${PYXIS_VER}.tar.gz
-}
-
 function install_from_source() {
    install_build_deps
    cd ${TMP_DIR}
-   get_source
+   tar -xzf $CYCLECLOUD_SPEC_PATH/files/pyxis_${PYXIS_VER}.tar.gz
    cd pyxis-${PYXIS_VER}
    make install
 
@@ -34,8 +29,7 @@ function install_from_source() {
    chmod +x /usr/lib64/slurm/spank_pyxis.so
 
    cd ~
-   rm -rf ${TMP_DIR}/v${PYXIS_VER}.tar.gz \
-          ${TMP_DIR}/pyxis-${PYXIS_VER}
+   rm ${TMP_DIR}/pyxis-${PYXIS_VER}
 }
 
 function install_compute_node() {
