@@ -29,7 +29,7 @@ function install_from_source() {
    chmod +x /usr/lib64/slurm/spank_pyxis.so
 
    cd ~
-   rm ${TMP_DIR}/pyxis-${PYXIS_VER}
+   rm -rf ${TMP_DIR}/pyxis-${PYXIS_VER}
 }
 
 function install_compute_node() {
