@@ -4,7 +4,7 @@
 
 This project is aimed at simplifiying deployment and setup for HPC environments in Azure.  The deployment scripts include setting up various building blocks available for Networking, Compute and Storage that are needed for an e2e setup. You can do this all with a few commands and fast as these are run in parallel. 
 
-They key motivation is:
+The key motivations are:
 
 * __Simplified Automation__
 * Flexibility
