@@ -13,6 +13,6 @@ if is_compute_node; then
     apt install -y $CYCLECLOUD_SPEC_PATH/files/enroot+caps_${ENROOT_VERSION}_amd64.deb
 
     # Install NVIDIA container support
-    apt-get install -y --allow-change-held-packages libnvidia-container=${LIBNVIDIA_VERSION} libnvidia-container-tools=${LIBNVIDIA_VERSION}
+    apt-get install -y --allow-change-held-packages libnvidia-container1=${LIBNVIDIA_VERSION} libnvidia-container-tools=${LIBNVIDIA_VERSION}
 
 fi
