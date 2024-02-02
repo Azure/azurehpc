@@ -99,7 +99,7 @@ cd cyclecloud-cli-installer
 ./install.sh
 ```
 - Initialize CycleCloud CLI
-  1. Run cyclecloud initialize. You will be prompted for the CycleServer URL, which is the FQDN of your application server. Enter it in the format https://FQDN.
+  1. Run **cyclecloud initialize**. You will be prompted for the CycleServer URL, which is the FQDN of your application server. Enter it in the format https://FQDN.
   2. The installed Azure CycleCloud server uses either a Let's Encrypt SSL certificate, or a self-signed certificate. Type yes when asked to allow the certificate.
-  3. Log in with the same username and password used for the CycleCloud web interface.
-  4. Test that the CycleCloud CLI is working with cyclecloud show_cluster.
+  3. When prompted username and password, enter the same username and password used in the CycleCloud Portal web interface.
+  4. Run **cyclecloud show_cluster** to test CycleCloud CLI is working. 
