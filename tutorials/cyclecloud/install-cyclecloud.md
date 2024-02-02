@@ -67,7 +67,7 @@ CycleCloud can be installed via Azure Marketplace, see [Quickstart - Install via
 
 ## 3. Assign Contributor role on the subscription to managed-identity 
 From Azure Portal, go to Subscriptions and assign Contributor role to the CycleCloud VM managed Identity (Subscription > Access control (IAM) > Add > Add role assignment).
->You need to have **Owner** permission on the Subscription 
+>You need to have **Contributor** permission on the Subscription. If you need more granular permissions, see: [Create a custom role and managed identity for CycleCloud](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/managed-identities?view=cyclecloud-8#create-a-custom-role-and-managed-identity-for-cyclecloud) 
 
 ## 4. Configure DNS name label for public IP (optional)
 You can define a DNS Name for the CycleCloud VM public IP, it can facilitate the access to the VM. 
@@ -77,7 +77,7 @@ Go to CycleCloud VM and click in DNS Name:
 Add a DNS Name and save:
 ![DNS-Label2](images/DNS-Label2.jpg)
 
-In case you want to setup CycleCloud in environments with limited internet access, check this article: [Operating in a locked down network](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/running-in-locked-down-network?view=cyclecloud-8).
+In case you want to setup CycleCloud in environments with limited internet access, check this article: [Operating in a locked down network] (https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/running-in-locked-down-network?view=cyclecloud-8).
 
 ## 5. Create a storage account
 Cyclecloud requires a storage account for [locker access](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/storage-blobs?view=cyclecloud-8). 
