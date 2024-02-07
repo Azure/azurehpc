@@ -10,6 +10,12 @@ function find_vm() {
    vm_size=`/opt/cycle/jetpack/bin/jetpack config azure.metadata.compute.vmSize | tr '[:upper:]' '[:lower:]'`
    dbg "vm_size=$vm_size"
    case $vm_size in
+        standard_nd96isr_h100_v5)
+           MPI_MODULE="mpi/hpcx"
+           MPI_ARGS_2="-np 8 --map-by ppr:8:node -bind-to none -mca coll_hcoll_enable 0 --allow-run-as-root"
+           ENVIRON_VARS_2="-x LD_LIBRARY_PATH=/usr/local/nccl-rdma-sharp-plugins/lib:$LD_LIBRARY_PATH -x NCCL_IB_PCI_RELAXED_ORDERING=1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_TOPO_FILE=/opt/microsoft/ndv5-topo.xml -x NCCL_MIN_NCHANNELS=32"
+           NCCL_ARGS_2="-b 16G -f 2 -g 1 -e 16G -c 1"
+           ;;
         standard_nd96amsr_a100_v4)
            MPI_MODULE="mpi/hpcx"
            MPI_ARGS_2="-np 8 --map-by ppr:8:node -bind-to numa -mca coll_hcoll_enable 0 --allow-run-as-root"

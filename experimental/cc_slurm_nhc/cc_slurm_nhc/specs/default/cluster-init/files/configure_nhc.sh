@@ -28,6 +28,9 @@ source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 function select_sku_conf() {
    vm_size=`jetpack config azure.metadata.compute.vmSize | tr '[:upper:]' '[:lower:]'`
    case $vm_size in
+        standard_nd96isr_h100_v5)
+           NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96isr_v5.conf
+           ;;
         standard_nd96asr_v4)
            NHC_CONF_FILE_NEW=$CYCLECLOUD_SPEC_PATH/files/nd96asr_v4.conf
            ;;

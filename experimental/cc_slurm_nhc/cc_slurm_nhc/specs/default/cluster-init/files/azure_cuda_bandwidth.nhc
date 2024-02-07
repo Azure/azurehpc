@@ -9,6 +9,10 @@ function find_vm_gpu_numa() {
    vm_size=`/opt/cycle/jetpack/bin/jetpack config azure.metadata.compute.vmSize | tr '[:upper:]' '[:lower:]'`
    dbg "vm_size=$vm_size"
    case $vm_size in
+        standard_nd96isr_h100_v5)
+           GPU_NUMA=( 0 0 0 0 1 1 1 1 )
+           NUM_GPU_DEVICES=8
+           ;;
         standard_nd96amsr_a100_v4)
 #NUMA mapping for NDv4(A100)
            GPU_NUMA=( 1 1 0 0 3 3 2 2 )
