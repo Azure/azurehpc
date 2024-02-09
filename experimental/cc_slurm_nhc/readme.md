@@ -1,14 +1,14 @@
-# Node health check integrated with CycleCloud SLURM 
+# Node health check integrated with CycleCloud SLURM
 
-It is important to run healthchecks on Specialty SKU's (like NDv4(A100)) to identify unhealthy VM's and make sure they are not included in job (for example 
+It is important to run healthchecks on Specialty SKU's (like NDv4(A100)) to identify unhealthy VM's and make sure they are not included in job (for example
 by marking the node and putting it into a drain state). Here we give an example of leveraging the built-in healthcheck hooks in SLURM and using them to run the
 LBNL Node Health check framework (https://github.com/mej/nhc). Some specific healthchecks have been written for ND96asr_v4 (40GB A100) and a Cyclecloud project
-is created to allow this healthcheck framework to be integrated in CycleCloud SLURM. This has been tested on CycleCloud 8.2.2, SLURM 2.6.4 and ubuntu-hpc 18.04 marketplace image.
+is created to allow this healthcheck framework to be integrated in CycleCloud SLURM. This has been tested on CycleCloud 8.5, SLURM 23.02.6 and Ubuntu-HPC 20.04/22.04 marketplace image.
 
 ## Prerequisites
 
-- CycleCloud 8.2.2 is installed, Ubuntu 18.04, SLURM 2.6.4 (Tested with these versions, other versions may work)
-- Compute node(s), ND96asr_v4, ND96amsr_v4, NC96ads_A100_v4, NC48ads_A100_v4 (Running Ubuntu-hpc 18.04), or HBv3 running CentOS-HPC 7.7
+- CycleCloud 8.5 is installed, Ubuntu 18.04/20.04/22.04, SLURM 23.02.6 (Tested with these versions, other versions may work)
+- Compute node(s), ND96asr_v4, ND96amsr_v4, ND96isr_H100_v5, NC96ads_A100_v4, NC48ads_A100_v4 (Running Ubuntu-HPC), or HBv3 running CentOS-HPC 7.7
 
 ## Design
 The Node health checks only run on IDLE SLURM nodes (not on nodes with running jobs). If a node healthcheck fails, the node will be put into a DRAIN state (All jobs using this node will be allowed to complete, but not new jobs will use this node). If the issue that caused the healthcheck to fail is resolved, the net time the node health check is run the node will be move from the DRAIN state to the IDLE state, and will now be ready to accept new jobs. This example contains an example node check for ND96amsr_v4 (nd96amsr_v4.conf), NC_A100_v4 and HBv3, it should be relatively easy to create similar configuration files for other specialty SKU's like HBv2 and HC, and run health checks for those SKU's also using this framework.
@@ -38,7 +38,7 @@ The nd96asr_v4.conf and nd96amsr_v4.conf nhc configuration file specifies what h
 
 Will continue to add additional tests.
 
->Note: Edit configur_nhc.sh (NHC_CONF_FILE_NEW) to specify which nhc configuration file you want to use. 
+>Note: Edit configur_nhc.sh (NHC_CONF_FILE_NEW) to specify which nhc configuration file you want to use.
 
 ## Deployment Procedure
 
@@ -49,7 +49,7 @@ cyclecloud project upload <locker>
 
 Edit Cluster configuration in portal (or using a cluster json parameter file), to add this spec to your cluster (i.e add cluster-init project to your scheduler and compute nodes) See in the CC Portal Edit-->Advanced-Settings, under Software.
 
->Note: In my case I am disabling autoscaling (SuspendTime=-1), if you have autoscaling enabled you may need to modify these scripts to prevent the 
+>Note: In my case I am disabling autoscaling (SuspendTime=-1), if you have autoscaling enabled you may need to modify these scripts to prevent the
 DRAINED node from deallocating (i.e enable keep alive)
 
 ## key file locations
