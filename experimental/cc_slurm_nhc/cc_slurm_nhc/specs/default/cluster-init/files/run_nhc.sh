@@ -6,27 +6,19 @@ function set_detached_mode() {
 }
 
 function exclusive_node() {
-BASE_DIR="/sys/fs/cgroup/memory/slurm"
-cntu=0
-for dir in ${BASE_DIR}/uid_*
-do
-    if [ -d $dir ]; then
-       cntu=$((cntu+1))
-       if [[ $cntu -gt 1 ]]; then
-          return 1
-       fi
-       cntj=0
-       for job in ${dir}/job_*
-       do
-           if [ -d $job ]; then
-              cntj=$((cntj+1))
-              if [[ $cntj -gt 0 ]]; then
-                 return 1
-              fi
-           fi
-       done
-    fi
-done
+if [ -d "/sys/fs/cgroup/memory/slurm" ]; then
+   # Ubuntu 20.04
+   BASE_DIR="/sys/fs/cgroup/memory/slurm/uid_*"
+else
+   # Ubuntu 22.04
+   BASE_DIR="/sys/fs/cgroup/system.slice/${HOSTNAME}_slurmstepd.scope"
+fi
+
+NUM_JOBS=$(ls -ld ${BASE_DIR}/job* 2> /dev/null | wc -l)
+
+if [[ $NUM_JOBS -gt 0 ]]; then
+   return 1
+fi
 }
 
 prolog_epilog=$1
