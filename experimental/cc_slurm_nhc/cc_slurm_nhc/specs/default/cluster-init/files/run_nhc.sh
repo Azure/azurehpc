@@ -33,5 +33,3 @@ if [ $exclusive_node_rc -eq 0 ]; then
    NHC_RC=$?
    set_detached_mode 1
 fi
-
-exit ${NHC_RC}
