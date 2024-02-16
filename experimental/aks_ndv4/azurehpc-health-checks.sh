@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt install -y sudo
+apt install -y sudo bc
 git clone https://github.com/Azure/azurehpc-health-checks.git
 
 cp azure_nccl_allreduce.nhc /workspace/azurehpc-health-checks/customTests
