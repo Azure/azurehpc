@@ -8,10 +8,10 @@ is created to allow this healthcheck framework to be integrated in CycleCloud SL
 ## Prerequisites
 
 - CycleCloud 8.2.2 is installed, Ubuntu 18.04, SLURM 2.6.4 (Tested with these versions, other versions may work)
-- Compute node(s), ND96asr_v4 or ND96amsr_v4 (Running Ubuntu-hpc 18.04), or HBv3 running CentOS-HPC 7.7
+- Compute node(s), ND96asr_v4, ND96amsr_v4, NC96ads_A100_v4, NC48ads_A100_v4 (Running Ubuntu-hpc 18.04), or HBv3 running CentOS-HPC 7.7
 
 ## Design
-The Node health checks only run on IDLE SLURM nodes (not on nodes with running jobs). If a node healthcheck fails, the node will be put into a DRAIN state (All jobs using this node will be allowed to complete, but not new jobs will use this node). If the issue that caused the healthcheck to fail is resolved, the net time the node health check is run the node will be move from the DRAIN state to the IDLE state, and will now be ready to accept new jobs. This example contains an example node check for ND96amsr_v4 (nd96amsr_v4.conf) and HBv3, it should be relatively easy to create similar configuration files for other specialty SKU's like HBv2 and HC, and run health checks for those SKU's also using this framework.
+The Node health checks only run on IDLE SLURM nodes (not on nodes with running jobs). If a node healthcheck fails, the node will be put into a DRAIN state (All jobs using this node will be allowed to complete, but not new jobs will use this node). If the issue that caused the healthcheck to fail is resolved, the net time the node health check is run the node will be move from the DRAIN state to the IDLE state, and will now be ready to accept new jobs. This example contains an example node check for ND96amsr_v4 (nd96amsr_v4.conf), NC_A100_v4 and HBv3, it should be relatively easy to create similar configuration files for other specialty SKU's like HBv2 and HC, and run health checks for those SKU's also using this framework.
 
 ## What health checks are performed?
 
@@ -67,11 +67,11 @@ You just add your custom health check to /etc/nhc/scripts and modify your nhc.co
 ## Kill NHC via SLURM Prolog
 To prevent NHC from running while a job is running, we have provided a script to kill NHC processes (kill_nhc.sh). You can run this script before a job starts by using the SLURM PROLOG, set NHC_PROLOG=1 in the configure_nhc.sh script to enable this prolog (default) or set it to 0 to disable it.
 
->Note: If you have autoscaling enabled, then set AUTOSCALING=1 in the configure_nhc.sh script, this will replace kill_nhc.sh with wait_for_nhc.sh in the prolog.sh (To allow the NHC checks to complete (by waiting) when a node is autoscaled before starting your job)
+>Note: If you have autoscaling enabled, then set AUTOSCALING=1 in the configure_nhc.sh script, this will replace kill_nhc.sh with wait_for_nhc.sh in the prolog.sh (To allow the NHC checks to complete (by waiting) when a node is autoscaled before starting your job. There is an additional prolog option when AUTOSCALING=1. If PROLOG_NOHOLD_REQUEUE=1 and NHC fails, the slurm job will be requeued with no hold (i.e It will attempt to allocate new nodes for the job), the default behavior is to requeue with a hold.)
 
 
 ## Run NHC via SLURM Epilog
-If you need to run NHC checks after a job completes (SLURM Epilog), then set NHC_EPILOG=1 in the configure_nhc.sh script.
+If you need to run NHC checks after a job completes (SLURM Epilog), then set NHC_EPILOG=1 in the configure_nhc.sh script. The NHC will only run via EPILOG (after job) only if its an exclusive job (i.e no other jobs are running on the node).
 
 >Note: If you run NHC via Epilog, then set HealthCheckInterval to a large value so it effectively only runs when a new node is provisioned in the cluster.
 

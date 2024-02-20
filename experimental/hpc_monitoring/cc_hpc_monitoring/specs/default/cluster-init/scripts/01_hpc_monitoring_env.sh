@@ -1,0 +1,3 @@
+#!/bin/bash
+chmod +x $CYCLECLOUD_SPEC_PATH/files/*.sh
+$CYCLECLOUD_SPEC_PATH/files/hpc_monitoring_env.sh "<SET-TO-LOG-ANALYTICS-WS-CUSTOMER-ID>" "<SET-TO-LOG-ANALYTICS-SHARED-KEY>"

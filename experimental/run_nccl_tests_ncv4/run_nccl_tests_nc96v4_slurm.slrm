@@ -1,0 +1,23 @@
+#!/bin/bash
+#SBATCH -t 00:20:00
+#SBATCH --ntasks-per-node=4
+#SBATCH --cpus-per-task=24
+#SBATCH --gpus-per-node=4
+#SBATCH --mem=0
+#SBATCH -o %x_%j.log
+
+BASE_DIR=/opt
+NCCL_TESTS_EXE=all_reduce_perf
+
+export NCCL_DEBUG=INFO \
+NCCL_TOPO_FILE=/opt/microsoft/ncv4/topo.xml \
+NCCL_IB_DISABLE=1
+
+source /etc/profile.d/modules.sh
+module load mpi/openmpi
+
+PIN_MASK='0xffffff,0xffffff000000,0xffffff000000000000,0xffffff000000000000000000'
+
+srun --mpi=pmix --cpu-bind=mask_cpu:$PIN_MASK --gpus-per-node=4 \
+--ntasks-per-node=4 \
+${BASE_DIR}/nccl-tests/build/$NCCL_TESTS_EXE -b8 -f 2 -g 1 -e 8G -c 1

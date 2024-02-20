@@ -1,0 +1,57 @@
+apiVersion: batch.volcano.sh/v1alpha1
+kind: Job
+metadata:
+  name: hpc-diags-job1
+spec:
+  minAvailable: 1
+  schedulerName: volcano
+  plugins:
+    ssh: []
+    svc: []
+  tasks:
+    - replicas: 1
+      name: hpc-diagnostics
+      template:
+        spec:
+          containers:
+            - command:
+                - nsenter
+                - --target
+                - "1"
+                - --mount
+                - --uts
+                - --ipc
+                - --net
+                - --pid
+                - --
+                - bash 
+                - -exc
+                - |
+                  cd /tmp
+                  [ -d azhpc-diagnostics ] && rm -rf azhpc-diagnostics
+                  git clone https://github.com/Azure/azhpc-diagnostics.git
+                  apt install -y nvidia-utils-525 infiniband-diags
+                  chmod 775 /tmp/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh
+                  echo -e "y" | /tmp/azhpc-diagnostics/Linux/src/gather_azhpc_vm_diagnostics.sh --dir=/tmp
+                  sleep 1800
+              image: ubuntu:22.04
+              name: hpc-diagnostics
+              workingDir: /tmp
+              resources:
+                requests:
+                  nvidia.com/mlnxnics: 8
+                limits:
+                  nvidia.com/mlnxnics: 8
+              securityContext:
+                privileged: true
+          restartPolicy: OnFailure
+          terminationGracePeriodSeconds: 0
+          volumes:
+          - name: shm
+            emptyDir:
+              medium: Memory
+              sizeLimit: 8Gi
+          hostNetwork: true
+          hostPID: true 
+          hostIPC: true
+---

@@ -10,7 +10,277 @@ import socket
 import json
 from urllib.request import urlopen, Request
 
-l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7],\
+l3cache_coreid_d = {"Standard_HB176rs_v4": {"l3cache_ids": {0: [0,1,2,3,4,5],\
+                                                           1: [6,7,8,9,10,11],\
+                                                           2: [12,13,14,15,16,17,18,19],\
+                                                           3: [20,21,22,23,24,25,26,27],\
+                                                           4: [28,29,30,31,32,33,34,35],\
+                                                           5: [36,37,38,39,40,41,42,43],\
+                                                           6: [44,45,46,47,48,49],\
+                                                           7: [50,51,52,53,54,55],\
+                                                           8: [56,57,58,59,60,61,62,63],\
+                                                           9: [64,65,66,67,68,69,70,71],\
+                                                          10: [72,73,74,75,76,77,78,79],\
+                                                          11: [80,81,82,83,84,85,86,87],\
+                                                          12: [88,89,90,91,92,93],\
+                                                          13: [94,95,96,97,98,99],\
+                                                          14: [100,101,102,103,104,105,106,107],\
+                                                          15: [108,109,110,111,112,113,114,115],\
+                                                          16: [116,117,118,119,120,121,122,123],\
+                                                          17: [124,125,126,127,128,129,130,131],\
+                                                          18: [132,133,134,135,136,137],\
+                                                          19: [138,139,140,141,142,143],\
+                                                          20: [144,145,146,147,148,149,150,151],\
+                                                          21: [152,153,154,155,156,157,158,159],\
+                                                          22: [160,161,162,163,164,165,166,167],\
+                                                          23: [168,169,170,171,172,173,174,175]\
+                                                          },
+                                          "allowed_number_of_processes": [24,48,72,96,120,144,168,176],
+                                           },
+                    "Standard_HB176-144rs_v4": {"l3cache_ids": {0: [0,1,2,3,4,5],\
+                                                           1: [6,7,8,9,10,11],\
+                                                           2: [12,13,14,15,16,17],\
+                                                           3: [18,19,20,21,22,23],\
+                                                           4: [24,25,26,27,28,29],\
+                                                           5: [30,31,32,33,34,35],\
+                                                           6: [36,37,38,39,40,41],\
+                                                           7: [42,43,44,45,46,47],\
+                                                           8: [48,49,50,51,52,53],\
+                                                           9: [54,55,56,57,58,59],\
+                                                          10: [60,61,62,63,64,65],\
+                                                          11: [66,67,68,69,70,71],\
+                                                          12: [72,73,74,75,76,77],\
+                                                          13: [78,79,80,81,82,83],\
+                                                          14: [84,85,86,87,88,89],\
+                                                          15: [90,91,92,93,94,95],\
+                                                          16: [96,97,98,99,100,101],\
+                                                          17: [102,103,104,105,106,107],\
+                                                          18: [108,109,110,111,112,113],\
+                                                          19: [114,115,116,117,118,119],\
+                                                          20: [120,121,122,123,124,125],\
+                                                          21: [126,127,128,129,130,131],\
+                                                          22: [132,133,134,135,136,137],\
+                                                          23: [138,139,140,141,142,143]\
+                                                          },
+                                          "allowed_number_of_processes": [24,48,72,96,120,144],
+                                           },
+                    "Standard_HB176-96rs_v4": {"l3cache_ids": {0: [0,1,2,3],\
+                                                           1: [4,5,6,7],\
+                                                           2: [8,9,10,11],\
+                                                           3: [12,13,14,15],\
+                                                           4: [16,17,18,19],\
+                                                           5: [20,21,22,23],\
+                                                           6: [24,25,26,27],\
+                                                           7: [28,29,30,31],\
+                                                           8: [32,33,34,35],\
+                                                           9: [36,37,38,39],\
+                                                          10: [40,41,42,43],\
+                                                          11: [44,45,46,47],\
+                                                          12: [48,49,50,51],\
+                                                          13: [52,53,54,55],\
+                                                          14: [56,57,58,59],\
+                                                          15: [60,61,62,63],\
+                                                          16: [64,65,66,67],\
+                                                          17: [68,69,70,71],\
+                                                          18: [72,73,74,75],\
+                                                          19: [76,77,78,79],\
+                                                          20: [80,81,82,83],\
+                                                          21: [84,85,86,87],\
+                                                          22: [88,89,90,91],\
+                                                          23: [92,93,94,95]\
+                                                          },
+                                          "allowed_number_of_processes": [24,48,72,96],
+                                           },
+                    "Standard_HB176-48rs_v4": {"l3cache_ids": {0: [0,1],\
+                                                           1: [2,3],\
+                                                           2: [4,5],\
+                                                           3: [6,7],\
+                                                           4: [8,9],\
+                                                           5: [10,11],\
+                                                           6: [12,13],\
+                                                           7: [14,15],\
+                                                           8: [16,17],\
+                                                           9: [18,19],\
+                                                          10: [20,21],\
+                                                          11: [22,23],\
+                                                          12: [24,25],\
+                                                          13: [26,27],\
+                                                          14: [28,29],\
+                                                          15: [30,31],\
+                                                          16: [32,33],\
+                                                          17: [34,35],\
+                                                          18: [36,37],\
+                                                          19: [38,39],\
+                                                          20: [40,41],\
+                                                          21: [42,43],\
+                                                          22: [44,45],\
+                                                          23: [46,47]\
+                                                          },
+                                          "allowed_number_of_processes": [24,48],
+                                           },
+                    "Standard_HB176-24rs_v4": {"l3cache_ids": {0: [0],\
+                                                           1: [1],\
+                                                           2: [2],\
+                                                           3: [3],\
+                                                           4: [4],\
+                                                           5: [5],\
+                                                           6: [6],\
+                                                           7: [7],\
+                                                           8: [8],\
+                                                           9: [9],\
+                                                          10: [10],\
+                                                          11: [11],\
+                                                          12: [12],\
+                                                          13: [13],\
+                                                          14: [14],\
+                                                          15: [15],\
+                                                          16: [16],\
+                                                          17: [17],\
+                                                          18: [18],\
+                                                          19: [19],\
+                                                          20: [20],\
+                                                          21: [21],\
+                                                          22: [22],\
+                                                          23: [23]\
+                                                          },
+                                          "allowed_number_of_processes": [24],
+                                           },
+                    "Standard_HX176rs": {"l3cache_ids": {0: [0,1,2,3,4,5],\
+                                                           1: [6,7,8,9,10,11],\
+                                                           2: [12,13,14,15,16,17,18,19],\
+                                                           3: [20,21,22,23,24,25,26,27],\
+                                                           4: [28,29,30,31,32,33,34,35],\
+                                                           5: [36,37,38,39,40,41,42,43],\
+                                                           6: [44,45,46,47,48,49],\
+                                                           7: [50,51,52,53,54,55],\
+                                                           8: [56,57,58,59,60,61,62,63],\
+                                                           9: [64,65,66,67,68,69,70,71],\
+                                                          10: [72,73,74,75,76,77,78,79],\
+                                                          11: [80,81,82,83,84,85,86,87],\
+                                                          12: [88,89,90,91,92,93],\
+                                                          13: [94,95,96,97,98,99],\
+                                                          14: [100,101,102,103,104,105,106,107],\
+                                                          15: [108,109,110,111,112,113,114,115],\
+                                                          16: [116,117,118,119,120,121,122,123],\
+                                                          17: [124,125,126,127,128,129,130,131],\
+                                                          18: [132,133,134,135,136,137],\
+                                                          19: [138,139,140,141,142,143],\
+                                                          20: [144,145,146,147,148,149,150,151],\
+                                                          21: [152,153,154,155,156,157,158,159],\
+                                                          22: [160,161,162,163,164,165,166,167],\
+                                                          23: [168,169,170,171,172,173,174,175]\
+                                                          },
+                                          "allowed_number_of_processes": [24,48,72,96,120,144,168,176],
+                                           },
+                    "Standard_HX176-144rs": {"l3cache_ids": {0: [0,1,2,3,4,5],\
+                                                           1: [6,7,8,9,10,11],\
+                                                           2: [12,13,14,15,16,17],\
+                                                           3: [18,19,20,21,22,23],\
+                                                           4: [24,25,26,27,28,29],\
+                                                           5: [30,31,32,33,34,35],\
+                                                           6: [36,37,38,39,40,41],\
+                                                           7: [42,43,44,45,46,47],\
+                                                           8: [48,49,50,51,52,53],\
+                                                           9: [54,55,56,57,58,59],\
+                                                          10: [60,61,62,63,64,65],\
+                                                          11: [66,67,68,69,70,71],\
+                                                          12: [72,73,74,75,76,77],\
+                                                          13: [78,79,80,81,82,83],\
+                                                          14: [84,85,86,87,88,89],\
+                                                          15: [90,91,92,93,94,95],\
+                                                          16: [96,97,98,99,100,101],\
+                                                          17: [102,103,104,105,106,107],\
+                                                          18: [108,109,110,111,112,113],\
+                                                          19: [114,115,116,117,118,119],\
+                                                          20: [120,121,122,123,124,125],\
+                                                          21: [126,127,128,129,130,131],\
+                                                          22: [132,133,134,135,136,137],\
+                                                          23: [138,139,140,141,142,143]\
+                                                          },
+                                          "allowed_number_of_processes": [24,48,72,96,120,144],
+                                           },
+                    "Standard_HX176-96rs": {"l3cache_ids": {0: [0,1,2,3],\
+                                                           1: [4,5,6,7],\
+                                                           2: [8,9,10,11],\
+                                                           3: [12,13,14,15],\
+                                                           4: [16,17,18,19],\
+                                                           5: [20,21,22,23],\
+                                                           6: [24,25,26,27],\
+                                                           7: [28,29,30,31],\
+                                                           8: [32,33,34,35],\
+                                                           9: [36,37,38,39],\
+                                                          10: [40,41,42,43],\
+                                                          11: [44,45,46,47],\
+                                                          12: [48,49,50,51],\
+                                                          13: [52,53,54,55],\
+                                                          14: [56,57,58,59],\
+                                                          15: [60,61,62,63],\
+                                                          16: [64,65,66,67],\
+                                                          17: [68,69,70,71],\
+                                                          18: [72,73,74,75],\
+                                                          19: [76,77,78,79],\
+                                                          20: [80,81,82,83],\
+                                                          21: [84,85,86,87],\
+                                                          22: [88,89,90,91],\
+                                                          23: [92,93,94,95]\
+                                                          },
+                                          "allowed_number_of_processes": [24,48,72,96],
+                                           },
+                    "Standard_HX176-48rs": {"l3cache_ids": {0: [0,1],\
+                                                           1: [2,3],\
+                                                           2: [4,5],\
+                                                           3: [6,7],\
+                                                           4: [8,9],\
+                                                           5: [10,11],\
+                                                           6: [12,13],\
+                                                           7: [14,15],\
+                                                           8: [16,17],\
+                                                           9: [18,19],\
+                                                          10: [20,21],\
+                                                          11: [22,23],\
+                                                          12: [24,25],\
+                                                          13: [26,27],\
+                                                          14: [28,29],\
+                                                          15: [30,31],\
+                                                          16: [32,33],\
+                                                          17: [34,35],\
+                                                          18: [36,37],\
+                                                          19: [38,39],\
+                                                          20: [40,41],\
+                                                          21: [42,43],\
+                                                          22: [44,45],\
+                                                          23: [46,47]\
+                                                          },
+                                          "allowed_number_of_processes": [24,48],
+                                           },
+                    "Standard_HX176-24rs": {"l3cache_ids": {0: [0],\
+                                                           1: [1],\
+                                                           2: [2],\
+                                                           3: [3],\
+                                                           4: [4],\
+                                                           5: [5],\
+                                                           6: [6],\
+                                                           7: [7],\
+                                                           8: [8],\
+                                                           9: [9],\
+                                                          10: [10],\
+                                                          11: [11],\
+                                                          12: [12],\
+                                                          13: [13],\
+                                                          14: [14],\
+                                                          15: [15],\
+                                                          16: [16],\
+                                                          17: [17],\
+                                                          18: [18],\
+                                                          19: [19],\
+                                                          20: [20],\
+                                                          21: [21],\
+                                                          22: [22],\
+                                                          23: [23]\
+                                                          },
+                                          "allowed_number_of_processes": [24],
+                                          },
+                    "Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7],\
                                                            1: [8,9,10,11,12,13,14,15],\
                                                            2: [16,17,18,19,20,21,22,23],\
                                                            3: [24,25,26,27,28,29],\
@@ -110,41 +380,101 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                           },
                                          "allowed_number_of_processes": [16]
                                          },
-                    "Standard_HB120rs_v2": {"l3cache_ids":  {0: [0,1,2],\
-                                                             1: [3,4,5],\
-                                                             2: [6,7,8,9],\
-                                                             3: [10,11,12,13],\
-                                                             4: [14,15,16,17],\
-                                                             5: [18,19,20,21],\
-                                                             6: [22,23,24,25],\
-                                                             7: [26,27,28,29],\
-                                                             8: [30,31,32],\
-                                                             9: [33,34,35],\
-                                                            10: [36,37,38,39],\
-                                                            11: [40,41,42,43],\
-                                                            12: [44,45,46,47],\
-                                                            13: [48,49,50,51],\
-                                                            14: [52,53,54,55],\
-                                                            15: [56,57,58,59],\
-                                                            16: [60,61,62],\
-                                                            17: [63,64,65],\
-                                                            18: [66,67,68,69],\
-                                                            19: [70,71,72,73],\
-                                                            20: [74,75,76,77],\
-                                                            21: [78,79,80,81],\
-                                                            22: [82,83,84,85],\
-                                                            23: [86,87,88,89],\
-                                                            24: [90,91,92],\
-                                                            25: [93,94,95],\
-                                                            26: [96,97,98,99],\
-                                                            27: [100,101,102,103],\
-                                                            28: [104,105,106,107],\
-                                                            29: [108,109,110,111],\
-                                                            30: [112,113,114,115],\
-                                                            31: [116,117,118,119],\
+                    "Standard_HB120rs_v2": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7],\
+                                                           1: [8,9,10,11,12,13,14,15],\
+                                                           2: [16,17,18,19,20,21,22,23],\
+                                                           3: [24,25,26,27,28,29],\
+                                                           4: [30,31,32,33,34,35,36,37],\
+                                                           5: [38,39,40,41,42,43,44,45],\
+                                                           6: [46,47,48,49,50,51,52,53],\
+                                                           7: [54,55,56,57,58,59],\
+                                                           8: [60,61,62,63,64,65,66,67],\
+                                                           9: [68,69,70,71,72,73,74,75],\
+                                                          10: [76,77,78,79,80,81,82,83],\
+                                                          11: [84,85,86,87,88,89],\
+                                                          12: [90,91,92,93,94,95,96,97],\
+                                                          13: [98,99,100,101,102,103,104,105],\
+                                                          14: [106,107,108,109,110,111,112,113],\
+                                                          15: [114,115,116,117,118,119]\
                                                           },
-                                                "allowed_number_of_processes": [32,64,96,120]
-                                                 },
+                                          "allowed_number_of_processes": [16,32,48,64,80,96,120],
+                                          },
+                    "Standard_HB120-96rs_v2": {"l3cache_ids":  {0: [0,1,2,3,4,5],\
+                                                                1: [6,7,8,9,10,11],\
+                                                                2: [12,13,14,15,16,17],\
+                                                                3: [18,19,20,21,22,23],\
+                                                                4: [24,25,26,27,28,29],\
+                                                                5: [30,31,32,33,34,35],\
+                                                                6: [36,37,38,39,40,41],\
+                                                                7: [42,43,44,45,46,47],\
+                                                                8: [48,49,50,51,52,53],\
+                                                                9: [54,55,56,57,58,59],\
+                                                               10: [60,61,62,63,64,65],\
+                                                               11: [66,67,68,69,70,71],\
+                                                               12: [72,73,74,75,76,77],\
+                                                               13: [78,79,80,81,82,83],\
+                                                               14: [84,85,86,87,88,89],\
+                                                               15: [90,91,92,93,94,95]\
+                                                          },
+                                          "allowed_number_of_processes": [16,32,48,64,80,96]
+                                           },
+                    "Standard_HB120-64rs_v2": {"l3cache_ids":  {0: [0,1,2,3],\
+                                                                1: [4,5,6,7],\
+                                                                2: [8,9,10,11],\
+                                                                3: [12,13,14,15],\
+                                                                4: [16,17,18,19],\
+                                                                5: [20,21,22,23],\
+                                                                6: [24,25,26,27],\
+                                                                7: [28,29,30,31],\
+                                                                8: [32,33,34,35],\
+                                                                9: [36,37,38,39],\
+                                                               10: [40,41,42,43],\
+                                                               11: [44,45,46,47],\
+                                                               12: [48,49,50,51],\
+                                                               13: [52,53,54,55],\
+                                                               14: [56,57,58,59],\
+                                                               15: [60,61,62,63]\
+                                                          },
+                                          "allowed_number_of_processes": [16,32,48,64]
+                                            },
+                    "Standard_HB120-32rs_v2": {"l3cache_ids":  {0: [0,1],\
+                                                                1: [2,3],\
+                                                                2: [4,5],\
+                                                                3: [6,7],\
+                                                                4: [8,9],\
+                                                                5: [10,11],\
+                                                                6: [12,13],\
+                                                                7: [14,15],\
+                                                                8: [16,17],\
+                                                                9: [18,19],\
+                                                               10: [20,21],\
+                                                               11: [22,23],\
+                                                               12: [24,25],\
+                                                               13: [26,27],\
+                                                               14: [28,29],\
+                                                               15: [30,31]\
+                                                          },
+                                        "allowed_number_of_processes": [16,32]
+                                          },
+                    "Standard_HB120-16rs_v2": {"l3cache_ids":  {0: [0],\
+                                                                1: [1],\
+                                                                2: [2],\
+                                                                3: [3],\
+                                                                4: [4],\
+                                                                5: [5],\
+                                                                6: [6],\
+                                                                7: [7],\
+                                                                8: [8],\
+                                                                9: [9],\
+                                                               10: [10],\
+                                                               11: [11],\
+                                                               12: [12],\
+                                                               13: [13],\
+                                                               14: [14],\
+                                                               15: [15]\
+                                                          },
+                                         "allowed_number_of_processes": [16]
+                                         },
                     "Standard_HB60rs": {"l3cache_ids":  {0: [0,1,2,3],\
                                                          1: [4,5,6,7],\
                                                          2: [8,9,10,11],\
@@ -194,7 +524,13 @@ l3cache_coreid_d = {"Standard_HB120rs_v3": {"l3cache_ids": {0: [0,1,2,3,4,5,6,7]
                                                             23: [92,93,94,95]\
                                                           },
                                                 "allowed_number_of_processes": [24,48,72,96]
-                                                 }}
+                                                 },
+                    "Standard_ND96isr_H100_v5": {"l3cache_ids":  {0: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47],\
+1: [48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95]\
+
+                                                                 },
+"allowed_number_of_processes": [2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96]
+                                                }}
 
 
 def get_vm_metadata():
@@ -226,7 +562,7 @@ def one_numa(row_l):
 
 
 def parse_lstopo():
-   cmd = ["lstopo-no-graphics", "--no-caches"]
+   cmd = ["lstopo-no-graphics", "--no-caches", "--taskset", "--whole-io"]
    try:
       cmdpipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    except FileNotFoundError:
@@ -247,17 +583,19 @@ def parse_lstopo():
        if "NUMANode" in row_s:
           row_l = row_s.split()
           numanode = int(row_l[2][2:])
+          numanode_mask = row_l[-1].split("=")[1][:-3]
           topo_d["numanode_ids"][numanode] = {}
           topo_d["numanode_ids"][numanode]["core_ids"] = []
           topo_d["numanode_ids"][numanode]["gpu_ids"] = []
+          topo_d["numanode_ids"][numanode]["mask"] = numanode_mask
        if "Core" in row_s:
           row_l = row_s.split()
-          core_id = re.findall(r'\d+',row_l[-1])[0]
+          core_id = re.findall(r'\d+',row_l[-2])[0]
           topo_d["numanode_ids"][numanode]["core_ids"].append(int(core_id))
-       if re.search(r'GPU.*card', row_s):
+       if re.search(r' {10,}GPU.*card', row_s):
           row_l = row_s.split()
           gpu_id = re.findall(r'\d+',row_l[-1])[0]
-          topo_d["numanode_ids"][numanode]["gpu_ids"].append(int(gpu_id))
+          topo_d["numanode_ids"][numanode]["gpu_ids"].append(int(gpu_id)-1)
    cmdpipe.stdout.close()
    cmdpipe.stderr.close()
    return topo_d
@@ -353,15 +691,18 @@ def find_last_core_id(process_d):
    
 
 def conv_indx_str_to_list(indx_str):
-    indx_l = []
-    if "-" in indx_str:
-       indx_str_l = indx_str.split("-")
-       return list(range(int(indx_str_l[0]),int(indx_str_l[1])+1))
-    elif "," in indx_str:
-       return list(map(int, indx_str.split(",")))
-    else:
-       indx_l.append(int(indx_str))
-       return indx_l
+   if "," in indx_str:
+      parts = indx_str.split(",")
+   else:
+      parts = [indx_str]
+   indx_l = []
+   for part in parts:
+      if "-" in part:
+         indx_str_l = part.split("-")
+         indx_l += list(range(int(indx_str_l[0]),int(indx_str_l[1])+1))
+      else:
+         indx_l.append(int(part))
+   return indx_l
 
 
 def find_numas(cpus_allowed, topo_d):
@@ -493,6 +834,80 @@ def calc_process_pinning(number_processes_per_vm, num_numa_domains, l3cache_topo
                break
         indx += 1
     return (pinning_l, number_processes_per_numa, number_cores_in_l3cache)
+
+
+def calc_slurm_pinning(number_processes_per_numa, topo_2_d):
+    slurm_pinning_l = []
+    for numa_id in topo_2_d["numanode_ids"]:
+        numa_pinning_l = []
+        indx = 0
+        while len(numa_pinning_l) < number_processes_per_numa:
+            for l3cache_id in topo_2_d["numanode_ids"][numa_id]["l3cache_ids"]:
+                if indx > len(topo_2_d["numanode_ids"][numa_id]["l3cache_ids"][l3cache_id])-1:
+                   continue
+                if len(numa_pinning_l) < number_processes_per_numa:
+                   numa_pinning_l.append(topo_2_d["numanode_ids"][numa_id]["l3cache_ids"][l3cache_id][indx])
+                else:
+                   break
+            indx += 1
+        slurm_pinning_l += numa_pinning_l
+    return (slurm_pinning_l)
+
+
+def calc_slurm_pin_range(slurm_pinning_l, num_threads):
+    core_id_range_l = []
+    for core_id in slurm_pinning_l:
+        range_end = core_id + num_threads - 1
+        core_id_range = str(core_id) + "-" + str(range_end)
+        core_id_range_l.append(core_id_range)
+    return core_id_range_l
+
+
+def execute_cmd(cmd_l):
+    proc = subprocess.Popen(cmd_l, stdout=subprocess.PIPE, universal_newlines=True)
+    cmd_out, errs = proc.communicate()
+    return cmd_out
+
+
+def convert_range_to_mask(core_id_range_l):
+    slurm_mask_str = ""
+    for core_id_range in core_id_range_l:
+        hwloc_calc_arg = 'core:' + core_id_range
+        cmd_l = ['hwloc-calc', "--taskset", hwloc_calc_arg]
+        hwloc_calc_out = execute_cmd(cmd_l)
+        slurm_mask_str += "," + hwloc_calc_out.rstrip()
+    return slurm_mask_str[1:]
+
+
+def create_gpu_numa_mask_str(topo_d, total_num_gpus):
+   gpu_numa_mask_str = ""
+   for gpu_id in range(0,total_num_gpus):
+       for numa_id in topo_d["numanode_ids"]:
+           gpu_ids_l = topo_d["numanode_ids"][numa_id]["gpu_ids"]
+           if gpu_id in gpu_ids_l:
+              gpu_numa_mask_str += "," + topo_d["numanode_ids"][numa_id]["mask"]
+              break
+   return gpu_numa_mask_str[1:]
+
+
+def l3cache_id_in_numa(l3cache_l, numa_core_l):
+    for core_id in l3cache_l:
+        if core_id in numa_core_l:
+           return True
+        else:
+           return False
+
+
+def create_topo_2_d(topo_d, l3cache_topo_d):
+    topo_2_d = {}
+    topo_2_d = topo_d
+    for numa_id in topo_2_d["numanode_ids"]:
+        topo_2_d["numanode_ids"][numa_id]["l3cache_ids"] = {}
+        for l3cache_id in l3cache_topo_d["l3cache_ids"]:
+            if l3cache_id_in_numa(l3cache_topo_d["l3cache_ids"][l3cache_id], topo_d["numanode_ids"][numa_id]["core_ids"]):
+               topo_2_d["numanode_ids"][numa_id]["l3cache_ids"][l3cache_id] = l3cache_topo_d["l3cache_ids"][l3cache_id]
+
+    return topo_2_d
 
 
 def check_process_numa_distribution(total_num_processes, total_num_numa_domains, process_d):
@@ -713,17 +1128,18 @@ def check_number_threads_per_l3cache(number_processes_per_vm, number_threads_per
     return have_warning
 
 
-def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_syntax_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas):
+def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_syntax_l, slurm_pinning_l, slurm_mask_str, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, num_numas, total_num_gpus):
     hostname = socket.gethostname()
     print("")
     print("Virtual Machine ({}, {}) Numa topology".format(sku_name, hostname))
     print("")
-    print("{:<12} {:<20}  {:<10}".format("NumaNode id","Core ids", "GPU ids"))
-    print("{:=<12} {:=<20} {:=<10}".format("=","=", "="))
+    print("{:<12} {:<10} {:<34} {:<10}".format("NumaNode id", "Core ids", "Mask", "GPU ids"))
+    print("{:=<12} {:=<10} {:=<34} {:=<10}".format("=", "=", "=", "="))
     for numnode_id in topo_d["numanode_ids"]:
        core_ids_l = str(list_to_ranges(topo_d["numanode_ids"][numnode_id]["core_ids"]))
+       numa_mask = topo_d["numanode_ids"][numnode_id]["mask"]
        gpu_ids_l = str(list_to_ranges(topo_d["numanode_ids"][numnode_id]["gpu_ids"]))
-       print("{:<12} {:<20} {:<10}".format(numnode_id,core_ids_l, gpu_ids_l))
+       print("{:<12} {:<10} {:<34} {:<10}".format(numnode_id, core_ids_l, numa_mask, gpu_ids_l))
     print("")
     if l3cache_topo_d:
        print("{:<12} {:<20}".format("L3Cache id","Core ids"))
@@ -748,6 +1164,9 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
           print("{:<12} {:<17} {:<17} {:<15} {:<17} {:<15} {:<15}".format(pid,threads,running_threads,last_core_id,cpus_allowed,numas,gpu_id))
     elif print_pinning_syntax:
        total_number_processes = total_number_vms * number_processes_per_vm
+       f = open("AZ_MPI_NP", "w")
+       f.write(str(total_number_processes))
+       f.close
        print("Process/thread {} MPI mapping/pinning syntax for total {} processes ( {} processes per VM and {} threads per process)".format(mpi_type, total_number_processes, number_processes_per_vm, number_threads_per_process))
        print("")
        if sku_name == "Standard_HB120rs_v3" and number_threads_per_process > 1:
@@ -759,36 +1178,58 @@ def report(app_pattern, print_pinning_syntax, topo_d, process_d, sku_name, l3cac
        if have_warning and not force:
           print("NOTE: MPI process/thread pinning syntax will NOT be displayed until the warnings above have been corrected")
        else:
+          f = open("AZ_MPI_ARGS", "w")
           if mpi_type == "openmpi":
              if number_threads_per_process == 1 and number_processes_per_vm == number_cores_per_vm:
-                print("-np {} --bind-to cpulist:ordered --cpu-list {}".format(total_number_processes, list_to_str(pinning_syntax_l)))
+                az_mpi_args = "--bind-to cpulist:ordered --cpu-list {} -report-bindings".format(list_to_str(pinning_syntax_l))
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
              else:
-                print("-np {} --bind-to l3cache --map-by ppr:{}:numa".format(total_number_processes, number_processes_per_numa))
+                az_mpi_args = "--bind-to l3cache --map-by ppr:{}:numa -report-bindings".format(number_processes_per_numa)
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
+          elif mpi_type == "srun":
+             if total_num_gpus == 0 or total_num_gpus != number_processes_per_vm:
+                az_mpi_args = "--mpi=pmix --cpu-bind=mask_cpu:{} --ntasks-per-node={}".format(slurm_mask_str, number_processes_per_vm)
+                print("core id pinning: {}\n".format(slurm_pinning_l))
+                print("srun {}".format(az_mpi_args))
+             else:
+                gpu_numa_mask_str = create_gpu_numa_mask_str(topo_d, total_num_gpus)
+                az_mpi_args = "--mpi=pmix --cpu-bind=mask_cpu:{} --ntasks-per-node={} --gpus-per-node={}".format(gpu_numa_mask_str, number_processes_per_vm, total_num_gpus)
+                print("srun {}".format(az_mpi_args))
+          elif mpi_type == "bsub":
+             if number_threads_per_process == 1:
+                az_mpi_args = "-R \"span[ptile={}] affinity[core(1):membind=localonly:distribute=balance]\"".format(number_processes_per_vm)
+                print("bsub {}".format(az_mpi_args))
+             else:
+                az_mpi_args = "-R \"span[ptile={}] affinity[core({}, same=numa):membind=localonly:distribute=balance]\"".format(number_processes_per_vm, number_cores_in_l3cache)
+                print("bsub {}".format(az_mpi_args))
           elif mpi_type == "intel":
              num_l3cache = len(l3cache_topo_d["l3cache_ids"])
              if number_threads_per_process == 1:
-                print("-genv I_MPI_PIN_PROCESSOR=",list_to_str(pinning_syntax_l))
+                az_mpi_args = "-genv I_MPI_PIN_PROCESSOR {} -genv FI_PROVIDER mlx -genv I_MPI_COLL_EXTERNAL 1 -genv I_MPI_DEBUG 6".format(list_to_str(pinning_syntax_l))
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
              elif number_processes_per_vm < num_l3cache:
-                print("export I_MPI_PIN_DOMAIN=auto:compact")
+                az_mpi_args = "-genv I_MPI_PIN_DOMAIN {} -genv FI_PROVIDER mlx -genv I_MPI_COLL_EXTERNAL 1 -genv I_MPI_DEBUG 6".format("auto:compact")
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
              else:
-                print("export I_MPI_PIN_DOMAIN={}:compact".format(number_cores_in_l3cache))
+                az_mpi_args = "-genv I_MPI_PIN_DOMAIN {}:compact -genv FI_PROVIDER mlx -genv I_MPI_COLL_EXTERNAL 1 -genv I_MPI_DEBUG 6".format(number_cores_in_l3cache)
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
           else:
              if number_threads_per_process == 1:
-                print("export MV2_SHOW_CPU_BINDING=1")
-                print("export MV2_CPU_BINDING_POLICY=scatter")
-                print("export MV2_CPU_BINDING_LEVEL=core")
+                az_mpi_args = "-genv MV2_SHOW_CPU_BINDING=1 -genv MV2_CPU_BINDING_POLICY=scatter -genv MV2_CPU_BINDING_LEVEL=core"
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
              else:
-                print("export MV2_SHOW_CPU_BINDING=1")
-                print("export MV2_THREADS_PER_PROCESS={}".format(number_cores_in_l3cache))
-                print("export MV2_CPU_BINDING_POLICY=hybrid")
-                print("export MV2_HYBRID_BINDING_POLICY=linear")
-
+                az_mpi_args = "-genv MV2_SHOW_CPU_BINDING=1 -genv MV2_THREADS_PER_PROCESS={} -genv MV2_CPU_BINDING_POLICY=hybrid -genv MV2_HYBRID_BINDING_POLICY=linear".format(number_cores_in_l3cache)
+                print("mpirun -np {} {}".format(total_number_processes, az_mpi_args))
+          f.write(az_mpi_args)
+          f.close
 
 def main():
    total_number_vms = 0
    number_processes_per_vm = 0
    number_threads_per_process = 0
    pinning_l = []
+   slurm_pinning_l = []
+   slurm_mask_str = ""
    process_d = {}
    number_processes_per_numa = 0
    number_cores_in_l3cache = 0
@@ -803,7 +1244,7 @@ def main():
    parser.add_argument("-nv", "--total_number_vms", dest="total_number_vms", type=int, default=1, help="Total number of VM's (used with -pps)")
    parser.add_argument("-nppv", "--number_processes_per_vm", dest="number_processes_per_vm", type=int, help="Total number of MPI processes per VM (used with -pps)")
    parser.add_argument("-ntpp", "--number_threads_per_process", dest="number_threads_per_process", type=int, help="Number of threads per process (used with -pps)")
-   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel","mvapich2"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)")
+   parser.add_argument("-mt", "--mpi_type", dest="mpi_type", type=str, choices=["openmpi","intel","mvapich2","srun","bsub"], default="openmpi", help="Select which type of MPI to generate pinning syntax (used with -pps)(select srun when you are using a SLURM scheduler adn bsub with using an LSF scheduler)")
    args = parser.parse_args()
    force = args.force
    if len(sys.argv) > 1 and not args.application_pattern and not args.print_pinning_syntax:
@@ -847,7 +1288,14 @@ def main():
       have_warning = check_pinning_syntax(number_processes_per_vm, number_threads_per_process, topo_d, l3cache_topo_d)
       (pinning_l, number_processes_per_numa, number_cores_in_l3cache) = calc_process_pinning(number_processes_per_vm, total_num_numa_domains, l3cache_topo_d)
 
-   report(args.application_pattern, args.print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_l, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, total_num_numa_domains)
+   if mpi_type == "srun":
+      if total_num_gpus == 0 or total_num_gpus != number_processes_per_vm:
+         topo_2_d = create_topo_2_d(topo_d, l3cache_topo_d)
+         slurm_pinning_l = calc_slurm_pinning(number_processes_per_numa, topo_2_d)
+         slurm_pinning_l = calc_slurm_pin_range(slurm_pinning_l, number_threads_per_process)
+         slurm_mask_str = convert_range_to_mask(slurm_pinning_l)
+
+   report(args.application_pattern, args.print_pinning_syntax, topo_d, process_d, sku_name, l3cache_topo_d, number_cores_per_vm, total_number_vms, number_processes_per_vm, number_threads_per_process, pinning_l, slurm_pinning_l, slurm_mask_str, number_processes_per_numa, number_cores_in_l3cache, mpi_type, have_warning, force, total_num_numa_domains, total_num_gpus)
    check_app(args.application_pattern,  total_num_numa_domains, total_num_gpus, topo_d, process_d, l3cache_topo_d)
 
 

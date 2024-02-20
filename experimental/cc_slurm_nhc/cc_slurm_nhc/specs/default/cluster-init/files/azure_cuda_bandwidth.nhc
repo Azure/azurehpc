@@ -4,20 +4,56 @@
 BANDWIDTHTEST_EXE_PATH=/usr/local/cuda/samples/1_Utilities/bandwidthTest/bandwidthTest
 BANDWIDTHTEST=`basename $BANDWIDTHTEST_EXE_PATH`
 
+
+function find_vm_gpu_numa() {
+   vm_size=`/opt/cycle/jetpack/bin/jetpack config azure.metadata.compute.vmSize | tr '[:upper:]' '[:lower:]'`
+   dbg "vm_size=$vm_size"
+   case $vm_size in
+        standard_nd96amsr_a100_v4)
 #NUMA mapping for NDv4(A100)
-GPU_NUMA=( 1 1 0 0 3 3 2 2 )
+           GPU_NUMA=( 1 1 0 0 3 3 2 2 )
+           NUM_GPU_DEVICES=8
+           ;;
+        standard_nd96asr_v4)
+           GPU_NUMA=( 1 1 0 0 3 3 2 2 )
+           NUM_GPU_DEVICES=8
+           ;;
+        standard_nc96ads_a100_v4)
+           GPU_NUMA=( 0 1 2 3 )
+           NUM_GPU_DEVICES=4
+           ;;
+        standard_nc48ads_a100_v4)
+           GPU_NUMA=( 0 1 )
+           NUM_GPU_DEVICES=2
+           ;;
+        *)
+           NUM_GPU_DEVICES="NotFound"
+   esac
+}
+
 
 function check_cuda_bw()
 {
 EXP_CUDA_BW=$1
 REPEATS="${2:-1}"
 
+if [ -f /opt/cycle/jetpack/bin/jetpack ]; then
+   find_vm_gpu_numa
+   if [ $NUM_GPU_DEVICES == "NotFound" ]; then
+      log "Warning : $vm_size is not supported, CUDA Bandwidth test skipped"
+      return 0
+   fi
+else
+   log "Warning: NHC is not running in Azure Cyclecloud, skip CUDA Bandwidth test."
+   return 0
+fi
+
 for iter in $(seq 1 $REPEATS)
 do
     FAIL=0
     for test in "dtoh" "htod"
     do
-        for device in {0..7};
+        for ((device=0; device < $NUM_GPU_DEVICES; device++))
         do
            IFS=$'\n'
            CUDA_BW=$(numactl -N ${GPU_NUMA[$device]} -m ${GPU_NUMA[$device]} $BANDWIDTHTEST_EXE_PATH --device=$device --$test)

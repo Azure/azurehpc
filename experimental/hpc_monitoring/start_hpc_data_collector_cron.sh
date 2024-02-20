@@ -3,7 +3,7 @@
 HOSTLIST=hostlist
 INTERVAL_MINS=1
 SCRIPT_PATH=~
-EXE_PATH="${SCRIPT_PATH}/gpu_data_collector.py -uc \>\> /tmp/gpu_data_collector.log"
+EXE_PATH="${SCRIPT_PATH}/hpc_data_collector.py -uc \>\> /tmp/hpc_data_collector.log"
 PDSH_RCMD_TYPE=ssh
 
 
