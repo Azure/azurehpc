@@ -89,7 +89,7 @@ def parse_nvidia_smi_gpu_id(ecc_d):
     for gpu_id_str in gpu_id_l:
         gpu_id_str_split = gpu_id_str.split()
         gpu_id = gpu_id_str_split[1][:-1]
-        gpu_uuid = gpu_id_str_split[5][:-1]
+        gpu_uuid = gpu_id_str_split[-1][:-1]
         ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"] = gpu_id
 
     return ecc_d
@@ -153,7 +153,7 @@ def check_if_sku_is_supported(actual_sku_name):
         if sku_name == actual_sku_name:
            sku_found = True
            break
-    
+
     return sku_found
 
 
