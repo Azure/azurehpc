@@ -1,6 +1,6 @@
 #!/bin/bash
 
-$2 = PROLOG_RUN_NHC
+PROLOG_RUN_NHC=$2
 
 while [ ! -f /usr/sbin/nhc ];do
 sleep 2
