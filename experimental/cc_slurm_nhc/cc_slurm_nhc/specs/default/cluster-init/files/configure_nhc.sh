@@ -20,6 +20,7 @@ NHC_PROLOG=1
 NHC_EPILOG=0
 AUTOSCALING=0
 PROLOG_NOHOLD_REQUEUE=0
+PROLOG_RUN_NHC=0
 NHC_EXTRA_TEST_FILES="csc_nvidia_smi.nhc azure_cuda_bandwidth.nhc azure_gpu_app_clocks.nhc azure_gpu_ecc.nhc azure_gpu_persistence.nhc azure_ib_write_bw_gdr.nhc azure_nccl_allreduce_ib_loopback.nhc azure_ib_link_flapping.nhc azure_gpu_clock_throttling.nhc azure_cpu_drop_cache_mem.nhc azure_gpu_xid.nhc azure_nccl_allreduce.nhc azure_raid_health.nhc"
 
 source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
