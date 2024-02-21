@@ -6,40 +6,30 @@ function set_detached_mode() {
 }
 
 function exclusive_node() {
-BASE_DIR="/sys/fs/cgroup/memory/slurm"
-cntu=0
-for dir in ${BASE_DIR}/uid_*
-do
-    if [ -d $dir ]; then
-       cntu=$((cntu+1))
-       if [[ $cntu -gt 1 ]]; then
-          return 1
-       fi
-       cntj=0
-       for job in ${dir}/job_*
-       do
-           if [ -d $job ]; then
-              cntj=$((cntj+1))
-              if [[ $cntj -gt 0 ]]; then
-                 return 1
-              fi
-           fi
-       done
-    fi
-done
+if [ -d "/sys/fs/cgroup/memory/slurm" ]; then
+   # Ubuntu 20.04
+   BASE_DIR="/sys/fs/cgroup/memory/slurm/uid_*"
+else
+   # Ubuntu 22.04
+   BASE_DIR="/sys/fs/cgroup/system.slice/${HOSTNAME}_slurmstepd.scope"
+fi
+
+NUM_JOBS=$(ls -ld ${BASE_DIR}/job* 2> /dev/null | wc -l)
+
+if [[ $NUM_JOBS -gt 0 ]]; then
+   return 1
+fi
 }
 
 prolog_epilog=$1
 exclusive_node
 exclusive_node_rc=$?
 
-set_detached_mode 0
 NHC_RC=0
 if [ $exclusive_node_rc -eq 0 ]; then
+   set_detached_mode 0
    echo "[$prolog_eplilog] execute nhc" >> /var/log/nhc.log
    sudo /usr/sbin/nhc
    NHC_RC=$?
+   set_detached_mode 1
 fi
-set_detached_mode 1
-
-exit ${NHC_RC}
