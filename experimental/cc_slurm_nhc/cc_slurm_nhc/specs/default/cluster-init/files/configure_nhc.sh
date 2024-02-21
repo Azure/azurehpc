@@ -115,7 +115,7 @@ function update_slurm_prolog_epilog() {
          echo "Epilog=/sched/scripts/epilog.sh" >> $SLURM_CONF
       fi
    fi
-   echo "/sched/scripts/$script $prolog_epilog" >> /sched/scripts/${prolog_epilog}.sh
+   echo "/sched/scripts/$script $prolog_epilog $PROLOG_RUN_NHC" >> /sched/scripts/${prolog_epilog}.sh
 }
 
 
