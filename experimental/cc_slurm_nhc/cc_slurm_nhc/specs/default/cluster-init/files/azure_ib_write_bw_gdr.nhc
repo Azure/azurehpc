@@ -9,16 +9,31 @@ IB_WRITE_BW_ARGS="-s $(( 1 * 1024 * 1024 )) -D ${IB_WRITE_BW_DURATION} -x 0 -F -
 SLEEP_TIME=5
 
 HOSTNAME=`hostname`
-#NUMA mapping for NDv4(A100)
-GPU_NUMA=( 1 1 0 0 3 3 2 2 )
 
-
+function select_numa_mapping()
+{
+   vm_size=`/opt/cycle/jetpack/bin/jetpack config azure.metadata.compute.vmSize | tr '[:upper:]' '[:lower:]'`
+   dbg "vm_size=$vm_size"
+   case $vm_size in
+        standard_nd96isr_h100_v5)
+           GPU_NUMA=( 0 0 0 0 1 1 1 1 )
+           ;;
+        standard_nd96amsr_a100_v4)
+           GPU_NUMA=( 1 1 0 0 3 3 2 2 )
+           ;;
+        standard_nd96asr_v4)
+           GPU_NUMA=( 1 1 0 0 3 3 2 2 )
+           ;;
+   esac
+}
 
 function check_ib_bw_gdr()
 {
 EXP_IB_BW=$1
-for device in {0..3};
-do
+
+select_numa_mapping
+
+for device in {0..3}; do
    IB_WRITE_BW_OUT1=$(numactl -N ${GPU_NUMA[$device]} -m ${GPU_NUMA[$device]} $IB_WRITE_BW_EXE_PATH $IB_WRITE_BW_ARGS --use_cuda=${device} -d mlx5_ib${device} > /dev/null &)
    IB_WRITE_BW_OUT1_RC=$?
    if [[ $IB_WRITE_BW_OUT1_RC != 0 ]]; then
@@ -56,9 +71,9 @@ do
       fi
    done
    if [[ $ib_bandwidth < $EXP_IB_BW ]]; then
-       log "$IB_WRITE_BW_OUT2"
-       die 1 "$FUNCNAME: $IB_WRITE_BW, IB=mlx5_ib${device}, mlx5_ib${device_peer}, IB BW (expected > $EXP_IB_BW Gbps, but measured $ib_bandwidth Gbps"
-       return 1
+      log "$IB_WRITE_BW_OUT2"
+      die 1 "$FUNCNAME: $IB_WRITE_BW, IB=mlx5_ib${device}, mlx5_ib${device_peer}, IB BW (expected > $EXP_IB_BW Gbps, but measured $ib_bandwidth Gbps"
+      return 1
    fi
 done
 return 0
