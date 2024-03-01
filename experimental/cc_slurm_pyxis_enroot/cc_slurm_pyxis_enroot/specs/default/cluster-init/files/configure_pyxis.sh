@@ -3,8 +3,8 @@
 source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
 function link_plugstack() {
-   ln -s /sched/plugstack.conf /etc/slurm/plugstack.conf
-   ln -s /sched/plugstack.conf.d /etc/slurm/plugstack.conf.d
+   [ ! -e /etc/slurm/plugstack.conf ] && ln -s /sched/plugstack.conf /etc/slurm/plugstack.conf
+   [ ! -e /etc/slurm/plugstack.conf.d ] && ln -s /sched/plugstack.conf.d /etc/slurm/plugstack.conf.d
 }
 
 function install_plugstack() {
