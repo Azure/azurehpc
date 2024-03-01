@@ -29,9 +29,9 @@ function install_prolog() {
 if is_slurm_controller; then
    install_plugstack
    install_prolog
-   systemctl restart slurmctld
+   #systemctl restart slurmctld
 else
    link_plugstack
-   systemctl restart slurmd
+   #systemctl restart slurmd
 fi
 
