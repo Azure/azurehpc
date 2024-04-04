@@ -11,12 +11,12 @@ function select_sku() {
            ENVIRON_VARS="-x LD_LIBRARY_PATH=/usr/local/nccl-rdma-sharp-plugins/lib:$LD_LIBRARY_PATH -x NCCL_IB_PCI_RELAXED_ORDERING=1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_TOPO_FILE=/opt/microsoft/ndv5-topo.xml -x NCCL_MIN_NCHANNELS=32"
            ;;
         standard_nd96amsr_a100_v4)
-           MPI_ARGS_2="-np 8 --map-by ppr:8:node -bind-to numa -mca coll_hcoll_enable 0 --allow-run-as-root"
-           ENVIRON_VARS_2="-x LD_LIBRARY_PATH=/usr/local/nccl-rdma-sharp-plugins/lib:$LD_LIBRARY_PATH -x NCCL_IB_PCI_RELAXED_ORDERING=1 -x UCX_IB_PCI_RELAXED_ORDERING=on -x UCX_TLS=tcp -x UCX_NET_DEVICES=eth0 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_TOPO_FILE=/opt/microsoft/ndv4-topo.xml"
+           MPI_ARGS="-np 8 --map-by ppr:8:node -bind-to numa -mca coll_hcoll_enable 0 --allow-run-as-root"
+           ENVIRON_VARS="-x LD_LIBRARY_PATH=/usr/local/nccl-rdma-sharp-plugins/lib:$LD_LIBRARY_PATH -x NCCL_IB_PCI_RELAXED_ORDERING=1 -x UCX_IB_PCI_RELAXED_ORDERING=on -x UCX_TLS=tcp -x UCX_NET_DEVICES=eth0 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_TOPO_FILE=/opt/microsoft/ndv4-topo.xml"
            ;;
         standard_nd96asr_v4)
-           MPI_ARGS_2="-np 8 --map-by ppr:8:node -bind-to numa -mca coll_hcoll_enable 0 --allow-run-as-root"
-           ENVIRON_VARS_2="-x LD_LIBRARY_PATH=/usr/local/nccl-rdma-sharp-plugins/lib:$LD_LIBRARY_PATH -x NCCL_IB_PCI_RELAXED_ORDERING=1 -x UCX_IB_PCI_RELAXED_ORDERING=on -x UCX_TLS=tcp -x UCX_NET_DEVICES=eth0 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_TOPO_FILE=/opt/microsoft/ndv4-topo.xml"
+           MPI_ARGS="-np 8 --map-by ppr:8:node -bind-to numa -mca coll_hcoll_enable 0 --allow-run-as-root"
+           ENVIRON_VARS="-x LD_LIBRARY_PATH=/usr/local/nccl-rdma-sharp-plugins/lib:$LD_LIBRARY_PATH -x NCCL_IB_PCI_RELAXED_ORDERING=1 -x UCX_IB_PCI_RELAXED_ORDERING=on -x UCX_TLS=tcp -x UCX_NET_DEVICES=eth0 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x NCCL_SOCKET_IFNAME=eth0 -x NCCL_TOPO_FILE=/opt/microsoft/ndv4-topo.xml"
            ;;
    esac
 }
