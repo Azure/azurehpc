@@ -14,7 +14,7 @@ from urllib.request import urlopen, Request
 
 ECC_COUNTER_THRESHOLD = 20000000
 SRAM_ECC_COUNTER_THRESHOLD = 10000
-supported_skus_list = ["Standard_ND96asr_v4", "Standard_ND96amsr_A100_v4"]
+supported_skus_list = ["Standard_ND96asr_v4", "Standard_ND96amsr_A100_v4", "Standard_ND96isr_H100_v5"]
 
 
 def get_vm_metadata():
