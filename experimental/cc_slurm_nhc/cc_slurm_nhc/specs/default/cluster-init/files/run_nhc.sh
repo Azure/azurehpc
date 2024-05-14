@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Comma separated mounts to pass to run-health-checks.sh
+MOUNTS='/mnt/resource_nvme'
+LOG_FILE='/var/log/nhc.log'
+NHC_CMD="sudo /shared/home/cycleadmin/azurehpc-health-checks/run-health-checks.sh -d $MOUNTS -c /etc/nhc/nhc.conf -o $LOG_FILE"
+
 function set_detached_mode() {
    TARGET_MODE=$1
    sudo sed -i "s/DETACHED_MODE.*/DETACHED_MODE=${TARGET_MODE}/g" /etc/default/nhc
@@ -29,7 +34,7 @@ NHC_RC=0
 if [ $exclusive_node_rc -eq 0 ]; then
    set_detached_mode 0
    echo "[$prolog_eplilog] execute nhc" >> /var/log/nhc.log
-   sudo /usr/sbin/nhc
+   NHC_CMD
    NHC_RC=$?
    set_detached_mode 1
 fi
