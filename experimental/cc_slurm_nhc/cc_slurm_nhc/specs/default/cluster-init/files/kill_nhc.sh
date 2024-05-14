@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Kill NHC processes
-pkill -9 -f /usr/sbin/nhc
+AZNHC_CONT_NAME='aznhc'
+# Stop AzNHC container
+docker stop $AZNHC_CONT_NAME
 TIMESTAMP=$(/bin/date '+%Y%m%d %H:%M:%S')
 echo "${TIMESTAMP} [prolog] NHC processes killed at job start" >> /var/log/nhc.log
 
