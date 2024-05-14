@@ -4,13 +4,19 @@ PROLOG_RUN_NHC=$2
 
 while [ ! -f /usr/sbin/nhc ];do
 sleep 2
-echo "[Prolog] waiting for /usr/sbin/nhc" >> /var/log/nhc.log
+echo "[Prolog] waiting for aznhc" >> /var/log/nhc.log
 done
 
-pid=`ps -ef | grep -v grep | grep /usr/sbin/nhc | tr -s ' ' | cut -d ' ' -f2 | head -n 1`
+# Is AzNHC running?
+# - Returns 1 if running, returns 0 if not running.
+function is_aznhc_running() {
+    sudo docker ps --format '{{.Names}}' | grep -v -q "^aznhc$"
+}
 
-if [ -n "$pid" ]; then
-   while ps -p $pid > /dev/null 2>&1
+is_aznhc_running
+aznhc_rc=$?
+if [ aznhc_rc -eq 1 ]; then
+   while is_aznhc_running > /dev/null 2>&1
    do
         sleep 10
         TIMESTAMP=$(/bin/date '+%Y%m%d %H:%M:%S')
@@ -19,11 +25,6 @@ if [ -n "$pid" ]; then
 
    TIMESTAMP=$(/bin/date '+%Y%m%d %H:%M:%S')
    echo "${TIMESTAMP} [prolog] NHC processes finished and job can start" >> /var/log/nhc.log
-   if [ -f /var/run/nhc/nhc.status ]; then
-      exit 1
-   else
-      exit 0
-   fi
 elif [[ $PROLOG_RUN_NHC == 1 ]]; then
    /sched/scripts/run_nhc.sh
 fi
