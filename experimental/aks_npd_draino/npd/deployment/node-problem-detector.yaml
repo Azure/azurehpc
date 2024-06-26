@@ -32,8 +32,8 @@ spec:
         command:
         - /node-problem-detector
         - --logtostderr
-        - --config.custom-plugin-monitor=/config/custom-plugin-gpu-count.json,/config/custom-plugin-gpu-nvlink.json,/config/custom-plugin-gpu-xid.json
-        image: <YOUR ACR>.azurecr.io/k8s-staging-npd/node-problem-detector:<YOUR TAG>
+        - --config.custom-plugin-monitor=/config/custom-plugin-gpu-count.json,/config/custom-plugin-gpu-nvlink.json,/config/custom-plugin-gpu-xid.json,/config/custom-plugin-gpu-ecc.json
+        image: cgacr.azurecr.io/k8s-staging-npd/node-problem-detector:v0.8.19-6-g34e60f82-dirty_8
         resources:
           limits:
             cpu: 240m
@@ -101,6 +101,10 @@ spec:
             path: custom-plugin-gpu-xid.json
           - key: check_gpu_xid.sh
             path: plugin/check_gpu_xid.sh
+          - key: custom-plugin-gpu-ecc.json
+            path: custom-plugin-gpu-ecc.json
+          - key: check_gpu_ecc.sh
+            path: plugin/check_gpu_ecc.sh
       tolerations:
         - effect: NoSchedule
           operator: Exists

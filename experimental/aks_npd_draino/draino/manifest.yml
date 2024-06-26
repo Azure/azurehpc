@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
       # You'll want to change these labels and conditions to suit your deployment.
-      - command: [/draino, --skip-drain, --node-label=accelerator=nvidia, GpuCount, GpuNvlink, GpuXid]
+      - command: [/draino, --skip-drain, --node-label=accelerator=nvidia, GpuCount, GpuNvlink, GpuXid, GpuEcc]
         image: <YOUR ACR>.azurecr.io/draino:latest
         livenessProbe:
           httpGet: {path: /healthz, port: 10002}
