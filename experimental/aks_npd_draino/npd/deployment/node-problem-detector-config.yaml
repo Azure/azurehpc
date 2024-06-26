@@ -418,7 +418,7 @@ data:
     }
   check_gpu_ecc.sh: |
     #!/bin/bash
-    # This plugin checks GPU XID errors
+    # This plugin checks for GPU ECC errors
     readonly OK=0
     readonly NONOK=1
     readonly UNKNOWN=2
