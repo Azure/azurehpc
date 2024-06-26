@@ -5,7 +5,7 @@ Show how to integrate the azurehpc-health-checks GPU tests in k8s node problem d
 ## Prerequisites
 
 - AKS cluster (NDmv4) is deployed, see [blog post](https://techcommunity.microsoft.com/t5/azure-high-performance-computing/deploy-ndm-v4-a100-kubernetes-cluster/ba-p/3838871)
-- You will need to replace all references to '<YOUR ACR>' and '<YOUR TAG>'  in these scripts.
+- You will need to replace all references to \<YOUR ACR\> and \<YOUR TAG\>  in these scripts.
 
 ## Build NPD
 - Use modified NPD Makefile and Dockerfile to build NPD
