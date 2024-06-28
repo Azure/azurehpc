@@ -1,8 +1,8 @@
-# Integration of GPU node health checks into AKS  
+# Integration of GPU/IB node health checks into AKS  
 
-Show how to integrate the azurehpc-health-checks GPU tests in k8s node problem detector and then use draino to cordon/drain nodes based on GPU health check conditions.
+Show how to integrate the azurehpc-health-checks GPU/IB tests in k8s node problem detector and then use draino to cordon/drain nodes based on GPU health check conditions.
 
-GPU Count, GPU Nvlink, GPU Xid and GPU ECC health checks are included (other GPU tests can be easily added).
+GPU Count, GPU Nvlink, GPU Xid, GPU ECC and IB health checks are included (other tests can be easily added).
  
 ## Prerequisites
 
