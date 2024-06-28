@@ -1,0 +1,712 @@
+apiVersion: v1
+data:
+  kernel-monitor.json: |
+    {
+        "plugin": "kmsg",
+        "logPath": "/dev/kmsg",
+        "lookback": "5m",
+        "bufferSize": 10,
+        "source": "kernel-monitor",
+        "conditions": [
+            {
+                "type": "KernelDeadlock",
+                "reason": "KernelHasNoDeadlock",
+                "message": "kernel has no deadlock"
+            },
+            {
+                "type": "ReadonlyFilesystem",
+                "reason": "FilesystemIsNotReadOnly",
+                "message": "Filesystem is not read-only"
+            }
+        ],
+        "rules": [
+            {
+                "type": "temporary",
+                "reason": "OOMKilling",
+                "pattern": "Kill process \\d+ (.+) score \\d+ or sacrifice child\\nKilled process \\d+ (.+) total-vm:\\d+kB, anon-rss:\\d+kB, file-rss:\\d+kB.*"
+            },
+            {
+                "type": "temporary",
+                "reason": "TaskHung",
+                "pattern": "task \\S+:\\w+ blocked for more than \\w+ seconds\\."
+            },
+            {
+                "type": "temporary",
+                "reason": "UnregisterNetDevice",
+                "pattern": "unregister_netdevice: waiting for \\w+ to become free. Usage count = \\d+"
+            },
+            {
+                "type": "temporary",
+                "reason": "KernelOops",
+                "pattern": "BUG: unable to handle kernel NULL pointer dereference at .*"
+            },
+            {
+                "type": "temporary",
+                "reason": "KernelOops",
+                "pattern": "divide error: 0000 \\[#\\d+\\] SMP"
+            },
+            {
+    			"type": "temporary",
+    			"reason": "MemoryReadError",
+    			"pattern": "CE memory read error .*"
+            },
+            {
+                "type": "permanent",
+                "condition": "KernelDeadlock",
+                "reason": "DockerHung",
+                "pattern": "task docker:\\w+ blocked for more than \\w+ seconds\\."
+            },
+            {
+                "type": "permanent",
+                "condition": "ReadonlyFilesystem",
+                "reason": "FilesystemIsReadOnly",
+                "pattern": "Remounting filesystem read-only"
+            }
+        ]
+    }
+  docker-monitor.json: |
+    {
+        "plugin": "journald",
+        "pluginConfig": {
+            "source": "dockerd"
+        },
+        "logPath": "/var/log/journal",
+        "lookback": "5m",
+        "bufferSize": 10,
+        "source": "docker-monitor",
+        "conditions": [],
+        "rules": [
+            {
+                "type": "temporary",
+                "reason": "CorruptDockerImage",
+                "pattern": "Error trying v2 registry: failed to register layer: rename /var/lib/docker/image/(.+) /var/lib/docker/image/(.+): directory not empty.*"
+            }
+        ]
+    }
+  custom-plugin-monitor.json: |
+    {
+      "plugin": "custom",
+      "pluginConfig": {
+        "invoke_interval": "30s",
+        "timeout": "15s",
+        "max_output_length": 80,
+        "concurrency": 3,
+        "enable_message_change_based_condition_update": false
+      },
+      "source": "ntp-custom-plugin-monitor",
+      "metricsReporting": true,
+      "conditions": [
+        {
+          "type": "NTPProblem",
+          "reason": "NTPIsUp",
+          "message": "ntp service is up"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "NTPIsDown",
+          "path": "./config/plugin/check_ntp.sh",
+          "timeout": "10s"
+        },
+        {
+          "type": "permanent",
+          "condition": "NTPProblem",
+          "reason": "NTPIsDown",
+          "path": "./config/plugin/check_ntp.sh",
+          "timeout": "10s"
+        }
+      ]
+    }
+  check_ntp.sh: |
+    #!/bin/bash
+
+    # This plugin checks if the ntp service is running under systemd.
+    # NOTE: This is only an example for systemd services.
+
+    readonly OK=0
+    readonly NONOK=1
+    readonly UNKNOWN=2
+
+    readonly SERVICE='ntp.service'
+
+    # Check systemd cmd present
+    if ! command -v systemctl >/dev/null; then
+      echo "Could not find 'systemctl' - require systemd"
+      exit $UNKNOWN
+    fi
+
+    # Return success if service active (i.e. running)
+    if systemctl -q is-active "$SERVICE"; then
+      echo "$SERVICE is running"
+      exit $OK
+    else
+    # Does not differentiate stopped/failed service from non-existent
+      echo "$SERVICE is not running"
+      exit $NONOK
+    fi
+  custom-plugin-gpu-count.json: |
+    {
+      "plugin": "custom",
+      "pluginConfig": {
+      "invoke_interval": "30s",
+      "timeout": "20s",
+      "max_output_length": 80,
+      "concurrency": 3,
+      "enable_message_change_based_condition_update": false
+      },
+      "source": "custom-plugin-gpu-count",
+      "metricsReporting": false,
+      "conditions": [
+        {
+          "type": "GpuCount",
+          "reason": "GpuCountGood",
+          "message": "GPU count is correct"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "GpuCountBad",
+          "path": "./config/plugin/check_gpu_count.sh",
+          "timeout": "5s"
+        },
+        {
+          "type": "permanent",
+          "condition": "GpuCount",
+          "reason": "GpuCountBad",
+          "path": "./config/plugin/check_gpu_count.sh",
+          "timeout": "5s"
+        }
+      ]
+    }
+  check_gpu_count.sh: |
+    #!/bin/bash
+
+    # This plugin checks if is the VM has the correct number of GPU's
+
+    readonly OK=0
+    readonly NONOK=1
+    readonly UNKNOWN=2
+
+    readonly EXPECTED_NUM_GPU=8
+    readonly GPU_TYPE="nvidia"
+
+
+    if [ "$GPU_TYPE" == "rocm" ]; then
+       gpu_count=$(rocm-smi -l | grep 'GPU' | wc -l)
+    else
+       gpu_count=$(nvidia-smi --list-gpus | wc -l)
+    fi
+
+    if [ "$gpu_count" -ne "$EXPECTED_NUM_GPU" ]; then
+       echo "Expected to see $EXPECTED_NUM_GPU but found $gpu_count. FaultCode: NHC2009"
+       exit $NONOK
+    else
+       echo "Expected $EXPECTED_NUM_GPU and found $gpu_count"
+       exit $OK
+    fi
+  custom-plugin-gpu-nvlink.json: |
+    {
+      "plugin": "custom",
+      "pluginConfig": {
+      "invoke_interval": "60s",
+      "timeout": "35s",
+      "max_output_length": 80,
+      "concurrency": 3,
+      "enable_message_change_based_condition_update": false
+      },
+      "source": "custom-plugin-gpu-nvlink",
+      "metricsReporting": false,
+      "conditions": [
+        {
+          "type": "GpuNvlink",
+          "reason": "GpuNvlinkGood",
+          "message": "GPU NVlink is ok"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "GpuNvlinkBad",
+          "path": "./config/plugin/check_gpu_nvlink.sh",
+          "timeout": "20s"
+        },
+        {
+          "type": "permanent",
+          "condition": "GpuNvlink",
+          "reason": "GpuNvlinkBad",
+          "path": "./config/plugin/check_gpu_nvlink.sh",
+          "timeout": "20s"
+        }
+      ]
+    }
+  check_gpu_nvlink.sh: |
+    #!/bin/bash
+    # This plugin checks if is the GPU NVlink is working correctly.
+
+    readonly OK=0
+    readonly NONOK=1
+    readonly UNKNOWN=2
+
+    readonly EXPECTED_NUM_GPU=8
+
+
+    # Check if nvlink is enabled
+    num_gpus=$EXPECTED_NUM_GPU
+
+    nvlink_status=$(nvidia-smi nvlink --status)
+    if [ $? -ne 0 ]; then
+       echo "Failed to get NVLINK status with error code $?. FaultCode: NHC2016"
+       exit $NONOK
+    fi
+    if [ -z "$nvlink_status" ]; then
+       echo "NVLINK is not enabled"
+       exit $OK
+    fi
+    for ((i=0; i<num_gpus; i++)); do
+        gpu_id=$i
+    # Run nvlink command
+        nvlink_output=$(nvidia-smi nvlink -s -i $gpu_id)
+        if [ $? -ne 0 ]; then
+           echo "Failed to get NVLINK status with error code $?. FaultCode: NHC2016"
+           exit $NONOK
+        fi
+     # Check for inactive links
+        if [[ $nvlink_output == *"inactive"* ]]; then
+     # Extract and display the information about inactive links
+           inactive_links=$(echo "$nvlink_output" | grep "Link" | grep "<inactive>" | sed 's/Link \([0-9]*\): <inactive>/Link \1: Inactive/')
+           echo "GPU $gpu_id has nvlinks inactive: $inactive_links. FaultCode: NHC2016"
+           exit 1
+        elif [[ $nvlink_output == *"all links are inActive"* ]]; then
+             echo "GPU $gpu_id has all nvlinks inactive"
+             exit 1
+        else
+             echo "GPU $gpu_id has all nvlinks active."
+             exit $OK
+        fi
+        echo "NVLink is enabled and GPU $gpu_id has all nvlinks active"
+        exit $OK
+    done
+
+    exit 0
+  custom-plugin-gpu-xid.json: |
+    {
+      "plugin": "custom",
+      "pluginConfig": {
+      "invoke_interval": "60s",
+      "timeout": "35s",
+      "max_output_length": 80,
+      "concurrency": 3,
+      "enable_message_change_based_condition_update": false
+      },
+      "source": "custom-plugin-gpu-xid",
+      "metricsReporting": false,
+      "conditions": [
+        {
+          "type": "GpuXid",
+          "reason": "GpuXidGood",
+          "message": "GPU XID is ok"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "GpuXidBad",
+          "path": "./config/plugin/check_gpu_xid.sh",
+          "timeout": "20s"
+        },
+        {
+          "type": "permanent",
+          "condition": "GpuXid",
+          "reason": "GpuXidBad",
+          "path": "./config/plugin/check_gpu_xid.sh",
+          "timeout": "20s"
+        }
+      ]
+    }
+  check_gpu_xid.sh: |
+    #!/bin/bash
+    # This plugin checks GPU XID errors
+    readonly OK=0
+    readonly NONOK=1
+    readonly UNKNOWN=2
+
+    # time threshold in hours
+    readonly time_threshold=2
+    readonly logfile="/var/log/azakslog"
+    readonly kernel_log="var/log/syslog"
+    readonly XID_EC="48 56 57 58 62 63 64 65 68 69 73 74 79 80 81 92 119 120"
+    readonly GPU_XID_TEST="GPU Xid errors detected"
+
+
+    if [[ ! -f $kernel_log ]]; then
+       echo "$kernel_log not found. Skipping GPU Xid error test."
+       exit $NONOK
+    fi
+
+    # check for any xid errors
+    grep -q "Xid" $kernel_log
+    RC=$?
+    if [ $RC == 0 ]; then
+       for XID in $XID_EC; do
+           xid_found_line=$(grep "Xid.*: $XID," $kernel_log  | tail -n 1)
+           if [ "$xid_found_line" != "" ]; then
+              logXid=$(echo "$xid_found_line" | awk -F ',' '{print $1}' )
+              logMsg="Found XID: $logXid"
+              log_date="$(echo "$logXid" | awk '{print $1, $2, $3}') $(date +"%Y")"
+              log_date=$(date -d "$log_date" +"%s")
+              current_ts=$(date +"%s")
+              diff=$(( (current_ts - log_date) / 3600 ))
+
+              if [ "$diff" -le $time_threshold ]; then
+    # check if the XID has been reported in the log before
+                 if grep -qF "$logMsg" "$logfile"; then
+                    echo "This XID has been reported before: $logXid."
+                 else
+                    echo "$logMsg" >> $logfile
+                    echo "$GPU_XID_TEST: $xid_found_line. FaultCode: NHC2001"
+                    exit $NONOK
+                 fi
+              else
+                echo "Xid older than $time_threshold hours: $diff hours. Skipping this XID error: $logXid." >> $logfile
+              fi
+
+           else
+             echo "No GPU Xid $XID error found in kernel log"
+             exit $OK
+           fi
+      done
+    fi
+
+    echo "GPU XID error check passed."
+    exit $OK
+  custom-plugin-gpu-ecc.json: |
+    {
+      "plugin": "custom",
+      "pluginConfig": {
+      "invoke_interval": "60s",
+      "timeout": "35s",
+      "max_output_length": 80,
+      "concurrency": 3,
+      "enable_message_change_based_condition_update": false
+      },
+      "source": "custom-plugin-gpu-ecc",
+      "metricsReporting": false,
+      "conditions": [
+        {
+          "type": "GpuEcc",
+          "reason": "GpuEccGood",
+          "message": "GPU ECC is ok"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "GpuEccBad",
+          "path": "./config/plugin/check_gpu_ecc.sh",
+          "timeout": "25s"
+        },
+        {
+          "type": "permanent",
+          "condition": "GpuEcc",
+          "reason": "GpuEccBad",
+          "path": "./config/plugin/check_gpu_ecc.sh",
+          "timeout": "25s"
+        }
+      ]
+    }
+  check_gpu_ecc.sh: |
+    #!/bin/bash
+    # This plugin checks GPU XID errors
+    readonly OK=0
+    readonly NONOK=1
+    readonly UNKNOWN=2
+
+    GPU_REMAPPED_ROWS_QUERY="remapped_rows.pending,remapped_rows.failure,remapped_rows.uncorrectable"
+    GPU_QUERY="ecc.errors.uncorrected.volatile.sram,ecc.errors.uncorrected.aggregate.sram,ecc.errors.uncorrected.volatile.dram,ecc.errors.uncorrected.aggregate.dram,ecc.errors.corrected.volatile.sram,ecc.errors.corrected.aggregate.sram,ecc.errors.corrected.volatile.dram,ecc.errors.corrected.aggregate.dram"
+
+    function collect_ecc_data() {
+       ECC_TYPE=$1
+
+       if [[ $ECC_TYPE == "SDBE" ]]; then
+    # implement collect data
+          page_retirement_query_out=$(nvidia-smi -q -d PAGE_RETIREMENT)
+          page_retirement_query_out_rc=$?
+
+          if [[ $page_retirement_query_out_rc != 0 ]]; then
+             echo "nvidia-smi (get page retirement table) returned error code $page_retirement_query_out_rc. FaultCode: NHCNA"
+             exit $UNKNOWN
+          fi
+          IFS=$'\n'
+          TAB=$'\t'
+          echo ""
+       else
+          gpu_query_out=$(nvidia-smi --query-gpu=$GPU_QUERY --format=csv,noheader)
+          gpu_query_out_rc=$?
+          if [[ $gpu_query_out_rc != 0 ]]
+          then
+          echo "nvidia-smi (get gpu uncorrected counts) returned error code $gpu_query_out_rc. FaultCode: NHCNA"
+          exit $UNKNOWN
+          fi
+          gpu_remapped_rows_out=$(nvidia-smi --query-remapped-rows=$GPU_REMAPPED_ROWS_QUERY --format=csv,noheader)
+          gpu_remapped_rows_out_rc=$?
+          if [[ $gpu_remapped_rows_out_rc != 0 ]]
+          then
+          echo "nvidia-smi (get gpu remapped rows) returned error code $gpu_freq_out_rc. FaultCode: NHCNA"
+          exit $UNKNOWN
+          fi
+          IFS=$'\n'
+          gpu_query_out_lines=( $gpu_query_out )
+          gpu_remapped_rows_query_out_lines=( $gpu_remapped_rows_out )
+          IFS=$' \t\n'
+       fi
+    }
+
+    # ECC checks for A100/H100
+    function check_ecc() {
+
+       collect_ecc_data "ECC"
+
+       ecc_error_threshold=$1
+       ecc_sram_threshold=$2
+
+       if [[ ${#gpu_query_out_lines[*]} != ${#gpu_remapped_rows_query_out_lines[*]} ]]; then
+          echo "nvidia-smi (Number GPU's not correct), (${#gpu_query_out_lines[*]},${#gpu_remapped_rows_query_out_lines[*]}). FaultCode: NHC2007"
+          exit $NONOK
+       fi
+       for ((i=0; i<${#gpu_remapped_rows_query_out_lines[*]}; i++))
+       do
+          IFS=$', '
+          gpu_remapped_rows_query_out_line=( ${gpu_remapped_rows_query_out_lines[$i]} )
+          gpu_query_out_line=( ${gpu_query_out_lines[$i]} )
+          IFS=$' \t\n'
+          if [[ ${gpu_remapped_rows_query_out_line[0]} -gt 0 ]]
+          then
+             echo "GPU id $i: Row remap pending. FaultCode: NHC2007"
+             exit $NONOK
+          fi
+          if [[ ${gpu_remapped_rows_query_out_line[1]} -gt 0 ]]
+          then
+            echo "GPU id $i: Row remap error. FaultCode: NHC2007"
+            exit $NONOK
+          fi
+          echo "GPU id $i: row remap uncorrectable error count, (${gpu_remapped_rows_query_out_line[3]})"
+          if [[ ${gpu_remapped_rows_query_out_line[3]} -gt 512 ]]
+          then
+             echo "GPU id $i: Row remap uncorrectable error count is too high. FaultCode: NHC2007"
+             exit $NONOK
+          fi
+          if [[ ${gpu_query_out_line[4]} -gt $ecc_sram_threshold || ${gpu_query_out_line[5]} -gt $ecc_sram_threshold ]]; then
+             echo "GPU id $i: High SRAM correctable ECC error count detected, (${gpu_query_out_line[4]},${gpu_query_out_line[5]}). FaultCode: NHC2019"
+             exit $NONOK
+          elif [[ ${gpu_query_out_line[0]} -gt 0 || ${gpu_query_out_line[1]} -gt 0 ]]; then
+             echo "GPU id $i: SRAM Uncorrectable ECC error count detected, (${gpu_query_out_line[0]},${gpu_query_out_line[1]}). FaultCode: NHC2019"
+             exit $NONOK
+          else
+             echo "GPU id $i: Normal SRAM Uncorrectable/correctable ECC error count, (${gpu_query_out_line[0]},${gpu_query_out_line[1]},${gpu_query_out_line[4]},${gpu_query_out_line[5]})"
+          fi
+          if [[ -n $ecc_error_threshold ]]; then
+             if [[ ${gpu_query_out_line[2]} -gt $ecc_error_threshold || ${gpu_query_out_line[3]} -gt $ecc_error_threshold || ${gpu_query_out_line[6]} -gt $ecc_error_threshold || ${gpu_query_out_line[7]} -gt $ecc_error_threshold ]]; then
+                echo "GPU id $i: High DRAM Uncorrectable/correctable ECC error count detected, (${gpu_query_out_line[2]},${gpu_query_out_line[3]},${gpu_query_out_line[6]},${gpu_query_out_line[7]}). FaultCode: NHC2019"
+                exit $NONOK
+             else
+                echo "GPU id $i: Normal DRAM Uncorrectable/correctable ECC error count, (${gpu_query_out_line[2]},${gpu_query_out_line[3]},${gpu_query_out_line[6]},${gpu_query_out_line[7]})"
+             fi
+          fi
+       done
+       exit 0
+    }
+
+    function check_SDBE_ecc() {
+       collect_ecc_data "SDBE"
+       flag="false"
+       error_msg=''
+       re='^[0-9]+$'
+
+    # Implement check of collected value against limits
+       gpu_sections=($(echo "$page_retirement_query_out" | awk '/GPU / {print $0}'))
+       sbe_sections=($(echo "$page_retirement_query_out" | awk '/Single Bit ECC / {print $NF}'))
+       dbe_sections=($(echo "$page_retirement_query_out" | awk '/Double Bit ECC / {print $NF}'))
+       ppending_blacklist_sections=($(echo "$page_retirement_query_out" | awk '/Pending Page Blacklist / {print $NF}'))
+
+    # implement SBE DBE total check
+    # Process each GPU section
+       for index in "${!gpu_sections[@]}"; do
+    # Extract SBE and DBE values
+          gpu=${gpu_sections[index]}
+          sbe=${sbe_sections[index]}
+          dbe=${dbe_sections[index]}
+
+          if ! [[ $sbe =~ $re ]] || ! [[ $dbe =~ $re ]]; then
+             continue
+          fi
+
+    # Calculate the sum of SBE and DBE pages
+          total=$((sbe + dbe))
+
+    # implement page retirement check
+    # Check if page blacklist is pending
+          pending=${ppending_blacklist_sections[index]}
+
+          if [ "$total" -ge 62 ] && [ "$pending" == "Yes" ]; then
+             log "$FUNCNAME: Retirement Table Full for, GPU section: GPU=$gpu Total Pages=$total, Pending Blacklist=$pending"
+             flag="true"
+             error_msg+="$TAB : Retirement Table Full for, GPU: $gpu, Total Pages: $total, Pending Blacklist: $pending$IFS"
+          fi
+       done
+
+       if [ "$flag" == "true" ]; then
+          echo "ERROR: $IFS$error_msg. FaultCode: NHC2018"
+          exit $NONOK
+       fi
+
+       exit $OK
+    }
+
+
+    function check_gpu_ecc() {
+       if lspci | grep -i 'VGA\|3D controller'| grep -qi 'V100'; then
+         check_SDBE_ecc
+       else
+         ecc_error_threshold=$1
+         ecc_sram_threshold=$2
+         check_ecc $ecc_error_threshold $ecc_sram_threshold
+       fi
+
+       echo "ECC checks passed"
+       exit $NONOK
+    }
+  custom-plugin-ib.json: |
+    {
+      "plugin": "custom",
+      "pluginConfig": {
+      "invoke_interval": "60s",
+      "timeout": "35s",
+      "max_output_length": 80,
+      "concurrency": 3,
+      "enable_message_change_based_condition_update": false
+      },
+      "source": "custom-plugin-ib",
+      "metricsReporting": false,
+      "conditions": [
+        {
+          "type": "IbDev",
+          "reason": "IbDevGood",
+          "message": "IB devices are ok"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "IbDevBad",
+          "path": "./config/plugin/check_ib.sh",
+          "timeout": "20s"
+        },
+        {
+          "type": "permanent",
+          "condition": "IbDev",
+          "reason": "IbDevBad",
+          "path": "./config/plugin/check_ib.sh",
+          "timeout": "20s"
+        }
+      ]
+    }
+  check_ib.sh: |
+    #!/bin/bash
+    # This plugin checks IB.devices.
+    readonly EXPECTED_IB_Gbps=200
+    readonly EXPECTED_IB_DEVS="mlx5_0:1 mlx5_1:1 mlx5_2:1 mlx5_3:1 mlx5_4:1 mlx5_5:1 mlx5_6:1 mlx5_7:1"
+
+    HW_IB_STATE=( )
+    HW_IB_PHYS_STATE=()
+    HW_IB_RATE=( )
+    HW_IB_DEV=()
+
+    function gather_ib_data() {
+        local IFS LINE CORES SIBLINGS MHZ PROCESSOR PHYS_ID PORT INDEX DEV
+        local -a FIELD PHYS_IDS IB_PORTS
+
+
+    # Gather IB info
+        set +f
+        IFS=''
+        IB_PORTS=( /sys/class/infiniband/*/ports/* )
+        IFS=$' \t\n'
+        set -f
+        for PORT in "${IB_PORTS[@]}" ; do
+            test -e "$PORT" || break
+            INDEX=${#HW_IB_STATE[*]}
+            IFS=' :'
+            read LINE < $PORT/state
+            FIELD=( $LINE )
+            HW_IB_STATE[$INDEX]=${FIELD[1]}
+            read LINE < $PORT/phys_state
+            FIELD=( $LINE )
+            HW_IB_PHYS_STATE[$INDEX]=${FIELD[1]}
+            read LINE < $PORT/rate
+            FIELD=( $LINE )
+            HW_IB_RATE[$INDEX]=${FIELD[0]}
+            IFS=' /'
+            arr=( $PORT )
+            HW_IB_DEV[$INDEX]="${arr[4]}:${arr[6]}"
+            IFS=$' \t\n'
+    #        echo "Found ${HW_IB_STATE[$INDEX]} (${HW_IB_PHYS_STATE[$INDEX]}) IB Port ${HW_IB_DEV[$INDEX]} (${HW_IB_RATE[$INDEX]} Gb/sec)"
+        done
+        export HW_IB_STATE HW_IB_PHYS_STATE HW_IB_RATE
+
+    # Check if user-leved mad driver loaded and IB diag tools will succeed to run
+        if [[ -f /sys/class/infiniband_mad/abi_version ]]; then
+           read HW_IB_UMAD_ABI_VER < /sys/class/infiniband_mad/abi_version
+        else
+           HW_IB_UMAD_ABI_VER=0
+        fi
+        export HW_IB_UMAD_ABI_VER
+    }
+    # Check if IB state, phys_state, and rate ($1) all match.
+    function check_ib() {
+        local STATE="ACTIVE"
+        local PHYS_STATE="LinkUp"
+        local RATE="$1"
+        local DEV="$2"
+        local i
+
+        if [[ ${#HW_IB_STATE[*]} -eq 0 ]]; then
+           gather_ib_data
+        fi
+
+        if [[ $HW_IB_UMAD_ABI_VER -eq 0 ]]; then
+           echo "Version mismatch between kernel OFED drivers and userspace OFED libraries."
+           exit 1
+        fi
+
+        for ((i=0; i < ${#HW_IB_STATE[*]}; i++)); do
+            if [[ "${HW_IB_STATE[$i]}" == "$STATE" && "${HW_IB_PHYS_STATE[$i]}" == "$PHYS_STATE" ]]; then
+               if [[ (-z "$DEV" || "${HW_IB_DEV[$i]}" == "$DEV") && (-z "$RATE" || "${HW_IB_RATE[$i]}" == "$RATE") ]]; then
+                  return 0
+               fi
+            fi
+        done
+
+        if [[ -n "$DEV" ]]; then
+           DEV=" $DEV"
+        fi
+        if [[ -n "$RATE" ]]; then
+           RATE=" $RATE Gb/sec"
+        fi
+
+        echo "No IB port$DEV is $STATE ($PHYS_STATE$RATE)."
+        exit 1
+    }
+
+    for ib_dev in $EXPECTED_IB_DEVS
+    do
+        check_ib $EXPECTED_IB_Gbps $ib_dev
+    done
+
+    echo "IB devices are ok"
+    exit 0
+kind: ConfigMap
+metadata:
+  name: node-problem-detector-config
+  namespace: kube-system
