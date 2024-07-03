@@ -2,12 +2,13 @@
 
 Show how to integrate the azurehpc-health-checks GPU/IB tests in k8s node problem detector and then use draino to cordon/drain nodes based on GPU health check conditions.
 
-GPU Count, GPU Nvlink, GPU Xid, GPU ECC and IB health checks are included (other tests can be easily added).
+GPU Count, GPU Nvlink, GPU Xid, GPU ECC, GPU VBIOS, GPU throttle and IB health checks are included (other tests can be easily added).
  
 ## Prerequisites
 
 - AKS cluster (NDmv4) is deployed, see [blog post](https://techcommunity.microsoft.com/t5/azure-high-performance-computing/deploy-ndm-v4-a100-kubernetes-cluster/ba-p/3838871)
 - You will need to replace all references to \<YOUR ACR\> and \<YOUR TAG\>  in these scripts.
+- Review an expected values at top of scripts (modify as appropriate).
 
 ## Build NPD
 - Use modified NPD Makefile and Dockerfile to build NPD

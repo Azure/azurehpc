@@ -149,7 +149,7 @@ data:
     {
       "plugin": "custom",
       "pluginConfig": {
-      "invoke_interval": "30s",
+      "invoke_interval": "60s",
       "timeout": "20s",
       "max_output_length": 80,
       "concurrency": 3,
@@ -169,14 +169,14 @@ data:
           "type": "temporary",
           "reason": "GpuCountBad",
           "path": "./config/plugin/check_gpu_count.sh",
-          "timeout": "5s"
+          "timeout": "10s"
         },
         {
           "type": "permanent",
           "condition": "GpuCount",
           "reason": "GpuCountBad",
           "path": "./config/plugin/check_gpu_count.sh",
-          "timeout": "5s"
+          "timeout": "10s"
         }
       ]
     }
@@ -593,7 +593,7 @@ data:
         {
           "type": "IbDev",
           "reason": "IbDevGood",
-          "message": "IB devices are ok"
+          "message": "IB devices is ok"
         }
       ],
       "rules": [
@@ -705,6 +705,145 @@ data:
     done
 
     echo "IB devices are ok"
+    exit 0
+  custom-plugin-gpu-vbios.json: |
+    {
+      "plugin": "custom",
+      "pluginConfig": {
+      "invoke_interval": "60s",
+      "timeout": "30s",
+      "max_output_length": 80,
+      "concurrency": 3,
+      "enable_message_change_based_condition_update": false
+      },
+      "source": "custom-plugin-gpu-vbios",
+      "metricsReporting": false,
+      "conditions": [
+        {
+          "type": "GpuVbios",
+          "reason": "GpuVbiosGood",
+          "message": "GPU VBIOS is correct"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "GpuVbiosBad",
+          "path": "./config/plugin/check_gpu_vbios.sh",
+          "timeout": "20s"
+        },
+        {
+          "type": "permanent",
+          "condition": "GpuVbios",
+          "reason": "GpuVbiosBad",
+          "path": "./config/plugin/check_gpu_vbios.sh",
+          "timeout": "20s"
+        }
+      ]
+    }
+  check_gpu_vbios.sh: |
+    #!/bin/bash
+    # This plugin checks GPU VBIOS version
+    readonly expected_version="92.00.9E.00.01"
+
+    uniq_vbios_versions=$(nvidia-smi -q | grep "VBIOS Version" | cut -d ':' -f 2 | sed 's/ //g' | uniq)
+
+    if [ ${#uniq_vbios_versions[@]} -ne 1 ]; then
+        echo "More than 1 VBIOS version found on GPUs! Found '${uniq_vbios_versions[@]}' but expected just '$expected_version'. FaultCode: NHC2001"
+        exit 1
+    elif ! echo "${uniq_vbios_versions[@]}" | grep -qw "$expected_version"; then
+        echo "GPU VBIOS version does not match the expected '$expected_version', instead got '${uniq_vbios_versions[@]}'. FaultCode: NHC2001"
+        exit 1
+    fi
+
+    echo "GPU VBIOS version matches expected '$expected_version'"
+    exit 0
+  custom-plugin-gpu-throttle.json: |
+    {
+      "plugin": "custom",
+      "pluginConfig": {
+      "invoke_interval": "60s",
+      "timeout": "30s",
+      "max_output_length": 80,
+      "concurrency": 3,
+      "enable_message_change_based_condition_update": false
+      },
+      "source": "custom-plugin-gpu-throttle",
+      "metricsReporting": false,
+      "conditions": [
+        {
+          "type": "GpuThrottle",
+          "reason": "GpuThrottleNo",
+          "message": "No GPU throttling"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "GpuThrottleYes",
+          "path": "./config/plugin/check_gpu_throttle.sh",
+          "timeout": "20s"
+        },
+        {
+          "type": "permanent",
+          "condition": "GpuThrottle",
+          "reason": "GpuThrottleYes",
+          "path": "./config/plugin/check_gpu_throttle.sh",
+          "timeout": "20s"
+        }
+      ]
+    }
+  check_gpu_throttle.sh: |
+    #!/bin/bash
+    # This plugin checks GPU throttling
+   
+    readonly GPU_CLOCKS_THROTTLE_REASON_HW_SLOWDOWN=0x0000000000000008
+    readonly GPU_CLOCKS_THROTTLE_REASON_HW_THERMAL_SLOWDOWN=0x000000000000004
+    readonly GPU_CLOCKS_THROTTLE_REASON_APPLICATIONS_CLOCK_SETTINGS=0x0000000000000002
+    readonly GPU_CLOCKS_THROTTLE_READON_DISPLAY_SETTINGS=0x0000000000000100
+    readonly GPU_CLOCKS_THROTTLE_REASON_GPU_IDLE=0x0000000000000001
+    readonly GPU_CLOCKS_THROTTLE_REASON_POWER_BRAKE_SLOWDOWN=0x0000000000000080
+    readonly GPU_CLOCKS_THROTTLE_REASON_NONE=0x0000000000000000
+    readonly GPU_CLOCKS_THROTTLE_REASON_SW_POWER_CAP=0x0000000000000004
+    readonly GPU_CLOCKS_THROTTLE_REASON_SW_THERMAL_SLOWDOWN=0x0000000000000020
+    readonly GPU_CLOCKS_THROTTLE_REASON_SYNC_BOOST=0x0000000000000010
+
+
+    function collect_gpu_clock_throttle_data() {
+    # build proper command based on nvidia-smi version
+       desired_version="535.54.03"
+       nvidia_smi_version=$(nvidia-smi --id=0 --query-gpu=driver_version --format=csv,noheader)
+       if [[ "$(echo -e "$nvidia_smi_version\n$desired_version" | sort -V | head -n1)" == "$desired_version" ]]; then
+         GPU_THROTTLE_QUERY="clocks_event_reasons.active"
+       else
+         GPU_THROTTLE_QUERY="clocks_throttle_reasons.active"
+       fi
+
+       gpu_clock_throttle_query_out=$(nvidia-smi --query-gpu=$GPU_THROTTLE_QUERY --format=csv,noheader,nounits)
+       gpu_clock_throttle_query_rc=$?
+       if [[ $gpu_clock_throttle_query_rc != 0 ]]; then
+          echo "$gpu_clock_throttle_query_out"
+          echo "Warning GPU throttle check test failed to run. In most cases this is due to nvidia-smi query options not being available in the installed version. The reported return code is $gpu_clock_throttle_query_rc. The remainder of the tests will continue."
+          exit 0
+       fi
+    #  echo "gpu_clock_throttle_query_out=$gpu_clock_throttle_query_out"
+       IFS=$'\n'
+       gpu_clock_throttle_out_lines=( $gpu_clock_throttle_query_out )
+       IFS=$' \t\n'
+    }
+
+    collect_gpu_clock_throttle_data
+    for ((i=0; i<${#gpu_clock_throttle_out_lines[*]}; i++))
+    do
+      IFS=$', '
+      gpu_clock_throttle_out_line=( ${gpu_clock_throttle_out_lines[$i]} )
+      IFS=$' \t\n'
+      if [[ ${gpu_clock_throttle_out_line[0]} != $GPU_CLOCKS_THROTTLE_REASON_GPU_IDLE && ${gpu_clock_throttle_out_line[0]} != $GPU_CLOCKS_THROTTLE_REASON_NONE && ${gpu_clock_throttle_out_line[0]} != $GPU_CLOCKS_THROTTLE_REASON_SW_POWER_CAP ]]; then
+         echo "Warning: GPU $i throttled, reason=${gpu_clock_throttle_out_line[0]}"
+         exit 0
+      fi
+    done
+    echo "No GPU throttling detected"
     exit 0
 kind: ConfigMap
 metadata:
