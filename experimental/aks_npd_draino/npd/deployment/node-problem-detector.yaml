@@ -33,12 +33,16 @@ spec:
         - /node-problem-detector
         - --logtostderr
         - --config.custom-plugin-monitor=/config/custom-plugin-gpu-count.json,/config/custom-plugin-gpu-nvlink.json,/config/custom-plugin-gpu-xid.json,/config/custom-plugin-gpu-ecc.json,/config/custom-plugin-ib.json,/config/custom-plugin-gpu-vbios.json,/config/custom-plugin-gpu-throttle.json
-        image: cgacr.azurecr.io/k8s-staging-npd/node-problem-detector:v0.8.19-6-g34e60f82-dirty_8
+        image: <YOUR ACR>.azurecr.io/k8s-staging-npd/node-problem-detector:<YOUR TAG>
         resources:
           limits:
+            nvidia.com/gpu: 8
+            nvidia.com/mlnxnics: 8
             cpu: 240m
             memory: 2048Mi
           requests:
+            nvidia.com/gpu: 8
+            nvidia.com/mlnxnics: 8
             cpu: 240m
             memory: 2048Mi
         imagePullPolicy: Always
