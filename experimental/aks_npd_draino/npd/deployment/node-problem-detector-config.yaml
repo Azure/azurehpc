@@ -744,7 +744,7 @@ data:
   check_gpu_vbios.sh: |
     #!/bin/bash
     # This plugin checks GPU VBIOS version
-    readonly expected_version="92.00.9E.00.01"
+    readonly expected_version="92.00.9E.00.03"
 
     uniq_vbios_versions=$(nvidia-smi -q | grep "VBIOS Version" | cut -d ':' -f 2 | sed 's/ //g' | uniq)
 
