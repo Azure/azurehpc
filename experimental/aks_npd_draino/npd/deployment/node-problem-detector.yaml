@@ -36,13 +36,9 @@ spec:
         image: <YOUR ACR>.azurecr.io/k8s-staging-npd/node-problem-detector:<YOUR TAG>
         resources:
           limits:
-            nvidia.com/gpu: 8
-            nvidia.com/mlnxnics: 8
             cpu: 240m
             memory: 2048Mi
           requests:
-            nvidia.com/gpu: 8
-            nvidia.com/mlnxnics: 8
             cpu: 240m
             memory: 2048Mi
         imagePullPolicy: Always

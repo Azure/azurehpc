@@ -20,14 +20,14 @@ ARG BASEIMAGE
 # Must override builder-base, not builder, since the latter is referred to later in the file and so must not be
 # directly replaced. See here, and note that "stage" parameter mentioned there has been renamed to
 # "build-context": https://github.com/docker/buildx/pull/904#issuecomment-1005871838
-FROM nvcr.io/nvidia/base/ubuntu:22.04_20240212 as builder-base
+FROM nvcr.io/nvidia/cuda:12.5.0-devel-ubuntu22.04 as builder-base
 FROM builder-base as builder
 LABEL maintainer="Andy Xie <andy.xning@gmail.com>"
 
 ARG TARGETARCH
 
 RUN apt update
-RUN apt-get -y install build-essential git
+RUN apt-get -y install git
 
 COPY go1.22.4.linux-amd64.tar.gz .
 RUN rm -rf /usr/local/go && tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
