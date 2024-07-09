@@ -12,8 +12,8 @@ Shows how to run custom HPC/AI cluster  monitoring (IB, GPU, CPU, Disks etc) wit
 ## Build hpc monitoring container image
 
 ```
-docker build -t \<YOUR ACR\>.azurecr.io/aks-ai-monitoring:\<YOUR TAG\> .
-docker \<YOUR ACR\>.azurecr.io/aks-ai-monitoring:\<YOUR TAG\>
+docker build -t <YOUR ACR>.azurecr.io/aks-ai-monitoring:<YOUR TAG> .
+docker <YOUR ACR>.azurecr.io/aks-ai-monitoring:<YOUR TAG>
 ```
 
 ## Deploy HPC/AI Monitoring in AKS
