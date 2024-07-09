@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hpc-ai-monitor
+  namespace: kube-system
+  labels:
+    app: hpc-ai-monitor
+spec:
+  selector:
+    matchLabels:
+      app: hpc-ai-monitor
+  template:
+    metadata:
+      labels:
+        app: hpc-ai-monitor
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+                  - key: accelerator
+                    operator: In
+                    values:
+                      - nvidia
+      containers:
+      - name: hpc-ai-monitor
+        command:
+        - "/bin/bash"
+        - "-c"
+        - /hpc_monitor/hpc_data_collector.sh $log_analytics_customer_id $log_analytics_shared_key
+        env:
+        - name: log_analytics_customer_id
+          valueFrom:
+            secretKeyRef:
+              name: log-analytics-key
+              key: log_analytics_customer_id
+        - name: log_analytics_shared_key
+          valueFrom:
+            secretKeyRef:
+              name: log-analytics-key
+              key: log_analytics_shared_key
+        image: <YOUR ACR>.azurecr.io/aks-ai-monitoring:<YOUR TAG>
+        resources:
+          limits:
+            cpu: 240m
+            memory: 2048Mi
+          requests:
+            cpu: 240m
+            memory: 2048Mi
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        - name: hyperv
+          mountPath: /var/lib/hyperv
+          readOnly: true
+        - name: devices
+          mountPath: /sys/devices
+          readOnly: true
+        - name: infiniband
+          mountPath: /sys/class/infiniband
+          readOnly: true
+        - name: net
+          mountPath: /sys/class/net
+          readOnly: true
+        - name: diskstats
+          mountPath: /proc/diskstats
+          readOnly: true
+        - name: stat
+          mountPath: /proc/stat
+          readOnly: true
+        - name: meminfo
+          mountPath: /proc/meminfo
+          readOnly: true
+        - name: loadavg
+          mountPath: /proc/loadavg
+          readOnly: true
+        - name: config
+          mountPath: /hpc_monitor
+          readOnly: true
+      volumes:
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+      - name: hyperv
+        hostPath:
+          path: /var/lib/hyperv
+      - name: devices
+        hostPath:
+          path: /sys/devices
+      - name: infiniband
+        hostPath:
+          path: /sys/class/infiniband
+      - name: net
+        hostPath:
+          path: /sys/class/net
+      - name: diskstats
+        hostPath:
+          path: /proc/diskstats
+      - name: stat
+        hostPath:
+          path: /proc/stat
+      - name: meminfo
+        hostPath:
+          path: /proc/meminfo
+      - name: loadavg
+        hostPath:
+          path: /proc/loadavg
+      - name: config
+        configMap:
+          name: hpc-ai-monitor-config
+          defaultMode: 0755
+          items:
+          - key: hpc_data_collector.sh
+            path: hpc_data_collector.sh
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+        - effect: NoExecute
+          operator: Exists
