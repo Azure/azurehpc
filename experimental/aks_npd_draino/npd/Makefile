@@ -76,7 +76,7 @@ endif
 
 # Set default base image to Debian 12 (Bookworm)
 #BASEIMAGE:=registry.k8s.io/build-image/debian-base:bookworm-v1.0.3
-BASEIMAGE:=nvcr.io/nvidia/pytorch:23.03-py3
+BASEIMAGE:=nvcr.io/nvidia/cuda:12.5.0-devel-ubuntu22.04
 
 # Disable cgo by default to make the binary statically linked.
 CGO_ENABLED:=0
