@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  hpc_data_collector.sh: |
+    #!/bin/bash
+
+    # starts NPD, sets env vars and executes hpc_datacollector.py
+    #
+    export LOG_ANALYTICS_CUSTOMER_ID=$1
+    export LOG_ANALYTICS_SHARED_KEY=$2
+
+    /usr/bin/nv-hostengine -n --service-account nvidia-dcgm &
+
+    /bin/hpc_data_collector.py -fhm -gpum -ibm
+kind: ConfigMap
+metadata:
+  name: hpc-ai-monitor-config
+  namespace: kube-system
