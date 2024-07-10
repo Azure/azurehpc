@@ -593,7 +593,7 @@ data:
         {
           "type": "IbDev",
           "reason": "IbDevGood",
-          "message": "IB devices is ok"
+          "message": "IB device is ok"
         }
       ],
       "rules": [
