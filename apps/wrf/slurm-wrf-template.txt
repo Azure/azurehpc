@@ -23,13 +23,13 @@ Autoscale = $Autoscale
     ShutdownPolicy = $configuration_slurm_shutdown_policy
 
     # Lustre mounts require termination notifications to unmount
-    EnableTerminateNotification = ${NFSType == "lustre" || NFSSchedType == "lustre" || AdditionalNFSType1 == "lustre" || AdditionalNFSType2 == "lustre" || EnableTerminateNotification}
+    EnableTerminateNotification = ${NFSType == "lustre" || NFSSchedType == "lustre" || AdditionalNFSType == "lustre" || EnableTerminateNotification}
     TerminateNotificationTimeout = 10m
 
         [[[configuration]]]
 
-        slurm.install_pkg = azure-slurm-install-pkg-3.0.6.tar.gz
-        slurm.autoscale_pkg = azure-slurm-pkg-3.0.6.tar.gz
+        slurm.install_pkg = azure-slurm-install-pkg-3.0.7.tar.gz
+        slurm.autoscale_pkg = azure-slurm-pkg-3.0.7.tar.gz
 
         slurm.version = $configuration_slurm_version
         slurm.accounting.enabled = $configuration_slurm_accounting_enabled
@@ -37,6 +37,7 @@ Autoscale = $Autoscale
         slurm.accounting.user = $configuration_slurm_accounting_user
         slurm.accounting.password = $configuration_slurm_accounting_password
         slurm.accounting.certificate_url = $configuration_slurm_accounting_certificate_url
+        slurm.accounting.storageloc = $configuration_slurm_accounting_storageloc
         slurm.additional.config = $additional_slurm_config
         slurm.ha_enabled = $configuration_slurm_ha_enabled
         slurm.launch_parameters = $configuration_slurm_launch_parameters
@@ -62,7 +63,7 @@ Autoscale = $Autoscale
         # May be used to identify the ID in cluster-init scripts
         cluster.identities.default = $ManagedIdentity
 
-        [[[cluster-init cyclecloud/slurm:default:3.0.6]]]
+        [[[cluster-init cyclecloud/slurm:default:3.0.7]]]
         Optional = true
 
         [[[volume boot]]]
@@ -97,7 +98,7 @@ Autoscale = $Autoscale
         address = $AdditionalNFSAddress2
         mountpoint = $AdditionalNFSMountPoint2
         export_path = ${ifThenElse(AdditionalNFSType2 == "lustre", strcat("tcp:/lustrefs", AdditionalNFSExportPath2), AdditionalNFSExportPath2)}
-        options = $AdditionalNFSMountOptions2        
+        options = $AdditionalNFSMountOptions2
 
     [[node scheduler]]
     MachineType = $SchedulerMachineType
@@ -123,7 +124,7 @@ Autoscale = $Autoscale
         slurm.secondary_scheduler_name = ${ifThenElse(configuration_slurm_ha_enabled, "scheduler-ha-1", undefined)}
 
 
-        [[[cluster-init cyclecloud/slurm:scheduler:3.0.6]]]
+        [[[cluster-init cyclecloud/slurm:scheduler:3.0.7]]]
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $UsePublicNetwork
@@ -181,7 +182,7 @@ Autoscale = $Autoscale
         MachineType = $loginMachineType
         ImageName = $SchedulerImageName
 
-        [[[cluster-init cyclecloud/slurm:login:3.0.6]]]
+        [[[cluster-init cyclecloud/slurm:login:3.0.7]]]
         [[[configuration]]]
         autoscale.enabled = false
         slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
@@ -195,7 +196,7 @@ Autoscale = $Autoscale
         slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
         slurm.use_nodename_as_hostname = $NodeNameIsHostname
 
-        [[[cluster-init cyclecloud/slurm:execute:3.0.6]]]
+        [[[cluster-init cyclecloud/slurm:execute:3.0.7]]]
 
         [[[network-interface eth0]]]
         AssociatePublicIpAddress = $ExecuteNodesPublic
@@ -255,7 +256,7 @@ Order = 1
         [[[parameter slurm]]]
         HideLabel = true
         Config.Plugin = pico.widget.HtmlTemplateWidget
-        Config.Template = '''<table role="presentation"><tr><td><img alt="Slurm icon" src="static/cloud/cluster/ui/ClusterIcon/slurm.png" width="192" height="192"></td></tr><tr><td><p>Follow the instructions in the<a href="https://github.com/azure/cyclecloud-slurm/" target="_blank">README</a>for details on instructions on extending and configuring the Project for your environment.</p><br></td></tr><tr><td><p>Slurm is the most widely used workload manager in HPC, as the scheduler of choice for six of the top ten systems in the TOP500 and with market penetration of more than 70%. Slurm is an advanced, open-source scheduler designed to satisfy the demanding needs of high-performance computing (HPC), high-throughput computing (HTC), and artificial intelligence (AI).</p></td></tr><tr><td><h3>Commercial Support provided by SchedMD</h3></td></tr><tr><td><p>Get more from your HPC investment! SchedMD, the company behind Slurm development, can answer your Slurm questions and explain our options for consultation, training, support, and migration.</p><p><a href="https://www.schedmd.com/services.php">Contact SchedMD</a></p></td></tr></table><details><summary><b>View more details about Slurm?</b></summary><table role="presentation"><tr><td><h3>Slurm at a glance</h3></td></tr><tr><td><p>Slurm provides massive scalability and can easily manage performance requirements for small cluster, large cluster, and supercomputer needs. Slurm outperforms competitive schedulers with compute rates at:</p></td></tr><tr><td><ul><li>100K+ nodes/GPU</li><li>17M+ jobs per day</li><li>120M+ jobs per week</li></ul></td></tr><tr><td><br><p>Slurm’s plug-in based architecture enables optimization and control in scheduling operations to meet organizational priorities. With first class resource management for GPUs, Slurm allows users to request GPU resources alongside CPUs. This flexibility ensures that jobs are executed quickly and efficiently, while maximizing resource utilization.</p><br></td></tr><tr><td><p>Other Slurm features include:</p></td></tr><td><ul><li>NVIDIA GH200 support for AI, LLM, and ML environments</li><li>Advanced scheduling policies</li><li>Unique HPC, HTC, AI/ML workload expertise</li><li>Cloud bursting capabilities</li><li>Power saving capabilities, accounting, and reporting</li><li>Provided REST API daemon</li><li>Native support of containers</li><li>Tailored Slurm consulting and training available through SchedMD</li></ul></td></table></details>'''
+        Config.Template = '''<table role="presentation"><tr><td><img alt="Slurm icon" src="static/cloud/cluster/ui/ClusterIcon/slurm.png" width="192" height="192"></td></tr><tr><td><p>Follow the instructions in the<a href="https://github.com/azure/cyclecloud-slurm/" target="_blank">README</a>for details on instructions on extending and configuring the Project for your environment.</p><br></td></tr><tr><td><p>Slurm is the most widely used workload manager in HPC, as the scheduler of choice for six of the top ten systems in the TOP500 and with market penetration of more than 70%. Slurm is an advanced, open-source scheduler designed to satisfy the demanding needs of high-performance computing (HPC), high-throughput computing (HTC), and artificial intelligence (AI).</p></td></tr><tr><td><h3>Commercial Support provided by SchedMD</h3></td></tr><tr><td><p>Get more from your HPC investment! SchedMD, the company behind Slurm development, can answer your Slurm questions and explain our options for consultation, training, support, and migration.</p><p><a href="https://www.schedmd.com/services.php">Contact SchedMD</a></p></td></tr></table><details><summary><b>View more details about Slurm?</b></summary><table role="presentation"><tr><td><h3>Slurm at a glance</h3></td></tr><tr><td><p>Slurm provides massive scalability and can easily manage performance requirements for small cluster, large cluster, and supercomputer needs. Slurm outperforms competitive schedulers with compute rates at:</p></td></tr><tr><td><ul><li>100K+ nodes/GPU</li><li>17M+ jobs per day</li><li>120M+ jobs per week</li></ul></td></tr><tr><td><br><p>Slurm’s plug-in based architecture enables optimization and control in scheduling operations to meet organizational priorities. With first class resource management for GPUs, Slurm allows users to request GPU resources alongside CPUs. This flexibility ensures that jobs are executed quickly and efficiently, while maximizing resource utilization.</p><br></td></tr><tr><td><p>Other Slurm features include:</p></td></tr><td><ul><li>NVIDIA and AMD GPU support for AI, LLM, and ML environments</li><li>Advanced scheduling policies</li><li>Unique HPC, HTC, AI/ML workload expertise</li><li>Cloud bursting capabilities</li><li>Power saving capabilities, accounting, and reporting</li><li>Provided REST API daemon</li><li>Native support of containers</li><li>Tailored Slurm consulting and training available through SchedMD</li></ul></td></table></details>'''
 
 [parameters Required Settings]
 Order = 10
@@ -505,7 +506,7 @@ Order = 15
         [[[parameter About shared part 2]]]
         HideLabel = true
         Config.Plugin = pico.widget.HtmlTemplateWidget
-        Config.Template = ''' <p>To disable the built-in NFS export of the <code>/sched</code> directory, and to use an external filesystem, select the checkbox below.</p>'''
+        Config.Template = ''' <p>To disable the built-in NFS export of the <code>/shared</code> directory, and to use an external filesystem, select the checkbox below.</p>'''
         Order = 7
         Conditions.Hidden := configuration_slurm_ha_enabled
 
@@ -644,7 +645,7 @@ Order = 15
         Label = Mount Options
         Description = Filesystem Client Mount Options
         Conditions.Excluded := AdditionalNFS2 isnt true
-
+    
 
 [parameters Advanced Settings]
 Order = 20
@@ -679,6 +680,8 @@ Order = 20
         [[[parameter slurm_version_warning]]]
         HideLabel = true
         Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<table role=\"presentation\"><tr><td> <b>Note: For SLES HPC, we can only install the version supported by SLES HPC's zypper repos. At the time of this release, that is 23.02.7</b></td></tr></table>"
+
 
         [[[parameter configuration_slurm_version]]]
         Required = True
@@ -687,8 +690,8 @@ Order = 20
         ParameterType = StringList
         Config.Plugin = pico.form.Dropdown
         Config.FreeForm = true
-        Config.Entries := {[Value="22.05.11-1"], [Value="23.02.7-1"]}
-        DefaultValue = 23.02.7-1
+        Config.Entries := {[Value="23.02.7-4"], [Value="23.11.7-1"]}
+        DefaultValue = 23.11.7-1
 
         [[[parameter configuration_slurm_accounting_enabled]]]
         Label = Job Accounting
@@ -696,9 +699,20 @@ Order = 20
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Configure Slurm job accounting
 
+	[[[parameter slurm_database_warning]]]
+	HideLabel = true
+	Config.Plugin = pico.widget.HtmlTemplateWidget
+	Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
+	Config.Template := "<table role=\"presentation\"><tr><td> <b>Note: Checking this box will create persistent databases and tables in SQL DB provided. Deleting this cluster will not automatically delete those databases. User is responsible for periodically purging/archiving their slurm databases to maintain costs.</b></td></tr></table>"
+
         [[[parameter configuration_slurm_accounting_url]]]
         Label = Slurm DBD URL
         Description = URL of the database to use for Slurm job accounting
+        Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
+
+        [[[parameter configuration_slurm_accounting_storageloc]]]
+        Label = Database name
+        Description = Database name to store slurm accounting records
         Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
 
         [[[parameter configuration_slurm_accounting_user]]]
