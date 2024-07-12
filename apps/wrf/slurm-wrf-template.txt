@@ -23,7 +23,7 @@ Autoscale = $Autoscale
     ShutdownPolicy = $configuration_slurm_shutdown_policy
 
     # Lustre mounts require termination notifications to unmount
-    EnableTerminateNotification = ${NFSType == "lustre" || NFSSchedType == "lustre" || AdditionalNFSType == "lustre" || EnableTerminateNotification}
+    EnableTerminateNotification = ${NFSType == "lustre" || NFSSchedType == "lustre" || AdditionalNFSType1 == "lustre" || AdditionalNFSType2 == "lustre" || EnableTerminateNotification}
     TerminateNotificationTimeout = 10m
 
         [[[configuration]]]
