@@ -36,17 +36,17 @@ sudo su -
 
 ###### Setup Spack
 cd /data/azurehpc/apps/spack
-./build_spack.sh hbv2
-source /apps/spack/0.16.0/spack/share/spack/setup-env.sh
+./build_spack.sh hbv3
+source /apps/spack/0.16.3/spack/share/spack/setup-env.sh
 
 ###### Setup WRF
 # MPI_TYPE : openmpi or mvapich2
-# SKU_TYPE : hb, hbv2, hc
+# SKU_TYPE : hb, hbv2, hc, hbv3
 
-# This procedure uses openmpi and hbv2
+# This procedure uses openmpi and hbv3
 cd /data/azurehpc/apps/wrf/
-./build_wrf.sh openmpi hbv2
-./build_wps.sh openmpi hbv2
+./build_wrf.sh openmpi hbv3
+./build_wps.sh openmpi hbv3
 ```
 
 Run the command to source the env-variables file:

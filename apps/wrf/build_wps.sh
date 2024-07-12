@@ -27,7 +27,7 @@ function get_version {
     WRF_VERSION=4.1.5
     case $MPI_TYPE in
         openmpi)
-            MPI_VER=4.0.5
+            MPI_VER=5.0.2
         ;;
         mvapich2)
             MPI_VER=2.3.5
