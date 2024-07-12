@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - You need a cluster built with the desired configuration for networking, storage, compute etc. You can use the tutorial in this repo with an end-to-end instructions to setup a lab environment on Cycle Cloud to run WPS and WRF v4. (See [Install and run WPS and WRF v4 - end-to-end setup guide](../../experimental/wrf_on_cyclecloud/readme.md) for details).   
-- As this procedure uses HBv2 VMs to run WRFv4 simulations, you may need to request quota increase for this type of SKU in the subscription and region you will deploy the environment. You can use different SKU if you want to.
+- As this procedure uses HBv3 VMs to run WRFv4 simulations, you may need to request quota increase for this type of SKU in the subscription and region you will deploy the environment. You can use different SKU if you want to.
 - You need to download/clone the azurehpc GitHub repository 
 - This installation procedure requires you have 2 folders mounted /apps and /data on your storage solution
 
@@ -16,7 +16,7 @@
 
 ### Install WPS/WRF v4 software (via “azurehpc” scripts)
 
-Spin up and SSH to a Worker Node VM (HBv2). 
+Spin up and SSH to a Worker Node VM (HBv3). 
 
 **Important 1**: You must have the /apps and /data volumes correctly mounted on head and worker nodes. It is required for WRF setup scripts.
 
@@ -125,14 +125,14 @@ Modify your **namelist.wps** file, setting the correct paths for **geog_data_pat
 #sudo su -
 
 #### Change Data Locations
-cd /apps/hbv2/wps-openmpi/WPS-4.1
+cd /apps/hbv3/wps-openmpi/WPS-4.1
 cp namelist.wps namelist.wps.old
 cp /data/wrfdata/WRF_benchmarks/cases/new_conus2.5km/namelist.wps namelist.wps
 
-vi /apps/hbv2/wps-openmpi/WPS-4.1/namelist.wps
+vi /apps/hbv3/wps-openmpi/WPS-4.1/namelist.wps
  geog_data_path = '/data/wrfdata/',
- opt_geogrid_tbl_path = '/apps/hbv2/wps-openmpi/WPS-4.1/geogrid/',
- opt_metgrid_tbl_path = '/apps/hbv2/wps-openmpi/WPS-4.1/metgrid/',
+ opt_geogrid_tbl_path = '/apps/hbv3/wps-openmpi/WPS-4.1/geogrid/',
+ opt_metgrid_tbl_path = '/apps/hbv3/wps-openmpi/WPS-4.1/metgrid/',
 ```
 
 ### Run Applications: 
@@ -146,7 +146,7 @@ sudo su -
 source /data/azurehpc/apps/wrf/env-variables
 
 #### Run geogrid.exe 
-cd /apps/hbv2/wps-openmpi/WPS-4.1/
+cd /apps/hbv3/wps-openmpi/WPS-4.1/
 mpirun --allow-run-as-root ./geogrid.exe
 ln -s ungrib/Variable_Tables/Vtable.GFS Vtable
 ./link_grib.csh /data/wrfdata/gfs_files/gfs.0p25.20180617*
@@ -179,19 +179,19 @@ ls -l *met_em.d*
 # Keep as root
 sudo su -
 
-cd /apps/hbv2/wrf-openmpi/WRF-4.1.5/run
+cd /apps/hbv3/wrf-openmpi/WRF-4.1.5/run
 cp -f namelist.input namelist.input.old
 cp -f /data/wrfdata/WRF_benchmarks/cases/new_conus2.5km/namelist.input .
-cp /apps/hbv2/wps-openmpi/WPS-4.1/met_em.d0*.nc .
+cp /apps/hbv3/wps-openmpi/WPS-4.1/met_em.d0*.nc .
 mpirun --allow-run-as-root ./real.exe
 ```
 
 Expected results: 
-The following files should be generated in /apps/hbv2/wrf-openmpi/WRF-4.1.5/run/
+The following files should be generated in /apps/hbv3/wrf-openmpi/WRF-4.1.5/run/
 - wrfbdy_d01
 - wrfinput_d01
 ```
-ls -l /apps/hbv2/wrf-openmpi/WRF-4.1.5/run/*_d0*
+ls -l /apps/hbv3/wrf-openmpi/WRF-4.1.5/run/*_d0*
 ```
 
 #### Change Permissions on Files
@@ -209,7 +209,7 @@ chmod -R g+w /apps
 
 **If you get here, you have completed the WRF v4 setup!**
 
-Now you can shutdown and terminate the worker node (HBv2) used to perform these setup procedures.
+Now you can shutdown and terminate the worker node (HBv3) used to perform these setup procedures.
 
 ## Running and Testing
 
@@ -226,7 +226,7 @@ Connect to head node of your cluster and submit WRF v4 simulation job:
 mkdir ~/test1
 cd ~/test1
 
-qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 2 
@@ -238,7 +238,7 @@ qsub -l select=1:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "
 mkdir ~/test2
 cd ~/test2
 
-qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 3 
@@ -250,7 +250,7 @@ qsub -l select=2:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "
 mkdir ~/test3
 cd ~/test3
 
-qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 4
@@ -262,7 +262,7 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=30,place=scatter:excl -v "
 mkdir ~/test4
 cd ~/test4
 
-qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 5
@@ -274,7 +274,7 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 mkdir ~/test5
 cd ~/test5
 
-qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 6
@@ -286,7 +286,7 @@ qsub -l select=3:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 mkdir ~/test6
 cd ~/test6
 
-qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 7
@@ -298,7 +298,7 @@ qsub -l select=4:nodearray=execute1:ncpus=60:mpiprocs=60,place=scatter:excl -v "
 mkdir ~/test7
 cd ~/test7
 
-qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 8
@@ -310,7 +310,7 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 mkdir ~/test8
 cd ~/test8
 
-qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 9
@@ -322,7 +322,7 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 mkdir ~/test9
 cd ~/test9
 
-qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 - Test 10
@@ -334,7 +334,7 @@ qsub -l select=3:nodearray=execute1:ncpus=64:mpiprocs=64,place=scatter:excl -v "
 mkdir ~/test10
 cd ~/test10
 
-qsub -l select=3:nodearray=execute1:ncpus=120:mpiprocs=120,place=scatter:excl -v "SKU_TYPE=hbv2,INPUTDIR=/apps/hbv2/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
+qsub -l select=3:nodearray=execute1:ncpus=120:mpiprocs=120,place=scatter:excl -v "SKU_TYPE=hbv3,INPUTDIR=/apps/hbv3/wrf-openmpi/WRF-4.1.5/run" /data/azurehpc/apps/wrf/run_wrf_openmpi.pbs
 ```
 
 ### Test Results
