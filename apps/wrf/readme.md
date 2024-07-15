@@ -54,7 +54,7 @@ Run the command to source the env-variables file:
 ###### Source Variables
 # Keep as root
 #sudo su -
-source /data/azurehpc/apps/wrf/env-variables
+source /data/azurehpc/apps/wrf/env-variables hbv3
 ```
 
 ### Download WFR Input DATA (new_conus2.5km)
@@ -143,7 +143,7 @@ vi /apps/hbv3/wps-openmpi/WPS-4.1/namelist.wps
 sudo su -
 
 # Source variables
-source /data/azurehpc/apps/wrf/env-variables
+source /data/azurehpc/apps/wrf/env-variables hbv3
 
 #### Run geogrid.exe 
 cd /apps/hbv3/wps-openmpi/WPS-4.1/
@@ -159,7 +159,7 @@ mpirun --allow-run-as-root ./metgrid.exe
 Expected results 1: 
 ``` 
 # !  Successful completion of metgrid.  ! 
-# You may receive also some warnings: 
+# You may receive also some warnings, which is expected: 
 Note: The following floating-point exceptions are signalling: IEEE_OVERFLOW_FLAG IEEE_UNDERFLOW_FLAG IEEE_DENORMAL
 ``` 
 Expected results 2: 
