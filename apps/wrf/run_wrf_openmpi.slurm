@@ -1,8 +1,14 @@
 #!/bin/bash
 
 #SBATCH --job-name=wrf
-#SBATCH --nodes=1
-#SBATCH --ntasks=120
+#SBATCH --partition=hpc
+#SBATCH --nodes=1                   ### number of nodes (-N)
+###SBATCH --ntasks=120                ### number of parallel processes (tasks) (-n)
+#SBATCH --ntasks-per-node=120       ### number of parallel processes (tasks) per node (-c)
+#SBATCH --exclusive
+#SBATCH --output=slurm-wrf-%j.out
+#SBATCH --error=slurm-wrf-%j.err
+
 
 SKU_TYPE=${1:-$SKU_TYPE}
 SKU_TYPE=${SKU_TYPE:-"hbv3"}
@@ -24,7 +30,7 @@ if ! rpm -q python3; then
 fi
 
 echo "source envs"
-source /data/azurehpc/apps/wrf/env-variables
+source /data/azurehpc/apps/wrf/env-variables hbv3
 
 echo "SLURM_NTASKS:"$SLURM_NTASKS
 
@@ -42,5 +48,13 @@ if [ -n $LD_PRELOAD ]; then
     mpi_options+="-x LD_PRELOAD"
 fi
 echo "SLURM_JOB_NODELIST:" $SLURM_JOB_NODELIST
+echo "mpi_options:" $mpi_options
 
-mpirun $mpi_options -n $SLURM_NTASKS --hostfile $SLURM_JOB_NODELIST --bind-to numa wrf.exe
+scontrol show hostname $SLURM_JOB_NODELIST > hostfile.txt
+echo "cat hostfile.txt: "
+cat hostfile.txt
+
+NPROCS=`cat hostfile.txt | wc -l`
+echo "NPROCS:" $NPROCS
+
+mpirun $mpi_options -n $NPROCS --hostfile hostfile.txt --bind-to numa wrf.exe
