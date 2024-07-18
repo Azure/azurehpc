@@ -93,7 +93,7 @@ Create storage account from the Azure Portal:
 ## 7. Install CycleCloud CLI
 - Follow these steps to [Install CycleCloud CLI](https://learn.microsoft.com/en-us/azure/cyclecloud/how-to/install-cyclecloud-cli?view=cyclecloud-8):
 ```
-wget wget https://<your CycleCloud domain name>/static/tools/cyclecloud-cli.zip --no-check-certificate
+wget https://<your CycleCloud domain name>/static/tools/cyclecloud-cli.zip --no-check-certificate
 unzip cyclecloud-cli.zip
 cd cyclecloud-cli-installer
 ./install.sh
