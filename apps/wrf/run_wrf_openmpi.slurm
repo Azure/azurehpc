@@ -2,9 +2,12 @@
 #SBATCH --job-name=wrf
 #SBATCH --partition=hpc
 #SBATCH --ntasks-per-node=120
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --exclusive
 #SBATCH --output=slurm-wrf-%j.out
+
+# Capture start time
+start_time=$(date +%s)
 
 SKU_TYPE=${1:-$SKU_TYPE}
 SKU_TYPE=${SKU_TYPE:-"hbv3"}
@@ -54,4 +57,10 @@ echo "NPROCS:" $NPROCS
 echo "Running WRF.exe..."
 #mpirun $mpi_options -n $SLURM_NTASKS --hostfile hostfile.txt --bind-to numa /data/hello-world/hello_mpi
 mpirun $mpi_options -n $SLURM_NTASKS --hostfile hostfile.txt --bind-to numa wrf.exe
+# Capture end time
+end_time=$(date +%s)
+# Calculate duration
+duration=$((end_time - start_time))
 echo "WRF finished."
+echo "Execution time: $duration seconds"
+
