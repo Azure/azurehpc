@@ -62,6 +62,12 @@ mpirun $mpi_options -n $SLURM_NTASKS --hostfile hostfile.txt --bind-to numa wrf.
 end_time=$(date +%s)
 # Calculate duration
 duration=$((end_time - start_time))
+# Format duration to hh:mm:ss
+hours=$(printf "%02d" $((duration / 3600)))
+minutes=$(printf "%02d" $(( (duration % 3600) / 60 )))
+seconds=$(printf "%02d" $((duration % 60)))
+duration="${hours}:${minutes}:${seconds}"
+
 echo "WRF finished."
 echo "Execution time: $duration seconds"
 
