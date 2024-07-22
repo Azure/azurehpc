@@ -55,7 +55,6 @@ NPROCS=`cat hostfile.txt | wc -l`
 echo "NPROCS:" $NPROCS
 
 echo "Running WRF.exe..."
-#mpirun $mpi_options -n $SLURM_NTASKS --hostfile hostfile.txt --bind-to numa /data/hello-world/hello_mpi
 mpirun $mpi_options -n $SLURM_NTASKS --hostfile hostfile.txt --bind-to numa wrf.exe
 
 # Capture end time
