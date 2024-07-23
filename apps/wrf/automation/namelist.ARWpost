@@ -1,0 +1,24 @@
+&datetime
+ start_date = '2022-12-20_12:00:00',
+ end_date   = '2022-12-20_14:00:00',
+! end_date   = '2022-12-26_00:00:00',
+ interval_seconds = 3600,
+ tacc = 0,
+ debug_level = 0,
+/
+
+&io
+ input_root_name  = '/data/wrfdata/wrfdir/2022122012/wrfout_d02'
+ output_root_name = '/data/wrfdata/arwdir/2022122012/arwout_d02'
+
+ mercator_defs = .true.,
+ split_output = .true.,
+ frames_per_outfile = 1,
+ plot = 'list',
+ fields = 'T2,U10,V10,RAINC,RAINNC,RAINSH',
+/
+
+&interp
+ interp_method = 0,
+ interp_levels = 1000.,950.,850.,700.,500.,400.,200.,
+/

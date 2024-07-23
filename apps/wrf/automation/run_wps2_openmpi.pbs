@@ -1,0 +1,30 @@
+#!/bin/bash
+SKU_TYPE=${1:-$SKU_TYPE}
+SKU_TYPE=${SKU_TYPE:-"hbv2"}
+
+WRFDAT="/data/wrfdata"
+WPSDIR=${WRFDAT}/wpsdir
+WRFDIR=${WRFDAT}/wrfdir
+WRKDAY=${2:-$WRKDAY}
+
+echo $WRFDAT $WPSDIR $WRFDIR $WRKDAY 
+
+echo "SKU_TYPE:" $SKU_TYPE
+
+echo "source envs"
+source /data/azurehpc/apps/wrf/env-variables
+
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+echo "NPROCS:"$NPROCS
+
+cd $WPSDIR/$WRKDAY
+echo "cd $WPSDIR/$WRKDAY"
+
+mpi_options="-x LD_LIBRARY_PATH "
+if [ -n $LD_PRELOAD ]; then
+    mpi_options+="-x LD_PRELOAD"
+fi
+echo "PBS_NODEFILE:" $PBS_NODEFILE
+
+mpirun $mpi_options -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa geogrid.exe
+mpirun $mpi_options -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa metgrid.exe
