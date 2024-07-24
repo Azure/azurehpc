@@ -17,8 +17,8 @@ mkdir -p ${WRFDAT}/tables/wrf/
 echo "creating ${WRFDAT}/tables/namelist/"
 mkdir -p ${WRFDAT}/tables/namelist/
 
-echo "creating ${WRFDAT}/gfs_files/"
-mkdir -p ${WRFDAT}/gfs_files/
+echo "creating ${WRFDAT}/gfs_data/"
+mkdir -p ${WRFDAT}/gfs_data/
 
 echo "creating /apps/scripts/"
 mkdir -p /apps/scripts/
@@ -32,6 +32,11 @@ cp namelist.input ${WRFDAT}/tables/namelist/namelist.input
 echo "copying scripts"
 cp fwddatan.awk /apps/scripts/
 cp get_gfs_data.py /apps/scripts/
-cp cp run_*.slurm run_*.pbs /apps/scripts/
+cp run_*.slurm run_*.pbs submit*.sh /apps/scripts/
 
+echo "creating links to WPF files"
+ln -s /apps/hbv3/wps-openmpi/WPS-4.1/* /data/wrfdata/tables/wps/
+
+echo "creating links to WRF files"
+ln -s /apps/hbv3/wrf-openmpi/WRF-4.1.5/run/* /data/wrfdata/tables/wrf/
 

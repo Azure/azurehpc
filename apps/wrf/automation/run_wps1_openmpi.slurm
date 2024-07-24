@@ -40,22 +40,27 @@ echo "SKU_TYPE:" $SKU_TYPE
 
 SHARED_APP=${SHARED_APP:-/apps}
 
-echo "source envs"
+# Load environment variables
+echo "Load environment variables"
 source /data/azurehpc/apps/wrf/env-variables $SKU_TYPE
 
-# Waintig 30 seconds
+# Waiting 30 seconds
+echo "Waiting 30 seconds"
 sleep 30s
 
-#TODO: add the get_gfs_data.py script
-#python3 ${path_scr}/get_gfs_data.py $ANO $MES $DIA
+# Download gfs data
+echo "Downloading gfs data..."
+python3 ${path_scr}/get_gfs_data.py $ANO $MES $DIA
 
 echo "SLURM_SUBMIT_DIR:" $SLURM_SUBMIT_DIR
 
 cd ${WPSDIR}/${WRKDAY}
 echo "cd $WPSDIR/$WRKDAY"
 
+echo "ln -s ${WRFDAT}/tables/wps/* $WPSDIR/$WRKDAY"	
 ln -s ${WRFDAT}/tables/wps/* $WPSDIR/$WRKDAY
 
+echo "Copying namelist.wps"
 cp ${WRFDAT}/tables/namelist/namelist.wps $WPSDIR/$WRKDAY
 
 sed -i s/wrkday/${WRKDAY}/g namelist.wps
@@ -70,7 +75,10 @@ sed -i s/mmf/${MESF}/g namelist.wps
 sed -i s/ddf/${DIAF}/g namelist.wps
 sed -i s/hhf/${HORF}/g namelist.wps
 
+echo "Running link_grib.csh..." 
 ./link_grib.csh ${WRFDAT}/gfs_data/${WRKDAY}/gfs*
+
+echo "Running ungrib.exe..." 
 ./ungrib.exe >& ungrib.log
 
 # Capture end time

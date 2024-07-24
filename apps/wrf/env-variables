@@ -8,6 +8,7 @@ echo "SHARED_APP:" $SHARED_APP
 
 if ! rpm -q python3; then
     sudo yum install -y python3
+    pip install wget
 fi
 source /etc/profile.d/modules.sh
 export MODULEPATH=${SHARED_APP}/modulefiles/${SKU_TYPE}:$MODULEPATH
