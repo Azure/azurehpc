@@ -26,7 +26,7 @@
  truelat2  = -3.0,
  stand_lon = -48.0,
  geog_data_path = '/data/wrfdata/geog',
- opt_geogrid_tbl_path = '/data/wrfdata/wpsdir/wrkday',
+ opt_geogrid_tbl_path = '/data/wrfdata/wpsdir/wrkday/geogrid',
  ref_x = 210.0,
  ref_y = 150.0,
 /
@@ -40,7 +40,7 @@
  fg_name = 'FILE'
  io_form_metgrid = 2,
  opt_output_from_metgrid_path = '/data/wrfdata/wpsdir/wrkday',
- opt_metgrid_tbl_path = '/data/wrfdata/wpsdir/wrkday',
+ opt_metgrid_tbl_path = '/data/wrfdata/wpsdir/wrkday/metgrid',
 /
 
 &mod_levs
