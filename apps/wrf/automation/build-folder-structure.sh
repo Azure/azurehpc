@@ -32,5 +32,6 @@ cp namelist.input ${WRFDAT}/tables/namelist/namelist.input
 echo "copying scripts"
 cp fwddatan.awk /apps/scripts/
 cp get_gfs_data.py /apps/scripts/
+cp cp run_*.slurm run_*.pbs /apps/scripts/
 
 

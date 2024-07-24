@@ -17,6 +17,7 @@ WRFDAT="/data/wrfdata"
 WPSDIR=${WRFDAT}/wpsdir
 WRFDIR=${WRFDAT}/wrfdir
 WRKDAY=${2:-$WRKDAY}
+echo "WRKDAY:" $WRKDAY
 
 ANO=`echo ${WRKDAY} | cut -c 1-4`
 MES=`echo ${WRKDAY} | cut -c 5-6`
