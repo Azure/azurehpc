@@ -2,7 +2,7 @@
 SKU_TYPE=${1:-$SKU_TYPE}
 SKU_TYPE=${SKU_TYPE:-"hbv2"}
 
-path_scr=/apps/hbv2/scripts
+path_scr=/apps/scripts
 WRFDAT="/data/wrfdata"
 WPSDIR=${WRFDAT}/wpsdir
 WRFDIR=${WRFDAT}/wrfdir
