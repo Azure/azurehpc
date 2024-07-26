@@ -18,13 +18,13 @@ mkdir -p $path_wrf/$data
 
 #sbatch --export="ALL,SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps2_openmpi.slurm
 
-# ncpus=16 
+# ncpus=16 / 1 node
 JOB_wps1=$(sbatch --parsable --export="ALL,SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps1_openmpi.slurm)
-# ncpus=16 
+# ncpus=16 / 1 node
 JOB_wps2=$(sbatch --parsable --dependency=afterany:$JOB_wps1 --export="ALL,SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps2_openmpi.slurm)
-# ncpus=64
+# ncpus=64 / 1 node
 JOB_wrf1=$(sbatch --parsable --dependency=afterany:$JOB_wps2 --export="ALL,SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wrf1_openmpi.slurm)
-# ncpus=96
+# ncpus=96 / 4 nodes
 JOB_wrf2=$(sbatch --parsable --dependency=afterany:$JOB_wrf1 --export="ALL,SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wrf2_openmpi.slurm)
 
 exit
