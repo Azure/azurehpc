@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=120
 #SBATCH --nodes=1
 #SBATCH --exclusive
-#SBATCH --output=${WPSDIR}/${WRKDAY}/slurm-wps1-%j.out
+#SBATCH --output=slurm-wps1-%j.out
 
 # Capture start time
 start_time=$(date +%s)

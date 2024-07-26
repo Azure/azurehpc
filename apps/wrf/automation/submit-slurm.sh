@@ -20,10 +20,10 @@ mkdir -p $path_wrf/$data
 #EST2  => select=(1-4); nodearray=execute2; ncpus=96; mpiprocs=96
 #EST3  => select=(1-4); nodearray=execute3; ncpus=64; mpiprocs=64
 
-sbatch --export="ALL,SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps2_openmpi.slurm
+#sbatch --export="ALL,SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps2_openmpi.slurm
 
-#JOB_wps1=$(sbatch --parsable --export="SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps1_openmpi.slurm)
-#JOB_wps2=$(sbatch --parsable --dependency=afterany:$JOB_wps1 --export="SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps2_openmpi.slurm)
+JOB_wps1=$(sbatch --parsable --export="SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps1_openmpi.slurm)
+JOB_wps2=$(sbatch --parsable --dependency=afterany:$JOB_wps1 --export="SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wps2_openmpi.slurm)
 #JOB_wrf1=$(sbatch --parsable --dependency=afterany:$JOB_wps2 --export="SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wrf1_openmpi.slurm)
 #JOB_wrf2=$(sbatch --parsable --dependency=afterany:$JOB_wrf1 --export="SKU_TYPE=hbv3,WRKDAY=$data" $path_scr/run_wrf2_openmpi.slurm)
 

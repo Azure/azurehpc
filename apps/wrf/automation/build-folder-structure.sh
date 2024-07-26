@@ -27,10 +27,10 @@ echo "creating /apps/scripts/"
 mkdir -p /apps/scripts/
 
 echo "copying namelist.wps"
-cp namelist.wps ${WRFDAT}/tables/namelist/namelist.wps
+cp -f namelist*.wps ${WRFDAT}/tables/namelist/
 
 echo "copying namelist.input"
-cp namelist.input ${WRFDAT}/tables/namelist/namelist.input
+cp -f namelist*.input ${WRFDAT}/tables/namelist/
 
 echo "copying scripts"
 cp fwddatan.awk /apps/scripts/
