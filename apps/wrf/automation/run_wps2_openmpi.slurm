@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=wps2
 #SBATCH --partition=hpc
-#SBATCH --ntasks-per-node=120
+#SBATCH --ntasks-per-node=16
 #SBATCH --nodes=1
 #SBATCH --exclusive
 #SBATCH --output=slurm-wps2-%j.out

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=wrf2
 #SBATCH --partition=hpc
-#SBATCH --ntasks-per-node=120
+#SBATCH --ntasks-per-node=96
 #SBATCH --nodes=1
 #SBATCH --exclusive
 #SBATCH --output=slurm-wrf2-%j.out

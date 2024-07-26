@@ -26,15 +26,16 @@ mkdir -p ${WRFDAT}/geog/
 echo "creating /apps/scripts/"
 mkdir -p /apps/scripts/
 
-echo "copying namelist.wps"
-cp -f namelist*.wps ${WRFDAT}/tables/namelist/
+echo "copying namelist*.wps"
+cp -f /data/azurehpc/apps/wrf/automation/namelist*.wps ${WRFDAT}/tables/namelist/
 
-echo "copying namelist.input"
-cp -f namelist*.input ${WRFDAT}/tables/namelist/
+echo "copying namelist*.input"
+cp -f /data/azurehpc/apps/wrf/automation/namelist*.input ${WRFDAT}/tables/namelist/
 
 echo "copying scripts"
-cp fwddatan.awk /apps/scripts/
-cp get_gfs_data.py /apps/scripts/
+cd /data/azurehpc/apps/wrf/automation/
+cp /data/azurehpc/apps/wrf/automation/fwddatan.awk /apps/scripts/
+cp /data/azurehpc/apps/wrf/automation/get_gfs_data.py /apps/scripts/
 cp run_*.slurm run_*.pbs submit*.sh /apps/scripts/
 
 echo "creating links to WPF files"
