@@ -1,0 +1,87 @@
+ &time_control
+ run_days                            = 0,
+ run_hours                           = 6,
+ run_minutes                         = 0,
+ run_seconds                         = 0,
+ start_year                          = 2018,
+ start_month                         = 06,
+ start_day                           = 17,
+ start_hour                          = 00,
+ start_minute                        = 00,
+ start_second                        = 00,
+ end_year                            = 2018,
+ end_month                           = 06,
+ end_day                             = 17,
+ end_hour                            = 12,
+ end_minute                          = 00,
+ end_second                          = 00,
+ interval_seconds                    = 10800,
+ input_from_file                     = .true.,
+ history_interval                    = 180,
+ frames_per_outfile                  = 5,
+ restart                             = .false.,
+ restart_interval                    = 360,
+ io_form_history                     = 2,
+ io_form_restart                     = 2,
+ io_form_input                       = 2,
+ io_form_boundary                    = 2,
+ debug_level                         = 0
+ /
+
+ &domains
+ time_step                           = 15,
+ time_step_fract_num                 = 0,
+ time_step_fract_den                 = 1,
+ max_dom                             = 1,
+ e_we                                = 1901,
+ e_sn                                = 1301,
+ e_vert                              = 35,
+ dx                                  = 2500,
+ dy                                  = 2500,
+ p_top_requested                     = 5000,
+ num_metgrid_levels                  = 32,
+ num_metgrid_soil_levels             = 4,
+ grid_id                             = 1,
+ parent_id                           = 0,
+ i_parent_start                      = 1,
+ j_parent_start                      = 1,
+ parent_grid_ratio                   = 1,
+ parent_time_step_ratio              = 1,
+ feedback                            = 1,
+ smooth_option                       = 0
+ /
+
+ &physics
+ physics_suite                       = 'CONUS'
+ cu_physics                          = 0,
+ radt                                = 10,
+ bldt                                = 0,
+ cudt                                = 5,
+ icloud                              = 1,
+ isfflx                              = 1,
+ isftcflx                            = 2,
+ num_soil_layers                     = 4,
+ num_land_cat                        = 21,
+ /
+
+ &dynamics
+ w_damping                           = 1,
+ diff_opt                            = 1,
+ km_opt                              = 4,
+ khdif                               = 0,
+ kvdif                               = 0,
+ non_hydrostatic                     = .true.,
+ /
+
+ &bdy_control
+ spec_bdy_width                      = 5,
+ spec_zone                           = 1,
+ relax_zone                          = 4,
+ specified                           = .true., 
+ nested                              = .false.,
+ /
+
+ &namelist_quilt
+ nio_tasks_per_group = 0,
+ nio_groups = 1,
+ /

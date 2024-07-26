@@ -1,0 +1,71 @@
+#!/bin/bash
+SKU_TYPE=${1:-$SKU_TYPE}
+SKU_TYPE=${SKU_TYPE:-"hbv2"}
+
+path_scr=/apps/scripts
+WRFDAT="/data/wrfdata"
+WPSDIR=${WRFDAT}/wpsdir
+WRFDIR=${WRFDAT}/wrfdir
+WRKDAY=${2:-$WRKDAY}
+
+ANO=`echo ${WRKDAY} | cut -c 1-4`
+MES=`echo ${WRKDAY} | cut -c 5-6`
+DIA=`echo ${WRKDAY} | cut -c 7-8`
+HOR=`echo ${WRKDAY} | cut -c 9-10`
+
+#DIAFIM=`date +%Y%m%d --date="$ANO$MES$DIA +5 day"`
+DIAFIM=`echo ${WRKDAY} 132 | awk -f $path_scr/fwddatan.awk`
+
+ANOF=`echo ${DIAFIM} | cut -c 1-4`
+MESF=`echo ${DIAFIM} | cut -c 5-6`
+DIAF=`echo ${DIAFIM} | cut -c 7-8`
+HORF=`echo ${DIAFIM} | cut -c 9-10`
+
+
+echo $WRFDAT $WPSDIR $WRFDIR $WRKDAY $DIAFIM
+
+mkdir -p $WPSDIR/$WRKDAY
+
+#echo "INPUTDIR:" $INPUTDIR
+echo "SKU_TYPE:" $SKU_TYPE
+
+SHARED_APP=${SHARED_APP:-/apps}
+
+echo "source envs"
+source /data/azurehpc/apps/wrf/env-variables
+
+# Waintig 30 seconds
+sleep 30s
+
+python3 ${path_scr}/get_gfs_data.py $ANO $MES $DIA
+
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+echo "NPROCS:"$NPROCS
+
+cd ${WPSDIR}/${WRKDAY}
+echo "cd $WPSDIR/$WRKDAY"
+
+ln -s ${WRFDAT}/tables/wps/* $WPSDIR/$WRKDAY
+
+cp ${WRFDAT}/tables/namelist/namelist.wps $WPSDIR/$WRKDAY
+
+sed -i s/wrkday/${WRKDAY}/g namelist.wps
+
+sed -i s/aai/${ANO}/g namelist.wps
+sed -i s/mmi/${MES}/g namelist.wps
+sed -i s/ddi/${DIA}/g namelist.wps
+sed -i s/hhi/${HOR}/g namelist.wps
+
+sed -i s/aaf/${ANOF}/g namelist.wps
+sed -i s/mmf/${MESF}/g namelist.wps
+sed -i s/ddf/${DIAF}/g namelist.wps
+sed -i s/hhf/${HORF}/g namelist.wps
+
+mpi_options="-x LD_LIBRARY_PATH "
+if [ -n $LD_PRELOAD ]; then
+    mpi_options+="-x LD_PRELOAD"
+fi
+
+./link_grib.csh ${WRFDAT}/gfs_data/${WRKDAY}/gfs*
+./ungrib.exe >& ungrib.log
+

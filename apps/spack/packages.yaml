@@ -2,7 +2,7 @@
 packages:
   openmpi:
     externals:
-    - spec: openmpi@4.0.5%gcc@9.2.0
+    - spec: openmpi@5.0.2%gcc@9.2.0
       modules:
       - mpi/openmpi
     buildable: False

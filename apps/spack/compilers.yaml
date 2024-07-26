@@ -4,7 +4,7 @@ compilers:
     extra_rpaths: []
     flags: {}
     modules: []
-    operating_system: centos7
+    operating_system: almalinux8
     paths:
       cc: /usr/bin/gcc
       cxx: /usr/bin/g++
@@ -17,7 +17,7 @@ compilers:
     extra_rpaths: []
     flags: {}
     modules: [gcc-9.2.0]
-    operating_system: centos7
+    operating_system: almalinux8
     paths:
       cc: /opt/gcc-9.2.0/bin/gcc
       cxx: /opt/gcc-9.2.0/bin/g++

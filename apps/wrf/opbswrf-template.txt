@@ -1,0 +1,505 @@
+
+################################
+## Cluster Configuration File ##
+################################
+
+[cluster opbswrf]
+FormLayout = selectionpanel
+IconUrl = https://avatars.githubusercontent.com/u/12666893?s=200&v=4
+Category = Schedulers
+
+    [[node defaults]]
+    UsePublicNetwork = $UsePublicNetwork
+    Credentials = $Credentials    
+    ImageName = $ImageName
+    SubnetId = $SubnetId
+    Region = $Region
+    KeyPairLocation = ~/.ssh/cyclecloud.pem
+    
+        [[[configuration]]]
+        pbspro.version = $PBSVersion
+        # For fast spin-up after Deallocate, force an immediate re-converge on boot
+        cyclecloud.converge_on_boot = true
+
+        # Disable normal NFS exports and mounts
+        cyclecloud.mounts.sched.disabled = true
+        cyclecloud.mounts.shared.disabled = true
+        cyclecloud.exports.sched.disabled = true
+        cyclecloud.exports.shared.disabled = true
+        cyclecloud.exports.sched.samba.enabled = false
+        cyclecloud.exports.shared.samba.enabled = false
+        cyclecloud.exports.defaults.samba.enabled = false      
+        cshared.server.legacy_links_disabled = true
+
+        [[[cluster-init cyclecloud/pbspro:default]]]
+        Optional = false
+
+        [[[configuration cyclecloud.mounts.nfs_shared]]]
+        type = nfs
+        mountpoint = /shared
+        export_path = $NFSSharedExportPath
+        address = $NFSAddress
+        options = $NFSSharedMountOptions
+
+        [[[configuration cyclecloud.mounts.nfs_sched]]]
+        type = nfs
+        mountpoint = /sched
+
+        [[[configuration cyclecloud.mounts.additional_nfs1]]]
+        disabled = ${AdditionalNAS1 isnt true}
+        type = nfs
+        address = $AdditonalNFSAddress1
+        mountpoint = $AdditionalNFSMountPoint1
+        export_path = $AdditionalNFSExportPath1
+        options = $AdditionalNFSMountOptions1
+
+
+        [[[configuration cyclecloud.mounts.additional_nfs2]]]
+        disabled = ${AdditionalNAS2 isnt true}
+        type = nfs
+        address = $AdditonalNFSAddress2
+        mountpoint = $AdditionalNFSMountPoint2
+        export_path = $AdditionalNFSExportPath2
+        options = $AdditionalNFSMountOptions2
+
+
+    [[node server]]
+    ImageName = $SchedulerImageName
+    MachineType = $serverMachineType
+    IsReturnProxy = $ReturnProxy
+    AdditionalClusterInitSpecs = $serverClusterInitSpecs
+    
+        [[[configuration]]]
+        cyclecloud.mounts.nfs_sched.disabled = true
+        cyclecloud.mounts.nfs_shared.disabled = ${NFSType != "External"}
+
+        [[[cluster-init cyclecloud/pbspro:server]]]
+        
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $UsePublicNetwork
+
+        [[[volume sched]]]
+        Size = 1024
+        SSD = True
+        Mount = builtinsched
+        Persistent = False
+
+        [[[volume shared]]]
+        Size = ${ifThenElse(NFSType == "Builtin", FilesystemSize, 2)}
+        SSD = True
+        Mount = builtinshared
+        Persistent = ${NFSType == "Builtin"}
+
+        [[[configuration cyclecloud.mounts.builtinsched]]]
+        mountpoint = /sched
+        fs_type = xfs
+
+        [[[configuration cyclecloud.mounts.builtinshared]]]
+        disabled = ${NFSType != "Builtin"}
+        mountpoint = /shared
+        fs_type = xfs
+
+        [[[configuration cyclecloud.exports.builtinsched]]]
+        export_path = /sched
+        options = no_root_squash
+        samba.enabled = false
+        type = nfs
+
+        [[[configuration cyclecloud.exports.builtinshared]]]
+        disabled = ${NFSType != "Builtin"}
+        export_path = /shared
+        samba.enabled = false
+        type = nfs
+
+
+    [[nodearray login]]
+    InitialCount = $NumberLoginNodes
+    MachineType = $serverMachineType
+        
+        [[[cluster-init cyclecloud/pbspro:login]]]
+        [[[configuration]]]
+        autoscale.enabled = false
+
+    [[nodearray execute1]]
+    MachineType = $Execute1MachineType
+    MaxCoreCount = $MaxExecute1CoreCount
+    EphemeralOSDisk = true
+    Interruptible = $UseLowPrio1
+    AdditionalClusterInitSpecs = $Execute1ClusterInitSpecs
+
+
+        [[[configuration]]]
+        autoscale.enabled = true
+
+        [[[cluster-init cyclecloud/pbspro:execute]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $Execute1NodesPublic
+
+
+    [[nodearray execute2]]
+    MachineType = $Execute2MachineType
+    MaxCoreCount = $MaxExecute2CoreCount
+    EphemeralOSDisk = true
+    Interruptible = $UseLowPrio2
+    AdditionalClusterInitSpecs = $Execute2ClusterInitSpecs
+
+
+        [[[configuration]]]
+        autoscale.enabled = true
+        
+        [[[cluster-init cyclecloud/pbspro:execute]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $Execute2NodesPublic
+
+    
+    [[nodearray execute3]]
+    MachineType = $Execute3MachineType
+    MaxCoreCount = $MaxExecute3CoreCount
+    EphemeralOSDisk = true
+    Interruptible = $UseLowPrio3
+    AdditionalClusterInitSpecs = $Execute3ClusterInitSpecs
+
+
+        [[[configuration]]]
+        autoscale.enabled = true
+        
+        [[[cluster-init cyclecloud/pbspro:execute]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $Execute3NodesPublic
+
+
+
+[parameters About]
+Order = 1
+
+    [[parameters About OpenPBS]]
+
+        [[[parameter pbspro]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<table role=\"presentation\"><tr><td><p>OpenPBS is a highly configurable open source workload manager. See the <a href=\"http://www.openpbs.org/\" target=\"_blank\">OpenPBS project site</a> for an overview.</p></td></tr></table>"
+
+[parameters Required Settings]
+Order = 10
+
+    [[parameters Virtual Machines ]]
+    Description = "The cluster, in this case, has two roles: the scheduler server-node with shared filer and the execute hosts. Configure which VM types to use based on the requirements of your application."
+    Order = 20
+
+        [[[parameter Region]]]
+        Label = Region
+        Description = Deployment Location
+        ParameterType = Cloud.Region
+
+        [[[parameter serverMachineType]]]
+        Label = Server VM Type
+        Description = The VM type for scheduler server and shared filer.
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_D8as_v4
+
+        [[[parameter Execute1MachineType]]]
+        Label = Execute1 VM Type
+        Description = The VM type for Execute1 nodes
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_HB120rs_v2
+        Config.Multiselect = true
+
+        [[[parameter Execute2MachineType]]]
+        Label = Execute2 VM Type
+        Description = The VM type for Execute2 nodes
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_HB120-32rs_v3
+        Config.Multiselect = true
+
+        [[[parameter Execute3MachineType]]]
+        Label = Execute3 VM Type
+        Description = The VM type for Execute3 nodes
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_HB120-64rs_v3
+        Config.Multiselect = true
+
+    
+    [[parameters VM Auto-Scaling]]
+    Description = "The cluster can autoscale to the workload, adding execute hosts as jobs are queued. To enable this check the box below and choose the initial and maximum core counts for the cluster"
+    Order = 30
+
+        [[[parameter MaxExecute1CoreCount]]]
+        Label = Ex1 Max Cores
+        Description = The total number of Execute1 cores to start
+        DefaultValue = 1200
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+        [[[parameter MaxExecute2CoreCount]]]
+        Label = Ex2 Max Cores
+        Description = The total number of Execute2 cores to start
+        DefaultValue = 1200
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+        [[[parameter MaxExecute3CoreCount]]]
+        Label = Ex3 Max Cores
+        Description = The total number of Execute3 cores to start
+        DefaultValue = 1200
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+        [[[parameter UseLowPrio1]]]
+        Label = Low Priority
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use low priority instances for Ex1 hosts
+
+        [[[parameter UseLowPrio2]]]
+        Label = Low Priority
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use low priority instances for Ex2 hosts
+
+        [[[parameter UseLowPrio3]]]
+        Label = Low Priority
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use low priority instances for Ex3 hosts
+
+    [[parameters Networking]]
+    Order = 40
+
+        [[[parameter SubnetId]]]
+        Label = Subnet ID
+        Description = Subnet Resource Path (ResourceGroup/VirtualNetwork/Subnet)
+        ParameterType = Azure.Subnet
+        Required = True
+
+[parameters Network Attached Storage]
+Order = 15
+
+    [[parameters Default NFS Share]]
+    Order = 10
+        [[[parameter About shared]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p>The directory <code>/shared</code> is a network attached mount and exists in all nodes of the cluster. Users' home directories reside within this mountpoint with the base homedir <code>/shared/home</code>.<br><br>There are two options for providing this mount:<br> <strong>[Builtin]</strong>: The scheduler node is an NFS server that provides the mountpoint to the other nodes of the cluster.<br> <strong>[External NFS]</strong>: A network attached storage such as Azure Netapp Files, HPC Cache, or another VM running an NFS server, provides the mountpoint.</p>"
+        Order = 20
+
+        [[[parameter NFSType]]]
+        Label = NFS Type
+        ParameterType = StringList
+        Config.Label = Type of NFS to use for this cluster
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="External NFS"; Value="External"], [Label="Builtin"; Value="Builtin"]}
+        DefaultValue = Builtin
+
+        [[[parameter NFSAddress]]]
+        Label = NFS IP Address
+        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Hidden := NFSType != "External"
+
+        [[[parameter NFSSharedExportPath]]]
+        Label = Shared Export Path
+        Description = The path exported by the file system
+        DefaultValue = /shared
+        Conditions.Hidden := NFSType != "External"
+
+        [[[parameter NFSSharedMountOptions]]]
+        Label = NFS Mount Options
+        Description = NFS Client Mount Options
+        Conditions.Hidden := NFSType != "External"
+
+        [[[parameter FilesystemSize]]]
+        Label = Size (GB)
+        Description = The filesystem size
+        DefaultValue = 100
+
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 10
+        Config.MaxValue = 10240
+        Config.IntegerOnly = true
+        Conditions.Excluded := NFSType != "Builtin"
+
+    [[parameters Additional NFS Mount]]
+    Order = 20
+        [[[parameter Additional NFS Mount Readme]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p>Mount another NFS endpoint on the cluster nodes</p>"
+        Order = 20
+
+        [[[parameter AdditionalNAS1]]]
+        HideLabel = true
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Add additional NFS mount
+
+        [[[parameter AdditonalNFSAddress1]]]
+        Label = NFS IP Address 
+        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        DefaultValue = "10.4.4.4"
+        Conditions.Excluded := AdditionalNAS1 isnt true
+
+        [[[parameter AdditionalNFSMountPoint1]]]
+        Label = NFS Mount Point
+        Description = The path at which to mount the Filesystem
+        DefaultValue = /data
+        Conditions.Excluded := AdditionalNAS1 isnt true
+
+        [[[parameter AdditionalNFSExportPath1]]]
+        Label = NFS Export Path
+        Description = The path exported by the file system
+        DefaultValue = /mnt/exports/data
+        Conditions.Excluded := AdditionalNAS1 isnt true
+
+        [[[parameter AdditionalNFSMountOptions1]]]
+        Label = NFS Mount Options
+        Description = NFS Client Mount Options
+        Conditions.Excluded := AdditionalNAS1 isnt true
+    
+        [[[parameter AdditionalNAS2]]]
+        HideLabel = true
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Add additional NFS mount
+
+        [[[parameter AdditonalNFSAddress2]]]
+        Label = NFS IP Address 
+        Description = The IP address or hostname of the NFS server. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        DefaultValue = "10.4.4.4"
+        Conditions.Excluded := AdditionalNAS2 isnt true
+
+        [[[parameter AdditionalNFSMountPoint2]]]
+        Label = NFS Mount Point
+        Description = The path at which to mount the Filesystem
+        DefaultValue = /apps
+        Conditions.Excluded := AdditionalNAS2 isnt true
+
+        [[[parameter AdditionalNFSExportPath2]]]
+        Label = NFS Export Path
+        Description = The path exported by the file system
+        DefaultValue = /mnt/exports/apps
+        Conditions.Excluded := AdditionalNAS2 isnt true
+
+        [[[parameter AdditionalNFSMountOptions2]]]
+        Label = NFS Mount Options
+        Description = NFS Client Mount Options
+        Conditions.Excluded := AdditionalNAS2 isnt true
+
+
+[parameters Advanced Settings]
+Order = 20
+
+    [[parameters Azure Settings]]
+    Order = 10 
+
+        [[[parameter Credentials]]]
+        Description = The credentials for the cloud provider
+        ParameterType = Cloud.Credentials
+
+    [[parameters PBSPro Settings ]]
+    Description = "Section for configuring OpenPBS"
+    Order = 5
+
+        
+
+    [[parameters Software]]
+    Description = "Specify the scheduling software, and base OS installed on all nodes, and optionally the cluster-init and chef versions from your Locker."
+    Order = 10
+
+
+        [[[parameter SchedulerImageName]]]
+        Label = Scheduler OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = cycle.image.centos7
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8"}
+
+        [[[parameter ImageName]]]
+        Label = Compute OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = cycle.image.centos7
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.centos8"}
+
+        [[[parameter PBSVersion]]]
+        Label = PBS Version
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="OpenPBS v20, el8-only"; Value="20.0.1-0"], [Label="PBSPro v18, el7-only"; Value="18.1.4-0"]}
+        DefaultValue = 18.1.4-0
+
+        [[[parameter serverClusterInitSpecs]]]
+        Label = Server Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to the server node
+        ParameterType = Cloud.ClusterInitSpecs
+    
+        [[[parameter Execute1ClusterInitSpecs]]]
+        Label = Execute1 Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter Execute2ClusterInitSpecs]]]
+        Label = Execute2 Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter Execute3ClusterInitSpecs]]]
+        Label = Execute3 Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to execute 3 nodes
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter NumberLoginNodes]]]
+        Label = Num Login Nodes
+        DefaultValue = 0
+        Description = Number of optional login nodes to create.
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 0
+        Config.MaxValue = 10000
+        Config.IntegerOnly = true
+	
+
+    [[parameters Advanced Networking]]
+    Description = Advanced networking settings
+
+        [[[parameter ReturnProxy]]]
+        Label = Return Proxy
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Use SSH tunnel to connect to CycleCloud (required if direct access is blocked)
+
+        [[[parameter UsePublicNetwork]]]
+        Label = Public Head Node
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Access server node from the Internet
+
+        [[[parameter Execute1NodesPublic]]]
+        Label = Public Execute1
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Access execute nodes from the Internet
+        Conditions.Excluded := UsePublicNetwork isnt true
+
+        [[[parameter Execute2NodesPublic]]]
+        Label = Public Execute2
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Access execute nodes from the Internet
+        Conditions.Excluded := UsePublicNetwork isnt true
+
+        [[[parameter Execute3NodesPublic]]]
+        Label = Public Execute3
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Access execute nodes from the Internet
+        Conditions.Excluded := UsePublicNetwork isnt true

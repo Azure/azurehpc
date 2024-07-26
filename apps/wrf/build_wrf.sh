@@ -38,7 +38,7 @@ function get_version {
             MPI_VER=2.7.4
         ;;
         openmpi)
-            MPI_VER=4.0.5
+            MPI_VER=5.0.2
         ;;
         mvapich2)
             MPI_VER=2.3.5

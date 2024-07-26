@@ -2,7 +2,7 @@
 set -e
 APPS_SPACK_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP_NAME=spack
-APP_VERSION=0.16.0
+APP_VERSION=0.16.3
 SHARED_APP=${SHARED_APP:-/apps}
 INTEL_MPI_VERSION=${INTEL_MPI_VERSION:-2018.4.274} # This should be retrieved dynamically
 

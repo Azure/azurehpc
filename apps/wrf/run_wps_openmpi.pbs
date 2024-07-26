@@ -1,0 +1,60 @@
+#!/bin/bash
+SKU_TYPE=${1:-$SKU_TYPE}
+SKU_TYPE=${SKU_TYPE:-"hbv2"}
+INPUTDIR=${2:-$INPUTDIR}
+INPUTDIR=${INPUTDIR:-"/apps/hbv2/wps-openmpi/WPS-4.1/"}
+
+echo "INPUTDIR:" $INPUTDIR
+echo "SKU_TYPE:" $SKU_TYPE
+
+SHARED_APP=${SHARED_APP:-/apps}
+
+if [ -z $INPUTDIR ]; then
+    echo "INPUTDIR parameter is required"
+    exit 1
+fi
+
+if ! rpm -q python3; then
+    sudo yum install -y python3
+fi
+
+echo "source envs"
+source /data/azurehpc/apps/wrf/env-variables
+
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+echo "NPROCS:"$NPROCS
+
+echo "PBS_O_WORKDIR:" $PBS_O_WORKDIR
+echo "INPUTDIR: " ${INPUTDIR}
+
+cd ${INPUTDIR}
+pwd 
+
+mpi_options="-x LD_LIBRARY_PATH "
+#if [ -n $LD_PRELOAD ]; then
+#    mpi_options+="-x LD_PRELOAD"
+#fi
+echo "PBS_NODEFILE:" $PBS_NODEFILE
+echo "mpi_options: " $mpi_options
+
+#### Run geogrid.exe
+echo "-- Run geogrid.exe"
+#mpirun $mpi_options -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa ./geogrid.exe
+mpirun -n $NPROCS ./geogrid.exe
+
+echo "-- VTable"
+ln -s ungrib/Variable_Tables/Vtable.GFS Vtable
+
+echo "-- link_grib.csh"
+./link_grib.csh /data/wrfdata/gfs_files/gfs.0p25.*
+
+echo "-- ungrib.exe"
+./ungrib.exe >& ungrib.log
+
+#### Run metgrid.exe
+echo "-- Run metgrid.exe"
+#mpirun $mpi_options -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa metgrid.exe
+mpirun -n $NPROCS ./metgrid.exe
+
+
+

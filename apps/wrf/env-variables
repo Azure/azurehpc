@@ -1,0 +1,28 @@
+SKU_TYPE=${1:-$hbv3}
+SKU_TYPE=${SKU_TYPE:-$hbv3}
+SHARED_APP=${2:-/apps}
+SHARED_APP=${SHARED_APP:-/apps}
+
+echo "SKU_TYPE:" $SKU_TYPE
+echo "SHARED_APP:" $SHARED_APP
+
+if ! rpm -q python3; then
+    sudo yum install -y python3
+    pip install wget
+fi
+source /etc/profile.d/modules.sh
+export MODULEPATH=${SHARED_APP}/modulefiles/${SKU_TYPE}:$MODULEPATH
+module use ${SHARED_APP}/modulefiles
+module load spack/spack
+source $SPACK_SETUP_ENV
+spack load netcdf-fortran^openmpi
+spack load hdf5^openmpi
+spack load perl
+module use /usr/share/Modules/modulefiles
+module load mpi/openmpi-5.0.2
+module load gcc-9.2.0
+module load wrf/4.1.5-openmpi
+mpi_options="-x LD_LIBRARY_PATH "
+if [ -n $LD_PRELOAD ]; then
+    mpi_options+="-x LD_PRELOAD"
+fi
