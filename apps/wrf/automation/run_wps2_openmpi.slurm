@@ -12,37 +12,48 @@ start_time=$(date +%s)
 SKU_TYPE=${1:-$SKU_TYPE}
 SKU_TYPE=${SKU_TYPE:-"hbv3"}
 
+path_scr=/apps/scripts
 WRFDAT="/data/wrfdata"
 WPSDIR=${WRFDAT}/wpsdir
 WRFDIR=${WRFDAT}/wrfdir
 WRKDAY=${2:-$WRKDAY}
+echo "WRKDAY:" $WRKDAY
 
-echo $WRFDAT $WPSDIR $WRFDIR $WRKDAY 
+ANO=`echo ${WRKDAY} | cut -c 1-4`
+MES=`echo ${WRKDAY} | cut -c 5-6`
+DIA=`echo ${WRKDAY} | cut -c 7-8`
+HOR=`echo ${WRKDAY} | cut -c 9-10`
+
+#DIAFIM=`date +%Y%m%d --date="$ANO$MES$DIA +5 day"`
+DIAFIM=`echo ${WRKDAY} 132 | awk -f $path_scr/fwddatan.awk`
+
+ANOF=`echo ${DIAFIM} | cut -c 1-4`
+MESF=`echo ${DIAFIM} | cut -c 5-6`
+DIAF=`echo ${DIAFIM} | cut -c 7-8`
+HORF=`echo ${DIAFIM} | cut -c 9-10`
+
+echo $WRFDAT $WPSDIR $WRFDIR $WRKDAY $DIAFIM
+
+mkdir -p $WPSDIR/$WRKDAY
 
 echo "SKU_TYPE:" $SKU_TYPE
+
+SHARED_APP=${SHARED_APP:-/apps}
 
 # Load environment variables
 echo "Load environment variables"
 source /data/azurehpc/apps/wrf/env-variables $SKU_TYPE
 
-cd $WPSDIR/$WRKDAY
+echo "SLURM_SUBMIT_DIR:" $SLURM_SUBMIT_DIR
+
+cd ${WPSDIR}/${WRKDAY}
 echo "cd $WPSDIR/$WRKDAY"
 
-mpi_options="-x LD_LIBRARY_PATH "
-if [ -n $LD_PRELOAD ]; then
-    mpi_options+="-x LD_PRELOAD"
-fi
-echo "mpi_options:" $mpi_options
+echo "Running link_grib.csh..." 
+./link_grib.csh ${WRFDAT}/gfs_data/${WRKDAY}/gfs*
 
-echo "SLURM_JOB_NODELIST:" $SLURM_JOB_NODELIST
-echo "SLURM_NTASKS:" $SLURM_NTASKS
-
-scontrol show hostname $SLURM_JOB_NODELIST > hostfile.txt
-
-echo "Running geogrid.exe..."
-mpirun $mpi_options -n $SLURM_NTASKS --hostfile hostfile.txt --bind-to numa geogrid.exe
-echo "Running metgrid.exe..." 
-mpirun $mpi_options -n $SLURM_NTASKS --hostfile hostfile.txt --bind-to numa metgrid.exe
+echo "Running ungrib.exe..." 
+./ungrib.exe >& ungrib.log
 
 # Capture end time
 end_time=$(date +%s)

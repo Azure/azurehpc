@@ -75,12 +75,6 @@ sed -i s/mmf/${MESF}/g namelist.wps
 sed -i s/ddf/${DIAF}/g namelist.wps
 sed -i s/hhf/${HORF}/g namelist.wps
 
-echo "Running link_grib.csh..." 
-./link_grib.csh ${WRFDAT}/gfs_data/${WRKDAY}/gfs*
-
-echo "Running ungrib.exe..." 
-./ungrib.exe >& ungrib.log
-
 # Capture end time
 end_time=$(date +%s)
 # Calculate duration
