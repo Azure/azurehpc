@@ -606,7 +606,7 @@ Order = 15
         [[[parameter AdditionalNFSMountOptions1]]]
         Label = Mount Options
         Description = Filesystem Client Mount Options
-        DefaultValue = defaults,rw,hard,rsize=262144,wsize=262144,vers=3,tcp
+        DefaultValue = "defaults,rw,hard,rsize=262144,wsize=262144,vers=3,tcp"
         Conditions.Excluded := AdditionalNFS1 isnt true
 
         [[[parameter AdditionalNFS2]]]
@@ -620,8 +620,8 @@ Order = 15
         ParameterType = StringList
         Config.Label = Shared filesystem type of the additional mount
         Config.Plugin = pico.form.Dropdown
-        Config.Entries := {[Label="External NFS"; Value="nfs"], [Label="Azure Managed Lustre"; Value="lustre"]}
-        DefaultValue = nfs
+        Config.Entries := {[Label="External NFS"; Value="nfs"], [Label="External AZ Blob NFS"; Value="aznfs"], [Label="Azure Managed Lustre"; Value="lustre"]}
+        DefaultValue = aznfs
         Conditions.Excluded := AdditionalNFS2 isnt true
 
         [[[parameter AdditionalNFSAddress2]]]
@@ -645,7 +645,7 @@ Order = 15
         [[[parameter AdditionalNFSMountOptions2]]]
         Label = Mount Options
         Description = Filesystem Client Mount Options
-        DefaultValue = aznfs defaults,sec=sys,vers=3,nolock,proto=tcp,nofail,_netdev 
+        DefaultValue = "defaults,sec=sys,vers=3,nolock,proto=tcp,nconnect=16,nofail,_netdev" 
         Conditions.Excluded := AdditionalNFS2 isnt true
     
 
