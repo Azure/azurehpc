@@ -9,11 +9,15 @@ import itertools
 import socket
 import json
 import csv
+from datetime import timedelta
+from datetime import datetime
 from urllib.request import urlopen, Request
 
 
 ECC_COUNTER_THRESHOLD = 20000000
 SRAM_ECC_COUNTER_THRESHOLD = 10000
+RETIRED_PAGES_THRESHOLD = 62
+RETIRED_PAGES_30D_THRESHOLD = 5
 supported_skus_list = ["Standard_ND96asr_v4", "Standard_ND96amsr_A100_v4", "Standard_ND96isr_H100_v5"]
 
 
@@ -95,6 +99,63 @@ def parse_nvidia_smi_gpu_id(ecc_d):
     return ecc_d
 
 
+def get_retired_pages_data():
+    GPU_RETIRED_PAGES_QUERY = "gpu_uuid,retired_pages.address,retired_pages.timestamp,retired_pages.cause"
+    cmd = ["nvidia-smi", "--query-retired-pages={}".format(GPU_RETIRED_PAGES_QUERY), "--format=csv,noheader"]
+    try:
+       cmdpipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8")
+    except FileNotFoundError:
+       print("Error: Could not find the executable (nvidia-smi), make sure you have installed the Nvidia GPU driver.")
+       sys.exit(1)
+    rp_l = csv.reader(cmdpipe.stdout.readlines())
+
+    return list(rp_l)
+
+
+def get_datatime_obj(datetime_str):
+    return datetime.strptime(datetime_str, '%a %b %d %H:%M:%S %Y')
+
+
+def add_retired_pages(ecc_d, rp_l):
+    for gpu_rp in rp_l:
+        ecc_d["gpu_uuid"][gpu_rp[0]]["TNRPDB"] = 0
+        ecc_d["gpu_uuid"][gpu_rp[0]]["TNRPSB"] = 0
+    for gpu_rp in rp_l:
+        if gpu_rp[2] == " [N/A]":
+           continue
+        if gpu_rp[3] == " Double Bit ECC":
+           ecc_d["gpu_uuid"][gpu_rp[0]]["TNRPDB"] += 1
+        else:
+           ecc_d["gpu_uuid"][gpu_rp[0]]["TNRPSB"] += 1
+
+    return ecc_d
+
+
+def add_retired_pages_30d(ecc_d, rp_l):
+    for gpu_rp in rp_l:
+        ecc_d["gpu_uuid"][gpu_rp[0]]["RPDB30D"] = 0
+        ecc_d["gpu_uuid"][gpu_rp[0]]["RPSB30D"] = 0
+    latest_date_str = ""
+    for gpu_rp in reversed(rp_l):
+        if gpu_rp[2] != " [N/A]":
+            latest_date_str = gpu_rp[2]
+            break
+    if latest_date_str:
+       latest_date = get_datatime_obj(latest_date_str)
+       oldest_date = latest_date - timedelta(days=30)
+       for gpu_rp in rp_l:
+           if gpu_rp[2] == " [N/A]":
+              continue
+           current_date = get_datatime_obj(gpu_rp[2])
+           if current_date > oldest_date:
+              if gpu_rp[3] == " Double Bit ECC":
+                 ecc_d["gpu_uuid"][gpu_rp[0]]["RPDB30D"] += 1
+              else:
+                 ecc_d["gpu_uuid"][gpu_rp[0]]["RPSB30D"] += 1
+
+    return ecc_d
+
+
 def check_gpu_remapped_rows_pending(ecc_d, hostname):
     for gpu_uuid in ecc_d["gpu_uuid"]:
         if ecc_d["gpu_uuid"][gpu_uuid]["RRP"] > 0:
@@ -147,6 +208,20 @@ def check_gpu_high_ecc_counter(ecc_d, hostname):
            print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
 
 
+def check_retired_pages(ecc_d, hostname):
+    for gpu_uuid in ecc_d["gpu_uuid"]:
+        tnrp = ecc_d["gpu_uuid"][gpu_uuid]["TNRPDB"] + ecc_d["gpu_uuid"][gpu_uuid]["TNRPSB"]
+        if tnrp > RETIRED_PAGES_THRESHOLD:
+           print("Warning: Detected a very high number of retired pages ({}), for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(tnrp, gpu_id, hostname))
+
+
+def check_retired_pages_30d(ecc_d, hostname):
+    for gpu_uuid in ecc_d["gpu_uuid"]:
+        rp30d = ecc_d["gpu_uuid"][gpu_uuid]["RPDB30D"] + ecc_d["gpu_uuid"][gpu_uuid]["RPSB30D"]
+        if rp30d > RETIRED_PAGES_30D_THRESHOLD:
+           print("Warning: Detected a very high number of retired pages ({}) within a 30 day period, for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(rp30d, gpu_id, hostname))
+
+
 def check_if_sku_is_supported(actual_sku_name):
     sku_found = False
     for sku_name in supported_skus_list:
@@ -162,8 +237,8 @@ def report(ecc_d, sku_name, hostname):
     print("")
     print("GPU ECC error report for ({}, {})".format(sku_name, hostname))
     print("")
-    print("{:<8} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format("GPU id","RRP", "RRE", "RRC", "RRU", "EEUVS", "EEUAS", "EECVS", "EECAS", "EEUVD", "EEUAD", "EECVD", "EECAD"))
-    print("{:=<8} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10}".format("=","=","=","=","=","=","=","=","=","=","=","=","="))
+    print("{:<8} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format("GPU id","RRP", "RRE", "RRC", "RRU", "EEUVS", "EEUAS", "EECVS", "EECAS", "EEUVD", "EEUAD", "EECVD", "EECAD", "TNRPSB", "TNRPDB", "RPSB30D", "RPDB30D"))
+    print("{:=<8} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10} {:=<10}".format("=","=","=","=","=","=","=","=","=","=","=","=","=","=","=","=","="))
     for gpu_uuid in ecc_d["gpu_uuid"]:
        gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
        rrp = ecc_d["gpu_uuid"][gpu_uuid]["RRP"]
@@ -178,7 +253,11 @@ def report(ecc_d, sku_name, hostname):
        eeuad = ecc_d["gpu_uuid"][gpu_uuid]["EEUAD"]
        eecvd = ecc_d["gpu_uuid"][gpu_uuid]["EECVD"]
        eecad = ecc_d["gpu_uuid"][gpu_uuid]["EECAD"]
-       print("{:<8} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format(gpu_id,rrp,rre,rrc,rru,eeuvs,eeuas,eecvs,eecas,eeuvd,eeuad,eecvd,eecad))
+       tnrpsb = ecc_d["gpu_uuid"][gpu_uuid]["TNRPSB"]
+       tnrpdb = ecc_d["gpu_uuid"][gpu_uuid]["TNRPDB"]
+       rpsb30d = ecc_d["gpu_uuid"][gpu_uuid]["RPSB30D"]
+       rpdb30d = ecc_d["gpu_uuid"][gpu_uuid]["RPDB30D"]
+       print("{:<8} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}".format(gpu_id,rrp,rre,rrc,rru,eeuvs,eeuas,eecvs,eecas,eeuvd,eeuad,eecvd,eecad,tnrpsb,tnrpdb,rpsb30d,rpdb30d))
     print("")
     print("Legend")
     print("{:=<10}".format("="))
@@ -194,6 +273,10 @@ def report(ecc_d, sku_name, hostname):
     print("EEUAD: ECC Errors uncorrectable aggregate DRAM count")
     print("EECVD: ECC Errors correctable volatile DRAM count")
     print("EECAD: ECC Errors correctable aggregate DRAM count")
+    print("TNRPSP: Total number of retired pages (Single Bit)")
+    print("TNRPDP: Total number of retired pages (Double Bit)")
+    print("RPSP30D: Number of retired pages (Single Bit) in 30 day period")
+    print("RPDP30D: Number of retired pages (Double Bit) in 30 day period")
     print("")
 
 
@@ -209,12 +292,15 @@ def main():
    ecc_d = parse_nvidia_smi_remapped_rows(ecc_d)
    ecc_d = parse_nvidia_smi_gpu(ecc_d)
    ecc_d = parse_nvidia_smi_gpu_id(ecc_d)
+   rp_l = get_retired_pages_data()
    report(ecc_d, sku_name, hostname)
    check_gpu_remapped_rows_pending(ecc_d, hostname)
    check_gpu_remapped_rows_error(ecc_d, hostname)
    check_gpu_remapped_rows_uncorrectable(ecc_d, hostname)
    check_gpu_sram(ecc_d, hostname)
    check_gpu_high_ecc_counter(ecc_d, hostname)
+   check_retired_pages(ecc_d, hostname)
+   check_retired_pages_30d(ecc_d, hostname)
 
 
 if __name__ == "__main__":
