@@ -15,9 +15,10 @@ from urllib.request import urlopen, Request
 
 
 ECC_COUNTER_THRESHOLD = 20000000
-SRAM_ECC_COUNTER_THRESHOLD = 10000
+SRAM_ECC_COUNTER_THRESHOLD = 4
 RETIRED_PAGES_THRESHOLD = 62
 RETIRED_PAGES_30D_THRESHOLD = 5
+RP_DAYS = 30
 supported_skus_list = ["Standard_ND96asr_v4", "Standard_ND96amsr_A100_v4", "Standard_ND96isr_H100_v5"]
 
 
@@ -142,7 +143,7 @@ def add_retired_pages_30d(ecc_d, rp_l):
             break
     if latest_date_str:
        latest_date = get_datatime_obj(latest_date_str)
-       oldest_date = latest_date - timedelta(days=30)
+       oldest_date = latest_date - timedelta(days=RP_DAYS)
        for gpu_rp in rp_l:
            if gpu_rp[2] == " [N/A]":
               continue
@@ -181,10 +182,10 @@ def check_gpu_remapped_rows_uncorrectable(ecc_d, hostname):
 def check_gpu_sram(ecc_d, hostname):
     for gpu_uuid in ecc_d["gpu_uuid"]:
         gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
-        if ecc_d["gpu_uuid"][gpu_uuid]["EEUVS"] > 0:
-           print("Warning: Detected a GPU SRAM uncorrectable error for the volatile counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(gpu_id,hostname))
-        if ecc_d["gpu_uuid"][gpu_uuid]["EEUAS"] > 0:
-           print("Warning: Detected a GPU SRAM uncorrectable error for the aggregate counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(gpu_id,hostname))
+        if ecc_d["gpu_uuid"][gpu_uuid]["EEUVS"] > 0 and ecc_d["gpu_uuid"][gpu_uuid]["EEUVS"] < SRAM_ECC_COUNTER_THRESHOLD:
+           print("Warning: Detected a GPU SRAM uncorrectable error for the volatile counter for GPU ID {}, please continue to monitor this node ({}),  no additional action is required at this time.".format(gpu_id,hostname))
+        if ecc_d["gpu_uuid"][gpu_uuid]["EEUAS"] > 0 and ecc_d["gpu_uuid"][gpu_uuid]["EEUAS"] < SRAM_ECC_COUNTER_THRESHOLD:
+           print("Warning: Detected a GPU SRAM uncorrectable error for the aggregate counter for GPU ID {}, please continue to monitor this node ({}), no additional action is required at this time.".format(gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECVS"] > SRAM_ECC_COUNTER_THRESHOLD:
            print("Warning: Detected a large number of GPU SRAM correctable error for the volatile counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECAS"] > SRAM_ECC_COUNTER_THRESHOLD:
