@@ -8,7 +8,7 @@ password=$6
 projectstore=$7
 
 echo "Get cyclecloud_install.py"
-downloadURL="https://cyclecloudarm.azureedge.net/cyclecloudrelease"
+downloadURL="<INSERT_CYCLECLOUD_DOWNLOAD_URL>"
 release="latest"
 wget -q "$downloadURL/$release/cyclecloud_install.py" -O cyclecloud_install.py
 
