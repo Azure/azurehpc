@@ -9,8 +9,7 @@ import itertools
 import socket
 import json
 import csv
-from datetime import timedelta
-from datetime import datetime
+from datetime import timedelta, datetime
 from urllib.request import urlopen, Request
 
 
@@ -113,7 +112,7 @@ def get_retired_pages_data():
     return list(rp_l)
 
 
-def get_datatime_obj(datetime_str):
+def get_datetime_obj(datetime_str):
     return datetime.strptime(datetime_str, '%a %b %d %H:%M:%S %Y')
 
 
@@ -147,7 +146,7 @@ def add_retired_pages_30d(ecc_d, rp_l):
        for gpu_rp in rp_l:
            if gpu_rp[2] == " [N/A]":
               continue
-           current_date = get_datatime_obj(gpu_rp[2])
+           current_date = get_datetime_obj(gpu_rp[2])
            if current_date > oldest_date:
               if gpu_rp[3] == " Double Bit ECC":
                  ecc_d["gpu_uuid"][gpu_rp[0]]["RPDB30D"] += 1
@@ -168,7 +167,7 @@ def check_gpu_remapped_rows_error(ecc_d, hostname):
     for gpu_uuid in ecc_d["gpu_uuid"]:
         if ecc_d["gpu_uuid"][gpu_uuid]["RRE"] > 0:
            gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
-           print("Warning: Detected a GPU row remap Error for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(gpu_id,hostname))
+           print("Warning: Detected a GPU row remap Error for GPU ID {}, please offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(gpu_id,hostname))
 
 
 def check_gpu_remapped_rows_uncorrectable(ecc_d, hostname):
@@ -176,7 +175,7 @@ def check_gpu_remapped_rows_uncorrectable(ecc_d, hostname):
         rru = ecc_d["gpu_uuid"][gpu_uuid]["RRU"]
         if rru > 512:
            gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
-           print("Warning: Detected {} GPU row remap uncorrectable Errors for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(rru,gpu_id,hostname))
+           print("Warning: Detected {} GPU row remap uncorrectable Errors for GPU ID {}, please offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(rru,gpu_id,hostname))
 
 
 def check_gpu_sram(ecc_d, hostname):
@@ -186,10 +185,10 @@ def check_gpu_sram(ecc_d, hostname):
            print("Warning: Detected a GPU SRAM uncorrectable error for the volatile counter for GPU ID {}, please continue to monitor this node ({}),  no additional action is required at this time.".format(gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EEUAS"] > 0 and ecc_d["gpu_uuid"][gpu_uuid]["EEUAS"] < SRAM_ECC_COUNTER_THRESHOLD:
            print("Warning: Detected a GPU SRAM uncorrectable error for the aggregate counter for GPU ID {}, please continue to monitor this node ({}), no additional action is required at this time.".format(gpu_id,hostname))
-        if ecc_d["gpu_uuid"][gpu_uuid]["EEUVS"] > SRAM_ECC_COUNTER_THRESHOLD:
-           print("Warning: Detected a large number of GPU SRAM uncorrectable error for the volatile counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(gpu_id,hostname))
-        if ecc_d["gpu_uuid"][gpu_uuid]["EEUAS"] > SRAM_ECC_COUNTER_THRESHOLD:
-           print("Warning: Detected a large number of GPU SRAM uncorrectable error for the aggregate counter for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(gpu_id,hostname))
+        if ecc_d["gpu_uuid"][gpu_uuid]["EEUVS"] >= SRAM_ECC_COUNTER_THRESHOLD:
+           print("Warning: Detected a large number of GPU SRAM uncorrectable error for the volatile counter for GPU ID {}, please offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(gpu_id,hostname))
+        if ecc_d["gpu_uuid"][gpu_uuid]["EEUAS"] >= SRAM_ECC_COUNTER_THRESHOLD:
+           print("Warning: Detected a large number of GPU SRAM uncorrectable error for the aggregate counter for GPU ID {}, please offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECVS"] > 0:
            print("Warning: Detected a GPU SRAM correctable error for the volatile counter for GPU ID {}, please continue to monitor this node ({}), no additional action is required at this time.".format(gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECAS"] > 0:
@@ -201,30 +200,30 @@ def check_gpu_high_ecc_counter(ecc_d, hostname):
         gpu_id = ecc_d["gpu_uuid"][gpu_uuid]["gpu_id"]
         if ecc_d["gpu_uuid"][gpu_uuid]["EEUVD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EEUVD"]
-           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again and you experience instability or performance degradation, then offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EEUAD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EEUAD"]
-           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM uncorrectable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again and you experience instability or performance degradation, then offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECVD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EECVD"]
-           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the volatile counter for GPU ID {}, please try a reboot, if the counter increases again and you experience instability or performance degradation, then offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
         if ecc_d["gpu_uuid"][gpu_uuid]["EECAD"] > ECC_COUNTER_THRESHOLD:
            ecc_counter = ecc_d["gpu_uuid"][gpu_uuid]["EECAD"]
-           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again and you experience instability or performance degradation, then offline this node ({}), get the HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
+           print("Warning: Detected a very high GPU DRAM correctable error count ({}) for the aggregate counter for GPU ID {}, please try a reboot, if the volatile counter increases again and you experience instability or performance degradation, then offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(ecc_counter,gpu_id,hostname))
 
 
 def check_retired_pages(ecc_d, hostname):
     for gpu_uuid in ecc_d["gpu_uuid"]:
         tnrp = ecc_d["gpu_uuid"][gpu_uuid]["TNRPDB"] + ecc_d["gpu_uuid"][gpu_uuid]["TNRPSB"]
         if tnrp > RETIRED_PAGES_THRESHOLD:
-           print("Warning: Detected a very high number of retired pages ({}), for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(tnrp, gpu_id, hostname))
+           print("Warning: Detected a very high number of retired pages ({}), for GPU ID {}, please offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(tnrp, gpu_id, hostname))
 
 
 def check_retired_pages_30d(ecc_d, hostname):
     for gpu_uuid in ecc_d["gpu_uuid"]:
         rp30d = ecc_d["gpu_uuid"][gpu_uuid]["RPDB30D"] + ecc_d["gpu_uuid"][gpu_uuid]["RPSB30D"]
         if rp30d > RETIRED_PAGES_30D_THRESHOLD:
-           print("Warning: Detected a very high number of retired pages ({}) within a 30 day period, for GPU ID {}, please offline this node ({}), get the HPC diagnostics and submit a support request.".format(rp30d, gpu_id, hostname))
+           print("Warning: Detected a very high number of retired pages ({}) within a 30 day period, for GPU ID {}, please offline this node ({}), get the Azure HPC diagnostics and submit a support request.".format(rp30d, gpu_id, hostname))
 
 
 def check_if_sku_is_supported(actual_sku_name):
