@@ -4,9 +4,9 @@
 ################################
 
 
-[cluster Slurm-Genoma]
+[cluster Slurm-WRF]
 FormLayout = selectionpanel
-IconUrl = https://raw.githubusercontent.com/marcusgaspar/azurehpc/892f729a1450dfec6436d68251ae71752d2a4542/apps/wrf/images/logo-genoma.jpeg
+IconUrl = https://avatars.githubusercontent.com/u/12666893?s=200&v=4
 Category = Schedulers
 
 Autoscale = $Autoscale
@@ -64,6 +64,7 @@ Autoscale = $Autoscale
         cluster.identities.default = $ManagedIdentity
 
         [[[cluster-init cyclecloud/slurm:default:3.0.7]]]
+
         Optional = true
 
         [[[volume boot]]]
@@ -594,19 +595,18 @@ Order = 15
         [[[parameter AdditionalNFSMountPoint1]]]
         Label = Mount Point
         Description = The path at which to mount the Filesystem
-        DefaultValue = /data1
+        DefaultValue = /data
         Conditions.Excluded := AdditionalNFS1 isnt true
 
         [[[parameter AdditionalNFSExportPath1]]]
         Label = Export Path
         Description = The path exported by the file system
-        DefaultValue = /anf-vol1/genomica/data1
+        DefaultValue = /anf-vol1/wrf/data
         Conditions.Excluded := AdditionalNFS1 isnt true
 
         [[[parameter AdditionalNFSMountOptions1]]]
         Label = Mount Options
         Description = Filesystem Client Mount Options
-        DefaultValue = "defaults,rw,hard,rsize=262144,wsize=262144,vers=3,tcp"
         Conditions.Excluded := AdditionalNFS1 isnt true
 
         [[[parameter AdditionalNFS2]]]
@@ -620,8 +620,8 @@ Order = 15
         ParameterType = StringList
         Config.Label = Shared filesystem type of the additional mount
         Config.Plugin = pico.form.Dropdown
-        Config.Entries := {[Label="External NFS"; Value="nfs"], [Label="External AZ Blob NFS"; Value="aznfs"], [Label="Azure Managed Lustre"; Value="lustre"]}
-        DefaultValue = aznfs
+        Config.Entries := {[Label="External NFS"; Value="nfs"], [Label="Azure Managed Lustre"; Value="lustre"]}
+        DefaultValue = nfs
         Conditions.Excluded := AdditionalNFS2 isnt true
 
         [[[parameter AdditionalNFSAddress2]]]
@@ -633,19 +633,18 @@ Order = 15
         [[[parameter AdditionalNFSMountPoint2]]]
         Label = Mount Point
         Description = The path at which to mount the Filesystem
-        DefaultValue = /data2
+        DefaultValue = /apps
         Conditions.Excluded := AdditionalNFS2 isnt true
 
         [[[parameter AdditionalNFSExportPath2]]]
         Label = Export Path
         Description = The path exported by the file system
-        DefaultValue = /sa-vol1/genomica/data2
+        DefaultValue = /anf-vol1/wrf/apps
         Conditions.Excluded := AdditionalNFS2 isnt true
 
         [[[parameter AdditionalNFSMountOptions2]]]
         Label = Mount Options
         Description = Filesystem Client Mount Options
-        DefaultValue = "defaults,sec=sys,vers=3,nolock,proto=tcp,nconnect=16,nofail,_netdev" 
         Conditions.Excluded := AdditionalNFS2 isnt true
     
 

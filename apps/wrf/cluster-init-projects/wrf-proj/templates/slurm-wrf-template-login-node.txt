@@ -64,6 +64,8 @@ Autoscale = $Autoscale
         cluster.identities.default = $ManagedIdentity
 
         [[[cluster-init cyclecloud/slurm:default:3.0.7]]]
+        [[[cluster-init wrf-proj:default:1.0.0]]]
+
         Optional = true
 
         [[[volume boot]]]
@@ -177,10 +179,19 @@ Autoscale = $Autoscale
         slurm.use_nodename_as_hostname = $NodeNameIsHostname
         slurm.is_primary_scheduler = false
 
-    [[nodearray login]]
+    [[node login]]
         InitialCount = $NumberLoginNodes
         MachineType = $loginMachineType
         ImageName = $SchedulerImageName
+	    SubnetId = "/subscriptions/2d33a7c2-811d-403b-b70d-49d48f690c7c/resourceGroups/mg-rg-hpc/providers/Microsoft.Network/virtualNetworks/mg-vnet-hpc-eastus/subnets/user-subnet"
+        #itv
+        #SubnetId = "/subscriptions/09addf29-d567-4494-9d05-db2491ceff53/resourceGroups/azusdsnetrg/providers/Microsoft.Network/virtualNetworks/azusdshpcvnet/subnets/azusdshpcsnet"        
+
+    	[[[network-interface vm-login-node-cluster2-nic2]]]
+	    #NetworkInterfaceId = ""
+	    PrivateIp = "10.4.2.251"
+        #itv
+        #PrivateIp = "10.20.3.61"        
 
         [[[cluster-init cyclecloud/slurm:login:3.0.7]]]
         [[[configuration]]]
@@ -275,31 +286,41 @@ Order = 10
         Label = Scheduler VM Type
         Description = The VM type for scheduler node
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_D4ads_v5
+        DefaultValue = Standard_FX4mds
+        #itv
+        #DefaultValue = Standard_D4ads_v5
 
         [[[parameter loginMachineType]]]
         Label = Login node VM Type
         Description = The VM type for login nodes.
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_D8as_v4
+        DefaultValue = Standard_FX4mds
+        #itv
+        #DefaultValue = Standard_D4ads_v5
 
         [[[parameter HPCMachineType]]]
         Label = HPC VM Type
         Description = The VM type for HPC execute nodes
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_F2s_v2
+        DefaultValue = Standard_HB120rs_v3
+        #itv
+        #DefaultValue = Standard_HB120rs_v3
 
         [[[parameter HTCMachineType]]]
         Label = HTC VM Type
         Description = The VM type for HTC execute nodes
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_F2s_v2
+        DefaultValue = Standard_HB176rs_v4
+        #itv
+        #DefaultValue = Standard_HB176rs_v4
 
         [[[parameter DynamicMachineType]]]
         Label = Dyn VM Type
         Description = The VM type for Dynamic execute nodes
         ParameterType = Cloud.MachineType
-        DefaultValue = Standard_F2s_v2
+        DefaultValue = Standard_HB120rs_v2
+        #itv
+        #DefaultValue = Standard_HB120rs_v2
         Config.MultiSelect = true
 
 
@@ -391,6 +412,9 @@ Order = 10
         Description = Subnet Resource Path (ResourceGroup/VirtualNetwork/Subnet)
         ParameterType = Azure.Subnet
         Required = True
+        DefaultValue = "mg-rg-hpc/mg-vnet-hpc-eastus/compute-subnet"
+        #itv
+        #DefaultValue = "azusdsnetrg/azusdshpcvnet/azusdshpcsnet003"        
 
     [[parameters High Availability]]
     Order = 50
@@ -554,7 +578,7 @@ Order = 15
         [[[parameter FilesystemSize]]]
         Label = Size (GB)
         Description = The filesystem size (cannot be changed after initial start)
-        DefaultValue = 100
+        DefaultValue = 200
         Config.Plugin = pico.form.NumberTextBox
         Config.MinValue = 10
         Config.MaxValue = 10240
@@ -572,7 +596,8 @@ Order = 15
 
         [[[parameter AdditionalNFS1]]]
         HideLabel = true
-        DefaultValue = false
+        #itv
+        DefaultValue = true
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Add Shared Filesystem mount
 
@@ -589,11 +614,15 @@ Order = 15
         Label = IP Address 
         Description = The IP address or hostname of the additional mount. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
         Config.ParameterType = String
+        DefaultValue = "10.4.0.20"
+        #itv
+        #DefaultValue = "10.20.3.132"        
         Conditions.Excluded := AdditionalNFS1 isnt true
 
         [[[parameter AdditionalNFSMountPoint1]]]
         Label = Mount Point
         Description = The path at which to mount the Filesystem
+        #itv
         DefaultValue = /data
         Conditions.Excluded := AdditionalNFS1 isnt true
 
@@ -601,16 +630,21 @@ Order = 15
         Label = Export Path
         Description = The path exported by the file system
         DefaultValue = /anf-vol1/wrf/data
+        #itv        
+        #DefaultValue = "/azusdshpcvol/wrf/data"        
         Conditions.Excluded := AdditionalNFS1 isnt true
 
         [[[parameter AdditionalNFSMountOptions1]]]
         Label = Mount Options
         Description = Filesystem Client Mount Options
+        #itv
+        DefaultValue = "defaults,rw,hard,rsize=262144,wsize=262144,vers=3,tcp"
         Conditions.Excluded := AdditionalNFS1 isnt true
 
         [[[parameter AdditionalNFS2]]]
         HideLabel = true
-        DefaultValue = false
+        #itv
+        DefaultValue = true
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Add Shared Filesystem mount
 
@@ -632,6 +666,7 @@ Order = 15
         [[[parameter AdditionalNFSMountPoint2]]]
         Label = Mount Point
         Description = The path at which to mount the Filesystem
+        #itv
         DefaultValue = /apps
         Conditions.Excluded := AdditionalNFS2 isnt true
 
@@ -639,11 +674,15 @@ Order = 15
         Label = Export Path
         Description = The path exported by the file system
         DefaultValue = /anf-vol1/wrf/apps
+        #itv
+        #DefaultValue = "/azusdshpcvol/wrf/apps"
         Conditions.Excluded := AdditionalNFS2 isnt true
 
         [[[parameter AdditionalNFSMountOptions2]]]
         Label = Mount Options
         Description = Filesystem Client Mount Options
+        #itv
+        DefaultValue = "defaults,rw,hard,rsize=262144,wsize=262144,vers=3,tcp"        
         Conditions.Excluded := AdditionalNFS2 isnt true
     
 
@@ -656,6 +695,9 @@ Order = 20
         [[[parameter Credentials]]]
         Description = The credentials for the cloud provider
         ParameterType = Cloud.Credentials
+        DefaultValue = "GBB HPC - Default credentials"
+        #itv
+        #DefaultValue = "WRF - Default credentials"        
 
         [[[parameter ManagedIdentity]]]
         Label = Managed Id
@@ -696,6 +738,8 @@ Order = 20
         [[[parameter configuration_slurm_accounting_enabled]]]
         Label = Job Accounting
         DefaultValue = false
+        #itv
+        #DefaultValue = true        
         Widget.Plugin = pico.form.BooleanCheckBox
         Widget.Label = Configure Slurm job accounting
 
@@ -708,22 +752,30 @@ Order = 20
         [[[parameter configuration_slurm_accounting_url]]]
         Label = Slurm DBD URL
         Description = URL of the database to use for Slurm job accounting
+        #itv
+        #DefaultValue = "azusdshpcmysql.mysql.database.azure.com"        
         Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
 
         [[[parameter configuration_slurm_accounting_storageloc]]]
         Label = Database name
         Description = Database name to store slurm accounting records
+        #itv
+        #DefaultValue = "wrf"                
         Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
 
         [[[parameter configuration_slurm_accounting_user]]]
         Label = Slurm DBD User
         Description = User for Slurm DBD admin
+        #itv
+        #DefaultValue = "dbmysql_ds_usr"        
         Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
 
         [[[parameter configuration_slurm_accounting_password]]]
         Label = Slurm DBD Password
         Description = Password for Slurm DBD admin
         ParameterType = Password
+        #itv
+        #DefaultValue = "inclua a senha aqui"                
         Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
 
         [[[parameter configuration_slurm_accounting_certificate_url]]]
@@ -734,7 +786,8 @@ Order = 20
         Config.Plugin = pico.form.Dropdown
         Config.FreeForm = true
         Config.Entries := {[Value=""], [Value="AzureCA.pem"]}
-        DefaultValue = ""
+        #itv
+        #DefaultValue = "https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem"        
 
         [[[parameter configuration_slurm_shutdown_policy]]]
 	    Label = Shutdown Policy
@@ -858,13 +911,15 @@ Order = 20
 
         [[[parameter ReturnProxy]]]
         Label = Return Proxy
-        DefaultValue = true
+        #itv
+        DefaultValue = false
         ParameterType = Boolean
         Config.Label = Use SSH tunnel to connect to CycleCloud (required if direct access is blocked)
 
         [[[parameter UsePublicNetwork]]]
         Label = Public Head Node
-        DefaultValue = true
+        #itv
+        DefaultValue = false
         ParameterType = Boolean
         Config.Label = Access scheduler node from the Internet
 

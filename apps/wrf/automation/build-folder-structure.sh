@@ -32,11 +32,12 @@ cp -f /data/azurehpc/apps/wrf/automation/namelist*.wps ${WRFDAT}/tables/namelist
 echo "copying namelist*.input"
 cp -f /data/azurehpc/apps/wrf/automation/namelist*.input ${WRFDAT}/tables/namelist/
 
-echo "copying scripts"
-cd /data/azurehpc/apps/wrf/automation/
-cp /data/azurehpc/apps/wrf/automation/fwddatan.awk /apps/scripts/
-cp /data/azurehpc/apps/wrf/automation/get_gfs_data.py /apps/scripts/
-cp run_*.slurm run_*.pbs submit*.sh /apps/scripts/
+echo "creating link to scripts"
+#cd /data/azurehpc/apps/wrf/automation/
+#cp /data/azurehpc/apps/wrf/automation/fwddatan.awk /apps/scripts/
+#cp /data/azurehpc/apps/wrf/automation/get_gfs_data.py /apps/scripts/
+#cp run_*.slurm run_*.pbs submit*.sh /apps/scripts/
+ln -s /data/azurehpc/apps/wrf/automation/* /apps/scripts/
 
 echo "creating links to WPF files"
 ln -s /apps/hbv3/wps-openmpi/WPS-4.1/* /data/wrfdata/tables/wps/
