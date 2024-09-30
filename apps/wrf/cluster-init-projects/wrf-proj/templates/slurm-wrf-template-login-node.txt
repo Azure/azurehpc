@@ -337,7 +337,8 @@ Order = 10
         [[[parameter MaxHPCExecuteCoreCount]]]
         Label = Max HPC Cores
         Description = The total number of HPC execute cores to start
-        DefaultValue = 100
+        #itv
+        DefaultValue = 480
         Config.Plugin = pico.form.NumberTextBox
         Config.MinValue = 1
         Config.IntegerOnly = true
@@ -345,7 +346,8 @@ Order = 10
         [[[parameter MaxHTCExecuteCoreCount]]]
         Label = Max HTC Cores
         Description = The total number of HTC execute cores to start
-        DefaultValue = 100
+        #itv
+        DefaultValue = 704
         Config.Plugin = pico.form.NumberTextBox
         Config.MinValue = 1
         Config.IntegerOnly = true
@@ -353,7 +355,8 @@ Order = 10
         [[[parameter MaxDynamicExecuteCoreCount]]]
         Label = Max Dyn Cores
         Description = The total number of Dynamic execute cores to start
-        DefaultValue = 100
+        #itv
+        DefaultValue = 480
         Config.Plugin = pico.form.NumberTextBox
         Config.MinValue = 1
         Config.IntegerOnly = true
@@ -661,6 +664,9 @@ Order = 15
         Label = IP Address 
         Description = The IP address or hostname of the additional mount. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
         Config.ParameterType = String
+        DefaultValue = "10.4.0.20"
+        #itv
+        #DefaultValue = "10.20.3.132"
         Conditions.Excluded := AdditionalNFS2 isnt true
 
         [[[parameter AdditionalNFSMountPoint2]]]
