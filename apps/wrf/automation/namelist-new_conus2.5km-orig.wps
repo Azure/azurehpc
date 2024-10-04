@@ -1,8 +1,8 @@
 &share
  wrf_core = 'ARW',
  max_dom = 1,
- start_date = 'aai-mmi-ddi_hhi:00:00',
- end_date   = 'aaf-mmf-ddf_hhf:00:00',
+ start_date = '2018-06-17_00:00:00',
+ end_date   = '2018-06-17_12:00:00',
  interval_seconds = 10800
  io_form_geogrid = 2,
  opt_output_from_geogrid_path = '/data/wrfdata/wpsdir/wrkday',
