@@ -1,16 +1,12 @@
 #!/usr/bin/python3
 
+import csv
+import json
+import socket
 import subprocess
 import sys
-import os
-import re
-import argparse
-import itertools
-import socket
-import json
-import csv
-from datetime import timedelta, datetime
-from urllib.request import urlopen, Request
+from datetime import datetime, timedelta
+from urllib.request import Request, urlopen
 
 
 ECC_COUNTER_THRESHOLD = 20000000
