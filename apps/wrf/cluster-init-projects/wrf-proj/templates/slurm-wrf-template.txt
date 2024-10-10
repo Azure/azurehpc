@@ -1,0 +1,902 @@
+
+################################
+## Cluster Configuration File ##
+################################
+
+
+[cluster Slurm-WRF]
+FormLayout = selectionpanel
+IconUrl = https://avatars.githubusercontent.com/u/12666893?s=200&v=4
+Category = Schedulers
+
+Autoscale = $Autoscale
+
+    [[node defaults]]
+    UsePublicNetwork = $UsePublicNetwork
+    Credentials = $Credentials    
+    SubnetId = $SubnetId
+    Region = $Region
+    KeyPairLocation = ~/.ssh/cyclecloud.pem
+    Azure.Identities = $ManagedIdentity
+    
+    # Slurm autoscaling supports both Terminate and Deallocate shutdown policies
+    ShutdownPolicy = $configuration_slurm_shutdown_policy
+
+    # Lustre mounts require termination notifications to unmount
+    EnableTerminateNotification = ${NFSType == "lustre" || NFSSchedType == "lustre" || AdditionalNFSType1 == "lustre" || AdditionalNFSType2 == "lustre" || EnableTerminateNotification}
+    TerminateNotificationTimeout = 10m
+
+        [[[configuration]]]
+
+        slurm.install_pkg = azure-slurm-install-pkg-3.0.7.tar.gz
+        slurm.autoscale_pkg = azure-slurm-pkg-3.0.7.tar.gz
+
+        slurm.version = $configuration_slurm_version
+        slurm.accounting.enabled = $configuration_slurm_accounting_enabled
+        slurm.accounting.url = $configuration_slurm_accounting_url
+        slurm.accounting.user = $configuration_slurm_accounting_user
+        slurm.accounting.password = $configuration_slurm_accounting_password
+        slurm.accounting.certificate_url = $configuration_slurm_accounting_certificate_url
+        slurm.accounting.storageloc = $configuration_slurm_accounting_storageloc
+        slurm.additional.config = $additional_slurm_config
+        slurm.ha_enabled = $configuration_slurm_ha_enabled
+        slurm.launch_parameters = $configuration_slurm_launch_parameters
+        slurm.disable_pmc = $configuration_slurm_disable_pmc
+
+        # Disable ip-XXXXXXXX hostname generation
+        cyclecloud.hosts.standalone_dns.enabled = ${NodeNameIsHostname==false}
+        cyclecloud.hosts.simple_vpc_dns.enabled = ${NodeNameIsHostname==false}
+
+        # For fast spin-up after Deallocate, force an immediate re-converge on boot
+        cyclecloud.converge_on_boot = true
+
+        # Disable normal NFS exports and mounts
+        cyclecloud.mounts.sched.disabled = true
+        cyclecloud.mounts.shared.disabled = true
+        cyclecloud.exports.sched.disabled = true
+        cyclecloud.exports.shared.disabled = true
+        cyclecloud.exports.sched.samba.enabled = false
+        cyclecloud.exports.shared.samba.enabled = false
+        cyclecloud.exports.defaults.samba.enabled = false      
+        cshared.server.legacy_links_disabled = true
+
+        # May be used to identify the ID in cluster-init scripts
+        cluster.identities.default = $ManagedIdentity
+
+        [[[cluster-init cyclecloud/slurm:default:3.0.7]]]
+
+        Optional = true
+
+        [[[volume boot]]]
+        Size = ${ifThenElse(BootDiskSize > 0, BootDiskSize, undefined)}
+        SSD = True
+
+        [[[configuration cyclecloud.mounts.nfs_shared]]]
+        type = $NFSType
+        mountpoint = /shared
+        export_path = ${ifThenElse(NFSType == "lustre", strcat("tcp:/lustrefs", NFSSharedExportPath), NFSSharedExportPath)}
+        address = $NFSAddress
+        options = $NFSSharedMountOptions
+
+        [[[configuration cyclecloud.mounts.nfs_sched]]]
+        type = $NFSSchedType
+        mountpoint = /sched        
+        export_path = ${ifThenElse(NFSSchedType == "lustre", strcat("tcp:/lustrefs", NFSSchedExportPath), NFSSchedExportPath)}
+        address = $NFSSchedAddress
+        options = $NFSSchedMountOptions
+
+        [[[configuration cyclecloud.mounts.additional_nfs1]]]
+        disabled = ${AdditionalNFS1 isnt true}
+        type = $AdditionalNFSType1
+        address = $AdditionalNFSAddress1
+        mountpoint = $AdditionalNFSMountPoint1
+        export_path = ${ifThenElse(AdditionalNFSType1 == "lustre", strcat("tcp:/lustrefs", AdditionalNFSExportPath1), AdditionalNFSExportPath1)}
+        options = $AdditionalNFSMountOptions1
+
+        [[[configuration cyclecloud.mounts.additional_nfs2]]]
+        disabled = ${AdditionalNFS2 isnt true}
+        type = $AdditionalNFSType2
+        address = $AdditionalNFSAddress2
+        mountpoint = $AdditionalNFSMountPoint2
+        export_path = ${ifThenElse(AdditionalNFSType2 == "lustre", strcat("tcp:/lustrefs", AdditionalNFSExportPath2), AdditionalNFSExportPath2)}
+        options = $AdditionalNFSMountOptions2
+
+    [[node scheduler]]
+    MachineType = $SchedulerMachineType
+    ImageName = $SchedulerImageName
+    IsReturnProxy = $ReturnProxy
+    AdditionalClusterInitSpecs = $SchedulerClusterInitSpecs
+    ComputerName = ${toLower(regexps("([^a-zA-Z0-9-])", ifThenElse(SchedulerHostName=="Cluster Prefix", StrJoin("-", ClusterName, "scheduler"), ifThenElse(Size(Trim(SchedulerHostName)) == 0 || SchedulerHostName == "Generated", undefined, SchedulerHostName)), "-"))}
+    # indented version, for clarity.
+    # ${toLower(
+    #   regexps("([^a-zA-Z0-9-])",
+    #     ifThenElse(SchedulerHostName=="Cluster Prefix",
+    #         StrJoin("-", ClusterName, "scheduler"),
+    #         ifThenElse(Size(Trim(SchedulerHostName)) == 0 || SchedulerHostName == "Generated",
+    #             undefined,
+    #             SchedulerHostName)),
+    # "-"))}
+    Zone = ${ifThenElse(configuration_slurm_ha_enabled, SchedulerZone, undefined)}
+    
+        [[[configuration]]]
+        # Disable NFS mount of built-in /sched since it is a local volume mount: cyclecloud.mounts.builtinsched
+        cyclecloud.mounts.nfs_sched.disabled = ${UseBuiltinSched && !configuration_slurm_ha_enabled}
+        cyclecloud.mounts.nfs_shared.disabled = ${UseBuiltinShared && !configuration_slurm_ha_enabled}
+        slurm.secondary_scheduler_name = ${ifThenElse(configuration_slurm_ha_enabled, "scheduler-ha-1", undefined)}
+
+
+        [[[cluster-init cyclecloud/slurm:scheduler:3.0.7]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $UsePublicNetwork
+
+        [[[volume sched]]]
+        Size = $SchedFilesystemSize
+        SSD = True
+        Mount = builtinsched
+        Persistent = False
+        Disabled = ${!UseBuiltinSched || configuration_slurm_ha_enabled}
+
+        [[[volume shared]]]
+        Size = $FilesystemSize
+        SSD = True
+        Mount = builtinshared
+        Persistent = True
+        Disabled = ${!UseBuiltinShared || configuration_slurm_ha_enabled}
+
+        [[[configuration cyclecloud.mounts.builtinsched]]]
+        disabled = ${!UseBuiltinSched || configuration_slurm_ha_enabled}
+        mountpoint = /sched
+        fs_type = xfs
+
+        [[[configuration cyclecloud.mounts.builtinshared]]]
+        disabled = ${!UseBuiltinShared || configuration_slurm_ha_enabled}
+        mountpoint = /shared
+        fs_type = xfs
+
+        [[[configuration cyclecloud.exports.builtinsched]]]
+	    disabled = ${!UseBuiltinSched || configuration_slurm_ha_enabled}
+        export_path = /sched
+        options = no_root_squash
+        samba.enabled = false
+        type = nfs
+
+        [[[configuration cyclecloud.exports.builtinshared]]]
+        disabled = ${!UseBuiltinShared || configuration_slurm_ha_enabled}
+        export_path = /shared
+        samba.enabled = false
+        type = nfs
+
+    [[nodearray scheduler-ha]]
+    Extends = scheduler
+    IsReturnProxy = false
+    InitialCount = $configuration_slurm_ha_enabled
+    Zone = $SchedulerHAZone
+        [[[configuration]]]
+        autoscale.enabled = false
+        slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
+        slurm.use_nodename_as_hostname = $NodeNameIsHostname
+        slurm.is_primary_scheduler = false
+
+    [[nodearray login]]
+        InitialCount = $NumberLoginNodes
+        MachineType = $loginMachineType
+        ImageName = $SchedulerImageName
+
+        [[[cluster-init cyclecloud/slurm:login:3.0.7]]]
+        [[[configuration]]]
+        autoscale.enabled = false
+        slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
+        slurm.use_nodename_as_hostname = $NodeNameIsHostname
+
+    [[node nodearraybase]]
+    Abstract = true
+        [[[configuration]]]
+        slurm.autoscale = true
+
+        slurm.node_prefix = ${ifThenElse(NodeNamePrefix=="Cluster Prefix", StrJoin("-", ClusterName, ""), NodeNamePrefix)}
+        slurm.use_nodename_as_hostname = $NodeNameIsHostname
+
+        [[[cluster-init cyclecloud/slurm:execute:3.0.7]]]
+
+        [[[network-interface eth0]]]
+        AssociatePublicIpAddress = $ExecuteNodesPublic
+
+    [[nodearray hpc]]
+    Extends = nodearraybase
+    MachineType = $HPCMachineType
+    ImageName = $HPCImageName
+    MaxCoreCount = $MaxHPCExecuteCoreCount
+    Azure.MaxScalesetSize = $HPCMaxScalesetSize
+    AdditionalClusterInitSpecs = $HPCClusterInitSpecs
+    EnableNodeHealthChecks = $EnableNodeHealthChecks
+
+
+        [[[configuration]]]
+        slurm.default_partition = true
+        slurm.hpc = true
+        slurm.partition = hpc
+
+
+    [[nodearray htc]]
+    Extends = nodearraybase
+    MachineType = $HTCMachineType
+    ImageName = $HTCImageName
+    MaxCoreCount = $MaxHTCExecuteCoreCount
+
+    Interruptible = $HTCUseLowPrio
+    MaxPrice = $HTCSpotMaxPrice
+    AdditionalClusterInitSpecs = $HTCClusterInitSpecs
+
+        [[[configuration]]]
+        slurm.hpc = false
+        slurm.partition = htc
+        # set pcpu = false for all hyperthreaded VMs
+        slurm.use_pcpu = false
+
+    [[nodearray dynamic]]
+    Extends = nodearraybase
+    MachineType = $DynamicMachineType
+    ImageName = $DynamicImageName
+    MaxCoreCount = $MaxDynamicExecuteCoreCount
+
+    Interruptible = $DynamicUseLowPrio
+    MaxPrice = $DynamicSpotMaxPrice
+    AdditionalClusterInitSpecs = $DynamicClusterInitSpecs
+        [[[configuration]]]
+        slurm.hpc = false
+        slurm.dynamic_config := "-Z --conf \"Feature=dyn\""
+        # set pcpu = false for all hyperthreaded VMs
+        slurm.use_pcpu = false
+
+[parameters About]
+Order = 1
+
+    [[parameters About Slurm]]
+
+        [[[parameter slurm]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = '''<table role="presentation"><tr><td><img alt="Slurm icon" src="static/cloud/cluster/ui/ClusterIcon/slurm.png" width="192" height="192"></td></tr><tr><td><p>Follow the instructions in the<a href="https://github.com/azure/cyclecloud-slurm/" target="_blank">README</a>for details on instructions on extending and configuring the Project for your environment.</p><br></td></tr><tr><td><p>Slurm is the most widely used workload manager in HPC, as the scheduler of choice for six of the top ten systems in the TOP500 and with market penetration of more than 70%. Slurm is an advanced, open-source scheduler designed to satisfy the demanding needs of high-performance computing (HPC), high-throughput computing (HTC), and artificial intelligence (AI).</p></td></tr><tr><td><h3>Commercial Support provided by SchedMD</h3></td></tr><tr><td><p>Get more from your HPC investment! SchedMD, the company behind Slurm development, can answer your Slurm questions and explain our options for consultation, training, support, and migration.</p><p><a href="https://www.schedmd.com/services.php">Contact SchedMD</a></p></td></tr></table><details><summary><b>View more details about Slurm?</b></summary><table role="presentation"><tr><td><h3>Slurm at a glance</h3></td></tr><tr><td><p>Slurm provides massive scalability and can easily manage performance requirements for small cluster, large cluster, and supercomputer needs. Slurm outperforms competitive schedulers with compute rates at:</p></td></tr><tr><td><ul><li>100K+ nodes/GPU</li><li>17M+ jobs per day</li><li>120M+ jobs per week</li></ul></td></tr><tr><td><br><p>Slurm’s plug-in based architecture enables optimization and control in scheduling operations to meet organizational priorities. With first class resource management for GPUs, Slurm allows users to request GPU resources alongside CPUs. This flexibility ensures that jobs are executed quickly and efficiently, while maximizing resource utilization.</p><br></td></tr><tr><td><p>Other Slurm features include:</p></td></tr><td><ul><li>NVIDIA and AMD GPU support for AI, LLM, and ML environments</li><li>Advanced scheduling policies</li><li>Unique HPC, HTC, AI/ML workload expertise</li><li>Cloud bursting capabilities</li><li>Power saving capabilities, accounting, and reporting</li><li>Provided REST API daemon</li><li>Native support of containers</li><li>Tailored Slurm consulting and training available through SchedMD</li></ul></td></table></details>'''
+
+[parameters Required Settings]
+Order = 10
+
+    
+    [[parameters Virtual Machines ]]
+    Description = "The cluster, in this case, has two roles: the scheduler node with shared filer and the execute hosts. Configure which VM types to use based on the requirements of your application."
+    Order = 20
+
+        [[[parameter Region]]]
+        Label = Region
+        Description = Deployment Location
+        ParameterType = Cloud.Region
+
+        [[[parameter SchedulerMachineType]]]
+        Label = Scheduler VM Type
+        Description = The VM type for scheduler node
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_D4ads_v5
+
+        [[[parameter loginMachineType]]]
+        Label = Login node VM Type
+        Description = The VM type for login nodes.
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_D8as_v4
+
+        [[[parameter HPCMachineType]]]
+        Label = HPC VM Type
+        Description = The VM type for HPC execute nodes
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_F2s_v2
+
+        [[[parameter HTCMachineType]]]
+        Label = HTC VM Type
+        Description = The VM type for HTC execute nodes
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_F2s_v2
+
+        [[[parameter DynamicMachineType]]]
+        Label = Dyn VM Type
+        Description = The VM type for Dynamic execute nodes
+        ParameterType = Cloud.MachineType
+        DefaultValue = Standard_F2s_v2
+        Config.MultiSelect = true
+
+
+    [[parameters Auto-Scaling]]
+    Description = "The cluster can autoscale to the workload, adding execute hosts as jobs are queued. To enable this check the box below and choose the initial and maximum core counts for the cluster."
+    Order = 30
+
+        [[[parameter Autoscale]]]
+        Label = Autoscale
+        DefaultValue = true
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Start and stop execute instances automatically
+
+        [[[parameter MaxHPCExecuteCoreCount]]]
+        Label = Max HPC Cores
+        Description = The total number of HPC execute cores to start
+        DefaultValue = 100
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+        [[[parameter MaxHTCExecuteCoreCount]]]
+        Label = Max HTC Cores
+        Description = The total number of HTC execute cores to start
+        DefaultValue = 100
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+        [[[parameter MaxDynamicExecuteCoreCount]]]
+        Label = Max Dyn Cores
+        Description = The total number of Dynamic execute cores to start
+        DefaultValue = 100
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+        [[[parameter HPCMaxScalesetSize]]]
+        Label = Max VMs per VMSS
+        Description = The maximum number of VMs created per VM Scaleset e.g. switch in Slurm.
+        DefaultValue = 100
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 1
+        Config.IntegerOnly = true
+
+
+        [[[parameter HTCUseLowPrio]]]
+        Label = HTC Spot
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use Spot VMs for HTC execute hosts
+
+        [[[parameter HTCSpotMaxPrice]]]
+        Label = Max Price HTC
+        DefaultValue = -1
+        Description = Max price for Spot VMs in USD (value of -1 will not evict based on price)
+        Config.Plugin = pico.form.NumberTextBox
+        Conditions.Excluded := HTCUseLowPrio isnt true
+        Config.MinValue = -1
+
+        [[[parameter DynamicUseLowPrio]]]
+        Label = DynSpot
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Use Spot VMs for Dynamic execute hosts
+
+        [[[parameter DynamicSpotMaxPrice]]]
+        Label = Max Price Dyn
+        DefaultValue = -1
+        Description = Max price for Spot VMs in USD (value of -1 will not evict based on price)
+        Config.Plugin = pico.form.NumberTextBox
+        Conditions.Excluded := DynamicUseLowPrio isnt true
+        Config.MinValue = -1
+
+        [[[parameter NumberLoginNodes]]]
+        Label = Num Login Nodes
+        DefaultValue = 0
+        Description = Number of optional login nodes to create.
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 0
+        Config.MaxValue = 10000
+        Config.IntegerOnly = true
+
+    [[parameters Networking]]
+    Order = 40
+
+        [[[parameter SubnetId]]]
+        Label = Subnet ID
+        Description = Subnet Resource Path (ResourceGroup/VirtualNetwork/Subnet)
+        ParameterType = Azure.Subnet
+        Required = True
+
+    [[parameters High Availability]]
+    Order = 50
+    Description = "Slurm can be setup in HA mode - where slurmctld is running on two nodes with failover. Note that checking this box will require an external NFS, so any reference to the 'builtin' NFS will be hidden."
+        [[[parameter configuration_slurm_ha_enabled]]]
+        Label = Slurm HA Node
+        Description = Deploy with an additional HA node
+        DefaultValue = false
+        ParameterType = Boolean
+
+
+[parameters Network Attached Storage]
+Order = 15
+
+    [[parameters Shared Storage]]
+    Order = 10
+
+        [[[parameter About Shared Storage]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = '''<p>The directories <code>/sched</code> and <code>/shared</code> are network attached mounts and exist on all nodes of the cluster.<br>
+            <br>
+            Options for providing these mounts:<br> 
+            <strong>[Builtin]</strong>: The scheduler node is an NFS server that provides the mountpoint to the other nodes of the cluster (not supported for HA configurations).<br> 
+            <strong>[External NFS]</strong>: A network attached storage such as Azure Netapp Files, HPC Cache, or another VM running an NFS server provides the mountpoint.<br>
+            <strong>[Azure Managed Lustre]</strong>: An Azure Managed Lustre deployment provides the mountpoint.<br>        
+        </p>
+        <p>
+        Note: the cluster must be terminated for changes to filesystem mounts to take effect.
+        </p>'''
+        Conditions.Hidden := false
+
+    [[parameters Scheduler Mount]]
+    Order = 20
+    Label = File-system Mount for /sched
+    
+        [[[parameter About sched]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = ''' <p>Slurm's configuration is linked in from the <code>/sched</code> directory. It is managed by the scheduler node</p>'''
+        Order = 6
+
+        [[[parameter About sched part 2]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = ''' <p>To disable the built-in NFS export of the <code>/sched</code> directory, and to use an external filesystem, select the checkbox below.</p>'''
+        Order = 7
+        Conditions.Hidden := configuration_slurm_ha_enabled
+
+        [[[parameter UseBuiltinSched]]]
+        Label = Use Builtin NFS
+        Description = Use the builtin NFS for /sched
+        DefaultValue = true
+        ParameterType = Boolean
+        Conditions.Hidden := configuration_slurm_ha_enabled
+        Disabled = configuration_slurm_ha_enabled
+
+        [[[parameter NFSSchedDiskWarning]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p><b>Warning</b>: switching an active cluster over to NFS or Lustre from Builtin will delete the shared disk.</p>"
+        Conditions.Hidden := UseBuiltinSched || configuration_slurm_ha_enabled
+
+        [[[parameter NFSSchedType]]]        
+        Label = FS Type
+        ParameterType = StringList
+        Config.Label = Type of shared filesystem to use for this cluster
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="External NFS"; Value="nfs"], [Label="Azure Managed Lustre"; Value="lustre"]}
+        DefaultValue = nfs
+        Conditions.Hidden := UseBuiltinSched && !configuration_slurm_ha_enabled
+
+        [[[parameter NFSSchedAddress]]]
+        Label = IP Address
+        Description = The IP address or hostname of the NFS server or Lustre FS. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Hidden := UseBuiltinSched && !configuration_slurm_ha_enabled
+
+        [[[parameter NFSSchedExportPath]]]
+        Label = Export Path
+        Description = The path exported by the file system
+        DefaultValue = /sched
+        Conditions.Hidden := UseBuiltinSched && !configuration_slurm_ha_enabled
+
+        [[[parameter NFSSchedMountOptions]]]
+        Label = Mount Options
+        Description = NFS Client Mount Options        
+        Conditions.Hidden := UseBuiltinSched && !configuration_slurm_ha_enabled
+
+
+        [[[parameter SchedFilesystemSize]]]
+        Label = Size (GB)
+        Description = The filesystem size (cannot be changed after initial start)
+        DefaultValue = 30
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 10
+        Config.MaxValue = 10240
+        Config.IntegerOnly = true
+        Conditions.Excluded := !UseBuiltinSched || configuration_slurm_ha_enabled
+
+
+
+    [[parameters Default NFS Share]]
+    Order = 30
+    Label = File-system Mount for /shared
+
+        [[[parameter About shared]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = ''' <p>Users' home directories reside within the <code>/shared</code> mountpoint with the base homedir <code>/shared/home</code>.</p>'''
+        Order = 6
+
+        [[[parameter About shared part 2]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template = ''' <p>To disable the built-in NFS export of the <code>/shared</code> directory, and to use an external filesystem, select the checkbox below.</p>'''
+        Order = 7
+        Conditions.Hidden := configuration_slurm_ha_enabled
+
+        [[[parameter UseBuiltinShared]]]
+        Label = Use Builtin NFS
+        Description = Use the builtin NFS for /share
+        DefaultValue = true
+        ParameterType = Boolean
+        Conditions.Hidden := configuration_slurm_ha_enabled
+        Disabled = configuration_slurm_ha_enabled
+
+        [[[parameter NFSDiskWarning]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p><b>Warning</b>: switching an active cluster over to NFS or Lustre from Builtin will delete the shared disk.</p>"
+        Conditions.Hidden := UseBuiltinShared || configuration_slurm_ha_enabled
+
+        [[[parameter NFSType]]]        
+        Label = FS Type
+        ParameterType = StringList
+        Config.Label = Type of shared filesystem to use for this cluster
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="External NFS"; Value="nfs"], [Label="Azure Managed Lustre"; Value="lustre"]}
+        DefaultValue = nfs
+        Conditions.Hidden := UseBuiltinShared && !configuration_slurm_ha_enabled
+
+        [[[parameter NFSAddress]]]
+        Label = IP Address
+        Description = The IP address or hostname of the NFS server or Lustre FS. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Hidden := UseBuiltinShared && !configuration_slurm_ha_enabled
+
+        [[[parameter NFSSharedExportPath]]]
+        Label = Export Path
+        Description = The path exported by the file system
+        DefaultValue = /shared
+        Conditions.Hidden := UseBuiltinShared && !configuration_slurm_ha_enabled
+
+        [[[parameter NFSSharedMountOptions]]]
+        Label = Mount Options
+        Description = NFS Client Mount Options        
+        Conditions.Hidden := UseBuiltinShared && !configuration_slurm_ha_enabled
+
+
+        [[[parameter FilesystemSize]]]
+        Label = Size (GB)
+        Description = The filesystem size (cannot be changed after initial start)
+        DefaultValue = 100
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 10
+        Config.MaxValue = 10240
+        Config.IntegerOnly = true
+        Conditions.Excluded := !UseBuiltinShared || configuration_slurm_ha_enabled
+
+    [[parameters Additional NFS Mount]]
+    Order = 40
+    Label = Additional Filesystem Mount
+        [[[parameter Additional Shared FS Mount Readme]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<p>Mount another shared filesystem endpoint on the cluster nodes.</p>"
+        Order = 20
+
+        [[[parameter AdditionalNFS1]]]
+        HideLabel = true
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Add Shared Filesystem mount
+
+        [[[parameter AdditionalNFSType1]]]        
+        Label = FS Type
+        ParameterType = StringList
+        Config.Label = Shared filesystem type of the additional mount
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="External NFS"; Value="nfs"], [Label="Azure Managed Lustre"; Value="lustre"]}
+        DefaultValue = nfs
+        Conditions.Excluded := AdditionalNFS1 isnt true
+
+        [[[parameter AdditionalNFSAddress1]]]
+        Label = IP Address 
+        Description = The IP address or hostname of the additional mount. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Excluded := AdditionalNFS1 isnt true
+
+        [[[parameter AdditionalNFSMountPoint1]]]
+        Label = Mount Point
+        Description = The path at which to mount the Filesystem
+        DefaultValue = /data
+        Conditions.Excluded := AdditionalNFS1 isnt true
+
+        [[[parameter AdditionalNFSExportPath1]]]
+        Label = Export Path
+        Description = The path exported by the file system
+        DefaultValue = /anf-vol1/wrf/data
+        Conditions.Excluded := AdditionalNFS1 isnt true
+
+        [[[parameter AdditionalNFSMountOptions1]]]
+        Label = Mount Options
+        Description = Filesystem Client Mount Options
+        Conditions.Excluded := AdditionalNFS1 isnt true
+
+        [[[parameter AdditionalNFS2]]]
+        HideLabel = true
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Add Shared Filesystem mount
+
+        [[[parameter AdditionalNFSType2]]]        
+        Label = FS Type
+        ParameterType = StringList
+        Config.Label = Shared filesystem type of the additional mount
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Label="External NFS"; Value="nfs"], [Label="Azure Managed Lustre"; Value="lustre"]}
+        DefaultValue = nfs
+        Conditions.Excluded := AdditionalNFS2 isnt true
+
+        [[[parameter AdditionalNFSAddress2]]]
+        Label = IP Address 
+        Description = The IP address or hostname of the additional mount. Also accepts a list comma-separated addresses, for example, to mount a frontend load-balanced Azure HPC Cache.
+        Config.ParameterType = String
+        Conditions.Excluded := AdditionalNFS2 isnt true
+
+        [[[parameter AdditionalNFSMountPoint2]]]
+        Label = Mount Point
+        Description = The path at which to mount the Filesystem
+        DefaultValue = /apps
+        Conditions.Excluded := AdditionalNFS2 isnt true
+
+        [[[parameter AdditionalNFSExportPath2]]]
+        Label = Export Path
+        Description = The path exported by the file system
+        DefaultValue = /anf-vol1/wrf/apps
+        Conditions.Excluded := AdditionalNFS2 isnt true
+
+        [[[parameter AdditionalNFSMountOptions2]]]
+        Label = Mount Options
+        Description = Filesystem Client Mount Options
+        Conditions.Excluded := AdditionalNFS2 isnt true
+    
+
+[parameters Advanced Settings]
+Order = 20
+
+    [[parameters Azure Settings]]
+    Order = 10 
+
+        [[[parameter Credentials]]]
+        Description = The credentials for the cloud provider
+        ParameterType = Cloud.Credentials
+
+        [[[parameter ManagedIdentity]]]
+        Label = Managed Id
+        Description = Optionally assign an Azure user assigned managed identity to all nodes to access Azure resources using assigned roles.
+        ParameterType = Azure.ManagedIdentity
+        DefaultValue = =undefined
+
+        [[[parameter BootDiskSize]]]
+        Description = Optional: Size of the OS/boot disk in GB for all nodes in the cluster (leave at 0 to use Image size)
+        ParameterType = Integer
+        Config.Plugin = pico.form.NumberTextBox
+        Config.MinValue = 0
+        Config.MaxValue = 32,000
+        Config.IntegerOnly = true
+        Config.Increment = 64
+        DefaultValue = 0
+
+    [[parameters Slurm Settings ]]
+
+    Order = 5
+
+        [[[parameter slurm_version_warning]]]
+        HideLabel = true
+        Config.Plugin = pico.widget.HtmlTemplateWidget
+        Config.Template := "<table role=\"presentation\"><tr><td> <b>Note: For SLES HPC, we can only install the version supported by SLES HPC's zypper repos. At the time of this release, that is 23.02.7</b></td></tr></table>"
+
+
+        [[[parameter configuration_slurm_version]]]
+        Required = True
+        Label = Slurm Version
+        Description = Version of Slurm to install on the cluster
+        ParameterType = StringList
+        Config.Plugin = pico.form.Dropdown
+        Config.FreeForm = true
+        Config.Entries := {[Value="23.02.7-4"], [Value="23.11.7-1"]}
+        DefaultValue = 23.11.7-1
+
+        [[[parameter configuration_slurm_accounting_enabled]]]
+        Label = Job Accounting
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Configure Slurm job accounting
+
+	[[[parameter slurm_database_warning]]]
+	HideLabel = true
+	Config.Plugin = pico.widget.HtmlTemplateWidget
+	Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
+	Config.Template := "<table role=\"presentation\"><tr><td> <b>Note: Checking this box will create persistent databases and tables in SQL DB provided. Deleting this cluster will not automatically delete those databases. User is responsible for periodically purging/archiving their slurm databases to maintain costs.</b></td></tr></table>"
+
+        [[[parameter configuration_slurm_accounting_url]]]
+        Label = Slurm DBD URL
+        Description = URL of the database to use for Slurm job accounting
+        Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
+
+        [[[parameter configuration_slurm_accounting_storageloc]]]
+        Label = Database name
+        Description = Database name to store slurm accounting records
+        Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
+
+        [[[parameter configuration_slurm_accounting_user]]]
+        Label = Slurm DBD User
+        Description = User for Slurm DBD admin
+        Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
+
+        [[[parameter configuration_slurm_accounting_password]]]
+        Label = Slurm DBD Password
+        Description = Password for Slurm DBD admin
+        ParameterType = Password
+        Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
+
+        [[[parameter configuration_slurm_accounting_certificate_url]]]
+        Label = SSL Certificate URL
+        Description = URL to fetch SSL certificate for authentication to DB. Use AzureCA.pem (embedded) for use with deprecated MariaDB instances.
+        Conditions.Excluded := configuration_slurm_accounting_enabled isnt true
+        ParameterType = StringList
+        Config.Plugin = pico.form.Dropdown
+        Config.FreeForm = true
+        Config.Entries := {[Value=""], [Value="AzureCA.pem"]}
+        DefaultValue = ""
+
+        [[[parameter configuration_slurm_shutdown_policy]]]
+	    Label = Shutdown Policy
+        description = By default, autostop will Delete stopped VMS for lowest cost.  Optionally, Stop/Deallocate the VMs for faster restart instead.
+        DefaultValue = Terminate
+        config.plugin = pico.control.AutoCompleteDropdown
+            [[[[list Config.Entries]]]]
+            Name = Terminate
+            Label = Terminate
+            [[[[list Config.Entries]]]]
+            Name = Deallocate
+            Label = Deallocate
+
+        [[[parameter EnableTerminateNotification]]]
+        Label = Enable Termination notifications
+        DefaultValue = False        
+
+        [[[parameter additional_slurm_config]]]
+        Label = Slurm Configuration
+        Description = Any additional lines to add to slurm.conf
+        ParameterType = Text
+	
+        [[[parameter configuration_slurm_launch_parameters]]]
+        Label = Launch Parameters
+        Description = Deploy Slurm with Launch Parameters (comma delimited)
+        DefaultValue = ''
+        ParameterType = String
+
+
+
+    [[parameters Software]]
+    Description = "Specify the scheduling software, and base OS installed on all nodes, and optionally the cluster-init and chef versions from your locker."
+    Order = 10
+
+        [[[parameter NodeNameIsHostname]]]
+        Label = Name As Hostname
+        Description = Should the hostname match the nodename for execute nodes?
+        ParameterType = Boolean
+        DefaultValue = true
+
+        [[[parameter NodeNamePrefix]]]
+        Label = Node Prefix
+        Description = Prefix for generated node names, i.e. "prefix-" generates prefix-nodearray-1. Use 'Cluster Prefix' to get $ClusterName-nodearray-1
+        ParameterType = StringList
+        Config.Plugin = pico.form.Dropdown
+        Config.FreeForm = true
+        DefaultValue = "Cluster Prefix"
+        Config.Entries := {[Value=""], [Value="Cluster Prefix"]}
+        Conditions.Hidden := NodeNameIsHostname != true
+
+        [[[parameter SchedulerHostName]]]
+        Label = Scheduler Hostname
+        Description = Hostname of scheduler. 'Generated' uses the default generated hostname. 'Cluster Prefix' will generate $ClusterName-scheduler.
+        ParameterType = StringList
+        Config.Plugin = pico.form.Dropdown
+        Config.FreeForm = true
+        DefaultValue = "Cluster Prefix"
+        Config.Entries := {[Value="Generated"], [Value="Cluster Prefix"]}
+        Conditions.Hidden := NodeNameIsHostname != true
+
+        [[[parameter SchedulerImageName]]]
+        Label = Scheduler OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = almalinux8
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.ubuntu20", "cycle.image.ubuntu22", "cycle.image.sles15-hpc", "almalinux8"}
+
+        [[[parameter HPCImageName]]]
+        Label = HPC OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = almalinux8
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.ubuntu20", "cycle.image.ubuntu22", "cycle.image.sles15-hpc", "almalinux8"}
+
+        [[[parameter HTCImageName]]]
+        Label = HTC OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = almalinux8
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.ubuntu20", "cycle.image.ubuntu22", "cycle.image.sles15-hpc", "almalinux8"}
+
+        [[[parameter DynamicImageName]]]
+        Label = Dynamic OS
+        ParameterType = Cloud.Image
+        Config.OS = linux
+        DefaultValue = almalinux8
+        Config.Filter := Package in {"cycle.image.centos7", "cycle.image.ubuntu20", "cycle.image.ubuntu22", "cycle.image.sles15-hpc", "almalinux8"}
+
+        [[[parameter SchedulerClusterInitSpecs]]]
+        Label = Scheduler Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to the scheduler node
+        ParameterType = Cloud.ClusterInitSpecs
+    
+        [[[parameter HTCClusterInitSpecs]]]
+        Label = HTC Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to HTC execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+        
+        [[[parameter HPCClusterInitSpecs]]]
+        Label = HPC Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to HPC execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter DynamicClusterInitSpecs]]]
+        Label = Dyn Cluster-Init
+        DefaultValue = =undefined
+        Description = Cluster init specs to apply to Dynamic execute nodes
+        ParameterType = Cloud.ClusterInitSpecs
+
+        [[[parameter configuration_slurm_disable_pmc]]]
+        Label = Disable PMC
+        Description = Disable packages from packages.microsoft.com
+        ParameterType = Boolean
+        DefaultValue = false
+	
+
+    [[parameters Advanced Networking]]
+
+        [[[parameter ReturnProxy]]]
+        Label = Return Proxy
+        DefaultValue = true
+        ParameterType = Boolean
+        Config.Label = Use SSH tunnel to connect to CycleCloud (required if direct access is blocked)
+
+        [[[parameter UsePublicNetwork]]]
+        Label = Public Head Node
+        DefaultValue = true
+        ParameterType = Boolean
+        Config.Label = Access scheduler node from the Internet
+
+        [[[parameter ExecuteNodesPublic]]]
+        Label = Public Execute
+        DefaultValue = false
+        ParameterType = Boolean
+        Config.Label = Access execute nodes from the Internet
+        Conditions.Excluded := UsePublicNetwork isnt true
+
+        [[[parameter SchedulerZone]]]
+        Label = Scheduler Zone
+        Description = The availability zone in which to deploy the scheduler node.
+        DefaultValue = =undefined
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Value=1], [Value=2], [Value=3], [Value=undefined; Label="Any"]}
+
+        [[[parameter SchedulerHAZone]]]
+        Label = Scheduler HA Zone
+        Description = The availability zone in which to deploy the scheduler-ha node.
+        DefaultValue = =undefined
+        Config.Plugin = pico.form.Dropdown
+        Config.Entries := {[Value=1], [Value=2], [Value=3], [Value=undefined; Label="Any"]}
+        Conditions.Hidden := configuration_slurm_ha_enabled isnt true
+
+    [[parameters Node Health Checks]]
+    Description = "Section for configuring Node Health Checks"
+    Order = 12
+
+        [[[parameter EnableNodeHealthChecks]]]
+        Label = Enable NHC tests
+        DefaultValue = false
+        Widget.Plugin = pico.form.BooleanCheckBox
+        Widget.Label = Run Node Health Checks on startup

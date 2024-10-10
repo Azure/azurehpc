@@ -25,18 +25,26 @@ NPROCS=`cat $PBS_NODEFILE | wc -l`
 echo "NPROCS:"$NPROCS
 
 echo "PBS_O_WORKDIR:" $PBS_O_WORKDIR
-echo "WRFROOT:" ${WRFROOT}
 echo "INPUTDIR: " ${INPUTDIR}
 
-cd $PBS_O_WORKDIR
-ln -s ${WRFROOT}/run/* .
-cp ${INPUTDIR}/*_d01 .
-cp ${INPUTDIR}/namelist.input .
+cd ${INPUTDIR}
+pwd 
 
 mpi_options="-x LD_LIBRARY_PATH "
-if [ -n $LD_PRELOAD ]; then
-    mpi_options+="-x LD_PRELOAD"
-fi
+#if [ -n $LD_PRELOAD ]; then
+#    mpi_options+="-x LD_PRELOAD"
+#fi
 echo "PBS_NODEFILE:" $PBS_NODEFILE
+echo "mpi_options: " $mpi_options
 
-mpirun $mpi_options -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa wrf.exe
+#cp -f namelist.input namelist.input.old
+#cp -f /data/wrfdata/WRF_benchmarks/cases/new_conus2.5km/namelist.input .
+cp /apps/hbv2/wps-openmpi/WPS-4.1/met_em.d0*.nc .
+
+#### Run real.exe
+echo "-- Run real.exe"
+mpirun $mpi_options -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa ./real.exe
+#mpirun --allow-run-as-root ./real.exe
+
+
+

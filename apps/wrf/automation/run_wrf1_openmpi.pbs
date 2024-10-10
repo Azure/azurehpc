@@ -1,0 +1,59 @@
+#!/bin/bash
+SKU_TYPE=${1:-$SKU_TYPE}
+SKU_TYPE=${SKU_TYPE:-"hbv2"}
+
+path_scr=/apps/hbv2/scripts
+WRFDAT="/data/wrfdata"
+WPSDIR=${WRFDAT}/wpsdir
+WRFDIR=${WRFDAT}/wrfdir
+WRKDAY=${2:-$WRKDAY}
+
+ANO=`echo ${WRKDAY} | cut -c 1-4`
+MES=`echo ${WRKDAY} | cut -c 5-6`
+DIA=`echo ${WRKDAY} | cut -c 7-8`
+HOR=`echo ${WRKDAY} | cut -c 9-10`
+
+#DIAFIM=`date +%Y%m%d --date="$ANO$MES$DIA +5 day"`
+DIAFIM=`echo ${WRKDAY} 132 | awk -f $path_scr/fwddatan.awk`
+
+ANOf=`echo ${DIAFIM} | cut -c 1-4`
+MESf=`echo ${DIAFIM} | cut -c 5-6`
+DIAf=`echo ${DIAFIM} | cut -c 7-8`
+HORF=`echo ${DIAFIM} | cut -c 9-10`
+
+echo $WRFDAT $WPSDIR $WRFDIR
+
+mkdir -p $WRFDIR/$WRKDAY
+
+echo "source envs"
+source /data/azurehpc/apps/wrf/env-variables
+
+NPROCS=`cat $PBS_NODEFILE | wc -l`
+echo "NPROCS:"$NPROCS
+
+cd $WRFDIR/$WRKDAY
+echo "cd $WRFDIR/$WRKDAY"
+
+ln -s ${WPSDIR}/${WRKDAY}/met_em* $WRFDIR/$WRKDAY
+echo "ln -s ${WPSDIR}/${WRKDAY}/met_em* ."
+ln -s ${WRFDAT}/tables/wrf/* $WRFDIR/$WRKDAY
+echo "ln -s ${WRFDAT}/tables/wrf/* ."
+cp ${WRFDAT}/tables/namelist/namelist.input $WRFDIR/$WRKDAY
+
+sed -i s/aai/${ANO}/g namelist.input
+sed -i s/mmi/${MES}/g namelist.input
+sed -i s/ddi/${DIA}/g namelist.input
+sed -i s/hhi/${HOR}/g namelist.input
+
+sed -i s/aaf/${ANOf}/g namelist.input
+sed -i s/mmf/${MESf}/g namelist.input
+sed -i s/ddf/${DIAf}/g namelist.input
+sed -i s/hhf/${HORF}/g namelist.input
+
+mpi_options="-x LD_LIBRARY_PATH "
+if [ -n $LD_PRELOAD ]; then
+    mpi_options+="-x LD_PRELOAD"
+fi
+echo "PBS_NODEFILE:" $PBS_NODEFILE
+
+mpirun $mpi_options -n $NPROCS --hostfile $PBS_NODEFILE --bind-to numa real.exe
