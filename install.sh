@@ -5,6 +5,12 @@ if [ ! -d "$DIR/bin" ]; then
     mkdir $DIR/bin
 fi
 
+if ! command -v az &> /dev/null
+then
+    echo "azure CLI not installed. Cannot continue"
+    exit
+fi
+
 export PATH=${DIR}/bin:$PATH
 export azhpc_dir=$DIR
 export azhpc_pypath=$(az --version | grep "Python location" | cut -d' ' -f3 | sed "s/'//g")
@@ -17,6 +23,7 @@ for cmd in "" build connect destroy run_install get init preprocess run scp stat
         cmd_name=azhpc
         cmd_launch=azhpc.py
     else
+        echo "installing $cmd" 
         cmd_name=azhpc-$cmd
         cmd_launch="azhpc.py $cmd"
     fi
