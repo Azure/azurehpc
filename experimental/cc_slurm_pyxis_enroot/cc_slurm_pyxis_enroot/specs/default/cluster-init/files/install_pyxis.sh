@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYXIS_VER=0.19.0
+PYXIS_VER=0.20.0
 TMP_DIR=/tmp
 SHARED_DIR=/sched/pyxis
 
