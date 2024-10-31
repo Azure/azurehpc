@@ -39,7 +39,7 @@ function install_compute_node() {
 }
 
 # Ensure there are no broken dependencies
-NEEDRESTART_MODE=a apt-get --yes --fix-broken install
+apt-get --yes --fix-broken install
 
 if is_slurm_controller; then
    install_from_source
