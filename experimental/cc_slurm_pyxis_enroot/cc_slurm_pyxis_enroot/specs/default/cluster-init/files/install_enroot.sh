@@ -3,7 +3,7 @@
 source $CYCLECLOUD_SPEC_PATH/files/common_functions.sh
 
 ENROOT_VERSION='3.5.0-1'
-LIBNVIDIA_VERSION='1.15.0-1'
+LIBNVIDIA_VERSION='1.16.2-1'
 
 # Install enroot RPM packages on compute nodes
 if is_compute_node; then
